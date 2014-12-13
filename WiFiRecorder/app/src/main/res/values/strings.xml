@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">WiFiRecorder</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_record">Record</string>
+    <string name="action_record_stop">Stop</string>
+    <string name="action_exportdb">Export Database</string>
+
+    <color name="colorPrimary">#de4141</color>
+    <color name="colorPrimaryDark">#b52b2b</color>
+
+    <string name="title_activity_one_wifi_network">OneWifiNetwork</string>
+    <string name="action_settings">Settings</string>
+
+</resources>

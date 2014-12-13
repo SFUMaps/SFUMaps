@@ -1,0 +1,28 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="Table Name"
+        android:background="@color/colorPrimary"
+        android:textColorHint="#eeeeee"
+        android:textColor="#ffffff"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="15dp"
+        android:singleLine="true"
+        android:inputType="textNoSuggestions"
+        android:textCursorDrawable="@null"
+        android:id="@+id/allAPsTableName"/>
+
+    <ListView
+        android:id="@+id/allWifiAPs_lv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/allAPsTableName"/>
+
+</RelativeLayout>
