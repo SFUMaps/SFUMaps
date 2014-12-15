@@ -17,4 +17,8 @@
         android:showAsAction="never"
         android:title="@string/action_exportdb" />
 
+    <item android:id="@+id/view_tables"
+        android:orderInCategory="103"
+        android:title="@string/view_tables" />
+
 </menu>

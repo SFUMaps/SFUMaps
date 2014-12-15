@@ -2,38 +2,36 @@ package me.gurinderhans.wifirecorder;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by ghans on 14-12-10.
  */
 public class WiFiDatabaseManager extends SQLiteOpenHelper {
-    private final String TAG = getClass().getSimpleName();
-
     public static final String DATABASE_NAME = "wifi_data";
     public static final int DATABASE_VERSION = 1;
     public static final String TABLE_NAME = "apsdata";
-
     // KEYS for Table
     public static final String KEY_ROWID = "_id";
     public static final String KEY_SSID = "ssid";
     public static final String KEY_BSSID = "bssid";
     public static final String KEY_FREQ = "freq";
-    public static final String KEY_LEVEL = "level";
+    public static final String KEY_RSSI = "level";
     public static final String KEY_TIME = "rec_time";
-
     public static final String DBPATH = "/WiFiRecorder/dbs/";
-
+    private final String TAG = getClass().getSimpleName();
     Context context;
 
     public WiFiDatabaseManager(Context context) {
@@ -51,7 +49,7 @@ public class WiFiDatabaseManager extends SQLiteOpenHelper {
     }
 
     // Adding new contact
-    void addApData(String ssid, String bssid, String freq, String level, String time, String tbl_name) {
+    void addApData(String ssid, String bssid, String freq, String rssi, String time, String tbl_name) {
         SQLiteDatabase db = getWritableDatabase();
 
         Log.i(TAG, "recording data");
@@ -62,7 +60,7 @@ public class WiFiDatabaseManager extends SQLiteOpenHelper {
                 KEY_SSID + " TEXT, " +
                 KEY_BSSID + " TEXT, " +
                 KEY_FREQ + " TEXT, " +
-                KEY_LEVEL + " TEXT, " +
+                KEY_RSSI + " TEXT, " +
                 KEY_TIME + " TEXT)";
         db.execSQL(CREATE_CONTACTS_TABLE);
 
@@ -70,7 +68,7 @@ public class WiFiDatabaseManager extends SQLiteOpenHelper {
         values.put(KEY_SSID, ssid);
         values.put(KEY_BSSID, bssid);
         values.put(KEY_FREQ, freq);
-        values.put(KEY_LEVEL, level);
+        values.put(KEY_RSSI, rssi);
         values.put(KEY_TIME, time);
 
         // Inserting Row
@@ -89,7 +87,7 @@ public class WiFiDatabaseManager extends SQLiteOpenHelper {
 
         if (!folder.exists()) success = folder.mkdirs();
 
-        if(success) {
+        if (success) {
 
             FileChannel source, destination;
 
@@ -105,12 +103,57 @@ public class WiFiDatabaseManager extends SQLiteOpenHelper {
                 destination.transferFrom(source, 0, source.size());
                 source.close();
                 destination.close();
-                Toast.makeText(context, "DB Exported", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, "DB Exported", Toast.LENGTH_SHORT).show();
                 return backupDB;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         return null;
+    }
+
+    public ArrayList<String> getTables() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        ArrayList<String> tables = new ArrayList<>();
+
+        String GET_TABLES_QUERY = "SELECT name FROM sqlite_master WHERE type='table'";
+
+        Cursor cursor = db.rawQuery(GET_TABLES_QUERY, null);
+        if (cursor.moveToFirst()) {
+            do tables.add(cursor.getString(0));
+            while (cursor.moveToNext());
+        } else {
+            //do something if cursor is unable to proceed
+            Log.i("ERROR", "Unable to move cursor!");
+        }
+        db.close();
+        return tables;
+    }
+
+    public ArrayList<HashMap<String, String>> getTableData(String tablename) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        ArrayList<HashMap<String, String>> data = new ArrayList<>();
+
+        String GET_TABLE_DATA_QUERY = "SELECT * FROM " + tablename;
+
+        Cursor cursor = db.rawQuery(GET_TABLE_DATA_QUERY, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                HashMap<String, String> tableRow = new HashMap<>();
+//                tableRow.put(KEY_ROWID, cursor.getString(0));
+                tableRow.put(KEY_SSID, cursor.getString(1));
+                tableRow.put(KEY_BSSID, cursor.getString(2));
+                tableRow.put(KEY_FREQ, cursor.getString(3));
+                tableRow.put(KEY_RSSI, cursor.getString(4));
+                tableRow.put(KEY_TIME, cursor.getString(5));
+
+                data.add(tableRow);
+            } while (cursor.moveToNext());
+        }
+
+        return data;
     }
 }

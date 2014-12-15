@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -49,7 +50,7 @@ public class OneWifiNetwork extends Activity {
         thisSSID = getIntent().getExtras().getString(MainActivity.KEY_SSID_SEND);
 
         getActionBar().setTitle(thisSSID);
-        getActionBar().setElevation(0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) getActionBar().setElevation(0);
 
         onewifiTableName = (EditText) findViewById(R.id.onewifiTableName);
 
@@ -61,7 +62,7 @@ public class OneWifiNetwork extends Activity {
         mWiFiDatabaseManager = new WiFiDatabaseManager(context);
 
         int[] ids = {R.id.ssid, R.id.bssid, R.id.freq, R.id.level};
-        String[] keys = {WiFiDatabaseManager.KEY_SSID, WiFiDatabaseManager.KEY_BSSID, WiFiDatabaseManager.KEY_FREQ, WiFiDatabaseManager.KEY_LEVEL};
+        String[] keys = {WiFiDatabaseManager.KEY_SSID, WiFiDatabaseManager.KEY_BSSID, WiFiDatabaseManager.KEY_FREQ, WiFiDatabaseManager.KEY_RSSI};
 
         mSimpleAdapter = new SimpleAdapter(context, mSortedAPsList, R.layout.wifiap, keys, ids);
 
@@ -96,7 +97,7 @@ public class OneWifiNetwork extends Activity {
                         ap.put(WiFiDatabaseManager.KEY_SSID, result.SSID);
                         ap.put(WiFiDatabaseManager.KEY_BSSID, result.BSSID);
                         ap.put(WiFiDatabaseManager.KEY_FREQ, result.frequency + " MHz");
-                        ap.put(WiFiDatabaseManager.KEY_LEVEL, result.level + "");
+                        ap.put(WiFiDatabaseManager.KEY_RSSI, result.level + "");
 
                         String rec_time = System.currentTimeMillis() + "";
 
