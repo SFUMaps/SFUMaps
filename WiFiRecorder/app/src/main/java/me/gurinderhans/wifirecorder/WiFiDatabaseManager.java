@@ -153,6 +153,7 @@ public class WiFiDatabaseManager extends SQLiteOpenHelper {
                 data.add(tableRow);
             } while (cursor.moveToNext());
         }
+        db.close();
 
         return data;
     }

@@ -23,10 +23,12 @@ WIFIS = ["SFUNET", "SFUNET-SECURE", "eduroam"]
 
 
 def fetchTables(cur):
-    TABLE_EXCEPTIONS = []
-    TABLE_EXCEPTIONS = ["apsdata_asbtotasc1entrhallway", "apsdata_csiltotasc1mainlvl", "apsdata_csiltotascmainlvlRfromAQ", "apsdata_aqtoblussonhall", "apsdata_blussonhallREVERSE"]
+    # VALID_TABLES = ["apsdata_aqmainmacmsideREVERSE", "apsdata_aqmacmtoedbside", "apsdata_aqmainedbside"]
+    VALID_TABLES = ["apsdata_sfusurreylevel3000falside", "apsdata_sfusurreylevel3000",
+    "apsdata_sfusurreylevel4000falside", "apsdata_sfusurreylevel4000",
+    "apsdata_sfusurreylevel5000falside", "apsdata_sfusurreylevel5000"]
     cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    tables = [i[0] for i in cur.fetchall()[1:] if ((i[0] not in TABLE_EXCEPTIONS) and ("tasc" not in i[0]))]
+    tables = [i[0] for i in cur.fetchall()[1:] if i[0] in VALID_TABLES]
     return tables
 
 """
@@ -55,13 +57,14 @@ def filterAPs(data):
         # remove id from tuple with [1:]
         tmpData = [j[1:] for j in data if j[1] == i]
         tmpData = [j for j in getStrongestBssids(tmpData) if int(j[3]) > GOOD_RSSI_VAL]
-        tmpData = sorted(tmpData, key = lambda x:int(x[-1]))
+        # tmpData = sorted(tmpData, key = lambda x:int(x[-2]), reverse=True) # sorting by rssi
+        tmpData = sorted(tmpData, key = lambda x:int(x[-1])) #sorting by time
         eachWifiData.append(tmpData)
 
 
     for i in eachWifiData:
         print
-        print "+ + + + + + "+i[0][0]+" + + + + + + +"
+        print "+ + + + + + "+(i[0][0])+" - ",len(i)," + + + + + + +"
         print
         for j in i: print j
 
@@ -76,7 +79,7 @@ with con:
         print; print; print """
         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-        """,i.upper(),"""
+        """,i,"""
         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
         """;print

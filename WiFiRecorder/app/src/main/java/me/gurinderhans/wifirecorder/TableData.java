@@ -9,6 +9,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -23,12 +24,13 @@ import java.util.List;
 
 public class TableData extends Activity {
 
-    public final String TAG = getClass().getSimpleName();
-
     public static final String KEY_RSSI_DIFFERENCE = "rssi_diff";
     public static final String KEY_RECORDED_VAL = "recorded_val";
 
+    public final String TAG = getClass().getSimpleName();
+
     int GOOD_RSSI_VAL = -65;
+
     ArrayList<String> ALL_SSIDS = new ArrayList<>();
 
     WiFiDatabaseManager mWifiDatabaseManager;
@@ -36,7 +38,6 @@ public class TableData extends Activity {
     ArrayList<HashMap<String, String>> allData;
     ArrayList<HashMap<String, String>> matchingSignalsPickedUp = new ArrayList<>();
     String tableName;
-
 
 
     WifiManager wifiManager;
@@ -51,10 +52,10 @@ public class TableData extends Activity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) getActionBar().setElevation(0);
 
-        ALL_SSIDS.add("8EA535");
-//        ALL_SSIDS.add("SFUNET");
-//        ALL_SSIDS.add("SFUNET-SECURE");
-//        ALL_SSIDS.add("eduroam");
+//        ALL_SSIDS.add("8EA535");
+        ALL_SSIDS.add("SFUNET");
+        ALL_SSIDS.add("SFUNET-SECURE");
+        ALL_SSIDS.add("eduroam");
 
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
@@ -103,9 +104,9 @@ public class TableData extends Activity {
                         HashMap<String, String> map = scanResults.get(i);
                         int recordedVal = Integer.parseInt(allData.get(i).get(WiFiDatabaseManager.KEY_RSSI));
                         int newVal = Integer.parseInt(scanResults.get(i).get(WiFiDatabaseManager.KEY_RSSI));
-                        map.put(KEY_RSSI_DIFFERENCE, "Difference: "+Math.abs(Math.abs(recordedVal) - Math.abs(newVal))+"");
-                        map.put(KEY_RECORDED_VAL, "Recorded RSSI: "+recordedVal+"");
-                        map.put(WiFiDatabaseManager.KEY_RSSI, "Current RSSI: "+newVal);
+                        map.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + "");
+                        map.put(KEY_RECORDED_VAL, "Recorded RSSI: " + recordedVal + "");
+                        map.put(WiFiDatabaseManager.KEY_RSSI, "Current RSSI: " + newVal);
                         matchingSignalsPickedUp.add(map);
                     }
                 }
@@ -118,7 +119,7 @@ public class TableData extends Activity {
             }
         };
 
-        showData(ALL_SSIDS);
+//        showData(ALL_SSIDS);
 
     }
 
@@ -131,7 +132,8 @@ public class TableData extends Activity {
             Collections.sort(d, new SortByTime(WiFiDatabaseManager.KEY_TIME));
             allData.addAll(d);
         }
-//        mSimpleAdapter.notifyDataSetChanged();
+
+        Log.i(TAG, allData+"");
 
         mHandler = new Handler();
         mHandler.removeCallbacks(compareRunnable);
