@@ -16,4 +16,7 @@
     <string name="title_activity_tables_list">TablesListActivity</string>
     <string name="title_activity_table_data">TableData</string>
 
+    <string name="pager_title_visibleaps">Visible APs</string>
+    <string name="pager_title_recordedaps">Recorded APs</string>
+
 </resources>
