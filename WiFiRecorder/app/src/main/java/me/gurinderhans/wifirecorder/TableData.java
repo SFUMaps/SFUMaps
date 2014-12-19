@@ -54,7 +54,6 @@ public class TableData extends Activity implements ActionBar.TabListener {
         }
 
 
-
 //        showData(ALL_SSIDS);
 
     }

@@ -5,8 +5,8 @@
     tools:context="me.gurinderhans.wifirecorder.TablesListActivity">
 
     <ListView
+        android:id="@+id/tablesListView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tablesListView"/>
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>

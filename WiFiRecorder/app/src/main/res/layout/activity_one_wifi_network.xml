@@ -5,24 +5,24 @@
     tools:context="me.gurinderhans.wifirecorder.OneWifiNetwork">
 
     <EditText
+        android:id="@+id/onewifiTableName"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="Table Name"
         android:background="@color/colorPrimary"
-        android:textColorHint="#eeeeee"
-        android:textColor="#ffffff"
-        android:paddingTop="10dp"
+        android:hint="Table Name"
+        android:inputType="textNoSuggestions"
         android:paddingBottom="10dp"
         android:paddingLeft="15dp"
+        android:paddingTop="10dp"
         android:singleLine="true"
-        android:inputType="textNoSuggestions"
-        android:textCursorDrawable="@null"
-        android:id="@+id/onewifiTableName"/>
-    
+        android:textColor="#ffffff"
+        android:textColorHint="#eeeeee"
+        android:textCursorDrawable="@null" />
+
     <ListView
+        android:id="@+id/oneWifiListView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/onewifiTableName"
-        android:id="@+id/oneWifiListView" />
+        android:layout_below="@id/onewifiTableName" />
 
 </RelativeLayout>

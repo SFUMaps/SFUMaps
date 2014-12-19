@@ -20,8 +20,6 @@ import java.util.HashMap;
  * Created by ghans on 14-12-10.
  */
 public class WiFiDatabaseManager extends SQLiteOpenHelper {
-    private final String TAG = getClass().getSimpleName();
-
     public static final String DATABASE_NAME = "wifi_data";
     public static final int DATABASE_VERSION = 1;
     public static final String TABLE_NAME = "apsdata";
@@ -32,12 +30,9 @@ public class WiFiDatabaseManager extends SQLiteOpenHelper {
     public static final String KEY_FREQ = "freq";
     public static final String KEY_RSSI = "level";
     public static final String KEY_TIME = "rec_time";
-
     public static final String KEY_TABLE_NAME = "tableName";
-
     public static final String DBPATH = "/WiFiRecorder/dbs/";
-
-
+    private final String TAG = getClass().getSimpleName();
     Context context;
 
     public WiFiDatabaseManager(Context context) {

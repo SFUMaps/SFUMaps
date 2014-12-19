@@ -56,10 +56,12 @@ public class VisibleAPsFragment extends Fragment {
         return fragment;
     }
 
+    //TODO: make ssidSelectorDialog work for this
+    //TODO: add broadcast wifi scanner method to this
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.visible_aps_fragment, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_visible_aps, container, false);
 
         setHasOptionsMenu(true);
 
@@ -80,7 +82,7 @@ public class VisibleAPsFragment extends Fragment {
         int[] ids = {R.id.ssid, R.id.bssid, R.id.freq, R.id.level, R.id.rssi_diff, R.id.recorded_val};
         String[] keys = {WiFiDatabaseManager.KEY_SSID, WiFiDatabaseManager.KEY_BSSID, WiFiDatabaseManager.KEY_FREQ, WiFiDatabaseManager.KEY_RSSI, KEY_RSSI_DIFFERENCE, KEY_RECORDED_VAL};
 
-        mSimpleAdapter = new SimpleAdapter(context, matchingSignalsPickedUp, R.layout.wifi_ap_comparer, keys, ids);
+        mSimpleAdapter = new SimpleAdapter(context, matchingSignalsPickedUp, R.layout.lv_item_wifi_ap_comparer, keys, ids);
 
         ListView tableDataListView = (ListView) rootView.findViewById(R.id.visibleTableDataListView);
         tableDataListView.setAdapter(mSimpleAdapter);

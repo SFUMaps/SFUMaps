@@ -26,7 +26,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
-        if(position == 0) return new VisibleAPsFragment().newInstance(tableName);
+        if (position == 0) return new VisibleAPsFragment().newInstance(tableName);
         else return new RecordedAPsFragment().newInstance(tableName);
     }
 

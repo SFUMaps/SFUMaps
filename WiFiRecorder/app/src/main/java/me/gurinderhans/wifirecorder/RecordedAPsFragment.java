@@ -40,7 +40,7 @@ public class RecordedAPsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.recorded_aps_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_recorded_aps, container, false);
 
         setHasOptionsMenu(true);
 
@@ -56,7 +56,7 @@ public class RecordedAPsFragment extends Fragment {
         int[] ids = {R.id.ssid, R.id.bssid, R.id.freq, R.id.level};
         String[] keys = {WiFiDatabaseManager.KEY_SSID, WiFiDatabaseManager.KEY_BSSID, WiFiDatabaseManager.KEY_FREQ, WiFiDatabaseManager.KEY_RSSI};
 
-        mSimpleAdapter = new SimpleAdapter(context, allData, R.layout.wifiap, keys, ids);
+        mSimpleAdapter = new SimpleAdapter(context, allData, R.layout.lv_item_wifiap, keys, ids);
 
         ListView tableDataListView = (ListView) rootView.findViewById(R.id.recordTableDataListView);
         tableDataListView.setAdapter(mSimpleAdapter);

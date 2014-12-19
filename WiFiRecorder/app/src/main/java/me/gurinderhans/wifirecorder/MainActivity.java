@@ -1,8 +1,10 @@
 package me.gurinderhans.wifirecorder;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -31,52 +33,49 @@ public class MainActivity extends Activity {
 
     public static final String KEY_SSID_SEND = "wifiSSID";
     private final String TAG = getClass().getSimpleName();
-    Handler mHandler;
-    SimpleAdapter mSimpleAdapter;
-    WifiManager wifiManager;
-    WiFiDatabaseManager mWiFiDatabaseManager;
-
-    ArrayList<HashMap<String, String>> mSortedAPsList;
-
-    Context context;
-
     boolean record;
 
+    SimpleAdapter mSimpleAdapter;
+    WifiManager service_WifiManager;
+    WifiReceiver wifiReceiver;
+    WiFiDatabaseManager mWiFiDatabaseManager;
+    ArrayList<HashMap<String, String>> mSortedAPsList;
+    Handler mHandler;
+    Runnable scanner;
+    Context context;
     String tableName;
-
-    EditText allAPsTableName;
+    EditText recordDataTableName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startActivity(new Intent(MainActivity.this, TablesListActivity.class));
+
+        //TODO: try merging OneWifiNetwork Activity into this - figure out a way to simulate back button
 
         getActionBar().setTitle("Recorder");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) getActionBar().setElevation(0);
 
-        allAPsTableName = (EditText) findViewById(R.id.allAPsTableName);
+        recordDataTableName = (EditText) findViewById(R.id.allAPsTableName);
+        ListView lv_allWifiAPs = (ListView) findViewById(R.id.allWifiAPs_lv);
 
         context = getApplicationContext();
+        mHandler = new Handler();
         mSortedAPsList = new ArrayList<>();
+        wifiReceiver = new WifiReceiver();
 
-        ListView allWifiAPs_lv = (ListView) findViewById(R.id.allWifiAPs_lv);
-
-        wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-
+        service_WifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         mWiFiDatabaseManager = new WiFiDatabaseManager(context);
 
-
         //set things in place and display networks
-
         int[] ids = {R.id.ssid, R.id.bssid, R.id.freq, R.id.level};
         String[] keys = {WiFiDatabaseManager.KEY_SSID, WiFiDatabaseManager.KEY_BSSID, WiFiDatabaseManager.KEY_FREQ, WiFiDatabaseManager.KEY_RSSI};
 
-        mSimpleAdapter = new SimpleAdapter(context, mSortedAPsList, R.layout.wifiap, keys, ids);
+        mSimpleAdapter = new SimpleAdapter(context, mSortedAPsList, R.layout.lv_item_wifiap, keys, ids);
 
-        allWifiAPs_lv.setAdapter(mSimpleAdapter);
+        lv_allWifiAPs.setAdapter(mSimpleAdapter);
 
-        allWifiAPs_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        lv_allWifiAPs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 record = false;
@@ -87,47 +86,14 @@ public class MainActivity extends Activity {
             }
         });
 
-        recordData();
-    }
-
-    public void recordData() {
-        mHandler = new Handler();
-        mHandler.postDelayed(new Runnable() {
+        scanner = new Runnable() {
             @Override
             public void run() {
-                mSortedAPsList.clear();
-                List<ScanResult> wifiAPs = wifiManager.getScanResults();
-
-                //sort wifi results by rssi value
-                Collections.sort(wifiAPs, new Comparator<ScanResult>() {
-                    @Override
-                    public int compare(ScanResult lhs, ScanResult rhs) {
-                        return (rhs.level < lhs.level ? -1 : (lhs.level == rhs.level ? 0 : 1));
-                    }
-                });
-
-                for (ScanResult result : wifiAPs) {
-                    HashMap<String, String> ap = new HashMap<>();
-                    ap.put(WiFiDatabaseManager.KEY_SSID, result.SSID);
-                    ap.put(WiFiDatabaseManager.KEY_BSSID, result.BSSID);
-                    ap.put(WiFiDatabaseManager.KEY_FREQ, result.frequency + " MHz");
-                    ap.put(WiFiDatabaseManager.KEY_RSSI, result.level + "");
-
-                    String rec_time = System.currentTimeMillis() + "";
-
-                    if (record)
-                        mWiFiDatabaseManager.addApData(result.SSID, result.BSSID, result.frequency + "", result.level + "", rec_time, tableName);
-
-                    mSortedAPsList.add(ap);
-                }
-
-                mSimpleAdapter.notifyDataSetChanged();
-
-                mHandler.postDelayed(this, 1000);
+                service_WifiManager.startScan();
             }
-        }, 100);
-    }
+        };
 
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -141,14 +107,14 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
 
         if (id == R.id.action_record) {
-            tableName = allAPsTableName.getText().toString();
+            tableName = recordDataTableName.getText().toString();
             record = true;
-            allAPsTableName.setEnabled(false);
+            recordDataTableName.setEnabled(false);
         }
         if (id == R.id.action_record_stop) {
             record = false;
-            allAPsTableName.setEnabled(true);
-            allAPsTableName.setText("");
+            recordDataTableName.setEnabled(true);
+            recordDataTableName.setText("");
         }
 
         if (id == R.id.exportdb) {
@@ -172,7 +138,62 @@ public class MainActivity extends Activity {
         if (id == R.id.view_tables) {
             startActivity(new Intent(MainActivity.this, TablesListActivity.class));
         }
+        if (id == R.id.custom_wifi_scan) {
+            startActivity(new Intent(MainActivity.this, CustomWiFiScanActivity.class));
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        showData(service_WifiManager.getScanResults());
+        mHandler.postDelayed(scanner, 0);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        record = false;
+        unregisterReceiver(wifiReceiver);
+    }
+
+    public void showData(List<ScanResult> wifiAPs) {
+        mSortedAPsList.clear();
+
+        //sort wifi results by rssi value
+        Collections.sort(wifiAPs, new Comparator<ScanResult>() {
+            @Override
+            public int compare(ScanResult lhs, ScanResult rhs) {
+                return (rhs.level < lhs.level ? -1 : (lhs.level == rhs.level ? 0 : 1));
+            }
+        });
+
+        for (ScanResult result : wifiAPs) {
+            HashMap<String, String> ap = new HashMap<>();
+            ap.put(WiFiDatabaseManager.KEY_SSID, result.SSID);
+            ap.put(WiFiDatabaseManager.KEY_BSSID, result.BSSID);
+            ap.put(WiFiDatabaseManager.KEY_FREQ, result.frequency + " MHz");
+            ap.put(WiFiDatabaseManager.KEY_RSSI, result.level + "");
+
+            String rec_time = System.currentTimeMillis() + "";
+
+            if (record)
+                mWiFiDatabaseManager.addApData(result.SSID, result.BSSID, result.frequency + "", result.level + "", rec_time, tableName);
+
+            mSortedAPsList.add(ap);
+        }
+
+        mSimpleAdapter.notifyDataSetChanged();
+    }
+
+    private class WifiReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context c, Intent intent) {
+            showData(service_WifiManager.getScanResults());
+            mHandler.postDelayed(scanner, 0);
+        }
     }
 }

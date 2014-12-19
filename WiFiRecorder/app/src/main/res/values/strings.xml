@@ -7,6 +7,7 @@
     <string name="action_record_stop">Stop</string>
     <string name="action_exportdb">Export Database</string>
     <string name="view_tables">View Tables</string>
+    <string name="custom_wifi_scan">Custom WiFi Scanner</string>
 
     <color name="colorPrimary">#de4141</color>
     <color name="colorPrimaryDark">#b52b2b</color>

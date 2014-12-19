@@ -7,18 +7,26 @@
         android:showAsAction="always"
         android:title="@string/action_record" />
 
-    <item android:id="@+id/action_record_stop"
+    <item
+        android:id="@+id/action_record_stop"
         android:orderInCategory="101"
         android:showAsAction="always"
         android:title="@string/action_record_stop" />
 
-    <item android:id="@+id/exportdb"
+    <item
+        android:id="@+id/exportdb"
         android:orderInCategory="102"
         android:showAsAction="never"
         android:title="@string/action_exportdb" />
 
-    <item android:id="@+id/view_tables"
+    <item
+        android:id="@+id/view_tables"
         android:orderInCategory="103"
         android:title="@string/view_tables" />
+
+    <item
+        android:id="@+id/custom_wifi_scan"
+        android:orderInCategory="104"
+        android:title="@string/custom_wifi_scan" />
 
 </menu>
