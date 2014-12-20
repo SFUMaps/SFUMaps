@@ -51,8 +51,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //TODO: try merging OneWifiNetwork Activity into this - figure out a way to simulate back button
-
         getActionBar().setTitle("Recorder");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) getActionBar().setElevation(0);
 

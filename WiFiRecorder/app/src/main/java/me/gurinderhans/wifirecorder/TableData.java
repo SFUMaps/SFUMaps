@@ -68,7 +68,7 @@ public class TableData extends Activity implements ActionBar.TabListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        mHandler.removeCallbacks(compareRunnable);
+//        mHandler.removeCallbacks(scanner);
     }
 
     @Override

@@ -41,16 +41,12 @@ public class RecordedAPsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_recorded_aps, container, false);
-
         setHasOptionsMenu(true);
-
-        context = getActivity().getApplicationContext();
-
-        mWifiDatabaseManager = new WiFiDatabaseManager(context);
 
         tableName = this.getArguments().getString(WiFiDatabaseManager.KEY_TABLE_NAME, "null");
 
-
+        context = getActivity().getApplicationContext();
+        mWifiDatabaseManager = new WiFiDatabaseManager(context);
         allData = new ArrayList<>();
 
         int[] ids = {R.id.ssid, R.id.bssid, R.id.freq, R.id.level};
@@ -60,7 +56,6 @@ public class RecordedAPsFragment extends Fragment {
 
         ListView tableDataListView = (ListView) rootView.findViewById(R.id.recordTableDataListView);
         tableDataListView.setAdapter(mSimpleAdapter);
-
 
         showData(VisibleAPsFragment.ALL_SSIDS);
 
@@ -124,7 +119,6 @@ public class RecordedAPsFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.select_wifi_ssid) {
             ssidSelectorDialog();
         }
