@@ -19,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,19 +31,20 @@ import java.util.List;
 public class MainActivity extends Activity {
 
     public static final String KEY_SSID_SEND = "wifiSSID";
+
     private final String TAG = getClass().getSimpleName();
     boolean record;
 
-    SimpleAdapter mSimpleAdapter;
+    Context context;
+    EditText recordDataTableName;
+    String tableName;
     WifiManager service_WifiManager;
     WifiReceiver wifiReceiver;
     WiFiDatabaseManager mWiFiDatabaseManager;
+    SimpleAdapter mSimpleAdapter;
     ArrayList<HashMap<String, String>> mSortedAPsList;
     Handler mHandler;
     Runnable scanner;
-    Context context;
-    String tableName;
-    EditText recordDataTableName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +79,10 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 record = false;
-                String ssid = ((TextView) view.findViewById(R.id.ssid)).getText().toString();
-                Intent startoneWifiActivity = new Intent(MainActivity.this, OneWifiNetwork.class);
-                startoneWifiActivity.putExtra(KEY_SSID_SEND, ssid);
-                startActivity(startoneWifiActivity);
+//                singleSSID = ((TextView) view.findViewById(R.id.ssid)).getText().toString();
+//                Intent startoneWifiActivity = new Intent(MainActivity.this, OneWifiNetwork.class);
+//                startoneWifiActivity.putExtra(KEY_SSID_SEND, ssid);
+//                startActivity(startoneWifiActivity);
             }
         });
 
@@ -138,9 +138,6 @@ public class MainActivity extends Activity {
         if (id == R.id.view_tables) {
             startActivity(new Intent(MainActivity.this, TablesListActivity.class));
         }
-        if (id == R.id.custom_wifi_scan) {
-            startActivity(new Intent(MainActivity.this, CustomWiFiScanActivity.class));
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -176,12 +173,15 @@ public class MainActivity extends Activity {
             ap.put(WiFiDatabaseManager.KEY_SSID, result.SSID);
             ap.put(WiFiDatabaseManager.KEY_BSSID, result.BSSID);
             ap.put(WiFiDatabaseManager.KEY_FREQ, result.frequency + " MHz");
-            ap.put(WiFiDatabaseManager.KEY_RSSI, result.level + "");
+            ap.put(WiFiDatabaseManager.KEY_RSSI, Integer.toString(result.level));
 
-            String rec_time = System.currentTimeMillis() + "";
+            String rec_time = Long.toString(System.currentTimeMillis());
 
             if (record)
-                mWiFiDatabaseManager.addApData(result.SSID, result.BSSID, result.frequency + "", result.level + "", rec_time, tableName);
+                mWiFiDatabaseManager.addApData(result.SSID, result.BSSID,
+                        Integer.toString(result.frequency),
+                        Integer.toString(result.level),
+                        rec_time, tableName);
 
             mSortedAPsList.add(ap);
         }

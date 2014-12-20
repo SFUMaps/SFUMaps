@@ -24,9 +24,4 @@
         android:orderInCategory="103"
         android:title="@string/view_tables" />
 
-    <item
-        android:id="@+id/custom_wifi_scan"
-        android:orderInCategory="104"
-        android:title="@string/custom_wifi_scan" />
-
 </menu>
