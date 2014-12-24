@@ -106,7 +106,6 @@ public class VisibleAPsFragment extends Fragment {
     }
 
     /**
-     *
      * @param wifiAPs - wifi APs returned from scan
      */
     private void displayData(List<ScanResult> wifiAPs) {
@@ -130,11 +129,11 @@ public class VisibleAPsFragment extends Fragment {
         /**
          * @see - probably should filter out some garbage / unwanted APs that were scanned
          */
-        for (HashMap<String, String> recordedAP: recordedAPs){
+        for (HashMap<String, String> recordedAP : recordedAPs) {
             String comparingBSSID = recordedAP.get(WiFiDatabaseManager.KEY_BSSID);
-            for (HashMap<String, String> scanned: scanResults){
+            for (HashMap<String, String> scanned : scanResults) {
                 String comparingToBSSID = scanned.get(WiFiDatabaseManager.KEY_BSSID);
-                if(comparingBSSID.equals(comparingToBSSID)){
+                if (comparingBSSID.equals(comparingToBSSID)) {
                     int recordedVal = Integer.parseInt(recordedAP.get(WiFiDatabaseManager.KEY_RSSI));
                     int newVal = Integer.parseInt(scanned.get(WiFiDatabaseManager.KEY_RSSI));
                     scanned.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + "");
@@ -184,14 +183,6 @@ public class VisibleAPsFragment extends Fragment {
 
     }
 
-    private class WifiReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context c, Intent intent) {
-            displayData(service_WifiManager.getScanResults());
-            mHandler.postDelayed(scanner, 0);
-        }
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -222,5 +213,13 @@ public class VisibleAPsFragment extends Fragment {
         }
 
         return false;
+    }
+
+    private class WifiReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context c, Intent intent) {
+            displayData(service_WifiManager.getScanResults());
+            mHandler.postDelayed(scanner, 0);
+        }
     }
 }

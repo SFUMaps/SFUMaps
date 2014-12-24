@@ -42,7 +42,7 @@ public class TablesListActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String tableName = ((TextView) view.findViewById(android.R.id.text1)).getText().toString();
-                Intent getTableData = new Intent(TablesListActivity.this, TableData.class);
+                Intent getTableData = new Intent(TablesListActivity.this, TableDataActivity.class);
                 getTableData.putExtra(KEY_TABLE_NAME, tableName);
                 startActivity(getTableData);
             }

@@ -13,8 +13,7 @@ public class ComplexFunctions {
     public static final String TAG = ComplexFunctions.class.getSimpleName();
 
     /**
-     *
-     * @param in_data - all raw data inputted into this
+     * @param in_data             - all raw data inputted into this
      * @param selected_ssid_names - a list of wifi SSIDS to filter out unwanted aps
      * @return - return filtered / usable data
      */
@@ -31,13 +30,15 @@ public class ComplexFunctions {
             for (HashMap<String, String> hashMap : in_data) {
                 /** @see - remove this wifi from data to make data smaller ?? */
 
-                if (hashMap.get(WiFiDatabaseManager.KEY_SSID).equals(wifi)) currentSSIDData.add(hashMap);
+                if (hashMap.get(WiFiDatabaseManager.KEY_SSID).equals(wifi))
+                    currentSSIDData.add(hashMap);
 
             }
 
             for (HashMap<String, String> hashMap : getStrongestBSSIDs(currentSSIDData)) {
 
-                if (Integer.parseInt(hashMap.get(WiFiDatabaseManager.KEY_RSSI)) > (-65)) filteredData.add(hashMap);
+                if (Integer.parseInt(hashMap.get(WiFiDatabaseManager.KEY_RSSI)) > (-65))
+                    filteredData.add(hashMap);
 
             }
 
@@ -48,7 +49,6 @@ public class ComplexFunctions {
     }
 
     /**
-     *
      * @param d - array-list of one wifi ssid with duplicate APs
      *          we sort the input data based on RSSI values for the APs and then
      *          remove the duplicate APs with RSSI values weaker than others in the list

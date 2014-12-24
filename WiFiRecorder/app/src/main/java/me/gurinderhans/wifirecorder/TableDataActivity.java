@@ -9,7 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 
 
-public class TableData extends Activity implements ActionBar.TabListener {
+public class TableDataActivity extends Activity implements ActionBar.TabListener {
 
     public final String TAG = getClass().getSimpleName();
 
