@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,8 +27,12 @@ public class RecordedAPsFragment extends Fragment {
     WiFiDatabaseManager mWifiDatabaseManager;
     SimpleAdapter mSimpleAdapter;
     String tableName;
-    private ArrayList<HashMap<String, String>> allData;
+    private ArrayList<HashMap<String, String>> displayData;
 
+    /**
+     * @param tblName - the tableName from which we pull the data
+     * @return - returns an instance of this fragment to the sections pager adapter
+     */
     public RecordedAPsFragment newInstance(String tblName) {
         RecordedAPsFragment fragment = new RecordedAPsFragment();
         Bundle args = new Bundle();
@@ -41,48 +44,55 @@ public class RecordedAPsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_recorded_aps, container, false);
+
         setHasOptionsMenu(true);
 
-        tableName = this.getArguments().getString(WiFiDatabaseManager.KEY_TABLE_NAME, "null");
-
         context = getActivity().getApplicationContext();
+        displayData = new ArrayList<>();
+        tableName = this.getArguments().getString(WiFiDatabaseManager.KEY_TABLE_NAME, "null");
         mWifiDatabaseManager = new WiFiDatabaseManager(context);
-        allData = new ArrayList<>();
 
         int[] ids = {R.id.ssid, R.id.bssid, R.id.freq, R.id.level};
         String[] keys = {WiFiDatabaseManager.KEY_SSID, WiFiDatabaseManager.KEY_BSSID, WiFiDatabaseManager.KEY_FREQ, WiFiDatabaseManager.KEY_RSSI};
 
-        mSimpleAdapter = new SimpleAdapter(context, allData, R.layout.lv_item_wifiap, keys, ids);
+        mSimpleAdapter = new SimpleAdapter(context, displayData, R.layout.lv_item_wifiap, keys, ids);
 
         ListView tableDataListView = (ListView) rootView.findViewById(R.id.recordTableDataListView);
         tableDataListView.setAdapter(mSimpleAdapter);
 
-        showData(VisibleAPsFragment.ALL_SSIDS);
+        displayData(VisibleAPsFragment.ALL_SSIDS);
 
         return rootView;
     }
 
-    public void showData(ArrayList<String> selectedWiFis) {
+    /**
+     * @param selectedWiFis - given a list of wifi SSIDS, show data for these wifi SSIDS
+     */
+    private void displayData(ArrayList<String> selectedWiFis) {
         ArrayList<ArrayList<HashMap<String, String>>> tmpList = ComplexFunctions.filterAPs(mWifiDatabaseManager.getTableData(tableName), selectedWiFis);
-        allData.clear();
+        displayData.clear();
 
         for (ArrayList<HashMap<String, String>> d : tmpList) {
+            //sort each sub array list using time to keep them in order they were recorded in
             Collections.sort(d, new SortByTime(WiFiDatabaseManager.KEY_TIME));
-            allData.addAll(d);
+
+            // add MHz to end of freq
+            for (HashMap<String, String> ap : d)
+                ap.put(WiFiDatabaseManager.KEY_FREQ, ap.get(WiFiDatabaseManager.KEY_FREQ) + " MHz");
+
+            displayData.addAll(d);
         }
 
         mSimpleAdapter.notifyDataSetChanged();
 
     }
 
-    public void ssidSelectorDialog() {
-        final String[] ssid_options = {"SFUNET", "SFUNET-SECURE", "eduroam"};
-        // arraylist to keep the selected items
-        final ArrayList<Integer> selectedIndicies = new ArrayList<>();
+    public void SSIDSelectorDialog() {
+        final ArrayList<Integer> selectedIndicies = new ArrayList<>();// arraylist to keep the selected items
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Select SSID(s)");
-        builder.setMultiChoiceItems(ssid_options, null, new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setMultiChoiceItems(VisibleAPsFragment.SSID_OPTIONS, null, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int indexSelected, boolean isChecked) {
                 if (isChecked) {
@@ -98,12 +108,15 @@ public class RecordedAPsFragment extends Fragment {
             public void onClick(DialogInterface dialog, int id) {
                 ArrayList<String> wifis = new ArrayList<>();
 
-                for (int i : selectedIndicies) wifis.add(ssid_options[i]);
+                for (int i : selectedIndicies) wifis.add(VisibleAPsFragment.SSID_OPTIONS[i]);
 
-                Log.i(TAG, "changing");
+                displayData(wifis);
 
-                showData(wifis);
-
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //cancel
             }
         });
 
@@ -120,7 +133,7 @@ public class RecordedAPsFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.select_wifi_ssid) {
-            ssidSelectorDialog();
+            SSIDSelectorDialog();
         }
 
         return false;

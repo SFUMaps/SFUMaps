@@ -5,23 +5,21 @@
         android:id="@+id/action_record"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="@string/action_record" />
-
-    <item
-        android:id="@+id/action_record_stop"
-        android:orderInCategory="101"
-        android:showAsAction="always"
-        android:title="@string/action_record_stop" />
+        android:title="@string/action_record"
+        android:icon="@drawable/ic_action_play"/>
 
     <item
         android:id="@+id/exportdb"
         android:orderInCategory="102"
-        android:showAsAction="never"
-        android:title="@string/action_exportdb" />
+        android:showAsAction="always"
+        android:title="@string/action_exportdb"
+        android:icon="@drawable/ic_action_upload"/>
 
     <item
         android:id="@+id/view_tables"
         android:orderInCategory="103"
-        android:title="@string/view_tables" />
+        android:title="@string/view_tables"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_sort_by_size"/>
 
 </menu>

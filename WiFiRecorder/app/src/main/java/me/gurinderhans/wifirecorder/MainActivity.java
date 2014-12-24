@@ -1,5 +1,6 @@
 package me.gurinderhans.wifirecorder;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,10 +31,8 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
-    public static final String KEY_SSID_SEND = "wifiSSID";
-
-    private final String TAG = getClass().getSimpleName();
-    boolean record;
+    public static final String TAG = MainActivity.class.getSimpleName();
+    boolean record = false;
 
     Context context;
     EditText recordDataTableName;
@@ -45,14 +44,19 @@ public class MainActivity extends Activity {
     ArrayList<HashMap<String, String>> mSortedAPsList;
     Handler mHandler;
     Runnable scanner;
+    MenuItem menuItem_record;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getActionBar().setTitle("Recorder");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) getActionBar().setElevation(0);
+        ActionBar actionBar = getActionBar();
+
+        if (actionBar != null) {
+            actionBar.setTitle("Recorder");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) actionBar.setElevation(0);
+        }
 
         recordDataTableName = (EditText) findViewById(R.id.allAPsTableName);
         ListView lv_allWifiAPs = (ListView) findViewById(R.id.allWifiAPs_lv);
@@ -77,10 +81,7 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 record = false;
-//                singleSSID = ((TextView) view.findViewById(R.id.ssid)).getText().toString();
-//                Intent startoneWifiActivity = new Intent(MainActivity.this, OneWifiNetwork.class);
-//                startoneWifiActivity.putExtra(KEY_SSID_SEND, ssid);
-//                startActivity(startoneWifiActivity);
+                recordingManager(record);
             }
         });
 
@@ -93,10 +94,26 @@ public class MainActivity extends Activity {
 
     }
 
+    public void recordingManager(boolean r) {
+        if (r) {
+            // Set text to Stop recording and disable text field
+            menuItem_record.setTitle("Stop");
+            menuItem_record.setIcon(getResources().getDrawable(R.drawable.ic_action_stop));
+            recordDataTableName.setEnabled(false);
+        } else {
+            // Set text to record and enable text field
+            menuItem_record.setTitle("Record");
+            menuItem_record.setIcon(getResources().getDrawable(R.drawable.ic_action_play));
+            recordDataTableName.setEnabled(true);
+            recordDataTableName.setText("");
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        menuItem_record = menu.getItem(0);
         return true;
     }
 
@@ -106,13 +123,8 @@ public class MainActivity extends Activity {
 
         if (id == R.id.action_record) {
             tableName = recordDataTableName.getText().toString();
-            record = true;
-            recordDataTableName.setEnabled(false);
-        }
-        if (id == R.id.action_record_stop) {
-            record = false;
-            recordDataTableName.setEnabled(true);
-            recordDataTableName.setText("");
+            record = !record;
+            recordingManager(record);
         }
 
         if (id == R.id.exportdb) {
@@ -133,9 +145,8 @@ public class MainActivity extends Activity {
             }
         }
 
-        if (id == R.id.view_tables) {
+        if (id == R.id.view_tables)
             startActivity(new Intent(MainActivity.this, TablesListActivity.class));
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -152,6 +163,7 @@ public class MainActivity extends Activity {
     public void onPause() {
         super.onPause();
         record = false;
+        recordingManager(record);
         unregisterReceiver(wifiReceiver);
     }
 

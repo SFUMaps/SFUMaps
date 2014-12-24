@@ -5,5 +5,10 @@
         android:id="@+id/select_wifi_ssid"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="Select" />
+        android:title="Select"
+        android:icon="@drawable/ic_action_select_all"/>
+    <!--<item android:id="@+id/addSSID"
+        android:orderInCategory="101"
+        android:showAsAction="always"
+        android:title="Add Wifi" />-->
 </menu>

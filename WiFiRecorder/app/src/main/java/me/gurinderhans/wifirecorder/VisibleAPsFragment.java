@@ -36,12 +36,12 @@ public class VisibleAPsFragment extends Fragment {
     public static final String KEY_RSSI_DIFFERENCE = "rssi_diff";
     public static final String KEY_RECORDED_VAL = "recorded_val";
     public static final int GOOD_RSSI_VAL = -65;
+    public static final String[] SSID_OPTIONS = {"SFUNET", "SFUNET-SECURE", "eduroam"};
     public static ArrayList<String> ALL_SSIDS;
-
     Context context;
     String tableName;
     SimpleAdapter mSimpleAdapter;
-    ArrayList<HashMap<String, String>> allData, matchingSignalsPickedUp;
+    ArrayList<HashMap<String, String>> recordedAPs, matchingSignalsPickedUp;
     WiFiDatabaseManager mWifiDatabaseManager;
     WifiManager service_WifiManager;
     WifiReceiver wifiReceiver;
@@ -70,7 +70,7 @@ public class VisibleAPsFragment extends Fragment {
         service_WifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new WifiReceiver();
         mWifiDatabaseManager = new WiFiDatabaseManager(context);
-        allData = new ArrayList<>();
+        recordedAPs = new ArrayList<>();
         matchingSignalsPickedUp = new ArrayList<>();
 
         int[] ids = {R.id.ssid, R.id.bssid, R.id.freq, R.id.level, R.id.rssi_diff, R.id.recorded_val};
@@ -89,19 +89,106 @@ public class VisibleAPsFragment extends Fragment {
             }
         };
 
-        manageFilter(ALL_SSIDS);
+        updateFilters(ALL_SSIDS);
 
         return rootView;
     }
 
     //fill up our recorded data set which we later compare to current wifi aps
-    public void manageFilter(ArrayList<String> wifis) {
-        allData.clear();
+    public void updateFilters(ArrayList<String> wifis) {
+        recordedAPs.clear();
         ArrayList<ArrayList<HashMap<String, String>>> tmpList = ComplexFunctions.filterAPs(mWifiDatabaseManager.getTableData(tableName), wifis);
 
         for (ArrayList<HashMap<String, String>> d : tmpList) {
             Collections.sort(d, new SortByTime(WiFiDatabaseManager.KEY_TIME));
-            allData.addAll(d);
+            recordedAPs.addAll(d);
+        }
+    }
+
+    /**
+     *
+     * @param wifiAPs - wifi APs returned from scan
+     */
+    private void displayData(List<ScanResult> wifiAPs) {
+
+        matchingSignalsPickedUp.clear();
+
+        ArrayList<HashMap<String, String>> scanResults = new ArrayList<>();
+
+
+        for (ScanResult result : wifiAPs) {
+            HashMap<String, String> ap = new HashMap<>();
+            ap.put(WiFiDatabaseManager.KEY_SSID, result.SSID);
+            ap.put(WiFiDatabaseManager.KEY_BSSID, result.BSSID);
+            ap.put(WiFiDatabaseManager.KEY_FREQ, result.frequency + " MHz");
+            ap.put(WiFiDatabaseManager.KEY_RSSI, Integer.toString(result.level));
+            ap.put(WiFiDatabaseManager.KEY_TIME, Long.toString(System.currentTimeMillis()));
+
+            scanResults.add(ap);
+        }
+
+        /**
+         * @see - probably should filter out some garbage / unwanted APs that were scanned
+         */
+        for (HashMap<String, String> recordedAP: recordedAPs){
+            String comparingBSSID = recordedAP.get(WiFiDatabaseManager.KEY_BSSID);
+            for (HashMap<String, String> scanned: scanResults){
+                String comparingToBSSID = scanned.get(WiFiDatabaseManager.KEY_BSSID);
+                if(comparingBSSID.equals(comparingToBSSID)){
+                    int recordedVal = Integer.parseInt(recordedAP.get(WiFiDatabaseManager.KEY_RSSI));
+                    int newVal = Integer.parseInt(scanned.get(WiFiDatabaseManager.KEY_RSSI));
+                    scanned.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + "");
+                    scanned.put(KEY_RECORDED_VAL, "Recorded RSSI: " + recordedVal + "");
+                    scanned.put(WiFiDatabaseManager.KEY_RSSI, "Current RSSI: " + newVal);
+                    matchingSignalsPickedUp.add(scanned);
+                }
+            }
+        }
+
+
+        //show the RSSI diff in list view
+        mSimpleAdapter.notifyDataSetChanged();
+    }
+
+    public void SSIDSelectorDialog() {
+        final ArrayList<Integer> selectedIndicies = new ArrayList<>();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Select SSID(s)");
+        builder.setMultiChoiceItems(SSID_OPTIONS, null, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int indexSelected, boolean isChecked) {
+                if (isChecked) {
+                    // If the item is checked, add it to the selected items
+                    selectedIndicies.add(indexSelected);
+                } else if (selectedIndicies.contains(indexSelected)) {
+                    // Else, if the item is already in the array, remove it
+                    selectedIndicies.remove(Integer.valueOf(indexSelected));
+                }
+            }
+        }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                ArrayList<String> wifis = new ArrayList<>();
+                for (int i : selectedIndicies) wifis.add(SSID_OPTIONS[i]);
+                updateFilters(wifis);
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //cancel
+            }
+        });
+
+        builder.create().show();
+
+    }
+
+    private class WifiReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context c, Intent intent) {
+            displayData(service_WifiManager.getScanResults());
+            mHandler.postDelayed(scanner, 0);
         }
     }
 
@@ -110,7 +197,7 @@ public class VisibleAPsFragment extends Fragment {
         super.onResume();
         Log.i(TAG, "onResume, registered receiver");
         context.registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        showIntersection(service_WifiManager.getScanResults());
+        displayData(service_WifiManager.getScanResults());
         mHandler.postDelayed(scanner, 0);
     }
 
@@ -131,85 +218,9 @@ public class VisibleAPsFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.select_wifi_ssid) {
-            ssidSelectorDialog();
+            SSIDSelectorDialog();
         }
 
         return false;
-    }
-
-    public void showIntersection(List<ScanResult> wifiAPs) {
-
-        matchingSignalsPickedUp.clear();
-
-        ArrayList<HashMap<String, String>> scanResults = new ArrayList<>();
-
-
-        for (ScanResult result : wifiAPs) {
-            HashMap<String, String> ap = new HashMap<>();
-            ap.put(WiFiDatabaseManager.KEY_SSID, result.SSID);
-            ap.put(WiFiDatabaseManager.KEY_BSSID, result.BSSID);
-            ap.put(WiFiDatabaseManager.KEY_FREQ, result.frequency + " MHz");
-            ap.put(WiFiDatabaseManager.KEY_RSSI, Integer.toString(result.level));
-            ap.put(WiFiDatabaseManager.KEY_TIME, Long.toString(System.currentTimeMillis()));
-
-            scanResults.add(ap);
-        }
-
-        int min = Math.min(allData.size(), scanResults.size());
-
-        for (int i = 0; i < min; i++) {
-            if (allData.get(i).get(WiFiDatabaseManager.KEY_BSSID).equals(scanResults.get(i).get(WiFiDatabaseManager.KEY_BSSID))) {
-                HashMap<String, String> map = scanResults.get(i);
-                int recordedVal = Integer.parseInt(allData.get(i).get(WiFiDatabaseManager.KEY_RSSI));
-                int newVal = Integer.parseInt(scanResults.get(i).get(WiFiDatabaseManager.KEY_RSSI));
-                map.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + "");
-                map.put(KEY_RECORDED_VAL, "Recorded RSSI: " + recordedVal + "");
-                map.put(WiFiDatabaseManager.KEY_RSSI, "Current RSSI: " + newVal);
-                matchingSignalsPickedUp.add(map);
-            }
-        }
-
-        //show the RSSI diff in list view
-        mSimpleAdapter.notifyDataSetChanged();
-    }
-
-    public void ssidSelectorDialog() {
-        final String[] ssid_options = {"SFUNET", "SFUNET-SECURE", "eduroam"};
-        final ArrayList<Integer> selectedIndicies = new ArrayList<>();
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()); //notice the getActivity()
-        builder.setTitle("Select SSID(s)");
-        builder.setMultiChoiceItems(ssid_options, null, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int indexSelected, boolean isChecked) {
-                if (isChecked) {
-                    // If the user checked the item, add it to the selected items
-                    selectedIndicies.add(indexSelected);
-                } else if (selectedIndicies.contains(indexSelected)) {
-                    // Else, if the item is already in the array, remove it
-                    selectedIndicies.remove(Integer.valueOf(indexSelected));
-                }
-            }
-        }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                ArrayList<String> wifis = new ArrayList<>();
-
-                for (int i : selectedIndicies) wifis.add(ssid_options[i]);
-
-                manageFilter(wifis);
-
-            }
-        });
-
-        builder.create().show();
-    }
-
-    private class WifiReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context c, Intent intent) {
-            showIntersection(service_WifiManager.getScanResults());
-            mHandler.postDelayed(scanner, 0);
-        }
     }
 }

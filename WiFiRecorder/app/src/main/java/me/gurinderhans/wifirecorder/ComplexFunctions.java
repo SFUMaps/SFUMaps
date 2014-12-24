@@ -12,28 +12,33 @@ public class ComplexFunctions {
 
     public static final String TAG = ComplexFunctions.class.getSimpleName();
 
-    public static ArrayList<ArrayList<HashMap<String, String>>> filterAPs(ArrayList<HashMap<String, String>> indata, ArrayList<String> selectedWifis) {
+    /**
+     *
+     * @param in_data - all raw data inputted into this
+     * @param selected_ssid_names - a list of wifi SSIDS to filter out unwanted aps
+     * @return - return filtered / usable data
+     */
+    public static ArrayList<ArrayList<HashMap<String, String>>> filterAPs(ArrayList<HashMap<String, String>> in_data, ArrayList<String> selected_ssid_names) {
 
         ArrayList<ArrayList<HashMap<String, String>>> allWifisData = new ArrayList<>();
 
-        for (String wifi : selectedWifis) {
+        for (String wifi : selected_ssid_names) {
 
             ArrayList<HashMap<String, String>> currentSSIDData = new ArrayList<>();
             ArrayList<HashMap<String, String>> filteredData = new ArrayList<>();
 
             //get current ssid rows
-            for (HashMap<String, String> hashMap : indata) { // ?remove this wifi from data to make data smaller?
+            for (HashMap<String, String> hashMap : in_data) {
+                /** @see - remove this wifi from data to make data smaller ?? */
 
-                if (hashMap.get(WiFiDatabaseManager.KEY_SSID).equals(wifi)) {
-                    currentSSIDData.add(hashMap);
-                }
+                if (hashMap.get(WiFiDatabaseManager.KEY_SSID).equals(wifi)) currentSSIDData.add(hashMap);
+
             }
 
             for (HashMap<String, String> hashMap : getStrongestBSSIDs(currentSSIDData)) {
 
-                if (Integer.parseInt(hashMap.get(WiFiDatabaseManager.KEY_RSSI)) > (-65)) {
-                    filteredData.add(hashMap);
-                }
+                if (Integer.parseInt(hashMap.get(WiFiDatabaseManager.KEY_RSSI)) > (-65)) filteredData.add(hashMap);
+
             }
 
             allWifisData.add(filteredData);
@@ -42,6 +47,13 @@ public class ComplexFunctions {
         return allWifisData;
     }
 
+    /**
+     *
+     * @param d - array-list of one wifi ssid with duplicate APs
+     *          we sort the input data based on RSSI values for the APs and then
+     *          remove the duplicate APs with RSSI values weaker than others in the list
+     * @return - return the unique APs list
+     */
     public static ArrayList<HashMap<String, String>> getStrongestBSSIDs(ArrayList<HashMap<String, String>> d) {
 
         Collections.sort(d, new SortByRSSI(WiFiDatabaseManager.KEY_RSSI));
