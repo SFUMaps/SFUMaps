@@ -52,7 +52,7 @@
             android:layout_gravity="end"
             android:text="Recorded"
             android:textColor="@android:color/background_dark"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/level"
@@ -61,7 +61,7 @@
             android:layout_gravity="end"
             android:text="Level"
             android:textColor="@android:color/background_dark"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/rssi_diff"
@@ -70,7 +70,8 @@
             android:layout_gravity="end"
             android:text="Difference"
             android:textColor="@android:color/background_dark"
-            android:textSize="16sp" />
+            android:textStyle="bold"
+            android:textSize="14sp" />
 
     </LinearLayout>
 </LinearLayout>

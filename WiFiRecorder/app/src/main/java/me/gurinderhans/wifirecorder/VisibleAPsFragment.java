@@ -140,9 +140,12 @@ public class VisibleAPsFragment extends Fragment {
                     scanned.put(KEY_RECORDED_VAL, "Recorded RSSI: " + recordedVal + "");
                     scanned.put(WiFiDatabaseManager.KEY_RSSI, "Current RSSI: " + newVal);
                     matchingSignalsPickedUp.add(scanned);
+                    break;
                 }
             }
         }
+
+        Collections.sort(matchingSignalsPickedUp, new SortByRSSI(WiFiDatabaseManager.KEY_RSSI));
 
 
         //show the RSSI diff in list view
@@ -150,7 +153,7 @@ public class VisibleAPsFragment extends Fragment {
     }
 
     public void SSIDSelectorDialog() {
-        final ArrayList<Integer> selectedIndicies = new ArrayList<>();
+        final ArrayList<Integer> selected_indices = new ArrayList<>();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Select SSID(s)");
@@ -159,17 +162,17 @@ public class VisibleAPsFragment extends Fragment {
             public void onClick(DialogInterface dialog, int indexSelected, boolean isChecked) {
                 if (isChecked) {
                     // If the item is checked, add it to the selected items
-                    selectedIndicies.add(indexSelected);
-                } else if (selectedIndicies.contains(indexSelected)) {
+                    selected_indices.add(indexSelected);
+                } else if (selected_indices.contains(indexSelected)) {
                     // Else, if the item is already in the array, remove it
-                    selectedIndicies.remove(Integer.valueOf(indexSelected));
+                    selected_indices.remove(Integer.valueOf(indexSelected));
                 }
             }
         }).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 ArrayList<String> wifis = new ArrayList<>();
-                for (int i : selectedIndicies) wifis.add(SSID_OPTIONS[i]);
+                for (int i : selected_indices) wifis.add(SSID_OPTIONS[i]);
                 updateFilters(wifis);
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
