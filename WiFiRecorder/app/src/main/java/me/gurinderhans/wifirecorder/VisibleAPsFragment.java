@@ -35,9 +35,9 @@ public class VisibleAPsFragment extends Fragment {
     public static final String TAG = VisibleAPsFragment.class.getSimpleName();
     public static final String KEY_RSSI_DIFFERENCE = "rssi_diff";
     public static final String KEY_RECORDED_VAL = "recorded_val";
-    public static final int GOOD_RSSI_VAL = -65;
     public static final String[] SSID_OPTIONS = {"SFUNET", "SFUNET-SECURE", "eduroam"};
     public static ArrayList<String> ALL_SSIDS;
+
     Context context;
     String tableName;
     SimpleAdapter mSimpleAdapter;
@@ -131,21 +131,21 @@ public class VisibleAPsFragment extends Fragment {
          */
         for (HashMap<String, String> recordedAP : recordedAPs) {
             String comparingBSSID = recordedAP.get(WiFiDatabaseManager.KEY_BSSID);
-            for (HashMap<String, String> scanned : scanResults) {
-                String comparingToBSSID = scanned.get(WiFiDatabaseManager.KEY_BSSID);
+            for (HashMap<String, String> scannedAp : scanResults) {
+                String comparingToBSSID = scannedAp.get(WiFiDatabaseManager.KEY_BSSID);
                 if (comparingBSSID.equals(comparingToBSSID)) {
                     int recordedVal = Integer.parseInt(recordedAP.get(WiFiDatabaseManager.KEY_RSSI));
-                    int newVal = Integer.parseInt(scanned.get(WiFiDatabaseManager.KEY_RSSI));
-                    scanned.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + "");
-                    scanned.put(KEY_RECORDED_VAL, "Recorded RSSI: " + recordedVal + "");
-                    scanned.put(WiFiDatabaseManager.KEY_RSSI, "Current RSSI: " + newVal);
-                    matchingSignalsPickedUp.add(scanned);
+                    int newVal = Integer.parseInt(scannedAp.get(WiFiDatabaseManager.KEY_RSSI));
+                    scannedAp.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + ""); //modifyinh
+                    scannedAp.put(KEY_RECORDED_VAL, "Recorded RSSI: " + recordedVal + "");//adding new map
+                    scannedAp.put(WiFiDatabaseManager.KEY_RSSI, "Current RSSI: " + newVal);//adding new map
+                    matchingSignalsPickedUp.add(scannedAp);
                     break;
                 }
             }
         }
 
-        Collections.sort(matchingSignalsPickedUp, new SortByRSSI(WiFiDatabaseManager.KEY_RSSI));
+//        Collections.sort(matchingSignalsPickedUp, new SortByRSSI(WiFiDatabaseManager.KEY_RSSI));
 
 
         //show the RSSI diff in list view
