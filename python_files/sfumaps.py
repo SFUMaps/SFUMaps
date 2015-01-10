@@ -1,35 +1,23 @@
-"""
+import sqlite3
 
-Split stuff into levels
-======================================
-
-Main Level = M (AQ, Tasc1 Lvl9, ASB, etc...)
-Levels below Main = M-n, where n is the number of levels below (Tasc1 Lvl8..7, Education Building Lvl7, etc...)
-Levels above Main = M+n, where n is the number of levels above (AQ Levels 4000..5000..6000, etc...)
-
-- There will be different databases for each floor
-- Each database will have tables for its parts of areas
-
-"""
-
-
-import sqlite3 as lite
-import sys
-
-con = lite.connect('wifi_data')
-
-GOOD_RSSI_VAL = -65
+DB_NAME = "wifi_data"
+RSSI_THRESHOLD = -65
 WIFIS = ["SFUNET", "SFUNET-SECURE", "eduroam"]
 
+class color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
 
-def fetchTables(cur):
-    # VALID_TABLES = ["apsdata_aqmainmacmsideREVERSE", "apsdata_aqmacmtoedbside", "apsdata_aqmainedbside"]
-    VALID_TABLES = ["apsdata_sfusurreylevel3000falside", "apsdata_sfusurreylevel3000",
-    "apsdata_sfusurreylevel4000falside", "apsdata_sfusurreylevel4000",
-    "apsdata_sfusurreylevel5000falside", "apsdata_sfusurreylevel5000"]
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    tables = [i[0] for i in cur.fetchall()[1:] if i[0] in VALID_TABLES]
-    return tables
+con = sqlite3.connect(DB_NAME)
+
 
 """
 for every data set we need to get the tuple
@@ -51,71 +39,58 @@ def getStrongestBssids(d):
     return uniqueDataSet
 
 
-def filterAPs(data):
+def getFilteredAPs(data):
     eachWifiData = []
     for i in WIFIS:
-        # remove id from tuple with [1:]
-        tmpData = [j[1:] for j in data if j[1] == i]
-        tmpData = [j for j in getStrongestBssids(tmpData) if int(j[3]) > GOOD_RSSI_VAL]
-        # tmpData = sorted(tmpData, key = lambda x:int(x[-2]), reverse=True) # sorting by rssi
+        tmpData = [j[1:] for j in data if j[1] == i] # remove id from tuple using [1:]
+        tmpData = [j for j in getStrongestBssids(tmpData) if int(j[3]) > RSSI_THRESHOLD]
         tmpData = sorted(tmpData, key = lambda x:int(x[-1])) #sorting by time
+
+        tmpData = [((i+1),)+j for i,j in enumerate(tmpData)] # add id to each tuple
+
         eachWifiData.append(tmpData)
 
-
-    for i in eachWifiData:
-        print
-        print "+ + + + + + "+(i[0][0])+" - ",len(i)," + + + + + + +"
-        print
-        for j in i: print j
+    return eachWifiData
 
 
 with con:
 
     cur = con.cursor()
 
-    tables = fetchTables(cur)
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    tables = [i[0] for i in cur.fetchall()[1:]]
 
-    for i in tables:
-        print; print; print """
-        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-        """,i,"""
-        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-        """;print
+    cur.execute("SELECT * FROM "+tables[0])
 
-        cur.execute("SELECT * FROM "+i)
+    print;print color.BOLD+"TABLE = "+color.DARKCYAN+tables[0][8:]+color.END
 
-        aps = cur.fetchall()
+    aps = cur.fetchall()
+
+    filtered_aps = getFilteredAPs(aps)
 
 
 
-        if "REVERSE" in i: filterAPs(aps[::-1])
-        else: filterAPs(aps)
-
-
-
+    for ap in filtered_aps:
+        print;print
+        for j in ap: print j
+        # for j in enumerate(i):
+            # j=(8,)+j;
+            # print j
 
 
 
 
 
 """
-         android_metadata                  | apsdata_tasclvl7rightnearREVERSE
-         apsdata_aqmacmtoedbside           | apsdata_tasclvl7to8
-         apsdata_aqmainedbside             | apsdata_tasclvl8rightfar
-         apsdata_aqmainmacmsideREVERSE     | apsdata_tasclvl8rightnearREVERSE
-         apsdata_aqtoblussonhall           | apsdata_tasclvl8to7
-SFUNET - apsdata_asbtotasc1entrhallway     | apsdata_tasclvl8to9
-         apsdata_blussonhallREVERSE        | apsdata_tasclvl9rightfar
-         apsdata_csiltotasc1mainlvl        | apsdata_tasclvl9rigthnearREVERSE
-         apsdata_csiltotascmainlvlRfromAQ  | apsdata_tasclvl9to8GOOD
-         apsdata_tasclvl7rightnear         |
+
+Split wifi data into levels
+======================================
+
+Main Level = M (AQ, Tasc1 Lvl9, ASB, etc...)
+Levels below Main = M-n, where n is the number of levels below (Tasc1 Lvl8..7, Education Building Lvl7, etc...)
+Levels above Main = M+n, where n is the number of levels above (AQ Levels 4000..5000..6000, etc...)
+
+- There will be different databases for each floor
+- Each database will have tables for its parts of areas
 
 """
-
-
-
-
-
-#
