@@ -1,3 +1,4 @@
+from time import ctime
 import sqlite3
 
 DB_NAME = "wifi_data"
@@ -42,11 +43,13 @@ def getStrongestBssids(d):
 def getFilteredAPs(data):
     eachWifiData = []
     for i in WIFIS:
+        # maybe modify id here ...
         tmpData = [j[1:] for j in data if j[1] == i] # remove id from tuple using [1:]
         tmpData = [j for j in getStrongestBssids(tmpData) if int(j[3]) > RSSI_THRESHOLD]
         tmpData = sorted(tmpData, key = lambda x:int(x[-1])) #sorting by time
 
         tmpData = [((i+1),)+j for i,j in enumerate(tmpData)] # add id to each tuple
+        tmpData = [i+(ctime(int(i[-1])/1000),) for i in tmpData] # add readable time
 
         eachWifiData.append(tmpData)
 
@@ -60,22 +63,18 @@ with con:
     cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
     tables = [i[0] for i in cur.fetchall()[1:]]
 
-    cur.execute("SELECT * FROM "+tables[0])
+    cur.execute("SELECT * FROM "+tables[3])
 
-    print;print color.BOLD+"TABLE = "+color.DARKCYAN+tables[0][8:]+color.END
+    print;print color.BOLD+"TABLE = "+color.DARKCYAN+tables[3][8:]+color.END
 
     aps = cur.fetchall()
 
     filtered_aps = getFilteredAPs(aps)
 
 
-
     for ap in filtered_aps:
-        print;print
+        print;print;
         for j in ap: print j
-        # for j in enumerate(i):
-            # j=(8,)+j;
-            # print j
 
 
 
