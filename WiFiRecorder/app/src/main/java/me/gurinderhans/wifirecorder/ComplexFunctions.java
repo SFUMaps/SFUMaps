@@ -11,6 +11,7 @@ import java.util.HashMap;
 public class ComplexFunctions {
 
     public static final String TAG = ComplexFunctions.class.getSimpleName();
+    public static final int RSSI_THRESHOLD = -65;
 
     /**
      * @param in_data             - all raw data inputted into this
@@ -26,7 +27,7 @@ public class ComplexFunctions {
             ArrayList<HashMap<String, String>> currentSSIDData = new ArrayList<>();
             ArrayList<HashMap<String, String>> filteredData = new ArrayList<>();
 
-            //get current ssid rows
+            //get current ssid data and put into @param - currentSSIDData
             for (HashMap<String, String> hashMap : in_data) {
                 /** @see - remove this wifi from data to make data smaller ?? */
 
@@ -35,13 +36,15 @@ public class ComplexFunctions {
 
             }
 
+            // once current SSID data is run through getStrongestBSSIDs() filter this data with RSSI_THRESHOLD
             for (HashMap<String, String> hashMap : getStrongestBSSIDs(currentSSIDData)) {
 
-                if (Integer.parseInt(hashMap.get(WiFiDatabaseManager.KEY_RSSI)) > (-65))
+                if (Integer.parseInt(hashMap.get(WiFiDatabaseManager.KEY_RSSI)) > (RSSI_THRESHOLD))
                     filteredData.add(hashMap);
 
             }
 
+            //finally add this filtered data ArrayList to a parent array list
             allWifisData.add(filteredData);
         }
 
@@ -49,7 +52,7 @@ public class ComplexFunctions {
     }
 
     /**
-     * @param d - array-list of one wifi ssid with duplicate APs
+     * @param d - array-list of a single wifi ssid with duplicate APs
      *          we sort the input data based on RSSI values for the APs and then
      *          remove the duplicate APs with RSSI values weaker than others in the list
      * @return - return the unique APs list

@@ -30,7 +30,7 @@ public class TableDataActivity extends Activity implements ActionBar.TabListener
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) actionBar.setElevation(0);
 
-        actionBar.setTitle(tableName);
+        actionBar.setTitle(tableName.substring(8));
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager(), this, tableName);
 

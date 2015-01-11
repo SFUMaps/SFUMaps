@@ -63,9 +63,9 @@ with con:
     cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
     tables = [i[0] for i in cur.fetchall()[1:]]
 
-    cur.execute("SELECT * FROM "+tables[3])
+    cur.execute("SELECT * FROM "+tables[0])
 
-    print;print color.BOLD+"TABLE = "+color.DARKCYAN+tables[3][8:]+color.END
+    print;print color.BOLD+"TABLE = "+color.DARKCYAN+tables[0][8:]+color.END
 
     aps = cur.fetchall()
 

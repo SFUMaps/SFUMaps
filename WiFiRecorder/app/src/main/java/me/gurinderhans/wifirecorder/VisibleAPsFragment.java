@@ -24,6 +24,7 @@ import android.widget.SimpleAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -63,7 +64,7 @@ public class VisibleAPsFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        ALL_SSIDS = new ArrayList<>(Arrays.asList("8EA535", "SFUNET", "SFUNET-SECURE", "eduroam"));
+        ALL_SSIDS = new ArrayList<>(Arrays.asList("SHAW-BD8CD9-5G", "SHAW-BD8CD9", "SFUNET", "SFUNET-SECURE", "eduroam"));
         tableName = this.getArguments().getString(WiFiDatabaseManager.KEY_TABLE_NAME, "null");
         context = getActivity().getApplicationContext();
         mHandler = new Handler();
@@ -115,6 +116,7 @@ public class VisibleAPsFragment extends Fragment {
         ArrayList<HashMap<String, String>> scanResults = new ArrayList<>();
 
 
+        // Convert ScanResult to ArrayList
         for (ScanResult result : wifiAPs) {
             HashMap<String, String> ap = new HashMap<>();
             ap.put(WiFiDatabaseManager.KEY_SSID, result.SSID);
@@ -136,7 +138,7 @@ public class VisibleAPsFragment extends Fragment {
                 if (comparingBSSID.equals(comparingToBSSID)) {
                     int recordedVal = Integer.parseInt(recordedAP.get(WiFiDatabaseManager.KEY_RSSI));
                     int newVal = Integer.parseInt(scannedAp.get(WiFiDatabaseManager.KEY_RSSI));
-                    scannedAp.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + ""); //modifyinh
+                    scannedAp.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + ""); //modifying
                     scannedAp.put(KEY_RECORDED_VAL, "Recorded RSSI: " + recordedVal + "");//adding new map
                     scannedAp.put(WiFiDatabaseManager.KEY_RSSI, "Current RSSI: " + newVal);//adding new map
                     matchingSignalsPickedUp.add(scannedAp);
@@ -144,6 +146,15 @@ public class VisibleAPsFragment extends Fragment {
                 }
             }
         }
+
+        Collections.sort(matchingSignalsPickedUp, new Comparator<HashMap<String, String>>() {
+            @Override
+            public int compare(HashMap<String, String> lhs, HashMap<String, String> rhs) {
+                int lhsDiff = Integer.parseInt(lhs.get(KEY_RSSI_DIFFERENCE).replaceAll("[^0-9]", ""));
+                int rhsDiff = Integer.parseInt(rhs.get(KEY_RSSI_DIFFERENCE).replaceAll("[^0-9]", ""));
+                return (lhsDiff < rhsDiff ? -1 : (rhsDiff == lhsDiff ? 0 : 1));
+            }
+        });
 
 //        Collections.sort(matchingSignalsPickedUp, new SortByRSSI(WiFiDatabaseManager.KEY_RSSI));
 
