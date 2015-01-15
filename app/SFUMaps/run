@@ -1,0 +1,6 @@
+#!/bin/bash
+
+phonegap build android
+adb uninstall com.phonegap.helloworld
+adb install platforms/android/ant-build/CordovaApp-debug.apk
+adb shell am start -n com.phonegap.helloworld/.CordovaApp
