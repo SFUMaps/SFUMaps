@@ -13,6 +13,7 @@ import java.io.InputStream;
  * Created by ghans on 1/17/15.
  */
 public class CustomMapTileProvider implements TileProvider {
+    public static final String TAG = CustomMapTileProvider.class.getSimpleName();
     private static final int TILE_WIDTH = 256;
     private static final int TILE_HEIGHT = 256;
     private static final int BUFFER_SIZE = 16 * 1024;
@@ -34,7 +35,7 @@ public class CustomMapTileProvider implements TileProvider {
         ByteArrayOutputStream buffer = null;
 
         try {
-            in = mAssets.open(getTileFilename(x, ((1 << zoom) - 2 - y), zoom));
+            in = mAssets.open(getTileFilename(x, y, zoom));
             buffer = new ByteArrayOutputStream();
 
             int nRead;
@@ -47,10 +48,10 @@ public class CustomMapTileProvider implements TileProvider {
 
             return buffer.toByteArray();
         } catch (IOException e) {
-//            e.printStackTrace();
+            // e.printStackTrace();
             return null;
         } catch (OutOfMemoryError e) {
-//            e.printStackTrace();
+            // e.printStackTrace();
             return null;
         } finally {
             if (in != null) try {
@@ -67,4 +68,5 @@ public class CustomMapTileProvider implements TileProvider {
     private String getTileFilename(int x, int y, int zoom) {
         return "map/" + zoom + '/' + x + '/' + y + ".png";
     }
+
 }
