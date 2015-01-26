@@ -56,6 +56,20 @@ def getFilteredAPs(data):
     return eachWifiData
 
 
+def getData(cur, table):
+    cur.execute("SELECT * FROM "+table)
+
+    print;print color.BOLD+"TABLE = "+color.DARKCYAN+table[8:]+color.END
+
+    aps = cur.fetchall()
+
+    filtered_aps = getFilteredAPs(aps)
+
+    for ap in filtered_aps:
+        print
+        for j in ap: print j
+
+
 with con:
 
     cur = con.cursor()
@@ -64,18 +78,10 @@ with con:
     tables = [i[0] for i in cur.fetchall()[1:]]
     print tables
 
-    cur.execute("SELECT * FROM "+tables[1])
-
-    print;print color.BOLD+"TABLE = "+color.DARKCYAN+tables[1 ][8:]+color.END
-
-    aps = cur.fetchall()
-
-    filtered_aps = getFilteredAPs(aps)
+    for table in tables:
+        getData(cur, table)
 
 
-    for ap in filtered_aps:
-        print;print;
-        for j in ap: print j
 
 
 
