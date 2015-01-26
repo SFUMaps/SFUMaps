@@ -48,10 +48,10 @@ public class CustomMapTileProvider implements TileProvider {
 
             return buffer.toByteArray();
         } catch (IOException e) {
-            // e.printStackTrace();
+//            e.printStackTrace();
             return null;
         } catch (OutOfMemoryError e) {
-            // e.printStackTrace();
+//            e.printStackTrace();
             return null;
         } finally {
             if (in != null) try {

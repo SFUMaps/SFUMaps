@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,8 +37,7 @@ public class MainActivity extends FragmentActivity {
     // map database vars
     public static final String KEY_RSSI_DIFFERENCE = "rssi_diff";
     public static final String KEY_RECORDED_VAL = "recorded_val";
-    public static final String[] DATA_TABLES = {
-            "apsdata_AQ_EastToWestUP"
+    public static final String[] DATA_TABLES = {"apsdata_AQ_EastToWestUP"
             , "apsdata_AQ_NorthToSouthLEFT"
             , "apsdata_AQ_NorthToSouthRIGHT"
             , "apsdata_AQ_EastToWestDOWN"};
@@ -87,13 +87,25 @@ public class MainActivity extends FragmentActivity {
 
     public void getRecordedData() {
         recordedAPs.clear();
-        for (int i = 0; i < DATA_TABLES.length; i++) {
-            ArrayList<ArrayList<HashMap<String, String>>> tmpList = ComplexFunctions.filterAPs(mDataBaseManager.getTableData(DATA_TABLES[i]), ALL_SSIDS);
+        for (String table : DATA_TABLES) {
+
+            ArrayList<HashMap<String, String>> tableRawData = mDataBaseManager.getTableData(table);
+
+            long Ti = Long.parseLong(tableRawData.get(0).get(DataBaseManager.KEY_TIME));
+            long Tf = Long.parseLong(tableRawData.get(tableRawData.size() - 1).get(DataBaseManager.KEY_TIME));
+
+            Date DTi = new java.util.Date(Ti);
+            Date DTf = new java.util.Date(Tf);
+
+            Log.i(TAG, "DTi: "+DTi+" DTf: "+DTf+" |");
+
+            ArrayList<ArrayList<HashMap<String, String>>> tmpList = ComplexFunctions.filterAPs(tableRawData, ALL_SSIDS);
+
             for (ArrayList<HashMap<String, String>> d : tmpList) { //loop over each wifi
                 Collections.sort(d, new SortByTime(DataBaseManager.KEY_TIME));
-
                 recordedAPs.addAll(d);
             }
+
         }
 
     }
@@ -146,26 +158,7 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
-        // do something with this.... somehow.....
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setUpMapIfNeeded();
-    }
-
-    private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap();
-            }
-        }
+        // do something with this data.... somehow.....
     }
 
     private void setUpMap() {
@@ -177,7 +170,7 @@ public class MainActivity extends FragmentActivity {
         PointF point = new PointF(128, 128);
 
 
-        mMap.addMarker(new MarkerOptions().position(fromPointToLatLng(point)).title("Center from Point"));
+        mMap.addMarker(new MarkerOptions().position(fromPointToLatLng(point)).title("Center from PointF"));
 
         LatLng chicago = new LatLng(0, 0);
 
@@ -195,41 +188,6 @@ public class MainActivity extends FragmentActivity {
 
     }
 
-    private PointF fromLatLngToPoint(LatLng latLng) {
-        PointF point = new PointF(0, 0);
-        PointF origin = this.pixelOrigin_;
-
-        point.x = (float) (origin.x + latLng.longitude * this.pixelsPerLonDegree_);
-
-        // Truncating to 0.9999 effectively limits latitude to 89.189. This is
-        // about a third of a tile past the edge of the world tile.
-        double siny = bound(Math.sin(degreesToRadians(latLng.latitude)), -0.9999,
-                0.9999);
-        point.y = (float) (origin.y + 0.5 * Math.log((1 + siny) / (1 - siny)) * -this.pixelsPerLonRadian_);
-        return point;
-    }
-
-    public LatLng fromPointToLatLng(PointF point) {
-        PointF origin = this.pixelOrigin_;
-        double lng = (point.x - origin.x) / this.pixelsPerLonDegree_;
-        double latRadians = (point.y - origin.y) / -this.pixelsPerLonRadian_;
-        double lat = radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) - Math.PI / 2);
-        return new LatLng(lat, lng);
-    }
-
-    public double bound(double value, double opt_min, double opt_max) {
-        if (opt_min != 0) return Math.max(value, opt_min);
-        if (opt_max != 0) return Math.min(value, opt_max);
-        return -1;
-    }
-
-    private double degreesToRadians(double deg) {
-        return deg * (Math.PI / 180);
-    }
-
-    private double radiansToDegrees(double rad) {
-        return rad / (Math.PI / 180);
-    }
 
     private void drawRouterDots() {
 
@@ -268,6 +226,18 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+            // Check if we were successful in obtaining the map.
+            if (mMap != null) {
+                setUpMap();
+            }
+        }
+    }
 
     // called when wifi scanner finishes scan
     private class WifiReceiver extends BroadcastReceiver {
@@ -276,5 +246,47 @@ public class MainActivity extends FragmentActivity {
             displayData(service_WifiManager.getScanResults());
             mHandler.postDelayed(scanner, 0);
         }
+    }
+
+    private PointF fromLatLngToPoint(LatLng latLng) {
+        PointF point = new PointF(0, 0);
+        PointF origin = this.pixelOrigin_;
+
+        point.x = (float) (origin.x + latLng.longitude * this.pixelsPerLonDegree_);
+
+        // Truncating to 0.9999 effectively limits latitude to 89.189. This is
+        // about a third of a tile past the edge of the world tile.
+        double siny = bound(Math.sin(degreesToRadians(latLng.latitude)), -0.9999,
+                0.9999);
+        point.y = (float) (origin.y + 0.5 * Math.log((1 + siny) / (1 - siny)) * -this.pixelsPerLonRadian_);
+        return point;
+    }
+
+    public LatLng fromPointToLatLng(PointF point) {
+        PointF origin = this.pixelOrigin_;
+        double lng = (point.x - origin.x) / this.pixelsPerLonDegree_;
+        double latRadians = (point.y - origin.y) / -this.pixelsPerLonRadian_;
+        double lat = radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) - Math.PI / 2);
+        return new LatLng(lat, lng);
+    }
+
+    public double bound(double value, double opt_min, double opt_max) {
+        if (opt_min != 0) return Math.max(value, opt_min);
+        if (opt_max != 0) return Math.min(value, opt_max);
+        return -1;
+    }
+
+    private double degreesToRadians(double deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    private double radiansToDegrees(double rad) {
+        return rad / (Math.PI / 180);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpMapIfNeeded();
     }
 }
