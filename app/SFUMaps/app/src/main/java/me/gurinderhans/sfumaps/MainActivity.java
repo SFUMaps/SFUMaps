@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -91,18 +90,165 @@ public class MainActivity extends FragmentActivity {
 
             ArrayList<HashMap<String, String>> tableRawData = mDataBaseManager.getTableData(table);
 
-            long Ti = Long.parseLong(tableRawData.get(0).get(DataBaseManager.KEY_TIME));
-            long Tf = Long.parseLong(tableRawData.get(tableRawData.size() - 1).get(DataBaseManager.KEY_TIME));
-
-            Date DTi = new java.util.Date(Ti);
-            Date DTf = new java.util.Date(Tf);
-
-            Log.i(TAG, "DTi: "+DTi+" DTf: "+DTf+" |");
-
             ArrayList<ArrayList<HashMap<String, String>>> tmpList = ComplexFunctions.filterAPs(tableRawData, ALL_SSIDS);
 
-            for (ArrayList<HashMap<String, String>> d : tmpList) { //loop over each wifi
+            int max_ap_points = getArrayListMax(tmpList);
+
+            for (ArrayList<HashMap<String, String>> d : tmpList) { //loop over each wifi SSID
                 Collections.sort(d, new SortByTime(DataBaseManager.KEY_TIME));
+
+                // LatLng Wlatlng = fromPointToLatLng(new PointF(10, ((TILE_SIZE / 9) * i) + 15)); //west
+                // LatLng Elatlng = fromPointToLatLng(new PointF(246, ((TILE_SIZE / 9) * i) + 15)); //east
+                //LatLng Nlatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 12)); //north
+                //LatLng Slatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 248)); //south
+                Log.i(TAG, "table: " + table);
+
+                // TODO: create a better table naming scheme
+                // TODO: check for list sizes, if they are > 0
+//                PointF pointF = new PointF(0, 0);
+//                if (table.toLowerCase().contains("northtosouthright")) {
+//                    pointF = new PointF(242, TILE_SIZE / max_ap_points);
+//                } else if (table.toLowerCase().contains("northtosouthleft")) {
+//                    pointF = new PointF(5, TILE_SIZE / max_ap_points);
+//                } else if (table.toLowerCase().contains("easttowestup")) {
+//                    pointF = new PointF(TILE_SIZE / max_ap_points, 12);
+//                } else if (table.toLowerCase().contains("easttowestdown_good2")) {
+//                    //
+//                }
+
+                if (d.get(0).get(DataBaseManager.KEY_SSID).equals(ALL_SSIDS.get(0))) {
+                    // SFUNET
+                    if (table.toLowerCase().contains("northtosouthright")) {
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(240, ((TILE_SIZE / max_ap_points) * i) + 15));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetdot)));
+                        }
+                    } else if(table.toLowerCase().contains("northtosouthleft")){
+                        // check for size of list
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(6, ((TILE_SIZE / max_ap_points) * i) + 15));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetdot)));
+                        }
+
+                    } else if (table.toLowerCase().contains("easttowestup")) {
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(((TILE_SIZE / max_ap_points) * i) + 15, 11));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetdot)));
+                        }
+
+                    } else if (table.toLowerCase().contains("easttowestdown")) {
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(((TILE_SIZE / max_ap_points) * i) + 15, 250));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetdot)));
+                        }
+
+                    }
+
+
+                } else if (d.get(0).get(DataBaseManager.KEY_SSID).equals(ALL_SSIDS.get(1))) {
+                    // SFUNET-SECURE
+                    if (table.toLowerCase().contains("northtosouthright")) {
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(245f, ((TILE_SIZE / max_ap_points) * i) + 15));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetsecuredot)));
+                        }
+                    } else if(table.toLowerCase().contains("northtosouthleft")){
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(10, ((TILE_SIZE / max_ap_points) * i) + 15));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetsecuredot)));
+                        }
+
+                    } else if (table.toLowerCase().contains("easttowestup")) {
+
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(((TILE_SIZE / max_ap_points) * i) + 15, 15));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetsecuredot)));
+                        }
+
+                    } else if (table.toLowerCase().contains("easttowestdown")) {
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(((TILE_SIZE / max_ap_points) * i) + 15, 246));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetsecuredot)));
+                        }
+
+                    }
+                } else {
+                    // eduroam
+                    Log.i(TAG, "#eduroam: " + d.size());
+                    if (table.toLowerCase().contains("northtosouthright")) {
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(250, ((TILE_SIZE / max_ap_points) * i) + 15));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.eduroamdot)));
+                        }
+                    } else if(table.toLowerCase().contains("northtosouthleft")){
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(14, ((TILE_SIZE / max_ap_points) * i) + 15));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.eduroamdot)));
+                        }
+
+                    } else if (table.toLowerCase().contains("easttowestup")) {
+
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(((TILE_SIZE / max_ap_points) * i) + 15, 19));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.eduroamdot)));
+                        }
+
+                    } else if (table.toLowerCase().contains("easttowestdown")) {
+                        for (int i = 0; i < d.size(); i++) {
+                            LatLng latlng = fromPointToLatLng(new PointF(((TILE_SIZE / max_ap_points) * i) + 15, 242));
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(latlng)
+                                    .title(table)
+                                    .snippet("#" + (i + 1))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.eduroamdot)));
+                        }
+                    }
+                }
+
                 recordedAPs.addAll(d);
             }
 
@@ -159,6 +305,7 @@ public class MainActivity extends FragmentActivity {
         });
 
         // do something with this data.... somehow.....
+        // user location will be decided here
     }
 
     private void setUpMap() {
@@ -184,23 +331,22 @@ public class MainActivity extends FragmentActivity {
                 (float) (Math.floor(pixelCoordinate.y / TILE_SIZE)));
 
 //        Log.i(TAG, "tile coordinate: " + tileCoordinate);
-        drawRouterDots();
+//        drawRouterDots();
 
     }
-
 
     private void drawRouterDots() {
 
         // AQ West and East
         for (int i = 0; i <= 9; i++) {
-            LatLng Wlatlng = fromPointToLatLng(new PointF(10, ((TILE_SIZE / 9) * i) + 15));
+            LatLng Wlatlng = fromPointToLatLng(new PointF(10, ((TILE_SIZE / 9) * i) + 15)); //west
             mMap.addMarker(new MarkerOptions()
                     .position(Wlatlng)
                     .title("West")
                     .snippet("#" + (i + 1))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
 
-            LatLng Elatlng = fromPointToLatLng(new PointF(246, ((TILE_SIZE / 9) * i) + 15));
+            LatLng Elatlng = fromPointToLatLng(new PointF(246, ((TILE_SIZE / 9) * i) + 15)); //east
             mMap.addMarker(new MarkerOptions()
                     .position(Elatlng)
                     .title("East")
@@ -210,14 +356,14 @@ public class MainActivity extends FragmentActivity {
 
         // AQ North and South
         for (int i = 0; i <= 9; i++) {
-            LatLng Nlatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 12));
+            LatLng Nlatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 12)); //north
             mMap.addMarker(new MarkerOptions()
                     .position(Nlatlng)
                     .title("North")
                     .snippet("#" + (i + 1))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
 
-            LatLng Slatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 248));
+            LatLng Slatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 248)); //south
             mMap.addMarker(new MarkerOptions()
                     .position(Slatlng)
                     .title("North")
@@ -282,6 +428,14 @@ public class MainActivity extends FragmentActivity {
 
     private double radiansToDegrees(double rad) {
         return rad / (Math.PI / 180);
+    }
+
+    private int getArrayListMax(ArrayList<ArrayList<HashMap<String, String>>> data) {
+        List<Integer> sz = new ArrayList<>();
+        int max = 0;
+        for (ArrayList<HashMap<String, String>> list : data) sz.add(list.size());
+        for (int num : sz) if (num >= max) max = num;
+        return max;
     }
 
     @Override

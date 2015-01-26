@@ -66,8 +66,9 @@ def getData(cur, table):
     filtered_aps = getFilteredAPs(aps)
 
     for ap in filtered_aps:
-        print
-        for j in ap: print j
+        try:print ap[0][-1]
+        except: pass
+        # for j in ap: print j
 
 
 with con:
