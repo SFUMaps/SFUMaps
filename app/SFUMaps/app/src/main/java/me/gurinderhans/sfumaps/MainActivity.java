@@ -97,24 +97,13 @@ public class MainActivity extends FragmentActivity {
             for (ArrayList<HashMap<String, String>> d : tmpList) { //loop over each wifi SSID
                 Collections.sort(d, new SortByTime(DataBaseManager.KEY_TIME));
 
-                // LatLng Wlatlng = fromPointToLatLng(new PointF(10, ((TILE_SIZE / 9) * i) + 15)); //west
-                // LatLng Elatlng = fromPointToLatLng(new PointF(246, ((TILE_SIZE / 9) * i) + 15)); //east
-                //LatLng Nlatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 12)); //north
-                //LatLng Slatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 248)); //south
                 Log.i(TAG, "table: " + table);
 
                 // TODO: create a better table naming scheme
+                // TODO: figure out points path for each data set
                 // TODO: check for list sizes, if they are > 0
-//                PointF pointF = new PointF(0, 0);
-//                if (table.toLowerCase().contains("northtosouthright")) {
-//                    pointF = new PointF(242, TILE_SIZE / max_ap_points);
-//                } else if (table.toLowerCase().contains("northtosouthleft")) {
-//                    pointF = new PointF(5, TILE_SIZE / max_ap_points);
-//                } else if (table.toLowerCase().contains("easttowestup")) {
-//                    pointF = new PointF(TILE_SIZE / max_ap_points, 12);
-//                } else if (table.toLowerCase().contains("easttowestdown_good2")) {
-//                    //
-//                }
+
+                // only AQ specific data here - obviously not the ideal way to do
 
                 if (d.get(0).get(DataBaseManager.KEY_SSID).equals(ALL_SSIDS.get(0))) {
                     // SFUNET
@@ -127,7 +116,7 @@ public class MainActivity extends FragmentActivity {
                                     .snippet("#" + (i + 1))
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetdot)));
                         }
-                    } else if(table.toLowerCase().contains("northtosouthleft")){
+                    } else if (table.toLowerCase().contains("northtosouthleft")) {
                         // check for size of list
                         for (int i = 0; i < d.size(); i++) {
                             LatLng latlng = fromPointToLatLng(new PointF(6, ((TILE_SIZE / max_ap_points) * i) + 15));
@@ -172,7 +161,7 @@ public class MainActivity extends FragmentActivity {
                                     .snippet("#" + (i + 1))
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.sfunetsecuredot)));
                         }
-                    } else if(table.toLowerCase().contains("northtosouthleft")){
+                    } else if (table.toLowerCase().contains("northtosouthleft")) {
                         for (int i = 0; i < d.size(); i++) {
                             LatLng latlng = fromPointToLatLng(new PointF(10, ((TILE_SIZE / max_ap_points) * i) + 15));
                             mMap.addMarker(new MarkerOptions()
@@ -216,7 +205,7 @@ public class MainActivity extends FragmentActivity {
                                     .snippet("#" + (i + 1))
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.eduroamdot)));
                         }
-                    } else if(table.toLowerCase().contains("northtosouthleft")){
+                    } else if (table.toLowerCase().contains("northtosouthleft")) {
                         for (int i = 0; i < d.size(); i++) {
                             LatLng latlng = fromPointToLatLng(new PointF(14, ((TILE_SIZE / max_ap_points) * i) + 15));
                             mMap.addMarker(new MarkerOptions()
@@ -269,7 +258,7 @@ public class MainActivity extends FragmentActivity {
             HashMap<String, String> ap = new HashMap<>();
             ap.put(DataBaseManager.KEY_SSID, result.SSID);
             ap.put(DataBaseManager.KEY_BSSID, result.BSSID);
-            ap.put(DataBaseManager.KEY_FREQ, result.frequency + " MHz");
+            ap.put(DataBaseManager.KEY_FREQ, Integer.toString(result.frequency));
             ap.put(DataBaseManager.KEY_RSSI, Integer.toString(result.level));
             ap.put(DataBaseManager.KEY_TIME, Long.toString(System.currentTimeMillis()));
 
@@ -277,7 +266,7 @@ public class MainActivity extends FragmentActivity {
         }
 
         /**
-         * @see - probably should filter out some garbage / unwanted APs that were scanned
+         * @see - probably should filter out some garbage / unwanted APs that were already scanned ?
          */
         for (HashMap<String, String> recordedAP : recordedAPs) {
             String comparingBSSID = recordedAP.get(DataBaseManager.KEY_BSSID);
@@ -286,9 +275,9 @@ public class MainActivity extends FragmentActivity {
                 if (comparingBSSID.equals(comparingToBSSID)) {
                     int recordedVal = Integer.parseInt(recordedAP.get(DataBaseManager.KEY_RSSI));
                     int newVal = Integer.parseInt(scannedAp.get(DataBaseManager.KEY_RSSI));
-                    scannedAp.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + ""); //modifying
-                    scannedAp.put(KEY_RECORDED_VAL, "Recorded RSSI: " + recordedVal + "");//adding new map
-                    scannedAp.put(DataBaseManager.KEY_RSSI, "Current RSSI: " + newVal);//adding new map
+                    scannedAp.put(KEY_RSSI_DIFFERENCE, Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + "");
+                    scannedAp.put(KEY_RECORDED_VAL, recordedVal + "");//adding new map
+                    scannedAp.put(DataBaseManager.KEY_RSSI, newVal + "");//adding new map
                     matchingSignalsPickedUp.add(scannedAp);
                     break;
                 }
