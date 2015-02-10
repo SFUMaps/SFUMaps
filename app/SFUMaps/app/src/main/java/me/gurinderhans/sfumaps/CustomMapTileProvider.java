@@ -13,9 +13,8 @@ import java.io.InputStream;
  * Created by ghans on 1/17/15.
  */
 public class CustomMapTileProvider implements TileProvider {
+
     public static final String TAG = CustomMapTileProvider.class.getSimpleName();
-    private static final int TILE_WIDTH = 256;
-    private static final int TILE_HEIGHT = 256;
     private static final int BUFFER_SIZE = 16 * 1024;
 
     private AssetManager mAssets;
@@ -27,7 +26,7 @@ public class CustomMapTileProvider implements TileProvider {
     @Override
     public Tile getTile(int x, int y, int zoom) {
         byte[] image = readTileImage(x, y, zoom);
-        return image == null ? null : new Tile(TILE_WIDTH, TILE_HEIGHT, image);
+        return image == null ? null : new Tile((int) AppConstants.TILE_SIZE, (int) AppConstants.TILE_SIZE, image);
     }
 
     private byte[] readTileImage(int x, int y, int zoom) {
