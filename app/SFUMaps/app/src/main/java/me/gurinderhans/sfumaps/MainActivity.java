@@ -14,14 +14,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 public class MainActivity extends FragmentActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
-
-    ArrayList<HashMap<String, String>> recordedAPs, matchingSignalsPickedUp;
 
     WifiManager service_WifiManager;
 
@@ -30,8 +25,6 @@ public class MainActivity extends FragmentActivity {
     Handler mHandler;
 
     Runnable scanner;
-
-    DataBaseManager mDataBaseManager;
 
     DrawRecordedPaths drawRecordedPaths;
 
@@ -42,28 +35,22 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setUpMapIfNeeded();
-
         mHandler = new Handler();
 
-//        recordedAPs = new ArrayList<>();
-//
-//        matchingSignalsPickedUp = new ArrayList<>();
-//
-//        mDataBaseManager = new DataBaseManager(getApplicationContext());
+        setUpMapIfNeeded();
 
-        drawRecordedPaths = new DrawRecordedPaths();
+        drawRecordedPaths = new DrawRecordedPaths(true, this);
 
         service_WifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
         wifiReceiver = new WifiReceiver();
 
-        scanner = new Runnable() {
+        /*scanner = new Runnable() {
             @Override
             public void run() {
                 service_WifiManager.startScan();
             }
-        };
+        };*/
 
     }
 

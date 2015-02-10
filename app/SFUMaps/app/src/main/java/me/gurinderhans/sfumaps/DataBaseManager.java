@@ -123,7 +123,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(GET_TABLES_QUERY, null);
         if (cursor.moveToFirst()) {
             do tables.add(cursor.getString(0));
-            while (cursor.moveToNext());
+            while (cursor.moveToNext() && !(cursor.getString(0).equals("android_metadata")));
         } else {
             //do something if cursor is unable to proceed
             Log.i("ERROR", "Unable to move cursor!");
