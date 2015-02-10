@@ -1,9 +1,6 @@
-from time import ctime
-import sqlite3
+#!/usr/bin/env python
 
-DB_NAME = "wifi_data"
-RSSI_THRESHOLD = -65
-WIFIS = ["SFUNET", "SFUNET-SECURE", "eduroam"]
+import sys, sqlite3, time
 
 class color:
    PURPLE = '\033[95m'
@@ -17,14 +14,36 @@ class color:
    UNDERLINE = '\033[4m'
    END = '\033[0m'
 
-con = sqlite3.connect(DB_NAME)
+tm = time.time()
+
+db_name=""
+
+if len(sys.argv)==2: db_name = sys.argv[1]
+else:
+    print color.BOLD+color.RED+"no database provided...!?"+color.END
+    sys.exit()
+
+RSSI_THRESHOLD = -65
+WIFIS = ["SFUNET", "SFUNET-SECURE", "eduroam"]
+
+con = sqlite3.connect(db_name)
+N_con = sqlite3.connect('N_'+db_name)
+N_cur = N_con.cursor()
+
+def createTableAddData(tbl_name, data):
+    createTableQuery = "CREATE TABLE "+tbl_name+" (_id INTEGER PRIMARY KEY, ssid TEXT, bssid TEXT, freq TEXT, level TEXT, rec_time TEXT)"
+    N_cur.execute(createTableQuery)
+
+    for i in data:
+        for j in i:
+            insertQuery = "INSERT INTO "+tbl_name+"(ssid, bssid, freq, level, rec_time) VALUES ('%s', '%s', '%s', '%s', '%s')" % (str(j[0]), str(j[1]), str(j[2]), str(j[3]), str(j[4]))
+            N_cur.execute(insertQuery)
 
 
 """
 for every data set we need to get the tuple
 with min rssi val for each unique BSSID
 """
-
 def getStrongestBssids(d):
     # sort by rssi then take out dups and
     # we'll get the bssids with better rssi
@@ -43,13 +62,9 @@ def getStrongestBssids(d):
 def getFilteredAPs(data):
     eachWifiData = []
     for i in WIFIS:
-        # maybe modify id here ...
         tmpData = [j[1:] for j in data if j[1] == i] # remove id from tuple using [1:]
         tmpData = [j for j in getStrongestBssids(tmpData) if int(j[3]) > RSSI_THRESHOLD]
         tmpData = sorted(tmpData, key = lambda x:int(x[-1])) #sorting by time
-
-        tmpData = [((i+1),)+j for i,j in enumerate(tmpData)] # add id to each tuple
-        tmpData = [i+(ctime(int(i[-1])/1000),) for i in tmpData] # add readable time
 
         eachWifiData.append(tmpData)
 
@@ -59,16 +74,11 @@ def getFilteredAPs(data):
 def getData(cur, table):
     cur.execute("SELECT * FROM "+table)
 
-    print;print color.BOLD+"TABLE = "+color.DARKCYAN+table[8:]+color.END
-
     aps = cur.fetchall()
 
     filtered_aps = getFilteredAPs(aps)
 
-    for ap in filtered_aps:
-        try:print ap[0][-1]
-        except: pass
-        # for j in ap: print j
+    createTableAddData(table, filtered_aps)
 
 
 with con:
@@ -77,14 +87,13 @@ with con:
 
     cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
     tables = [i[0] for i in cur.fetchall()[1:]]
-    print tables
 
     for table in tables:
         getData(cur, table)
 
 
 
-
+print color.BOLD+('Took: '+color.DARKCYAN+str(time.time()-tm)+' seconds :)')+color.END
 
 
 
