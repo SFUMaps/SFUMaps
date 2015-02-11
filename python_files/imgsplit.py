@@ -21,7 +21,7 @@ def main( dims ):
     numTiles = 4**zoomlvl
     numcols = 2**zoomlvl
 
-    if not dims[0]/256 == numcols:
+    if not dims[0]/256.0 == float(numcols):
         print (color.BOLD+'Please provide an image: '+color.DARKCYAN+'('+'{0} x {1}'+')').format(numcols*256, numcols*256)+color.END
         return
 

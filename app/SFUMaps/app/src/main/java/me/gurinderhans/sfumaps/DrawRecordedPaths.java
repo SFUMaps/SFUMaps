@@ -2,7 +2,6 @@ package me.gurinderhans.sfumaps;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -54,12 +53,12 @@ public class DrawRecordedPaths {
         this.mDataBaseManager = new DataBaseManager(ctx);
         this.mMap = map;
 
-        for (String table : mDataBaseManager.getTables()) {
+        /*for (String table : mDataBaseManager.getTables()) {
             Log.i(TAG, table);
 
             drawAQ_APpoints(organizeData(table), table);
 
-        }
+        }*/
 
     }
 
