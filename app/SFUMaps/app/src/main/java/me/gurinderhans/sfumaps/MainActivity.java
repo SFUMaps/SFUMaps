@@ -39,8 +39,6 @@ public class MainActivity extends FragmentActivity {
 
         setUpMapIfNeeded();
 
-        drawRecordedPaths = new DrawRecordedPaths(true, this);
-
         service_WifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
         wifiReceiver = new WifiReceiver();
@@ -58,6 +56,8 @@ public class MainActivity extends FragmentActivity {
         mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0f, 0f), 2.0f));
         mMap.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
+
+        drawRecordedPaths = new DrawRecordedPaths(true, getApplicationContext(), mMap);
 
 //        PointF point = new PointF(128, 128);
 //

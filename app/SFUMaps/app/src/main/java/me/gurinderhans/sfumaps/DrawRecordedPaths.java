@@ -1,6 +1,13 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.Context;
+import android.graphics.PointF;
+import android.util.Log;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,61 +47,49 @@ public class DrawRecordedPaths {
 
     DataBaseManager mDataBaseManager;
 
-    public DrawRecordedPaths(boolean debug, Context ctx) {
-        DEBUG = debug;
+    GoogleMap mMap;
 
-        mDataBaseManager = new DataBaseManager(ctx);
+    public DrawRecordedPaths(boolean debug, Context ctx, GoogleMap map) {
+        this.DEBUG = debug;
+        this.mDataBaseManager = new DataBaseManager(ctx);
+        this.mMap = map;
 
-        fetchData();
+        for (String table : mDataBaseManager.getTables()) {
+            Log.i(TAG, table);
 
-    }
+            drawAQ_APpoints(organizeData(table), table);
 
-    public void fetchData(){
-        for(String table: mDataBaseManager.getTables()) {
-            ArrayList<HashMap<String, String>> tableRawData = mDataBaseManager.getTableData(table);
         }
+
     }
 
 
+    private void drawAQ_APpoints(ArrayList<ArrayList<HashMap<String, String>>> data, String table) {
 
+        String direction = table.split("_")[4];
 
-//    public void getRecordedData() {
-//        recordedAPs.clear();
-//        for (String table : DATA_TABLES) {
-//
-//            ArrayList<HashMap<String, String>> tableRawData = mDataBaseManager.getTableData(table);
-//
-//            ArrayList<ArrayList<HashMap<String, String>>> tmpList = ComplexFunctions.filterAPs(tableRawData, ALL_SSIDS);
-//
-//            int max_ap_points = getMaxAPPoints(tmpList);
-//
-//            for (ArrayList<HashMap<String, String>> d : tmpList) { //loop over each wifi SSID
-//                Collections.sort(d, new SortByTime(DataBaseManager.KEY_TIME));
-//
-//                Log.i(TAG, "table: " + table);
-//
-//
-//                // TODO: figure out points path for each data set
-//
-//                recordedAPs.addAll(d);
-//            }
-//
-//        }
-//
-//    }
-//
-//    private void drawRouterDots() {
-//
-//        // AQ West and East
+        for (ArrayList<HashMap<String, String>> d : data) {
+            for (int i = 0; i < getMaxAPPoints(data); i++) {
+                LatLng Wlatlng = MapTools.fromPointToLatLng(new PointF(10, ((AppConstants.TILE_SIZE / 9) * i) + 15)); //west
+                mMap.addMarker(new MarkerOptions()
+                        .position(Wlatlng)
+                        .title("West")
+                        .snippet("#" + (i + 1))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
+
+            }
+        }
+
+        // AQ West and East
 //        for (int i = 0; i <= 9; i++) {
-//            LatLng Wlatlng = fromPointToLatLng(new PointF(10, ((TILE_SIZE / 9) * i) + 15)); //west
+//            LatLng Wlatlng = MapTools.fromPointToLatLng(new PointF(10, ((AppConstants.TILE_SIZE / 9) * i) + 15)); //west
 //            mMap.addMarker(new MarkerOptions()
 //                    .position(Wlatlng)
 //                    .title("West")
 //                    .snippet("#" + (i + 1))
 //                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
 //
-//            LatLng Elatlng = fromPointToLatLng(new PointF(246, ((TILE_SIZE / 9) * i) + 15)); //east
+//            LatLng Elatlng = MapTools.fromPointToLatLng(new PointF(246, ((AppConstants.TILE_SIZE / 9) * i) + 15)); //east
 //            mMap.addMarker(new MarkerOptions()
 //                    .position(Elatlng)
 //                    .title("East")
@@ -104,21 +99,48 @@ public class DrawRecordedPaths {
 //
 //        // AQ North and South
 //        for (int i = 0; i <= 9; i++) {
-//            LatLng Nlatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 12)); //north
+//            LatLng Nlatlng = MapTools.fromPointToLatLng(new PointF(((AppConstants.TILE_SIZE / 9) * i) + 15, 12)); //north
 //            mMap.addMarker(new MarkerOptions()
 //                    .position(Nlatlng)
 //                    .title("North")
 //                    .snippet("#" + (i + 1))
 //                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
 //
-//            LatLng Slatlng = fromPointToLatLng(new PointF(((TILE_SIZE / 9) * i) + 15, 248)); //south
+//            LatLng Slatlng = MapTools.fromPointToLatLng(new PointF(((AppConstants.TILE_SIZE / 9) * i) + 15, 248)); //south
 //            mMap.addMarker(new MarkerOptions()
 //                    .position(Slatlng)
 //                    .title("North")
 //                    .snippet("#" + (i + 1))
 //                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
 //        }
-//    }
+    }
+
+
+    /**
+     * takes the raw table data and splits it by each SSID
+     *
+     * @param table - table name that
+     * @return data - returns the array-list with inner array-list containing data of each SSID
+     */
+    private ArrayList<ArrayList<HashMap<String, String>>> organizeData(String table) {
+        ArrayList<ArrayList<HashMap<String, String>>> data = new ArrayList<>();
+
+        ArrayList<HashMap<String, String>> tableRawData = mDataBaseManager.getTableData(table);
+
+        for (String ssid : AppConstants.ALL_SSIDS) {
+            ArrayList<HashMap<String, String>> tmp = new ArrayList<>();
+            for (HashMap<String, String> ap : tableRawData) {
+
+                if (ap.get(DataBaseManager.KEY_SSID).equals(ssid))
+                    tmp.add(ap);
+
+            }
+
+            data.add(tmp);
+        }
+
+        return data;
+    }
 
 
 //    private void displayData(List<ScanResult> wifiAPs) {
@@ -140,9 +162,7 @@ public class DrawRecordedPaths {
 //            scanResults.add(ap);
 //        }
 
-        /**
-         * @see - probably should filter out some garbage / unwanted APs that were already scanned ?
-         */
+
 /*
         for (HashMap<String, String> recordedAP : recordedAPs) {
             String comparingBSSID = recordedAP.get(DataBaseManager.KEY_BSSID);
@@ -179,12 +199,38 @@ public class DrawRecordedPaths {
 //        Log.i(TAG, "size: " + recordedAPs.size());
 
 
-        private int getMaxAPPoints(ArrayList<ArrayList<HashMap<String, String>>> data) {
-            int max = 0;
-            for (ArrayList<HashMap<String, String>> list : data)
-                if (list.size() > max) max = list.size();
-            return max;
-        }
+//    public void getRecordedData() {
+//        recordedAPs.clear();
+//        for (String table : DATA_TABLES) {
+//
+//            ArrayList<HashMap<String, String>> tableRawData = mDataBaseManager.getTableData(table);
+//
+//            ArrayList<ArrayList<HashMap<String, String>>> tmpList = ComplexFunctions.filterAPs(tableRawData, ALL_SSIDS);
+//
+//            int max_ap_points = getMaxAPPoints(tmpList);
+//
+//            for (ArrayList<HashMap<String, String>> d : tmpList) { //loop over each wifi SSID
+//                Collections.sort(d, new SortByTime(DataBaseManager.KEY_TIME));
+//
+//                Log.i(TAG, "table: " + table);
+//
+//
+//                // TODO: figure out points path for each data set
+//
+//                recordedAPs.addAll(d);
+//            }
+//
+//        }
+//
+//    }
+
+
+    private int getMaxAPPoints(ArrayList<ArrayList<HashMap<String, String>>> data) {
+        int max = 0;
+        for (ArrayList<HashMap<String, String>> list : data)
+            if (list.size() > max) max = list.size();
+        return max;
+    }
 
 
 }
