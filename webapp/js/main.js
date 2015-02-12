@@ -12,7 +12,7 @@ var mapTypeOptions = {
 
   tileSize: new google.maps.Size(TILE_SIZE, TILE_SIZE),
 
-  maxZoom: 1,
+  maxZoom: 6,
   minZoom: 1,
 
   name: "AQ" // this is displayed on the top right corner button
