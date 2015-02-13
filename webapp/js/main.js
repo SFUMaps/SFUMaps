@@ -49,12 +49,6 @@ function _seperateSSID(data){
     splittedData[SSIDS[i]] = tmpSSIDData;
   }
 
-  // var Max = 0;
-  // for(i in splittedData)
-  //     Max = (splittedData[i].length > Max) ? splittedData[i].length : Max;
-  //
-  // splittedData['max'] = Max;
-
   return splittedData
 }
 
@@ -75,7 +69,6 @@ function _manageData(data, initPoint){
 
       for(ssid in aps) {
         var ssid_aps = aps[ssid];
-        // console.log(ssid)
 
         for(i=0; i<ssid_aps.length; i++) {
           // console.log(ssid_aps[i])
@@ -84,11 +77,11 @@ function _manageData(data, initPoint){
             if (key_S[1] == "East") point.x = TILE_SIZE-initPoint.x+5
             else point.x = initPoint.x;
 
-            point.y = initPoint.y+( i*( AQ_SIZE/(ssid_aps.length - 1) ) );
+            point.y = initPoint.y+( i * ( AQ_SIZE/(ssid_aps.length - 1) ) );
 
           } else {
-            point.x = initPoint.x+( i*( AQ_SIZE/(ssid_aps.length - 1) ) );
-            // console.log(point.x)
+            point.x = initPoint.x+( i * ( AQ_SIZE/(ssid_aps.length - 1) ) );
+
             if (key_S[1] == "South") point.y = TILE_SIZE-initPoint.y+5;
             else point.y = initPoint.y;
           }

@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PointF;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,7 +12,9 @@ import android.support.v4.app.FragmentActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
 public class MainActivity extends FragmentActivity {
@@ -58,6 +61,13 @@ public class MainActivity extends FragmentActivity {
         mMap.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
 
         drawRecordedPaths = new DrawRecordedPaths(true, getApplicationContext(), mMap);
+
+        LatLng Wlatlng = MapTools.fromPointToLatLng(new PointF(AppConstants.TILE_SIZE / 2, AppConstants.TILE_SIZE / 2)); //west
+        mMap.addMarker(new MarkerOptions()
+                .position(Wlatlng)
+                .title("Center")
+                .snippet("User dot")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.userdot)));
 
 //        PointF point = new PointF(128, 128);
 
