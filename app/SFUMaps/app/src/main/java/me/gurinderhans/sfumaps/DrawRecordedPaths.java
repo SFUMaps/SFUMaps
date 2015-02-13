@@ -53,31 +53,68 @@ public class DrawRecordedPaths {
         this.mDataBaseManager = new DataBaseManager(ctx);
         this.mMap = map;
 
-        /*for (String table : mDataBaseManager.getTables()) {
-            Log.i(TAG, table);
+        LatLng Wlatlng = MapTools.fromPointToLatLng(new PointF(50, 50)); //west
+        mMap.addMarker(new MarkerOptions()
+                .position(Wlatlng)
+                .title("West")
+                .snippet("custom point")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
 
-            drawAQ_APpoints(organizeData(table), table);
+        for (String table : mDataBaseManager.getTables()) {
 
-        }*/
+            drawData(table);
+//            Log.i(TAG, table);
+//
+//            drawAQ_APpoints(organizeData(table), table);
 
+        }
+
+    }
+
+    public void drawData(String table){
+        ArrayList<HashMap<String, String>> tableData = mDataBaseManager.getTableData(table);
+
+        for(ArrayList<HashMap<String, String>> aps: seperateBySSID(tableData)){
+            for(int i=0; i<aps.size(); i++){
+                //
+            }
+        }
+    }
+
+    public ArrayList<ArrayList<HashMap<String, String>>> seperateBySSID(ArrayList<HashMap<String, String>> d) {
+
+        ArrayList<ArrayList<HashMap<String, String>>> splittedData = new ArrayList<>();
+
+        for (String ssid : AppConstants.ALL_SSIDS) {
+            ArrayList<HashMap<String, String>> tmp = new ArrayList<>();
+            for (HashMap<String, String> ap : d) {
+                if (ap.get(DataBaseManager.KEY_SSID).equals(ssid))
+                    tmp.add(ap);
+
+            }
+
+            splittedData.add(tmp);
+        }
+
+        return splittedData;
     }
 
 
     private void drawAQ_APpoints(ArrayList<ArrayList<HashMap<String, String>>> data, String table) {
 
-        String direction = table.split("_")[4];
-
-        for (ArrayList<HashMap<String, String>> d : data) {
-            for (int i = 0; i < getMaxAPPoints(data); i++) {
-                LatLng Wlatlng = MapTools.fromPointToLatLng(new PointF(10, ((AppConstants.TILE_SIZE / 9) * i) + 15)); //west
-                mMap.addMarker(new MarkerOptions()
-                        .position(Wlatlng)
-                        .title("West")
-                        .snippet("#" + (i + 1))
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
-
-            }
-        }
+//        String direction = table.split("_")[4];
+//
+//        for (ArrayList<HashMap<String, String>> d : data) {
+//            for (int i = 0; i < getMaxAPPoints(data); i++) {
+//                LatLng Wlatlng = MapTools.fromPointToLatLng(new PointF(10, ((AppConstants.TILE_SIZE / 9) * i) + 15)); //west
+//                mMap.addMarker(new MarkerOptions()
+//                        .position(Wlatlng)
+//                        .title("West")
+//                        .snippet("#" + (i + 1))
+//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
+//
+//            }
+//        }
 
         // AQ West and East
 //        for (int i = 0; i <= 9; i++) {
@@ -112,33 +149,6 @@ public class DrawRecordedPaths {
 //                    .snippet("#" + (i + 1))
 //                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
 //        }
-    }
-
-
-    /**
-     * takes the raw table data and splits it by each SSID
-     *
-     * @param table - table name that
-     * @return data - returns the array-list with inner array-list containing data of each SSID
-     */
-    private ArrayList<ArrayList<HashMap<String, String>>> organizeData(String table) {
-        ArrayList<ArrayList<HashMap<String, String>>> data = new ArrayList<>();
-
-        ArrayList<HashMap<String, String>> tableRawData = mDataBaseManager.getTableData(table);
-
-        for (String ssid : AppConstants.ALL_SSIDS) {
-            ArrayList<HashMap<String, String>> tmp = new ArrayList<>();
-            for (HashMap<String, String> ap : tableRawData) {
-
-                if (ap.get(DataBaseManager.KEY_SSID).equals(ssid))
-                    tmp.add(ap);
-
-            }
-
-            data.add(tmp);
-        }
-
-        return data;
     }
 
 
@@ -224,12 +234,13 @@ public class DrawRecordedPaths {
 //    }
 
 
-    private int getMaxAPPoints(ArrayList<ArrayList<HashMap<String, String>>> data) {
-        int max = 0;
-        for (ArrayList<HashMap<String, String>> list : data)
-            if (list.size() > max) max = list.size();
-        return max;
-    }
+    //may not use this but keeping just in case....
+//    private int getMaxAPPoints(ArrayList<ArrayList<HashMap<String, String>>> data) {
+//        int max = 0;
+//        for (ArrayList<HashMap<String, String>> list : data)
+//            if (list.size() > max) max = list.size();
+//        return max;
+//    }
 
 
 }

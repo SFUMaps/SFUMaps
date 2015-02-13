@@ -9,6 +9,9 @@ public final class AppConstants {
     // map database vars
     public static final String KEY_RSSI_DIFFERENCE = "rssi_diff";
     public static final String KEY_RECORDED_VAL = "recorded_val";
+
+    public static final String MAX_SSID_APS = "aps_max";
+
     public static String[] ALL_SSIDS = {"SFUNET", "SFUNET-SECURE", "eduroam"};
 
 

@@ -3,7 +3,6 @@ package me.gurinderhans.sfumaps;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PointF;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,7 +12,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
 public class MainActivity extends FragmentActivity {
@@ -61,11 +59,11 @@ public class MainActivity extends FragmentActivity {
 
         drawRecordedPaths = new DrawRecordedPaths(true, getApplicationContext(), mMap);
 
-        PointF point = new PointF(128, 128);
+//        PointF point = new PointF(128, 128);
 
 
-        mMap.addMarker(new MarkerOptions().position(MapTools.fromPointToLatLng(point)).title("Center from PointF"));
-//
+//        mMap.addMarker(new MarkerOptions().position(MapTools.fromPointToLatLng(point)).title("Center from PointF"));
+
 //        LatLng center = new LatLng(0, 0);
 //
 //        int numTiles = 1 << (int) (mMap.getCameraPosition().zoom);
