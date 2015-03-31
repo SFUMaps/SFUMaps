@@ -18,25 +18,24 @@ import java.util.HashMap;
 public class DrawRecordedPaths {
 
     /**
-     *  -----------------------------
+     * -----------------------------
      * |  Current Table Name Scheme  |
-     *  -----------------------------
-     = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-
+     * -----------------------------
+     * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+     * <p/>
      * 1. globalprefix = 'apsdata_'
-
+     * <p/>
      * 2. location general name -> ex. AQ, TASC1, ASB
-
+     * <p/>
      * 3. location specific name generalName_ [ {North, South, East, West}, {Lvl9_Far} ]
-
+     * <p/>
      * 4. floor level (M = main) and (M+n) for floors above M and (M-n) for floors below M - AQ 3000 is considered as floor M
-
+     * <p/>
      * 5. direction = VR (vertical) | HR (horizontal) or in rare cases CSTNA ( custom n/a )
-
+     * <p/>
      * ==> tableName = '{0}_{1}_{2}_{3}_{4}' % (globaleprefix, locationGeneralName, locationSpecificName, floor level, direction)
-
+     * <p/>
      * ex. -> 'apsdata_AQ_North_M_HR'
-
      */
 
 
@@ -72,7 +71,7 @@ public class DrawRecordedPaths {
         ArrayList<HashMap<String, String>> tableData = mDataBaseManager.getTableData(table);
 
         float mvDiff = 0f;
-        for(ArrayList<HashMap<String, String>> aps: seperateBySSID(tableData)){
+        for (ArrayList<HashMap<String, String>> aps : seperateBySSID(tableData)) {
             String thisSSID = aps.get(0).get(DataBaseManager.KEY_SSID);
             for (int i = 1; i < aps.size(); i++) {
                 PointF point = new PointF(0f, 0f);
@@ -82,10 +81,10 @@ public class DrawRecordedPaths {
                     else point.x = initPoint.x;
 
                     // current-index - 1 and aps.size() - 1 because index 0 contains ssid name
-                    point.y = initPoint.y + ( (i-1) * (AppConstants.AQ_SIZE / ((aps.size()-1) - 1)));
+                    point.y = initPoint.y + ((i - 1) * (AppConstants.AQ_SIZE / ((aps.size() - 1) - 1)));
 
                 } else {
-                    point.x = initPoint.x + ( (i-1) * (AppConstants.AQ_SIZE / ((aps.size()-1) - 1)));
+                    point.x = initPoint.x + ((i - 1) * (AppConstants.AQ_SIZE / ((aps.size() - 1) - 1)));
 
                     if (table_S[1].equals("South"))
                         point.y = AppConstants.TILE_SIZE - initPoint.y + 5;
