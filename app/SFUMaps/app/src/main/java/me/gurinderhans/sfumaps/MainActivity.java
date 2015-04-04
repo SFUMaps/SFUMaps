@@ -16,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
@@ -32,6 +33,7 @@ public class MainActivity extends FragmentActivity {
     Runnable scanner;
     DrawRecordedPaths drawRecordedPaths;
     private GoogleMap mMap;
+    private Marker userMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +63,7 @@ public class MainActivity extends FragmentActivity {
         drawRecordedPaths = new DrawRecordedPaths(true, getApplicationContext(), mMap);
 
         LatLng Wlatlng = MapTools.fromPointToLatLng(new PointF(AppConstants.TILE_SIZE / 2, AppConstants.TILE_SIZE / 2)); //west
-        mMap.addMarker(new MarkerOptions()
+        userMarker = mMap.addMarker(new MarkerOptions()
                 .position(Wlatlng)
                 .title("Center")
                 .snippet("User dot")
@@ -110,19 +112,37 @@ public class MainActivity extends FragmentActivity {
     }
 
     public void displayData(List<ScanResult> scanData) {
+        HashMap<Integer, Integer> diffs = new HashMap<>();
 
         for (String key: drawRecordedPaths.seperatedData.keySet()) {
-            for (HashMap<String, Object> dataRow: drawRecordedPaths.seperatedData.get(key)) {
-                for (ScanResult res: scanData) {
-                    if (dataRow.get(DataBaseManager.KEY_SSID).equals(res.BSSID)) {
-                        // we need to compare atleast a few of recorded points and see which has the least difference
-                        // as in |recordedRSSI| - |scannedRSSI| and put us at the one with least difference
-
-                        // for now add these differene values along with recorded value index in some array / hashmap
-                        // then get min of that array (as in least differnce) put user marker there (outside this loop)
+            for (int i = 0; i < drawRecordedPaths.seperatedData.get(key).size(); i++) {
+                HashMap<String, Object> dataRow = drawRecordedPaths.seperatedData.get(key).get(i);
+                for (ScanResult res : scanData) {
+                    if (dataRow.get(DataBaseManager.KEY_BSSID).equals(res.BSSID)) {
+                        diffs.put(i, Math.abs(Math.abs((Integer) dataRow.get(DataBaseManager.KEY_RSSI)) - Math.abs(res.level)));
                     }
                 }
             }
         }
+
+        int minHashRow = minMapVal(diffs);
+
+        for (String key: drawRecordedPaths.seperatedData.keySet()) {
+            PointF pointF = (PointF) drawRecordedPaths.seperatedData.get(key).get(minHashRow).get(DataBaseManager.KEY_POINT);
+            //set marker to this pos
+            userMarker.setPosition(MapTools.fromPointToLatLng(pointF));
+        }
+    }
+
+    public int minMapVal(HashMap<Integer, Integer> map) {
+        int minKey = 0;
+        int minVal = 1000000;
+        for (int key : map.keySet()) {
+            if (map.get(key) < minVal) {
+                minKey = key;
+                minVal = map.get(key);
+            }
+        }
+        return minKey;
     }
 }
