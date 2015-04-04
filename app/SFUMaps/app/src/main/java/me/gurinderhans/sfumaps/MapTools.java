@@ -4,6 +4,9 @@ import android.graphics.PointF;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * Created by ghans on 2/9/15.
  */
@@ -47,5 +50,20 @@ public class MapTools {
 
     private static double radiansToDegrees(double rad) {
         return rad / (Math.PI / 180);
+    }
+
+    public static HashMap<String, ArrayList<HashMap<String, Object>>> seperateByKeys(ArrayList<HashMap<String, Object>> data, String[] keys, String keyIndex) {
+
+        HashMap<String, ArrayList<HashMap<String, Object>>> seperated = new HashMap<>();
+
+        for (String key : keys) {
+            seperated.put(key, new ArrayList<HashMap<String, Object>>());
+        }
+
+        for (HashMap<String, Object> i: data) {
+            seperated.get(i.get(keyIndex)).add(i);
+        }
+
+        return seperated;
     }
 }

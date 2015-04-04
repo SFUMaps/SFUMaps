@@ -1,41 +1,4 @@
-function getNormalizedCoord(coord, zoom) {
-    var y = coord.y;
-    var x = coord.x;
-
-    // tile range in one direction range is dependent on zoom level
-    // 0 = 1 tile, 1 = 2 tiles, 2 = 4 tiles, 3 = 8 tiles, etc
-    var tileRange = 1 << zoom;
-
-    /**
-    * If we don't want to repeat in any direction
-    * simply return null.
-    */
-    // repeat across y-axis (vertically)
-    if (y < 0 || y >= tileRange) return null
-    // repeat across x-axis (horizontally)
-    if (x < 0 || x >= tileRange) {
-      x = (x % tileRange + tileRange) % tileRange
-    }
-
-    return {
-      x: x,
-      y: y
-    };
-}
-
-function bound(value, opt_min, opt_max) {
-  if (opt_min != null) value = Math.max(value, opt_min);
-  if (opt_max != null) value = Math.min(value, opt_max);
-  return value;
-}
-
-function degreesToRadians(deg) {
-  return deg * (Math.PI / 180);
-}
-
-function radiansToDegrees(rad) {
-  return rad / (Math.PI / 180);
-}
+// MARK: Mercator Projection (class object)
 
 /** @constructor */
 function MercatorProjection() {
@@ -52,10 +15,9 @@ MercatorProjection.prototype.fromLatLngToPoint = function(latLng, opt_point) {
   point.x = origin.x + latLng.lng() * me.pixelsPerLonDegree_;
   // Truncating to 0.9999 effectively limits latitude to 89.189. This is
   // about a third of a tile past the edge of the world tile.
-  var siny = bound(Math.sin(degreesToRadians(latLng.lat())), -0.9999,
+  var siny = this.bound(Math.sin(this.degreesToRadians(latLng.lat())), -0.9999,
       0.9999);
   point.y = origin.y + 0.5 * Math.log((1 + siny) / (1 - siny)) * -me.pixelsPerLonRadian_;
-
   return point;
 };
 
@@ -64,7 +26,87 @@ MercatorProjection.prototype.fromPointToLatLng = function(point) {
   var origin = me.pixelOrigin_;
   var lng = (point.x - origin.x) / me.pixelsPerLonDegree_;
   var latRadians = (point.y - origin.y) / -me.pixelsPerLonRadian_;
-  var lat = radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) -
+  var lat = this.radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) -
       Math.PI / 2);
   return new google.maps.LatLng(lat, lng);
 };
+
+MercatorProjection.prototype.bound = function(value, opt_min, opt_max) {
+  if (opt_min != null) value = Math.max(value, opt_min);
+  if (opt_max != null) value = Math.min(value, opt_max);
+  return value;
+}
+
+MercatorProjection.prototype.degreesToRadians = function(deg) {
+  return deg * (Math.PI / 180);
+}
+
+MercatorProjection.prototype.radiansToDegrees = function(rad) {
+  return rad / (Math.PI / 180);
+}
+
+MercatorProjection.prototype.getNormalizedCoord = function(coord, zoom) {
+    var y = coord.y;
+    var x = coord.x;
+
+    // tile range in one direction range is dependent on zoom level
+    // 0 = 1 tile, 1 = 2 tiles, 2 = 4 tiles, 3 = 8 tiles, etc
+    var tileRange = 1 << zoom;
+
+    /**
+    * If we don't want to repeat in any direction
+    * simply return null.
+    */
+    // don't repeat across y-axis (vertically)
+    if (y < 0 || y >= tileRange) return null
+    // repeat across x-axis (horizontally)
+    if (x < 0 || x >= tileRange) {
+      x = (x % tileRange + tileRange) % tileRange
+    }
+
+    return {
+      x: x,
+      y: y
+    };
+}
+
+
+// MARK: Custom Map Tools (module)
+
+var MapTools = (function() {
+  // variables here
+  var sum = 5;
+
+  return {
+    add:function() {
+      sum = sum + 1;
+      return sum;
+    },
+    reset:function() {
+      return sum = 0;
+    },
+    addMarker: function(pos, iconPath, title){
+      iconPath = iconPath || ""
+      title = title || "sd"
+      return marker = new google.maps.Marker({
+          position: pos,
+          map: Map,
+          icon: iconPath,
+          title: title,
+      });
+    },
+
+    seperateByKeys: function(data, keys, keyIndex){
+      // seperate the data under each key by that key @ keyIndex
+      var seperated={}
+      for (i in keys) {
+        seperated[keys[i]]=[]
+      }
+      for (i in data) {
+        seperated[data[i][keyIndex]].push(data[i])
+      }
+
+      return seperated
+    }
+  }
+}());

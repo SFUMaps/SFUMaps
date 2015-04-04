@@ -1,141 +1,73 @@
-var TILE_SIZE = 256;
+var TILE_SIZE = 256,
+    MAP_ID = "SFU",
+    SERVER_URL = "http://localhost:8080",
+    SSIDS = [ "SFUNET", "SFUNET-SECURE", "eduroam" ];
 
 var AQ_SIZE = 140;
 
-var SSIDS = ["SFUNET-SECURE", "SFUNET", "eduroam"];
+var Map, MapProj;
 
-var mMap, mMapProj;
+var self = this;
 
-var mapTypeOptions = {
+var customMapOptions = {
 
   getTileUrl: function(coord, zoom) {
-
-    var normalizedCoord = getNormalizedCoord(coord, zoom);
+    var normalizedCoord = MapProj.getNormalizedCoord(coord, zoom);
     if (!normalizedCoord) return null;
     return "maptiles/"+zoom+"/"+normalizedCoord.x+ "/"+normalizedCoord.y + ".png";
-
   },
 
   tileSize: new google.maps.Size(TILE_SIZE, TILE_SIZE),
-
   maxZoom: 6,
   minZoom: 1,
-
-  name: "AQ" // this is displayed on the top right corner button
-};
-
-function _addMarker(pos, ssid_name){
-  var marker = new google.maps.Marker({
-      position: pos,
-      map: mMap,
-      icon: 'images/'+ssid_name.toLowerCase()+'_dot.png'
-  });
+  name: MAP_ID // this is displayed on the top right corner button
 }
 
-function _seperateSSID(data){
+function plotData(data) {
+  for (i in data) {
+    for (j in data[i]) {
+      var dataRow = data[i][j]
+      var point = new google.maps.Point(196,60) // start at AQ, that's its top-left corner
 
-  /**
-  * seperate the whole data into three arrays for each ssid
-  */
+      // the magic formule
+      point.y += ( parseInt(j) * ( AQ_SIZE / (data[i].length - 1.03) ) )
 
-  var splittedData={};
-  for(i in SSIDS){
-    var tmpSSIDData=[];
-    for(j in data){
-      if(data[j][1] == SSIDS[i]){
-        tmpSSIDData.push(data[j])
-      }
+      dataRow.push(point)
+      // console.log(dataRow)
+
+      MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/routerdot.png", dataRow[2])
     }
-    splittedData[SSIDS[i]] = tmpSSIDData;
-  }
-
-  return splittedData
-}
-
-function _manageData(data, initPoint){
-  for(key in data) {
-
-    var aps = data[key]; // access points array of each table
-
-    if(aps.length > 0){
-
-      var key_S = key.split("_").slice(1); // remove the `apsdata` prefix
-      var direction = key_S[3]; //vertical or horizontal
-      var floorLevel = key_S[2]; //floor level, worry about this later
-
-      aps = _seperateSSID(aps)
-
-      var mvDiff=0.0;
-
-      for(ssid in aps) {
-        var ssid_aps = aps[ssid];
-
-        for(i=0; i<ssid_aps.length; i++) {
-          // console.log(ssid_aps[i])
-          var point = new google.maps.Point(0,0);
-          if(direction=="VR") {
-            if (key_S[1] == "East") point.x = TILE_SIZE-initPoint.x+5
-            else point.x = initPoint.x;
-
-            point.y = initPoint.y+( i * ( AQ_SIZE/(ssid_aps.length - 1) ) );
-
-          } else {
-            point.x = initPoint.x+( i * ( AQ_SIZE/(ssid_aps.length - 1) ) );
-
-            if (key_S[1] == "South") point.y = TILE_SIZE-initPoint.y+5;
-            else point.y = initPoint.y;
-          }
-
-          point.x += mvDiff;
-          point.y += mvDiff;
-
-          _addMarker(mMapProj.fromPointToLatLng(point), ssid)
-        }
-
-        mvDiff -= 2;
-      }
-
-    }
-
   }
 }
 
 function initialize() {
-    var myLatlng = new google.maps.LatLng(0, 0);
-    var mapOptions = {
-        center: myLatlng,
-        zoom: 1,
-        streetViewControl: false,
-        mapTypeControlOptions: {
-            mapTypeIds: ["aq"]
-        }
-    };
+  MapProj = new MercatorProjection();
 
-    var map = new google.maps.Map(document.getElementById("map-canvas"),
-        mapOptions);
+  var mapSettings = {
+    center: new google.maps.LatLng(0,0),
+    zoom: 2,
+    streetViewControl: false,
+    mapTypeControlOptions: {
+      mapTypeIds: [MAP_ID]
+    }
+  };
 
-    map.mapTypes.set('aq', new google.maps.ImageMapType(mapTypeOptions));
-    map.setMapTypeId('aq'); // controls floor levels with this
+  Map = new google.maps.Map(document.getElementById("map-canvas"),
+        mapSettings);
 
-    mMap = map; // make map publicly accessible
+  Map.mapTypes.set(MAP_ID, new google.maps.ImageMapType(customMapOptions));
+  Map.setMapTypeId(MAP_ID); // can control floor levels with this
 
-    mMapProj = new MercatorProjection();
+  $.post(SERVER_URL, function(r) {
+    for (i in r) {
+      if (i != "apsdata_AQ_East_M_VR") continue
 
-    //image points range from (0,0) to (256, 256)
-    var initPoint = new google.maps.Point( 60, 60 );
-
-    $.ajax({
-      url:'http://localhost:8080',
-      method:'POST',
-      // data : JSON.stringify(data),
-      success:function(data){
-        var data = JSON.parse(data)
-        _manageData(data, initPoint);
-      }
-    });
-
-
-
+      // east side
+      var seper = MapTools.seperateByKeys(r[i], SSIDS, 1)
+      plotData(seper)
+      console.log(seper["SFUNET"][5][6].y)
+    }
+  })
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);

@@ -13,10 +13,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         con, data = None, {}
 
         try:
-            # content_length = int(self.headers['Content-Length'])
-            # post_data = json.loads(self.rfile.read(content_length))
-
-            con = sqlite3.connect("wifi_data")
+            con = sqlite3.connect("N_wifi_data")
 
             with con:
 
@@ -36,7 +33,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             con.close()
 
         self.send_response(200)
-        self.send_header('Content-type','text/html')
+        self.send_header('Content-type','application/json')
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         # Send the html message

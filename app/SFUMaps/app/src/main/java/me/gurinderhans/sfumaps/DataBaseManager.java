@@ -30,6 +30,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
     public static final String KEY_FREQ = "freq";
     public static final String KEY_RSSI = "level";
     public static final String KEY_TIME = "rec_time";
+    public static final String KEY_POINT = "point";
     private static String databasePath = "";
     private final String TAG = getClass().getSimpleName();
 //    public static final String KEY_TABLE_NAME = "tableName";
@@ -64,10 +65,10 @@ public class DataBaseManager extends SQLiteOpenHelper {
         return tables;
     }
 
-    public ArrayList<HashMap<String, String>> getTableData(String tablename) {
+    public ArrayList<HashMap<String, Object>> getTableData(String tablename) {
         SQLiteDatabase db = getReadableDatabase();
 
-        ArrayList<HashMap<String, String>> data = new ArrayList<>();
+        ArrayList<HashMap<String, Object>> data = new ArrayList<>();
 
         String GET_TABLE_DATA_QUERY = "SELECT * FROM " + tablename;
 
@@ -75,7 +76,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                HashMap<String, String> tableRow = new HashMap<>();
+                HashMap<String, Object> tableRow = new HashMap<>();
 //                tableRow.put(KEY_ROWID, cursor.getString(0));
                 tableRow.put(KEY_SSID, cursor.getString(1));
                 tableRow.put(KEY_BSSID, cursor.getString(2));
