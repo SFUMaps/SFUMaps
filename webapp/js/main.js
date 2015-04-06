@@ -65,7 +65,15 @@ function initialize() {
       // east side
       var seper = MapTools.seperateByKeys(r[i], SSIDS, 1)
       plotData(seper)
-      console.log(seper["SFUNET"][5][6].y)
+
+      var joined=[]
+      for (i in seper) {
+        for (j in seper[i]) {
+          joined.push(seper[i][j])
+        }
+      }
+
+      console.log(joined)
     }
   })
 }

@@ -49,11 +49,14 @@ public class DrawRecordedPaths {
     GoogleMap mMap;
 
     HashMap<String, ArrayList<HashMap<String, Object>>> seperatedData;
+    ArrayList<HashMap<String, Object>> combinedList;
 
     public DrawRecordedPaths(boolean debugState, Context ctx, GoogleMap map) {
         this.DEBUG = debugState;
         this.mDataBaseManager = new DataBaseManager(ctx);
         this.mMap = map;
+
+        combinedList = new ArrayList<>();
 
         for (String table : mDataBaseManager.getTables()) {
             if (!table.equals("apsdata_AQ_East_M_VR")) continue;
@@ -76,6 +79,13 @@ public class DrawRecordedPaths {
                 addMarker(MapTools.fromPointToLatLng(point),
                         (String) dataRow.get(DataBaseManager.KEY_SSID),
                         (String) dataRow.get(DataBaseManager.KEY_BSSID));
+            }
+        }
+
+        // maybe wont need this if we use id from database
+        for (String key: seperatedData.keySet()) {
+            for (HashMap<String, Object> row : seperatedData.get(key)) {
+                combinedList.add(row);
             }
         }
     }

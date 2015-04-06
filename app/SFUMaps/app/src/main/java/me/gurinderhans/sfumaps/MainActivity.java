@@ -10,6 +10,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -107,35 +108,38 @@ public class MainActivity extends FragmentActivity {
         public void onReceive(Context c, Intent intent) {
             displayData(service_WifiManager.getScanResults());
 //            Log.i(TAG, service_WifiManager.getScanResults()+"");
+            Log.i(TAG, "got results");
             mHandler.postDelayed(scanner, 0);
         }
     }
 
     public void displayData(List<ScanResult> scanData) {
+
         HashMap<Integer, Integer> diffs = new HashMap<>();
 
-        for (String key: drawRecordedPaths.seperatedData.keySet()) {
-            for (int i = 0; i < drawRecordedPaths.seperatedData.get(key).size(); i++) {
-                HashMap<String, Object> dataRow = drawRecordedPaths.seperatedData.get(key).get(i);
-                for (ScanResult res : scanData) {
-                    if (dataRow.get(DataBaseManager.KEY_BSSID).equals(res.BSSID)) {
-                        diffs.put(i, Math.abs(Math.abs((Integer) dataRow.get(DataBaseManager.KEY_RSSI)) - Math.abs(res.level)));
-                    }
+        for (int i = 0; i < drawRecordedPaths.combinedList.size(); i++) {
+            HashMap<String, Object> dataRow = drawRecordedPaths.combinedList.get(i);
+            for(ScanResult res: scanData) {
+                if (dataRow.get(DataBaseManager.KEY_BSSID).equals(res.BSSID)) {
+                    diffs.put(i, Math.abs(Math.abs((Integer) dataRow.get(DataBaseManager.KEY_RSSI)) - Math.abs(res.level)));
                 }
             }
         }
 
         int minHashRow = minMapVal(diffs);
 
-        for (String key: drawRecordedPaths.seperatedData.keySet()) {
-            PointF pointF = (PointF) drawRecordedPaths.seperatedData.get(key).get(minHashRow).get(DataBaseManager.KEY_POINT);
-            //set marker to this pos
+        Log.i(TAG, minHashRow+"");
+        if (minHashRow != -1) {
+            HashMap<String, Object> row = drawRecordedPaths.combinedList.get(minHashRow);
+            PointF pointF = (PointF) row.get(DataBaseManager.KEY_POINT);
+            // set marker to this pos
             userMarker.setPosition(MapTools.fromPointToLatLng(pointF));
         }
+
     }
 
     public int minMapVal(HashMap<Integer, Integer> map) {
-        int minKey = 0;
+        int minKey = -1;
         int minVal = 1000000;
         for (int key : map.keySet()) {
             if (map.get(key) < minVal) {
