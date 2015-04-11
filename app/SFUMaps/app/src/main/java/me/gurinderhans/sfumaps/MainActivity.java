@@ -102,13 +102,12 @@ public class MainActivity extends FragmentActivity {
         unregisterReceiver(wifiReceiver);
     }
 
-    // called when wifi scanner finishes scan
+    // when wifi scanner finishes scan
     private class WifiReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context c, Intent intent) {
             displayData(service_WifiManager.getScanResults());
-//            Log.i(TAG, service_WifiManager.getScanResults()+"");
-            Log.i(TAG, "got results");
+            Log.i(TAG, "Received Results");
             mHandler.postDelayed(scanner, 0);
         }
     }
@@ -121,7 +120,7 @@ public class MainActivity extends FragmentActivity {
             HashMap<String, Object> dataRow = drawRecordedPaths.combinedList.get(i);
             for(ScanResult res: scanData) {
                 if (dataRow.get(DataBaseManager.KEY_BSSID).equals(res.BSSID)) {
-                    diffs.put(i, Math.abs(Math.abs((Integer) dataRow.get(DataBaseManager.KEY_RSSI)) - Math.abs(res.level)));
+                    diffs.put(i, Math.abs(Math.abs(Integer.parseInt((String) dataRow.get(DataBaseManager.KEY_RSSI))) - Math.abs(res.level)));
                 }
             }
         }

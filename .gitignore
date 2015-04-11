@@ -23,6 +23,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Custom ignores
 SFU-Floor-Plans
 webapp/maptiles
-unorganized-images
+python_files/venv
+*.pyc
