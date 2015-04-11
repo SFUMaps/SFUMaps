@@ -15,7 +15,7 @@ public class DrawRecordedPaths {
 
     /**
      * -----------------------------
-     *      Table Name Scheme
+     * Table Name Scheme
      * -----------------------------
      * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
      * 1. prefix = 'apsdata_'

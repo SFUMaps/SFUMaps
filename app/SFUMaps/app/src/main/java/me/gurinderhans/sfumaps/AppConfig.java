@@ -2,7 +2,6 @@ package me.gurinderhans.sfumaps;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +30,7 @@ public class AppConfig {
 
     /**
      * Loads the saved prefs and stores them into class variables
+     *
      * @param ctx - application context
      */
     public static void loadPreferences(Context ctx) {
@@ -44,6 +44,7 @@ public class AppConfig {
 
     /**
      * Saves the preferences onto device
+     *
      * @param prefs - sharedPrefs
      */
     private static void CreatePrefs(SharedPreferences prefs) {

@@ -103,16 +103,6 @@ public class MainActivity extends FragmentActivity {
         unregisterReceiver(wifiReceiver);
     }
 
-    // when wifi scanner finishes scan
-    private class WifiReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context c, Intent intent) {
-            displayData(service_WifiManager.getScanResults());
-            Log.i(TAG, "Received Results");
-            mHandler.postDelayed(scanner, 0);
-        }
-    }
-
     public void displayData(List<ScanResult> scanData) {
 
         HashMap<Integer, Integer> diffs = new HashMap<>();
@@ -148,5 +138,15 @@ public class MainActivity extends FragmentActivity {
             }
         }
         return minKey;
+    }
+
+    // when wifi scanner finishes scan
+    private class WifiReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context c, Intent intent) {
+            displayData(service_WifiManager.getScanResults());
+            Log.i(TAG, "Received Results");
+            mHandler.postDelayed(scanner, 0);
+        }
     }
 }

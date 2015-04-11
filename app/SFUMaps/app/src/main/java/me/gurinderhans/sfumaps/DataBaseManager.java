@@ -19,13 +19,11 @@ import java.util.HashMap;
  */
 public class DataBaseManager extends SQLiteOpenHelper {
 
-    private final String TAG = getClass().getSimpleName();
-
     public static final String DATABASE_NAME = "wifi_data";
     public static final int DATABASE_VERSION = 1;
     public static final String ASSETS_DB_PATH = "databases/";
     private static String databasePath = "";
-
+    private final String TAG = getClass().getSimpleName();
     Context context;
 
     public DataBaseManager(Context context) {

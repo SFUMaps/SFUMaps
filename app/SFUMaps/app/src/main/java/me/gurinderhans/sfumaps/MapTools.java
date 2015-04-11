@@ -1,7 +1,5 @@
 package me.gurinderhans.sfumaps;
 
-import android.graphics.PointF;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -9,13 +7,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Created by ghans on 2/9/15.
  */
 public class MapTools {
+
+    // empty constructor
+    private MapTools() {
+        /* To make sure this class cannot be instantiated */
+    }
 
     /**
      * @param dataArray - the data array that we are splitting by keys
@@ -51,10 +53,5 @@ public class MapTools {
                 .title(dir)
                 .snippet(ssid)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
-    }
-
-    // empty constructor
-    private MapTools() {
-        /* To make sure this class cannot be instantiated */
     }
 }
