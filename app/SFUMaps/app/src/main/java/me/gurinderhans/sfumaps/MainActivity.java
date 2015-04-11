@@ -62,7 +62,7 @@ public class MainActivity extends FragmentActivity {
 
         drawRecordedPaths = new DrawRecordedPaths(true, getApplicationContext(), mMap);
 
-        LatLng Wlatlng = MapTools.fromPointToLatLng(new PointF(AppConstants.TILE_SIZE / 2, AppConstants.TILE_SIZE / 2)); //west
+        LatLng Wlatlng = MercatorProjection.fromPointToLatLng(new PointF(AppConstants.TILE_SIZE / 2, AppConstants.TILE_SIZE / 2)); //west
         userMarker = mMap.addMarker(new MarkerOptions()
                 .position(Wlatlng)
                 .title("Center")
@@ -130,7 +130,7 @@ public class MainActivity extends FragmentActivity {
             HashMap<String, Object> row = drawRecordedPaths.combinedList.get(minHashRow);
             PointF pointF = (PointF) row.get(AppConstants.KEY_POINT);
             // set marker to this pos
-            userMarker.setPosition(MapTools.fromPointToLatLng(pointF));
+            userMarker.setPosition(MercatorProjection.fromPointToLatLng(pointF));
         }
 
     }

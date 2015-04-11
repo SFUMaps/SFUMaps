@@ -13,20 +13,21 @@ public final class AppConstants {
 //    public static final String MAX_SSID_APS = "aps_max";
 
     // Keys for accessing stored wifi data
-    public static final String KEY_ROWID   =   "_id";
-    public static final String KEY_SSID    =   "ssid";
-    public static final String KEY_BSSID   =   "bssid";
-    public static final String KEY_FREQ    =   "freq";
-    public static final String KEY_RSSI    =   "level";
-    public static final String KEY_TIME    =   "rec_time";
-    public static final String KEY_POINT   =   "point";
+    public static final String KEY_ROWID = "_id";
+    public static final String KEY_SSID = "ssid";
+    public static final String KEY_BSSID = "bssid";
+    public static final String KEY_FREQ = "freq"; // Use this to give priority to one AP over another
+    public static final String KEY_RSSI = "level";
+    public static final String KEY_TIME = "rec_time";
+    public static final String KEY_POINT = "point";
 
-    public static final int RSSI_THRESHOLD = -65;
+    public static final int RSSI_THRESHOLD = -65; // make this vary
 
     // TODO: Let's not hardcode these ***
     public static String[] ALL_SSIDS = {"SFUNET", "SFUNET-SECURE", "eduroam"};
 
 
+    // empty constructor
     private AppConstants() {
         /* To make sure this class cannot be instantiated */
     }

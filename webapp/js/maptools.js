@@ -75,16 +75,9 @@ MercatorProjection.prototype.getNormalizedCoord = function(coord, zoom) {
 
 var MapTools = (function() {
   // variables here
-  var sum = 5;
+  // var sum = 5;
 
   return {
-    add:function() {
-      sum = sum + 1;
-      return sum;
-    },
-    reset:function() {
-      return sum = 0;
-    },
     addMarker: function(pos, iconPath, title){
       iconPath = iconPath || ""
       title = title || "sd"

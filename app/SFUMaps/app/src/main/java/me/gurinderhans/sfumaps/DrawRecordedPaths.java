@@ -4,9 +4,6 @@ import android.content.Context;
 import android.graphics.PointF;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,37 +15,37 @@ public class DrawRecordedPaths {
 
     /**
      * -----------------------------
-     * |  Table Name Scheme        |
+     *      Table Name Scheme
      * -----------------------------
      * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-     * <p>
-     * 1. globalprefix = 'apsdata_'
-     * <p/>
+     * 1. prefix = 'apsdata_'
+     * -
      * 2. location general name -> ex. AQ, TASC1, ASB
-     * <p>
+     * -
      * 3. location specific name generalName_ [ {North, South, East, West}, {Lvl9_Far} ]
-     * <p/>
+     * -
      * 4. floor level (M = main) and (M+n) for floors above M and (M-n) for floors below M - AQ 3000 is considered as floor M
-     * <p>
-     * 5. direction = VR (vertical) | HR (horizontal) or in rare cases CSTNA ( custom n/a )
-     * <p>
-     * ==> tableName = '{0}_{1}_{2}_{3}_{4}' % (globaleprefix, locationGeneralName, locationSpecificName, floor level, direction)
-     * <p/>
+     * -
+     * 5. direction = VR (vertical) | HR (horizontal) or in rare cases 'CSTNA' ( custom n/a )
+     * -
+     * ==> tableName = '{0}_{1}_{2}_{3}_{4}' % (prefix, locationGeneralName, locationSpecificName, floor level, direction)
+     * -
      * i.e. -> 'apsdata_AQ_North_M_HR'
+     * i.e  -> 'apsdata_AQ_Lvl9_Near_M_HR'
      */
-
 
     /* NOTE: only draw recorded paths of where the user is currently at not the whole campus at runtime */
 
 
     public static final String TAG = DrawRecordedPaths.class.getSimpleName();
+
     public static final int AQ_SIZE = 140;
 
     boolean DEBUG = false;
     DataBaseManager mDataBaseManager;
     GoogleMap mMap;
 
-    HashMap<String, ArrayList<HashMap<String, Object>>> seperatedData;
+    HashMap<String, ArrayList<HashMap<String, Object>>> separatedData;
     ArrayList<HashMap<String, Object>> combinedList;
 
     public DrawRecordedPaths(boolean debugState, Context ctx, GoogleMap map) {
@@ -58,12 +55,13 @@ public class DrawRecordedPaths {
 
         combinedList = new ArrayList<>();
 
-        for (String table : mDataBaseManager.getTables()) {
+        for (String table : mDataBaseManager.getTableNames()) {
             if (!table.equals("apsdata_AQ_East_M_VR")) continue;
-            seperatedData = MapTools.seperateByKeys(mDataBaseManager.getTableData(table), AppConstants.ALL_SSIDS, AppConstants.KEY_SSID);
-            plotData(seperatedData);
-        }
 
+            // TODO: How about a Header for splitting by keys to get an even better runtime complexity
+            separatedData = MapTools.separateByKeys(mDataBaseManager.getTableData(table), AppConstants.ALL_SSIDS, AppConstants.KEY_SSID);
+            plotData(separatedData);
+        }
     }
 
     void plotData(HashMap<String, ArrayList<HashMap<String, Object>>> data) {
@@ -76,28 +74,17 @@ public class DrawRecordedPaths {
                 point.y += (i * (AQ_SIZE / (data.get(key).size() - 1.03)));
                 dataRow.put(AppConstants.KEY_POINT, point);
 
-                addMarker(MapTools.fromPointToLatLng(point),
+                MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point),
                         (String) dataRow.get(AppConstants.KEY_SSID),
                         (String) dataRow.get(AppConstants.KEY_BSSID));
             }
         }
 
         // maybe wont need this if we use id from database
-        for (String key: seperatedData.keySet()) {
-            for (HashMap<String, Object> row : seperatedData.get(key)) {
+        for (String key : separatedData.keySet()) {
+            for (HashMap<String, Object> row : separatedData.get(key)) {
                 combinedList.add(row);
             }
         }
     }
-
-
-    public void addMarker(LatLng latLng, String ssid, String dir) {
-
-        mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(dir)
-                .snippet(ssid)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
-    }
-
 }

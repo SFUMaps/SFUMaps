@@ -23,17 +23,14 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "wifi_data";
     public static final int DATABASE_VERSION = 1;
-    public static final String TABLE_NAME = "apsdata";
     public static final String ASSETS_DB_PATH = "databases/";
     private static String databasePath = "";
-
-
-//    public static final String KEY_TABLE_NAME = "tableName";
 
     Context context;
 
     public DataBaseManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
         this.context = context;
 
         databasePath = context.getDatabasePath("wifi_data").getPath();
@@ -42,26 +39,32 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
     }
 
-    public ArrayList<String> getTables() {
-        SQLiteDatabase db = getReadableDatabase();
+    /**
+     * @return - list of all database tables
+     */
+    ArrayList<String> getTableNames() {
 
+        SQLiteDatabase db = getReadableDatabase();
         ArrayList<String> tables = new ArrayList<>();
 
-        String GET_TABLES_QUERY = "SELECT name FROM sqlite_master WHERE type='table'";
+        Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
 
-        Cursor cursor = db.rawQuery(GET_TABLES_QUERY, null);
         if (cursor.moveToFirst()) {
             do tables.add(cursor.getString(0));
             while (cursor.moveToNext() && !(cursor.getString(0).equals("android_metadata")));
-        } else {
-            //do something if cursor is unable to proceed
-            Log.i("ERROR", "Unable to move cursor!");
-        }
+        } else Log.i("ERROR", "Unable to move cursor!");
+
+        cursor.close();
         db.close();
+
         return tables;
     }
 
-    public ArrayList<HashMap<String, Object>> getTableData(String tablename) {
+    /**
+     * @param tablename - the name of the table that we want the data from
+     * @return - the table data
+     */
+    ArrayList<HashMap<String, Object>> getTableData(String tablename) {
         SQLiteDatabase db = getReadableDatabase();
 
         ArrayList<HashMap<String, Object>> data = new ArrayList<>();
@@ -73,7 +76,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 HashMap<String, Object> tableRow = new HashMap<>();
-//                tableRow.put(KEY_ROWID, cursor.getString(0));
+                tableRow.put(AppConstants.KEY_ROWID, cursor.getString(0));
                 tableRow.put(AppConstants.KEY_SSID, cursor.getString(1));
                 tableRow.put(AppConstants.KEY_BSSID, cursor.getString(2));
                 tableRow.put(AppConstants.KEY_FREQ, cursor.getString(3));
@@ -81,8 +84,11 @@ public class DataBaseManager extends SQLiteOpenHelper {
                 tableRow.put(AppConstants.KEY_TIME, cursor.getString(5));
 
                 data.add(tableRow);
+
             } while (cursor.moveToNext());
         }
+
+        cursor.close();
         db.close();
 
         return data;
