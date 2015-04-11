@@ -15,7 +15,6 @@ import android.util.Log;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -67,8 +66,7 @@ public class MainActivity extends FragmentActivity {
         userMarker = mMap.addMarker(new MarkerOptions()
                 .position(Wlatlng)
                 .title("Center")
-                .snippet("User dot")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.userdot)));
+                .snippet("User dot"));
 
 
     }
@@ -118,19 +116,19 @@ public class MainActivity extends FragmentActivity {
 
         for (int i = 0; i < drawRecordedPaths.combinedList.size(); i++) {
             HashMap<String, Object> dataRow = drawRecordedPaths.combinedList.get(i);
-            for(ScanResult res: scanData) {
-                if (dataRow.get(DataBaseManager.KEY_BSSID).equals(res.BSSID)) {
-                    diffs.put(i, Math.abs(Math.abs(Integer.parseInt((String) dataRow.get(DataBaseManager.KEY_RSSI))) - Math.abs(res.level)));
+            for (ScanResult res : scanData) {
+                if (dataRow.get(AppConstants.KEY_BSSID).equals(res.BSSID)) {
+                    diffs.put(i, Math.abs(Math.abs(Integer.parseInt((String) dataRow.get(AppConstants.KEY_RSSI))) - Math.abs(res.level)));
                 }
             }
         }
 
         int minHashRow = minMapVal(diffs);
 
-        Log.i(TAG, minHashRow+"");
+        Log.i(TAG, minHashRow + "");
         if (minHashRow != -1) {
             HashMap<String, Object> row = drawRecordedPaths.combinedList.get(minHashRow);
-            PointF pointF = (PointF) row.get(DataBaseManager.KEY_POINT);
+            PointF pointF = (PointF) row.get(AppConstants.KEY_POINT);
             // set marker to this pos
             userMarker.setPosition(MapTools.fromPointToLatLng(pointF));
         }

@@ -19,21 +19,17 @@ import java.util.HashMap;
  */
 public class DataBaseManager extends SQLiteOpenHelper {
 
+    private final String TAG = getClass().getSimpleName();
+
     public static final String DATABASE_NAME = "wifi_data";
     public static final int DATABASE_VERSION = 1;
     public static final String TABLE_NAME = "apsdata";
     public static final String ASSETS_DB_PATH = "databases/";
-    // KEYS for Table - - - - - - - - - -
-    public static final String KEY_ROWID = "_id";
-    public static final String KEY_SSID = "ssid";
-    public static final String KEY_BSSID = "bssid";
-    public static final String KEY_FREQ = "freq";
-    public static final String KEY_RSSI = "level";
-    public static final String KEY_TIME = "rec_time";
-    public static final String KEY_POINT = "point";
     private static String databasePath = "";
-    private final String TAG = getClass().getSimpleName();
+
+
 //    public static final String KEY_TABLE_NAME = "tableName";
+
     Context context;
 
     public DataBaseManager(Context context) {
@@ -78,11 +74,11 @@ public class DataBaseManager extends SQLiteOpenHelper {
             do {
                 HashMap<String, Object> tableRow = new HashMap<>();
 //                tableRow.put(KEY_ROWID, cursor.getString(0));
-                tableRow.put(KEY_SSID, cursor.getString(1));
-                tableRow.put(KEY_BSSID, cursor.getString(2));
-                tableRow.put(KEY_FREQ, cursor.getString(3));
-                tableRow.put(KEY_RSSI, cursor.getString(4));
-                tableRow.put(KEY_TIME, cursor.getString(5));
+                tableRow.put(AppConstants.KEY_SSID, cursor.getString(1));
+                tableRow.put(AppConstants.KEY_BSSID, cursor.getString(2));
+                tableRow.put(AppConstants.KEY_FREQ, cursor.getString(3));
+                tableRow.put(AppConstants.KEY_RSSI, cursor.getString(4));
+                tableRow.put(AppConstants.KEY_TIME, cursor.getString(5));
 
                 data.add(tableRow);
             } while (cursor.moveToNext());

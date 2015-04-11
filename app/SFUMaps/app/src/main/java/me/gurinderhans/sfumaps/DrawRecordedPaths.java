@@ -18,7 +18,7 @@ public class DrawRecordedPaths {
 
     /**
      * -----------------------------
-     * |  Current Table Name Scheme  |
+     * |  Table Name Scheme        |
      * -----------------------------
      * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
      * <p>
@@ -38,7 +38,7 @@ public class DrawRecordedPaths {
      */
 
 
-    /* only draw recorded paths of where the user is currently at not the whole campus at runtime */
+    /* NOTE: only draw recorded paths of where the user is currently at not the whole campus at runtime */
 
 
     public static final String TAG = DrawRecordedPaths.class.getSimpleName();
@@ -60,7 +60,7 @@ public class DrawRecordedPaths {
 
         for (String table : mDataBaseManager.getTables()) {
             if (!table.equals("apsdata_AQ_East_M_VR")) continue;
-            seperatedData = MapTools.seperateByKeys(mDataBaseManager.getTableData(table), AppConstants.ALL_SSIDS, DataBaseManager.KEY_SSID);
+            seperatedData = MapTools.seperateByKeys(mDataBaseManager.getTableData(table), AppConstants.ALL_SSIDS, AppConstants.KEY_SSID);
             plotData(seperatedData);
         }
 
@@ -74,11 +74,11 @@ public class DrawRecordedPaths {
                 PointF point = new PointF(196, 60);
 
                 point.y += (i * (AQ_SIZE / (data.get(key).size() - 1.03)));
-                dataRow.put(DataBaseManager.KEY_POINT, point);
+                dataRow.put(AppConstants.KEY_POINT, point);
 
                 addMarker(MapTools.fromPointToLatLng(point),
-                        (String) dataRow.get(DataBaseManager.KEY_SSID),
-                        (String) dataRow.get(DataBaseManager.KEY_BSSID));
+                        (String) dataRow.get(AppConstants.KEY_SSID),
+                        (String) dataRow.get(AppConstants.KEY_BSSID));
             }
         }
 

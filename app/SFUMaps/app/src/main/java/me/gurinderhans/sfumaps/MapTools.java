@@ -13,9 +13,15 @@ import java.util.HashMap;
 public class MapTools {
 
     static PointF pixelOrigin_ = new PointF(AppConstants.TILE_SIZE / 2, AppConstants.TILE_SIZE / 2);
+
     static double pixelsPerLonDegree_ = AppConstants.TILE_SIZE / 360;
     static double pixelsPerLonRadian_ = AppConstants.TILE_SIZE / (2 * Math.PI);
 
+    /**
+     *
+     * @param latLng - LatLng object that we convert from
+     * @return - the coordinate on the screen corresponding to the LatLng
+     */
     public static PointF fromLatLngToPoint(LatLng latLng) {
         PointF point = new PointF(0, 0);
         PointF origin = pixelOrigin_;
@@ -30,6 +36,11 @@ public class MapTools {
         return point;
     }
 
+    /**
+     *
+     * @param point - PointF object that we convert from
+     * @return - the object containing lat / lng corresponding to the Point
+     */
     public static LatLng fromPointToLatLng(PointF point) {
         PointF origin = pixelOrigin_;
         double lng = (point.x - origin.x) / pixelsPerLonDegree_;
@@ -38,20 +49,45 @@ public class MapTools {
         return new LatLng(lat, lng);
     }
 
+    /**
+     *
+     * @param value - the value to bound
+     * @param opt_min - the min bound value
+     * @param opt_max - the max bound value
+     * @return - the bounded value
+     */
     public static double bound(double value, double opt_min, double opt_max) {
         if (opt_min != 0) return Math.max(value, opt_min);
         if (opt_max != 0) return Math.min(value, opt_max);
         return -1;
     }
 
+    /**
+     *
+     * @param deg - θ value in degrees
+     * @return - θ value in radians
+     */
     private static double degreesToRadians(double deg) {
         return deg * (Math.PI / 180);
     }
 
+    /**
+     *
+     * @param rad - θ value in radians
+     * @return - θ value in degrees
+     */
     private static double radiansToDegrees(double rad) {
         return rad / (Math.PI / 180);
     }
 
+
+    /**
+     *
+     * @param data - the data array that we are splitting by keys
+     * @param keys - the key(s) that we split the data by
+     * @param keyIndex - the index of the key in that array object
+     * @return - return the splitted array by keys
+     */
     public static HashMap<String, ArrayList<HashMap<String, Object>>> seperateByKeys(ArrayList<HashMap<String, Object>> data, String[] keys, String keyIndex) {
 
         HashMap<String, ArrayList<HashMap<String, Object>>> seperated = new HashMap<>();

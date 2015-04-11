@@ -11,7 +11,6 @@ import java.util.HashMap;
 public class ComplexFunctions {
 
     public static final String TAG = ComplexFunctions.class.getSimpleName();
-    public static final int RSSI_THRESHOLD = -65;
 
     /**
      * @param in_data             - all raw data inputted into this
@@ -31,7 +30,7 @@ public class ComplexFunctions {
             for (HashMap<String, String> hashMap : in_data) {
                 /** @see - remove this wifi from data to make data smaller ?? */
 
-                if (hashMap.get(DataBaseManager.KEY_SSID).equals(wifi))
+                if (hashMap.get(AppConstants.KEY_SSID).equals(wifi))
                     currentSSIDData.add(hashMap);
 
             }
@@ -39,7 +38,7 @@ public class ComplexFunctions {
             // once current SSID data is run through getStrongestBSSIDs() filter this data with RSSI_THRESHOLD
             for (HashMap<String, String> hashMap : getStrongestBSSIDs(currentSSIDData)) {
 
-                if (Integer.parseInt(hashMap.get(DataBaseManager.KEY_RSSI)) > (RSSI_THRESHOLD))
+                if (Integer.parseInt(hashMap.get(AppConstants.KEY_RSSI)) > (AppConstants.RSSI_THRESHOLD))
                     filteredData.add(hashMap);
 
             }
@@ -59,15 +58,15 @@ public class ComplexFunctions {
      */
     public static ArrayList<HashMap<String, String>> getStrongestBSSIDs(ArrayList<HashMap<String, String>> d) {
 
-        Collections.sort(d, new SortByRSSI(DataBaseManager.KEY_RSSI));
+        Collections.sort(d, new SortByRSSI(AppConstants.KEY_RSSI));
 
         for (int i = 0; i < d.size(); i++) {
             HashMap<String, String> compareTo = d.get(i);
             for (int j = i + 1; j < d.size(); j++) {
                 HashMap<String, String> comparing = d.get(j);
 
-                String compareToStr = compareTo.get(DataBaseManager.KEY_BSSID);
-                String comparingStr = comparing.get(DataBaseManager.KEY_BSSID);
+                String compareToStr = compareTo.get(AppConstants.KEY_BSSID);
+                String comparingStr = comparing.get(AppConstants.KEY_BSSID);
 
                 boolean compareResult = compareToStr.equals(comparingStr);
 

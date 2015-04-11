@@ -15,9 +15,11 @@ import java.io.InputStream;
 public class CustomMapTileProvider implements TileProvider {
 
     public static final String TAG = CustomMapTileProvider.class.getSimpleName();
+
     private static final int BUFFER_SIZE = 16 * 1024;
 
     private AssetManager mAssets;
+
 
     public CustomMapTileProvider(AssetManager assets) {
         mAssets = assets;
@@ -47,10 +49,8 @@ public class CustomMapTileProvider implements TileProvider {
 
             return buffer.toByteArray();
         } catch (IOException e) {
-//            e.printStackTrace();
             return null;
         } catch (OutOfMemoryError e) {
-//            e.printStackTrace();
             return null;
         } finally {
             if (in != null) try {
