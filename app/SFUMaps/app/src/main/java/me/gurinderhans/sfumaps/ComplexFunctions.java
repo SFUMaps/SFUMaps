@@ -30,7 +30,7 @@ public class ComplexFunctions {
             for (HashMap<String, String> hashMap : in_data) {
                 /** @see - remove this wifi from data to make data smaller ?? */
 
-                if (hashMap.get(AppConstants.KEY_SSID).equals(wifi))
+                if (hashMap.get(Keys.KEY_SSID).equals(wifi))
                     currentSSIDData.add(hashMap);
 
             }
@@ -38,7 +38,7 @@ public class ComplexFunctions {
             // once current SSID data is run through getStrongestBSSIDs() filter this data with RSSI_THRESHOLD
             for (HashMap<String, String> hashMap : getStrongestBSSIDs(currentSSIDData)) {
 
-                if (Integer.parseInt(hashMap.get(AppConstants.KEY_RSSI)) > (AppConstants.RSSI_THRESHOLD))
+                if (Integer.parseInt(hashMap.get(Keys.KEY_RSSI)) > (AppConfig.RSSI_THRESHOLD))
                     filteredData.add(hashMap);
 
             }
@@ -58,15 +58,15 @@ public class ComplexFunctions {
      */
     public static ArrayList<HashMap<String, String>> getStrongestBSSIDs(ArrayList<HashMap<String, String>> d) {
 
-        Collections.sort(d, new SortByRSSI(AppConstants.KEY_RSSI));
+        Collections.sort(d, new SortByRSSI(Keys.KEY_RSSI));
 
         for (int i = 0; i < d.size(); i++) {
             HashMap<String, String> compareTo = d.get(i);
             for (int j = i + 1; j < d.size(); j++) {
                 HashMap<String, String> comparing = d.get(j);
 
-                String compareToStr = compareTo.get(AppConstants.KEY_BSSID);
-                String comparingStr = comparing.get(AppConstants.KEY_BSSID);
+                String compareToStr = compareTo.get(Keys.KEY_BSSID);
+                String comparingStr = comparing.get(Keys.KEY_BSSID);
 
                 boolean compareResult = compareToStr.equals(comparingStr);
 

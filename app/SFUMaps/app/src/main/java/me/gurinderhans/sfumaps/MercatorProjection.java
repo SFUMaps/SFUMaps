@@ -10,9 +10,9 @@ import com.google.android.gms.maps.model.LatLng;
 public class MercatorProjection {
 
     // Projection Constants
-    static PointF pixelOrigin_ = new PointF(AppConstants.TILE_SIZE / 2, AppConstants.TILE_SIZE / 2);
-    static double pixelsPerLonDegree_ = AppConstants.TILE_SIZE / 360;
-    static double pixelsPerLonRadian_ = AppConstants.TILE_SIZE / (2 * Math.PI);
+    static PointF pixelOrigin_ = new PointF(AppConfig.TILE_SIZE / 2, AppConfig.TILE_SIZE / 2);
+    static double pixelsPerLonDegree_ = AppConfig.TILE_SIZE / 360;
+    static double pixelsPerLonRadian_ = AppConfig.TILE_SIZE / (2 * Math.PI);
 
     /**
      * @param latLng - LatLng object that we convert from

@@ -76,12 +76,12 @@ public class DataBaseManager extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 HashMap<String, Object> tableRow = new HashMap<>();
-                tableRow.put(AppConstants.KEY_ROWID, cursor.getString(0));
-                tableRow.put(AppConstants.KEY_SSID, cursor.getString(1));
-                tableRow.put(AppConstants.KEY_BSSID, cursor.getString(2));
-                tableRow.put(AppConstants.KEY_FREQ, cursor.getString(3));
-                tableRow.put(AppConstants.KEY_RSSI, cursor.getString(4));
-                tableRow.put(AppConstants.KEY_TIME, cursor.getString(5));
+                tableRow.put(Keys.KEY_ROWID, cursor.getString(0));
+                tableRow.put(Keys.KEY_SSID, cursor.getString(1));
+                tableRow.put(Keys.KEY_BSSID, cursor.getString(2));
+                tableRow.put(Keys.KEY_FREQ, cursor.getString(3));
+                tableRow.put(Keys.KEY_RSSI, cursor.getString(4));
+                tableRow.put(Keys.KEY_TIME, cursor.getString(5));
 
                 data.add(tableRow);
 

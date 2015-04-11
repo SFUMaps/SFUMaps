@@ -40,6 +40,9 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // load app preferences the first thing
+        AppConfig.loadPreferences(getApplicationContext());
+
         mHandler = new Handler();
         service_WifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new WifiReceiver();
@@ -62,7 +65,7 @@ public class MainActivity extends FragmentActivity {
 
         drawRecordedPaths = new DrawRecordedPaths(true, getApplicationContext(), mMap);
 
-        LatLng Wlatlng = MercatorProjection.fromPointToLatLng(new PointF(AppConstants.TILE_SIZE / 2, AppConstants.TILE_SIZE / 2)); //west
+        LatLng Wlatlng = MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE / 2, AppConfig.TILE_SIZE / 2)); //west
         userMarker = mMap.addMarker(new MarkerOptions()
                 .position(Wlatlng)
                 .title("Center")
@@ -91,7 +94,7 @@ public class MainActivity extends FragmentActivity {
         setUpMapIfNeeded();
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 //        showData(service_WifiManager.getScanResults());
-        mHandler.postDelayed(scanner, 0);
+//        mHandler.postDelayed(scanner, 0);
     }
 
     @Override
@@ -117,8 +120,8 @@ public class MainActivity extends FragmentActivity {
         for (int i = 0; i < drawRecordedPaths.combinedList.size(); i++) {
             HashMap<String, Object> dataRow = drawRecordedPaths.combinedList.get(i);
             for (ScanResult res : scanData) {
-                if (dataRow.get(AppConstants.KEY_BSSID).equals(res.BSSID)) {
-                    diffs.put(i, Math.abs(Math.abs(Integer.parseInt((String) dataRow.get(AppConstants.KEY_RSSI))) - Math.abs(res.level)));
+                if (dataRow.get(Keys.KEY_BSSID).equals(res.BSSID)) {
+                    diffs.put(i, Math.abs(Math.abs(Integer.parseInt((String) dataRow.get(Keys.KEY_RSSI))) - Math.abs(res.level)));
                 }
             }
         }
@@ -128,7 +131,7 @@ public class MainActivity extends FragmentActivity {
         Log.i(TAG, minHashRow + "");
         if (minHashRow != -1) {
             HashMap<String, Object> row = drawRecordedPaths.combinedList.get(minHashRow);
-            PointF pointF = (PointF) row.get(AppConstants.KEY_POINT);
+            PointF pointF = (PointF) row.get(Keys.KEY_POINT);
             // set marker to this pos
             userMarker.setPosition(MercatorProjection.fromPointToLatLng(pointF));
         }

@@ -9,6 +9,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by ghans on 2/9/15.
@@ -16,13 +18,12 @@ import java.util.HashMap;
 public class MapTools {
 
     /**
-     *
      * @param dataArray - the data array that we are splitting by keys
-     * @param keys - the key(s) that we split the data by
-     * @param keyIndex - the index of the key in that array object
+     * @param keys      - the key(s) that we split the data by
+     * @param keyIndex  - the index of the key in that array object
      * @return - return the [Array] separated by keys
      */
-    public static HashMap<String, ArrayList<HashMap<String, Object>>> separateByKeys(ArrayList<HashMap<String, Object>> dataArray, String[] keys, String keyIndex) {
+    public static HashMap<String, ArrayList<HashMap<String, Object>>> separateByKeys(ArrayList<HashMap<String, Object>> dataArray, Set<String> keys, String keyIndex) {
 
         HashMap<String, ArrayList<HashMap<String, Object>>> seperated = new HashMap<>();
 
@@ -30,7 +31,7 @@ public class MapTools {
             seperated.put(key, new ArrayList<HashMap<String, Object>>());
         }
 
-        for (HashMap<String, Object> i: dataArray) {
+        for (HashMap<String, Object> i : dataArray) {
             seperated.get(i.get(keyIndex)).add(i);
         }
 
@@ -38,11 +39,10 @@ public class MapTools {
     }
 
     /**
-     *
      * @param googleMap - the map
-     * @param latLng - latlng coordinate on the map
-     * @param ssid - ssid name for the label
-     * @param dir - direction?
+     * @param latLng    - latlng coordinate on the map
+     * @param ssid      - SSID name for the label
+     * @param dir       - direction?
      */
     public static void addMarker(GoogleMap googleMap, LatLng latLng, String ssid, String dir) {
 

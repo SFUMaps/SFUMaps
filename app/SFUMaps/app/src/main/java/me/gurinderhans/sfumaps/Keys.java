@@ -3,16 +3,9 @@ package me.gurinderhans.sfumaps;
 /**
  * Created by ghans on 2/9/15.
  */
-public final class AppConstants {
+public final class Keys {
 
-    public static final float TILE_SIZE = 256f;
-
-    // map database vars
-//    public static final String KEY_RSSI_DIFFERENCE = "rssi_diff";
-//    public static final String KEY_RECORDED_VAL = "recorded_val";
-//    public static final String MAX_SSID_APS = "aps_max";
-
-    // Keys for accessing stored wifi data
+    // Keys for accessing table data
     public static final String KEY_ROWID = "_id";
     public static final String KEY_SSID = "ssid";
     public static final String KEY_BSSID = "bssid";
@@ -21,14 +14,16 @@ public final class AppConstants {
     public static final String KEY_TIME = "rec_time";
     public static final String KEY_POINT = "point";
 
-    public static final int RSSI_THRESHOLD = -65; // make this vary
+    // SharedPrefs keys
+    public static final String KEY_APP_CONFIG_PREFS = "MapConfig";
 
-    // TODO: Let's not hardcode these ***
-    public static String[] ALL_SSIDS = {"SFUNET", "SFUNET-SECURE", "eduroam"};
+    // App Config Preferences keys
+    public static final String KEY_CONFIG_RSSI_THRESHOLD = "MIN_RSSI_THRESHOLD";
+    public static final String KEY_CONFIG_SSID_SET = "USABLE_SSID_SET";
 
 
     // empty constructor
-    private AppConstants() {
+    private Keys() {
         /* To make sure this class cannot be instantiated */
     }
 }

@@ -58,8 +58,8 @@ public class DrawRecordedPaths {
         for (String table : mDataBaseManager.getTableNames()) {
             if (!table.equals("apsdata_AQ_East_M_VR")) continue;
 
-            // TODO: How about a Header for splitting by keys to get an even better runtime complexity
-            separatedData = MapTools.separateByKeys(mDataBaseManager.getTableData(table), AppConstants.ALL_SSIDS, AppConstants.KEY_SSID);
+            // TODO: How about a Header for splitting by keys to get a constant runtime method
+            separatedData = MapTools.separateByKeys(mDataBaseManager.getTableData(table), AppConfig.ALL_SSIDS, Keys.KEY_SSID);
             plotData(separatedData);
         }
     }
@@ -72,11 +72,11 @@ public class DrawRecordedPaths {
                 PointF point = new PointF(196, 60);
 
                 point.y += (i * (AQ_SIZE / (data.get(key).size() - 1.03)));
-                dataRow.put(AppConstants.KEY_POINT, point);
+                dataRow.put(Keys.KEY_POINT, point);
 
                 MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point),
-                        (String) dataRow.get(AppConstants.KEY_SSID),
-                        (String) dataRow.get(AppConstants.KEY_BSSID));
+                        (String) dataRow.get(Keys.KEY_SSID),
+                        (String) dataRow.get(Keys.KEY_BSSID));
             }
         }
 
