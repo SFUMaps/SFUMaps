@@ -43,8 +43,8 @@ public class MainActivity extends FragmentActivity {
         // load app preferences the first thing
         AppConfig.loadPreferences(getApplicationContext());
 
-        mHandler = new Handler();
         service_WifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        mHandler = new Handler();
         wifiReceiver = new WifiReceiver();
 
         setUpMapIfNeeded();

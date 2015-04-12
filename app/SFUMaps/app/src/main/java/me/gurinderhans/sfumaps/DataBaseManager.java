@@ -3,7 +3,6 @@ package me.gurinderhans.sfumaps;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -19,22 +18,100 @@ import java.util.HashMap;
  */
 public class DataBaseManager extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME = "wifi_data";
+    public static final String TAG = DataBaseManager.class.getSimpleName();
+
+    public static final String DATABASE_NAME = "WIFI_DATA";
     public static final int DATABASE_VERSION = 1;
-    public static final String ASSETS_DB_PATH = "databases/";
-    private static String databasePath = "";
-    private final String TAG = getClass().getSimpleName();
+    public static final String ASSETS_DATABASE_PATH = "databases/" + DATABASE_NAME;
+
+    private boolean createDb = false, upgradeDb = false;
+
     Context context;
 
-    public DataBaseManager(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    /**
+     * @param ctx - application context
+     */
+    public DataBaseManager(Context ctx) {
+        super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = ctx;
+    }
 
-        this.context = context;
 
-        databasePath = context.getDatabasePath("wifi_data").getPath();
+    @Override
+    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        createDb = true;
+    }
 
-        this.createDataBase();
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        Log.i(TAG, "Old version: " + oldVersion + " New version: " + newVersion);
+        upgradeDb = true;
+    }
 
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+
+        if (createDb) {
+            createDb = false;
+            copyDatabaseFromAssets(db);
+        }
+
+        if (upgradeDb) {
+            upgradeDb = false;
+//            copyDatabaseFromAssets(db);
+        }
+    }
+
+
+    /**
+     * Copies the database file stored in assets folder to the
+     * application database location
+     *
+     * @param db - application database that we copy our database contents to
+     */
+    private void copyDatabaseFromAssets(SQLiteDatabase db) {
+
+        InputStream inputStream = null;
+        OutputStream outputStream = null;
+
+        try {
+            // Open db packaged as asset as the input stream
+            inputStream = context.getAssets().open(ASSETS_DATABASE_PATH);
+
+            // Open the db in the application package context:
+            outputStream = new FileOutputStream(db.getPath());
+
+            // Transfer db file contents:
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            outputStream.flush();
+
+            // Set the version of the copied database to the current version
+            SQLiteDatabase copiedDb = context.openOrCreateDatabase(
+                    DATABASE_NAME, 0, null);
+            copiedDb.execSQL("PRAGMA user_version = " + DATABASE_VERSION);
+            copiedDb.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.i(TAG, "Error copying database");
+        } finally {
+            try { // Close the streams
+                if (outputStream != null)
+                    outputStream.close();
+
+                if (inputStream != null)
+                    inputStream.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.i(TAG, "Error closing streams");
+            }
+        }
     }
 
     /**
@@ -90,83 +167,6 @@ public class DataBaseManager extends SQLiteOpenHelper {
         db.close();
 
         return data;
-    }
-
-
-    /**
-     * Creates a empty database on the system and rewrites it with our own database.
-     */
-    public void createDataBase() {
-
-        boolean dbExist = checkDataBase();
-
-        if (!dbExist) {
-            //By calling this method an empty database will be created into the default system path
-            //of the app allowing us to overwrite the database
-            this.getReadableDatabase();
-
-            try {
-                copyDataBase();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
-
-
-    /**
-     * Check if the database already exist to avoid re-copying the file each time the app opens
-     *
-     * @return true if it exists, false if it doesn't
-     */
-    private boolean checkDataBase() {
-        SQLiteDatabase checkDB = null;
-        try {
-            checkDB = SQLiteDatabase.openDatabase(databasePath, null, SQLiteDatabase.OPEN_READONLY);
-
-        } catch (SQLiteException e) { /* database doesn't exist yet */ }
-
-        if (checkDB != null) checkDB.close();
-
-        return checkDB != null;
-    }
-
-
-    /**
-     * Copies your database from the local assets-folder to the just created empty database in the
-     * app databases/ folder, from where it can be accessed and handled.
-     */
-    private void copyDataBase() throws IOException {
-
-        //Open your local db as the input stream
-        InputStream myInput = context.getAssets().open(ASSETS_DB_PATH + DATABASE_NAME);
-
-        //Open the empty db as the output stream
-        OutputStream myOutput = new FileOutputStream(databasePath);
-
-        //transfer bytes from the inputfile to the outputfile
-        byte[] buffer = new byte[1024];
-        int length;
-
-        while ((length = myInput.read(buffer)) > 0)
-            myOutput.write(buffer, 0, length);
-
-        //Close the streams
-        myOutput.flush();
-        myOutput.close();
-        myInput.close();
-
-    }
-
-
-    @Override
-    public void onCreate(SQLiteDatabase sqLiteDatabase) {
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        Log.i("onUpgrade", "Old version: " + oldVersion + " New version: " + newVersion);
     }
 
 }
