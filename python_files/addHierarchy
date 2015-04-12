@@ -37,7 +37,7 @@ with con:
     # N_cur.execute(createTableQuery)
 
     for i in h: # univeristy level
-        for j in h[i]: # # campus level
+        for j in h[i]: # campus level
             for k in h[i][j]: # building level
                 for l in h[i][j][k]: # floor level
                     for m in h[i][j][k][l]: # individual road level
