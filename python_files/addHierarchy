@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+import sys, sqlite3, time
+from color import color
+
+
+h = {
+    "SFU":{
+        "SFU Burnaby": {
+            "AQ": {
+                "3000": {
+                      "North": ["AP1", "AP2", "AP3", "AP4", "AP5"]
+                    , "East": ["AP1", "AP2", "AP3", "AP4", "AP5"]
+                    , "South": ["AP1", "AP2", "AP3", "AP4", "AP5"]
+                    , "West": ["AP1", "AP2", "AP3", "AP4", "AP5"]
+                }
+            },
+
+            "ASB": {},
+
+            "TASC1": {}
+        }
+    }
+}
+
+# tm = time.time()
+
+con = sqlite3.connect("N_wifi_data")
+
+with con:
+
+    cur = con.cursor()
+
+    # create hierarchy table
+    # ...
+    # createTableQuery = "CREATE TABLE hierarchy (_id INTEGER PRIMARY KEY, ssid TEXT, bssid TEXT, freq TEXT, level TEXT, rec_time TEXT)"
+    # N_cur.execute(createTableQuery)
+
+    for i in h: # univeristy level
+        for j in h[i]: # # campus level
+            for k in h[i][j]: # building level
+                for l in h[i][j][k]: # floor level
+                    for m in h[i][j][k][l]: # individual road level
+                        print m
+
+
+
+    # cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    # tables = [i[0] for i in cur.fetchall()[1:]]
+    # for table in tables:
+        # getData(cur, table)
+
+# print color.BOLD+('Took: '+color.DARKCYAN+str(time.time()-tm)+' seconds :)')+color.END

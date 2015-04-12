@@ -27,64 +27,81 @@ public class MainActivity extends FragmentActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
-    WifiManager service_WifiManager;
-    WifiReceiver wifiReceiver;
-    Handler mHandler;
-    Runnable scanner;
-    DrawRecordedPaths drawRecordedPaths;
-    private GoogleMap mMap;
-    private Marker userMarker;
+    WifiManager wifiManager; // system service that handles wifi
+    WifiReceiver wifiReceiver; // broadcast receiver that listens for wifi scans and gets back the results
+    Handler mHandler; // handler for initiating a wifi scan
+    Runnable wifiScanner; // runs the system wifi scan
+
+    GoogleMap Map;
+    Marker userNavMarker; // marks users current location
+
+    DrawRecordedPaths drawRecordedPaths; // reference to our custom class that draws recorded paths
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // load app preferences the first thing
+        // load app preferences
         AppConfig.loadPreferences(getApplicationContext());
 
-        service_WifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        // load up the variables
+        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mHandler = new Handler();
         wifiReceiver = new WifiReceiver();
 
-        setUpMapIfNeeded();
-
-        scanner = new Runnable() {
+        // create the runnable to handle scans
+        wifiScanner = new Runnable() {
             @Override
             public void run() {
-                service_WifiManager.startScan();
+                wifiManager.startScan();
             }
         };
 
+        setUpMapIfNeeded();
+
     }
 
+    /**
+     * If Map == null then get the map fragment and initialize it
+     */
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (Map == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            Map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+            // Check if we were successful in obtaining the map.
+            if (Map != null)
+                setUpMap();
+        }
+    }
+
+    /**
+     * - Defines map settings
+     * - Here we bring our own custom map tiles with a custom MapTileProvider
+     * - TODO: figure out user's initial location here
+     * - And then we draw the recorded paths here
+     */
     private void setUpMap() {
-        mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0f, 0f), 2.0f));
-        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
 
-        drawRecordedPaths = new DrawRecordedPaths(true, getApplicationContext(), mMap);
+        Map.setMapType(GoogleMap.MAP_TYPE_NONE); // hide the default google maps overlay
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0f, 0f), 2.0f)); // set the camera to (0,0) with zoom=2
 
-        LatLng Wlatlng = MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE / 2, AppConfig.TILE_SIZE / 2)); //west
-        userMarker = mMap.addMarker(new MarkerOptions()
-                .position(Wlatlng)
+        // here we add our own tile overlay with custom image tiles
+        Map.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
+
+        // draw our recorded paths
+        drawRecordedPaths = new DrawRecordedPaths(true, getApplicationContext(), Map);
+
+        // just put the user navigation marker in the center as we don't yet know user's location
+        LatLng mapCenter = MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE / 2, AppConfig.TILE_SIZE / 2)); //west
+        userNavMarker = Map.addMarker(new MarkerOptions()
+                .position(mapCenter)
                 .title("Center")
                 .snippet("User dot"));
 
 
-    }
-
-    private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap();
-            }
-        }
     }
 
     @Override
@@ -93,8 +110,9 @@ public class MainActivity extends FragmentActivity {
 
         setUpMapIfNeeded();
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-//        showData(service_WifiManager.getScanResults());
-//        mHandler.postDelayed(scanner, 0);
+
+//        showData(wifiManager.getScanResults());
+//        mHandler.postDelayed(wifiScanner, 0);
     }
 
     @Override
@@ -103,6 +121,19 @@ public class MainActivity extends FragmentActivity {
         unregisterReceiver(wifiReceiver);
     }
 
+
+    // sub class for knowing when the wifi scan finishes
+    private class WifiReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context c, Intent intent) {
+            displayData(wifiManager.getScanResults());
+            Log.i(TAG, "Received Results");
+            mHandler.postDelayed(wifiScanner, 0);
+        }
+    }
+
+    /* The METHODS below don't belong here ????? */
+// ============================================================================
     public void displayData(List<ScanResult> scanData) {
 
         HashMap<Integer, Integer> diffs = new HashMap<>();
@@ -123,7 +154,7 @@ public class MainActivity extends FragmentActivity {
             HashMap<String, Object> row = drawRecordedPaths.combinedList.get(minHashRow);
             PointF pointF = (PointF) row.get(Keys.KEY_POINT);
             // set marker to this pos
-            userMarker.setPosition(MercatorProjection.fromPointToLatLng(pointF));
+            userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(pointF));
         }
 
     }
@@ -140,13 +171,4 @@ public class MainActivity extends FragmentActivity {
         return minKey;
     }
 
-    // when wifi scanner finishes scan
-    private class WifiReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context c, Intent intent) {
-            displayData(service_WifiManager.getScanResults());
-            Log.i(TAG, "Received Results");
-            mHandler.postDelayed(scanner, 0);
-        }
-    }
 }

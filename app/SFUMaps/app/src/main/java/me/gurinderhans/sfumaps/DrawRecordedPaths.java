@@ -6,12 +6,23 @@ import android.graphics.PointF;
 import com.google.android.gms.maps.GoogleMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+
+import me.gurinderhans.sfumaps.mapsystem.Campus;
 
 /**
  * Created by ghans on 1/26/15.
  */
 public class DrawRecordedPaths {
+
+    /*
+     * NOTE for the aop
+     * anything going vertical will be called a "Street"
+     * likewise anything going horizontal is a "Avenue"
+     * - Things like the AQ are "States" / "Provinces"
+     * - "SFU Burnaby" is a Country
+     */
 
     /**
      * -----------------------------
@@ -34,14 +45,18 @@ public class DrawRecordedPaths {
      * i.e  -> 'apsdata_AQ_Lvl9_Near_M_HR'
      */
 
-    /* NOTE: only draw recorded paths of where the user is currently at not the whole campus at runtime */
+    /* NOTE: only draw recorded paths of where the user is currently at not the whole campus at runtime
+
+    - It's just good memory wise for app performance because android apps are sandboxed
+     given their own little memory and other resources
+    **/
 
 
     public static final String TAG = DrawRecordedPaths.class.getSimpleName();
 
     public static final int AQ_SIZE = 140;
 
-    boolean DEBUG = false;
+    boolean DEBUG = false; // presumingly this would enable and disable aps markers
     DataBaseManager mDataBaseManager;
     GoogleMap mMap;
 
@@ -54,6 +69,8 @@ public class DrawRecordedPaths {
         this.mMap = map;
 
         combinedList = new ArrayList<>();
+
+        new Campus("SFU Burnaby");
 
         for (String table : mDataBaseManager.getTableNames()) {
             if (!table.equals("apsdata_AQ_East_M_VR")) continue;
