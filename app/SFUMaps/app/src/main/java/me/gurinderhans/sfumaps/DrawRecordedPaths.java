@@ -6,7 +6,6 @@ import android.graphics.PointF;
 import com.google.android.gms.maps.GoogleMap;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import me.gurinderhans.sfumaps.mapsystem.Campus;
@@ -16,45 +15,47 @@ import me.gurinderhans.sfumaps.mapsystem.Campus;
  */
 public class DrawRecordedPaths {
 
-    /*
-     * NOTE for the aop
-     * anything going vertical will be called a "Street"
-     * likewise anything going horizontal is a "Avenue"
-     * - Things like the AQ are "States" / "Provinces"
-     * - "SFU Burnaby" is a Country
+    /*  University
+        |--Campuses
+           |--Buildings
+              |--Floors
+                 |--Individual Roads (Streets and Avenues)
      */
 
     /**
-     * -----------------------------
-     * Table Name Scheme
-     * -----------------------------
+     * -------------------------------
+     * Table Name Scheme for wifi data
+     * -------------------------------
      * = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
      * 1. prefix = 'apsdata_'
      * -
-     * 2. location general name -> ex. AQ, TASC1, ASB
+     * 2. university name -> ex. SFU
      * -
-     * 3. location specific name generalName_ [ {North, South, East, West}, {Lvl9_Far} ]
+     * 3. university campus name -> ex. SFU {Burnaby, Surrey, etc...}
      * -
-     * 4. floor level (M = main) and (M+n) for floors above M and (M-n) for floors below M - AQ 3000 is considered as floor M
+     * 4. building name -> ex. AQ, TASC1, ASB
      * -
-     * 5. direction = VR (vertical) | HR (horizontal) or in rare cases 'CSTNA' ( custom n/a )
+     * 5. floor level -> ex. 3000 at AQ or 9000 at TASC1
      * -
-     * ==> tableName = '{0}_{1}_{2}_{3}_{4}' % (prefix, locationGeneralName, locationSpecificName, floor level, direction)
+     * 6. pathway name (road) -> {North, South} in terms of AQ or Lvl9_Far in terms of TASC1
      * -
-     * i.e. -> 'apsdata_AQ_North_M_HR'
-     * i.e  -> 'apsdata_AQ_Lvl9_Near_M_HR'
+     * 7. direction -> is the path vertical or horizontal? : Street = Vertical, Avenue = Horizontal or SP = at some angle
+     * -
+     * ==> tableName = '{1}_{2}_{3}_{4}_{5}_{6}_{7}' % (prefix, universityName, campusName, buildingName, floorLevel, pathwayName, direction)
+     * -
+     * i.e. -> 'apsdata_SFU_BURNABY_AQ_3000_North_Avenue'
+     * i.e  -> 'apsdata_SFU_BURNABY_TASC1_9000_Near_Avenue'
      */
 
-    /* NOTE: only draw recorded paths of where the user is currently at not the whole campus at runtime
 
-    - It's just good memory wise for app performance because android apps are sandboxed
+    /* NOTE: only draw recorded paths of where the user is currently at not the whole campus at runtime
+    - It's just good memory wise for app performance because android apps are sand-boxed
      given their own little memory and other resources
     **/
 
 
     public static final String TAG = DrawRecordedPaths.class.getSimpleName();
 
-    public static final int AQ_SIZE = 140;
 
     boolean DEBUG = false; // presumingly this would enable and disable aps markers
     DataBaseManager mDataBaseManager;
@@ -63,7 +64,9 @@ public class DrawRecordedPaths {
     HashMap<String, ArrayList<HashMap<String, Object>>> separatedData;
     ArrayList<HashMap<String, Object>> combinedList;
 
-    public DrawRecordedPaths(boolean debugState, Context ctx, GoogleMap map) {
+    public static final int AQ_SIZE = 140;
+
+    public DrawRecordedPaths(Context ctx, GoogleMap map, boolean debugState) {
         this.DEBUG = debugState;
         this.mDataBaseManager = new DataBaseManager(ctx);
         this.mMap = map;

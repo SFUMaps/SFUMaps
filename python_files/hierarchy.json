@@ -1,0 +1,92 @@
+{
+    "SFU": {
+        "SFU Burnaby": {
+            "Info": {
+                "area": {
+                    "startPoint": "0,0",
+                    "endPoint": "1000,1000"
+                }
+            },
+            "Buildings": {
+                "AQ": {
+                    "Info": {
+                        "area": {
+                            "startPoint": "58.12, 54.5",
+                            "endPoint": "201.11, 201.0"
+                        }
+                    },
+                    "Levels": {
+                        "3000": {
+                            "Roads": {
+                                "North": {
+                                    "Info": {
+                                        "area": {
+                                            "startPoint": "-1,-1",
+                                            "endPoint": "-1,-1"
+                                        }
+                                    }
+                                },
+                                "East": {
+                                    "Info": {
+                                        "area": {
+                                            "startPoint": "-1,-1",
+                                            "endPoint": "-1,-1"
+                                        }
+                                    }
+                                }
+                            },
+                            "Rooms": {
+                                "AQ3181": {
+                                    "Info": {
+                                        "area": {
+                                            "startPoint": "-1,-1",
+                                            "endPoint": "-1,-1"
+                                        }
+                                    }
+                                },
+                                "AQ3182": {
+                                    "Info": {
+                                        "area": {
+                                            "startPoint": "-1,-1",
+                                            "endPoint": "-1,-1"
+                                        }
+                                    }
+                                }
+                            },
+                            "POIs": {}
+                        },
+                        "4000": {
+                            "Roads": {},
+                            "Rooms": {},
+                            "POIs": {}
+                        },
+                        "5000": {
+                            "Roads": {},
+                            "Rooms": {},
+                            "POIs": {}
+                        }
+                    }
+                },
+                "ASB": {
+                    "Info": {},
+                    "Levels": {}
+                },
+                "TASC1": {
+                    "Info": {},
+                    "Levels": {}
+                }
+            },
+            "POIs": {}
+        },
+        "SFU Surrey": {
+            "Info": {
+                "area": {
+                    "startPoint": "0,0",
+                    "endPoint": "1000,1000"
+                }
+            },
+            "Buildings": {},
+            "POIs": {}
+        }
+    }
+}

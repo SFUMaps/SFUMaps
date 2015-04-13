@@ -3,7 +3,6 @@ package me.gurinderhans.sfumaps;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.PointF;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -91,15 +90,35 @@ public class MainActivity extends FragmentActivity {
         // here we add our own tile overlay with custom image tiles
         Map.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
 
+        // hide the marker toolbar - the two buttons on the bottom right that open in google maps
+        Map.getUiSettings().setMapToolbarEnabled(false);
+
         // draw our recorded paths
-        drawRecordedPaths = new DrawRecordedPaths(true, getApplicationContext(), Map);
+        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map, true);
 
         // just put the user navigation marker in the center as we don't yet know user's location
         LatLng mapCenter = MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE / 2, AppConfig.TILE_SIZE / 2)); //west
         userNavMarker = Map.addMarker(new MarkerOptions()
                 .position(mapCenter)
-                .title("Center")
-                .snippet("User dot"));
+                .title("Position")
+                .snippet(MercatorProjection.fromLatLngToPoint(mapCenter).toString())
+                .draggable(true));
+
+        Map.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                Log.i(TAG, marker.getPosition() + "");
+                marker.setSnippet(MercatorProjection.fromLatLngToPoint(marker.getPosition()).toString());
+            }
+        });
 
 
     }
@@ -109,8 +128,7 @@ public class MainActivity extends FragmentActivity {
         super.onResume();
 
         setUpMapIfNeeded();
-        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
+//        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 //        showData(wifiManager.getScanResults());
 //        mHandler.postDelayed(wifiScanner, 0);
     }
@@ -118,7 +136,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onPause() {
         super.onPause();
-        unregisterReceiver(wifiReceiver);
+//        unregisterReceiver(wifiReceiver);
     }
 
 

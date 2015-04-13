@@ -2,28 +2,51 @@
 
 import sys, sqlite3, time
 from color import color
+from pprint import pprint
+import json
+
+tm = time.time()
+
+"""
+  University Level
+  |--Campus Level
+  |  |--Building Level
+  |  |  |--Floor Level
+  |  |  |  |--Individual Roads
+
+"""
+
+def insert(data):
+
+    parentId = data[0]
+    selfId = data[1]
+    name = data[2]
+    value = (len(data) > 3) and data[3] or ""
+
+    INSERT_QUERY = """INSERT INTO hierarchy (name, self, parent, value) VALUES ('{0}', '{1}', '{2}', '{3}')""".format(name, selfId, parentId, value)
+    # cur.execute(INSERT_QUERY)
+
+def looper(h, p, s):
+
+    if type(h) != dict: return
+
+    else:
+        # increment parent and self IDs
+        p += 1; s += 1
+        for i in h:
+            if type(h[i]) != dict:
+                # we have a value field
+                print p,'\t|',s,'\t|',i,'\t|',h[i]
+                # insert( (p,s,i,h[i]) )
+            else:
+                print p,'\t|',s,'\t|',i
+                # insert( (p,s,i) )
+
+            looper(h[i], p, s)
 
 
-h = {
-    "SFU":{
-        "SFU Burnaby": {
-            "AQ": {
-                "3000": {
-                      "North": ["AP1", "AP2", "AP3", "AP4", "AP5"]
-                    , "East": ["AP1", "AP2", "AP3", "AP4", "AP5"]
-                    , "South": ["AP1", "AP2", "AP3", "AP4", "AP5"]
-                    , "West": ["AP1", "AP2", "AP3", "AP4", "AP5"]
-                }
-            },
 
-            "ASB": {},
-
-            "TASC1": {}
-        }
-    }
-}
-
-# tm = time.time()
+h = json.loads(open("hierarchy.json").read())
 
 con = sqlite3.connect("N_wifi_data")
 
@@ -31,23 +54,23 @@ with con:
 
     cur = con.cursor()
 
-    # create hierarchy table
-    # ...
-    # createTableQuery = "CREATE TABLE hierarchy (_id INTEGER PRIMARY KEY, ssid TEXT, bssid TEXT, freq TEXT, level TEXT, rec_time TEXT)"
-    # N_cur.execute(createTableQuery)
+    # create hierarchy table schema for database
+    createTableQuery = """CREATE TABLE IF NOT EXISTS hierarchy (_id INTEGER PRIMARY KEY,
+    name TEXT,
+    self INTEGER,
+    parent INTEGER,
+    value TEXT)"""
+    cur.execute(createTableQuery)
 
-    for i in h: # univeristy level
-        for j in h[i]: # campus level
-            for k in h[i][j]: # building level
-                for l in h[i][j][k]: # floor level
-                    for m in h[i][j][k][l]: # individual road level
-                        print m
+    looper(h, -1, 0)
 
 
 
-    # cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    # tables = [i[0] for i in cur.fetchall()[1:]]
-    # for table in tables:
-        # getData(cur, table)
 
-# print color.BOLD+('Took: '+color.DARKCYAN+str(time.time()-tm)+' seconds :)')+color.END
+
+#     # cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+#     # tables = [i[0] for i in cur.fetchall()[1:]]
+#     # for table in tables:
+#         # getData(cur, table)
+#
+# # print color.BOLD+('Took: '+color.DARKCYAN+str(time.time()-tm)+' seconds :)')+color.END

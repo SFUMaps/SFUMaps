@@ -1,6 +1,8 @@
 package me.gurinderhans.sfumaps.mapsystem;
 
 import android.graphics.PointF;
+import android.hardware.camera2.CameraManager;
+import android.util.Log;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
  */
 public class Campus {
 
+    public static final String TAG = Campus.class.getSimpleName();
+
     String campusName;
     PointF startPoint;
     PointF endPoint;
@@ -17,11 +21,12 @@ public class Campus {
 
     public Campus(String name) {
         this.campusName = name;
-        this.startPoint = new PointF(0f, 0f);
-        this.endPoint = new PointF(140f, 140f);
+        this.startPoint = new PointF(58.12f, 54.5f);
+        this.endPoint = new PointF(201.11f, 201.0f);
+        Log.i(TAG, (endPoint.x-startPoint.x)+", "+(endPoint.y-startPoint.y)+"");
 
         // buildings will be pulled out of a database or something
-        createBuildings(Arrays.asList("AQ", "ASB", "TASC1", "TASC2"));
+//        createBuildings(Arrays.asList("AQ", "ASB", "TASC1", "TASC2"));
 
     }
 
