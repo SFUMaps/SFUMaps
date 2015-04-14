@@ -10,9 +10,9 @@ tm = time.time()
 """
   University Level
   |--Campus Level
-  |  |--Building Level
-  |  |  |--Floor Level
-  |  |  |  |--Individual Roads
+     |--Building Level
+        |--Floor Level
+           |--Individual Roads
 
 """
 
@@ -37,10 +37,10 @@ def looper(h, p, s):
             if type(h[i]) != dict:
                 # we have a value field
                 print p,'\t|',s,'\t|',i,'\t|',h[i]
-                # insert( (p,s,i,h[i]) )
+                insert( (p,s,i,h[i]) )
             else:
                 print p,'\t|',s,'\t|',i
-                # insert( (p,s,i) )
+                insert( (p,s,i) )
 
             looper(h[i], p, s)
 
@@ -68,9 +68,9 @@ with con:
 
 
 
-#     # cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
-#     # tables = [i[0] for i in cur.fetchall()[1:]]
-#     # for table in tables:
-#         # getData(cur, table)
+    # cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    # tables = [i[0] for i in cur.fetchall()[1:]]
+    # for table in tables:
+    #     getData(cur, table)
 #
 # # print color.BOLD+('Took: '+color.DARKCYAN+str(time.time()-tm)+' seconds :)')+color.END

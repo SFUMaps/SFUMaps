@@ -3,16 +3,16 @@
         "SFU Burnaby": {
             "Info": {
                 "area": {
-                    "startPoint": "0,0",
-                    "endPoint": "1000,1000"
+                    "startPoint": "0, 0",
+                    "endPoint": "1000, 1000"
                 }
             },
             "Buildings": {
                 "AQ": {
                     "Info": {
                         "area": {
-                            "startPoint": "58.12, 54.5",
-                            "endPoint": "201.11, 201.0"
+                            "startPoint": "57.959, 54.997",
+                            "endPoint": "201.212, 201.065"
                         }
                     },
                     "Levels": {
@@ -20,17 +20,19 @@
                             "Roads": {
                                 "North": {
                                     "Info": {
+                                        "type": "avenue",
                                         "area": {
-                                            "startPoint": "-1,-1",
-                                            "endPoint": "-1,-1"
+                                            "startPoint": "-1, -1",
+                                            "endPoint": "-1, -1"
                                         }
                                     }
                                 },
                                 "East": {
                                     "Info": {
+                                        "type": "street",
                                         "area": {
-                                            "startPoint": "-1,-1",
-                                            "endPoint": "-1,-1"
+                                            "startPoint": "186.256, 55.375",
+                                            "endPoint": "201.212, 201.065"
                                         }
                                     }
                                 }
@@ -39,16 +41,16 @@
                                 "AQ3181": {
                                     "Info": {
                                         "area": {
-                                            "startPoint": "-1,-1",
-                                            "endPoint": "-1,-1"
+                                            "startPoint": "-1, -1",
+                                            "endPoint": "-1, -1"
                                         }
                                     }
                                 },
                                 "AQ3182": {
                                     "Info": {
                                         "area": {
-                                            "startPoint": "-1,-1",
-                                            "endPoint": "-1,-1"
+                                            "startPoint": "-1, -1",
+                                            "endPoint": "-1, -1"
                                         }
                                     }
                                 }
@@ -81,8 +83,8 @@
         "SFU Surrey": {
             "Info": {
                 "area": {
-                    "startPoint": "0,0",
-                    "endPoint": "1000,1000"
+                    "startPoint": "0, 0",
+                    "endPoint": "1000, 1000"
                 }
             },
             "Buildings": {},

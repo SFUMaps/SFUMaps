@@ -1,14 +1,14 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.PointF;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import me.gurinderhans.sfumaps.mapsystem.Campus;
 
 /**
  * Created by ghans on 1/26/15.
@@ -56,7 +56,6 @@ public class DrawRecordedPaths {
 
     public static final String TAG = DrawRecordedPaths.class.getSimpleName();
 
-
     boolean DEBUG = false; // presumingly this would enable and disable aps markers
     DataBaseManager mDataBaseManager;
     GoogleMap mMap;
@@ -71,12 +70,15 @@ public class DrawRecordedPaths {
         this.mDataBaseManager = new DataBaseManager(ctx);
         this.mMap = map;
 
+//        this.mDataBaseManager.getHierarchy();
+
+        SharedPreferences prefs = ctx.getSharedPreferences("UsingTable", Context.MODE_PRIVATE);
+        String tableName = "apsdata_SFU_BURNABY_AQ_3000_East_Street" + prefs.getString("TABLENAME", "");
+        Toast.makeText(ctx, "Using Table: " + tableName, Toast.LENGTH_SHORT).show();
+
         combinedList = new ArrayList<>();
-
-        new Campus("SFU Burnaby");
-
         for (String table : mDataBaseManager.getTableNames()) {
-            if (!table.equals("apsdata_AQ_East_M_VR")) continue;
+            if (!table.equals(tableName)) continue;
 
             // TODO: How about a Header for splitting by keys to get a constant runtime method
             separatedData = MapTools.separateByKeys(mDataBaseManager.getTableData(table), AppConfig.ALL_SSIDS, Keys.KEY_SSID);

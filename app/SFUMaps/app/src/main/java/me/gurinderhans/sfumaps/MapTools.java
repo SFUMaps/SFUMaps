@@ -14,6 +14,8 @@ import java.util.Set;
  */
 public class MapTools {
 
+    // TODO: Class under construction
+
     // empty constructor
     private MapTools() {
         /* To make sure this class cannot be instantiated */
@@ -34,7 +36,8 @@ public class MapTools {
         }
 
         for (HashMap<String, Object> i : dataArray) {
-            seperated.get(i.get(keyIndex)).add(i);
+            if(seperated.keySet().contains(i.get(keyIndex)))
+                seperated.get(i.get(keyIndex)).add(i);
         }
 
         return seperated;

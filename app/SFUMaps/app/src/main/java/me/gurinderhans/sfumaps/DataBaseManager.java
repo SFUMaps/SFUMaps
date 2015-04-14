@@ -169,4 +169,62 @@ public class DataBaseManager extends SQLiteOpenHelper {
         return data;
     }
 
+
+    /**
+     * get campus hierarchy
+     */
+    void getHierarchy() {
+
+        SQLiteDatabase db = getReadableDatabase();
+
+        Tree<HashMap<Integer, String>> t;
+
+        String GET_HIERARCHY_QUERY = "SELECT * FROM hierarchy";
+        Cursor cursor = db.rawQuery(GET_HIERARCHY_QUERY, null);
+
+        if (cursor.moveToFirst()) {
+
+            Log.i(TAG, "id: " + cursor.getInt(0));
+            int id = cursor.getInt(0);
+            int parentNode = cursor.getInt(2);
+            String selfName = cursor.getString(1);
+            int selfId = cursor.getInt(3);
+            String value = cursor.getString(4);
+
+            final int tmpId = id;
+            final String tmpName = selfName;
+
+            t= new Tree<HashMap<Integer, String>>(new HashMap<Integer, String>(){{
+                put(tmpId, tmpName);
+            }});
+
+            Log.i(TAG, t.toString());
+
+            // we read the first value manually so we need
+            // to move cursor so we don't read the first row again
+            cursor.moveToPosition(1);
+
+            do {
+
+                id = cursor.getInt(0);
+                parentNode = cursor.getInt(2);
+                selfName = cursor.getString(1);
+                selfId = cursor.getInt(3);
+                value = cursor.getString(4);
+
+                // traverse through the tree and find the parent node
+//                t.addLeaf(parent, this);
+
+//                Log.i(TAG, "id: " + id);
+
+
+            } while (cursor.moveToNext());
+        }
+
+//        Log.i(TAG, t.toString());
+
+        cursor.close();
+        db.close();
+    }
+
 }

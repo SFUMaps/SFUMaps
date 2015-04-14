@@ -64,7 +64,6 @@ def getData(cur, table):
     cur.execute("SELECT * FROM "+table)
 
     aps = cur.fetchall()
-
     filtered_aps = getFilteredAPs(aps)
 
     createTableAddData(table, filtered_aps)

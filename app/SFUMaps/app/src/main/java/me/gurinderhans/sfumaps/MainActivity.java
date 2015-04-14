@@ -3,6 +3,8 @@ package me.gurinderhans.sfumaps;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -10,6 +12,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,6 +42,8 @@ public class MainActivity extends FragmentActivity {
 
     DrawRecordedPaths drawRecordedPaths; // reference to our custom class that draws recorded paths
 
+    ProgressBar wifiScanProgress;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +66,18 @@ public class MainActivity extends FragmentActivity {
         };
 
         setUpMapIfNeeded();
+
+        wifiScanProgress = (ProgressBar) findViewById(R.id.wifiScanningStatus);
+
+        (findViewById(R.id.changeTable)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String tableName = ((EditText) findViewById(R.id.table_name)).getText().toString();
+                Toast.makeText(getApplicationContext(), "Changing to: " + tableName, Toast.LENGTH_SHORT).show();
+                SharedPreferences preferences = getApplicationContext().getSharedPreferences("UsingTable", Context.MODE_PRIVATE);
+                preferences.edit().putString("TABLENAME", tableName).apply();
+            }
+        });
 
     }
 
@@ -128,15 +148,15 @@ public class MainActivity extends FragmentActivity {
         super.onResume();
 
         setUpMapIfNeeded();
-//        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 //        showData(wifiManager.getScanResults());
-//        mHandler.postDelayed(wifiScanner, 0);
+        mHandler.postDelayed(wifiScanner, 0);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        unregisterReceiver(wifiReceiver);
+        unregisterReceiver(wifiReceiver);
     }
 
 
@@ -144,9 +164,11 @@ public class MainActivity extends FragmentActivity {
     private class WifiReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context c, Intent intent) {
+            wifiScanProgress.setVisibility(View.INVISIBLE);
             displayData(wifiManager.getScanResults());
             Log.i(TAG, "Received Results");
             mHandler.postDelayed(wifiScanner, 0);
+            wifiScanProgress.setVisibility(View.VISIBLE);
         }
     }
 

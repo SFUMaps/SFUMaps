@@ -21,6 +21,13 @@ public final class Keys {
     public static final String KEY_CONFIG_RSSI_THRESHOLD = "MIN_RSSI_THRESHOLD";
     public static final String KEY_CONFIG_SSID_SET = "USABLE_SSID_SET";
 
+    // App Hierarchy keys
+    public static final String KEY_HIERARCHY_NAME = "name";
+    public static final String KEY_HIERARCHY_SELF_ID = "self";
+    public static final String KEY_HIERARCHY_PARENT_ID = "parent";
+    public static final String KEY_HIERARCHY_VALUE= "value";
+
+
 
     // empty constructor
     private Keys() {
