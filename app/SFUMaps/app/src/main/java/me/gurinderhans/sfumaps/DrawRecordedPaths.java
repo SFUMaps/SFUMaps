@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.PointF;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -62,6 +63,12 @@ public class DrawRecordedPaths {
 
     HashMap<String, ArrayList<HashMap<String, Object>>> separatedData;
     ArrayList<HashMap<String, Object>> combinedList;
+    ArrayList<HashMap<String, Object>> allData;
+
+    long startT = 0;
+    long endT = 0;
+    float totalSeconds = 0;
+    float scaleFactor = 0;
 
     public static final int AQ_SIZE = 140;
 
@@ -81,7 +88,14 @@ public class DrawRecordedPaths {
             if (!table.equals(tableName)) continue;
 
             // TODO: How about a Header for splitting by keys to get a constant runtime method
-            separatedData = MapTools.separateByKeys(mDataBaseManager.getTableData(table), AppConfig.ALL_SSIDS, Keys.KEY_SSID);
+            allData = mDataBaseManager.getTableData(table);
+
+            startT = Long.parseLong((String) allData.get(0).get(Keys.KEY_TIME));
+            endT = Long.parseLong((String) allData.get(allData.size() - 1).get(Keys.KEY_TIME));
+            totalSeconds = (endT - startT) / 1000f;
+            scaleFactor = AQ_SIZE / totalSeconds;
+
+            separatedData = MapTools.separateByKeys(allData, AppConfig.ALL_SSIDS, Keys.KEY_SSID);
             plotData(separatedData);
         }
     }
@@ -93,7 +107,17 @@ public class DrawRecordedPaths {
                 HashMap<String, Object> dataRow = data.get(key).get(i);
                 PointF point = new PointF(196, 60);
 
-                point.y += (i * (AQ_SIZE / (data.get(key).size() - 1.03)));
+                // maybe the problem is this, so how about using time to figure out where the points go,
+                // that will be more accurate. basically --> ((endTime - thisTime) / 1000) * (scaleFactor = AQ_SIZE / totalSeconds)
+                // so that it fits in the AQ
+
+                long thisTime = Long.parseLong((String) dataRow.get(Keys.KEY_TIME));
+                float mark = 60+ ((endT - thisTime) / 1000 * scaleFactor);
+                point.y = mark;
+
+//                point.y += (i * (AQ_SIZE / (data.get(key).size() - 1.03)));
+
+
                 dataRow.put(Keys.KEY_POINT, point);
 
                 MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point),
