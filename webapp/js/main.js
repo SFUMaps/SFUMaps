@@ -7,7 +7,11 @@ var AQ_SIZE = 140;
 
 var Map, MapProj;
 
+var userMarker;
+
 var self = this;
+
+var singleAP;
 
 var customMapOptions = {
 
@@ -18,25 +22,69 @@ var customMapOptions = {
   },
 
   tileSize: new google.maps.Size(TILE_SIZE, TILE_SIZE),
-  maxZoom: 6,
+  maxZoom: 16,
   minZoom: 1,
   name: MAP_ID // this is displayed on the top right corner button
 }
 
-function plotData(data) {
+function drawForward(a){
+  var data = a[0]
+  var startT = a[1]
+  var endT = a[2]
+  var totalSeconds = a[3]/1000
+  var scaleFactor = AQ_SIZE/totalSeconds
+
   for (i in data) {
-    for (j in data[i]) {
-      var dataRow = data[i][j]
-      var point = new google.maps.Point(196,60) // start at AQ, that's its top-left corner
+    console.log(Object.keys(data[i]))
+    for (j in data[i]){
+      if(j!=singleAP) continue;
+      var apArr = data[i][j]
+      var point = new google.maps.Point(196,60) // AQ top right
+      var thisLength = ((endT - apArr[0][4])/1000 * scaleFactor)
+      point.y += thisLength
+      MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/routerdot.png", apArr[0][1])
 
-      // the magic formule
-      point.y += ( parseInt(j) * ( AQ_SIZE / (data[i].length - 1.03) ) )
-
-      dataRow.push(point)
-      // console.log(dataRow)
-
-      MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/routerdot.png", dataRow[2])
+      // draw it's shadows
+      apArr.forEach(function(el,i) {
+        point.y = 60
+        var thisLength = ((endT-el[4])/1000)*scaleFactor
+        point.y += thisLength
+        MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/Red-Circle.png", String(el[3]))
+      })
     }
+  }
+}
+
+function drawBackward(b){
+  var data = b[0]
+  var startT = b[1]
+  var endT = b[2]
+  var totalSeconds = b[3]/1000
+  var scaleFactor = AQ_SIZE/totalSeconds
+
+  for (i in data) {
+    for (j in data[i]){
+      if(j!=singleAP) continue;
+      var apArr = data[i][j]
+      var point = new google.maps.Point(190,60) // AQ top right
+      var thisLength = AQ_SIZE - ((endT - apArr[0][4])/1000 * scaleFactor)
+      point.y += thisLength
+      MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/routerdot.png", apArr[0][1])
+
+      // draw it's shadows
+      apArr.forEach(function(el,i) {
+        point.y = 60
+        var thisLength = AQ_SIZE - (((endT-el[4])/1000)*scaleFactor)
+        point.y += thisLength
+        MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/Red-Circle.png", String(el[3]))
+      })
+    }
+  }
+}
+
+function markIt(scanResults, data){
+  for (i in data[0]) {
+    // console.log(i)
   }
 }
 
@@ -58,23 +106,22 @@ function initialize() {
   Map.mapTypes.set(MAP_ID, new google.maps.ImageMapType(customMapOptions));
   Map.setMapTypeId(MAP_ID); // can control floor levels with this
 
-  $.post(SERVER_URL, function(r) {
-    for (i in r) {
-      if (i != "apsdata_AQ_East_M_VR") continue
+  userMarker = MapTools.addMarker(new google.maps.LatLng(0,0))
 
-      // east side
-      var seper = MapTools.seperateByKeys(r[i], SSIDS, 1)
-      plotData(seper)
+  // raw_data = test_data
+  $.post(SERVER_URL, {'tables': ['_1', '_R_1'], 'raw_data':['_3']}, function(r) {
+    var a = r[0]
+    var b = r[1]
 
-      var joined=[]
-      for (i in seper) {
-        for (j in seper[i]) {
-          joined.push(seper[i][j])
-        }
-      }
+    singleAP = "00:1f:45:6c:87:b0"
 
-      console.log(joined)
-    }
+    drawForward(a)
+    drawBackward(b)
+
+    var testData = r[2]
+    markIt(testData[0].slice(0,170), a)
+
+
   })
 }
 

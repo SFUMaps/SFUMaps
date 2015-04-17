@@ -80,7 +80,7 @@ var MapTools = (function() {
   return {
     addMarker: function(pos, iconPath, title){
       iconPath = iconPath || ""
-      title = title || "sd"
+      title = title || ""
       return marker = new google.maps.Marker({
           position: pos,
           map: Map,
