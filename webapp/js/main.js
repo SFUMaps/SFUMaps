@@ -7,7 +7,11 @@ var AQ_SIZE = 140;
 
 var Map, MapProj;
 
+var userMarker;
+
 var self = this;
+
+var singleAP;
 
 var customMapOptions = {
 
@@ -31,8 +35,9 @@ function drawForward(a){
   var scaleFactor = AQ_SIZE/totalSeconds
 
   for (i in data) {
-    var ssidPointsCount = Object.keys(data[i]).length
+    console.log(Object.keys(data[i]))
     for (j in data[i]){
+      if(j!=singleAP) continue;
       var apArr = data[i][j]
       var point = new google.maps.Point(196,60) // AQ top right
       var thisLength = ((endT - apArr[0][4])/1000 * scaleFactor)
@@ -44,7 +49,7 @@ function drawForward(a){
         point.y = 60
         var thisLength = ((endT-el[4])/1000)*scaleFactor
         point.y += thisLength
-        MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/Red-Circle.png", el[1])
+        MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/Red-Circle.png", String(el[3]))
       })
     }
   }
@@ -58,10 +63,10 @@ function drawBackward(b){
   var scaleFactor = AQ_SIZE/totalSeconds
 
   for (i in data) {
-    var ssidPointsCount = Object.keys(data[i]).length
     for (j in data[i]){
+      if(j!=singleAP) continue;
       var apArr = data[i][j]
-      var point = new google.maps.Point(196,60) // AQ top right
+      var point = new google.maps.Point(190,60) // AQ top right
       var thisLength = AQ_SIZE - ((endT - apArr[0][4])/1000 * scaleFactor)
       point.y += thisLength
       MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/routerdot.png", apArr[0][1])
@@ -71,11 +76,18 @@ function drawBackward(b){
         point.y = 60
         var thisLength = AQ_SIZE - (((endT-el[4])/1000)*scaleFactor)
         point.y += thisLength
-        MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/Red-Circle.png", el[1])
+        MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/Red-Circle.png", String(el[3]))
       })
     }
   }
 }
+
+function markIt(scanResults, data){
+  for (i in data[0]) {
+    // console.log(i)
+  }
+}
+
 function initialize() {
   MapProj = new MercatorProjection();
 
@@ -94,13 +106,20 @@ function initialize() {
   Map.mapTypes.set(MAP_ID, new google.maps.ImageMapType(customMapOptions));
   Map.setMapTypeId(MAP_ID); // can control floor levels with this
 
-  $.post(SERVER_URL, {'tables': ['_1', '_R_1']}, function(r) {
-    console.log(r)
+  userMarker = MapTools.addMarker(new google.maps.LatLng(0,0))
+
+  // raw_data = test_data
+  $.post(SERVER_URL, {'tables': ['_1', '_R_1'], 'raw_data':['_3']}, function(r) {
     var a = r[0]
     var b = r[1]
 
+    singleAP = "00:1f:45:6c:87:b0"
+
     drawForward(a)
     drawBackward(b)
+
+    var testData = r[2]
+    markIt(testData[0].slice(0,170), a)
 
 
   })

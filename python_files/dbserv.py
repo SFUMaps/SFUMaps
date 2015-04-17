@@ -29,6 +29,10 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 parser.parseData()
                 data.append([parser.data, parser.startT, parser.endT, parser.totalMillis, parser.times])
 
+            for i in post_data['raw_data[]']:
+                parser.set_table("apsdata_SFU_BURNABY_AQ_3000_East_Street"+i)
+                data.append([parser.data, parser.startT, parser.endT, parser.totalMillis, parser.times])
+
 
             self.send_response(200)
             self.send_header('Content-type','application/json')
