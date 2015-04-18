@@ -42,8 +42,6 @@ public class MainActivity extends FragmentActivity {
 
     DrawRecordedPaths drawRecordedPaths; // reference to our custom class that draws recorded paths
 
-    ProgressBar wifiScanProgress;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,18 +64,6 @@ public class MainActivity extends FragmentActivity {
         };
 
         setUpMapIfNeeded();
-
-        wifiScanProgress = (ProgressBar) findViewById(R.id.wifiScanningStatus);
-
-        (findViewById(R.id.changeTable)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String tableName = ((EditText) findViewById(R.id.table_name)).getText().toString();
-                Toast.makeText(getApplicationContext(), "Changing to: " + tableName, Toast.LENGTH_SHORT).show();
-                SharedPreferences preferences = getApplicationContext().getSharedPreferences("UsingTable", Context.MODE_PRIVATE);
-                preferences.edit().putString("TABLENAME", tableName).apply();
-            }
-        });
 
     }
 
@@ -150,65 +136,65 @@ public class MainActivity extends FragmentActivity {
         setUpMapIfNeeded();
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 //        showData(wifiManager.getScanResults());
-        mHandler.postDelayed(wifiScanner, 0);
+//        mHandler.postDelayed(wifiScanner, 0);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        unregisterReceiver(wifiReceiver);
+//        unregisterReceiver(wifiReceiver);
     }
 
 
-    // sub class for knowing when the wifi scan finishes
+    // broadcast receiver for knowing when the wifi scan finishes
     private class WifiReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context c, Intent intent) {
-            wifiScanProgress.setVisibility(View.INVISIBLE);
-            displayData(wifiManager.getScanResults());
+//            displayData(wifiManager.getScanResults());
             Log.i(TAG, "Received Results");
             mHandler.postDelayed(wifiScanner, 0);
-            wifiScanProgress.setVisibility(View.VISIBLE);
         }
     }
+
+
 
     /* The METHODS below don't belong here ????? */
 // ============================================================================
-    public void displayData(List<ScanResult> scanData) {
-
-        HashMap<Integer, Integer> diffs = new HashMap<>();
-
-        for (int i = 0; i < drawRecordedPaths.combinedList.size(); i++) {
-            HashMap<String, Object> dataRow = drawRecordedPaths.combinedList.get(i);
-            for (ScanResult res : scanData) {
-                if (dataRow.get(Keys.KEY_BSSID).equals(res.BSSID)) {
-                    diffs.put(i, Math.abs(Math.abs(Integer.parseInt((String) dataRow.get(Keys.KEY_RSSI))) - Math.abs(res.level)));
-                }
-            }
-        }
-
-        int minHashRow = minMapVal(diffs);
-
-        Log.i(TAG, minHashRow + "");
-        if (minHashRow != -1) {
-            HashMap<String, Object> row = drawRecordedPaths.combinedList.get(minHashRow);
-            PointF pointF = (PointF) row.get(Keys.KEY_POINT);
-            // set marker to this pos
-            userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(pointF));
-        }
-
-    }
-
-    public int minMapVal(HashMap<Integer, Integer> map) {
-        int minKey = -1;
-        int minVal = 1000000;
-        for (int key : map.keySet()) {
-            if (map.get(key) < minVal) {
-                minKey = key;
-                minVal = map.get(key);
-            }
-        }
-        return minKey;
-    }
+//    public void displayData(List<ScanResult> scanData) {
+//
+//        HashMap<Integer, Integer> diffs = new HashMap<>();
+//
+//        for (int i = 0; i < drawRecordedPaths.combinedList.size(); i++) {
+//            HashMap<String, Object> dataRow = drawRecordedPaths.combinedList.get(i);
+//            for (ScanResult res : scanData) {
+//                if (dataRow.get(Keys.KEY_BSSID).equals(res.BSSID)) {
+//                    diffs.put(i, Math.abs(Math.abs(Integer.parseInt((String) dataRow.get(Keys.KEY_RSSI))) - Math.abs(res.level)));
+//                }
+//            }
+//        }
+//
+//        int minHashRow = minMapVal(diffs);
+//
+//        Log.i(TAG, minHashRow + "");
+//        if (minHashRow != -1) {
+//            HashMap<String, Object> row = drawRecordedPaths.combinedList.get(minHashRow);
+//            PointF pointF = (PointF) row.get(Keys.KEY_POINT);
+//            // set marker to this pos
+//            userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(pointF));
+//        }
+//
+//    }
+//
+//    public int minMapVal(HashMap<Integer, Integer> map) {
+//        int minKey = -1;
+//        int minVal = 1000000;
+//        for (int key : map.keySet()) {
+//            if (map.get(key) < minVal) {
+//                minKey = key;
+//                minVal = map.get(key);
+//            }
+//        }
+//        return minKey;
+//    }
 
 }

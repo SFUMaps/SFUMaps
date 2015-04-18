@@ -9,8 +9,6 @@ var Map, MapProj;
 
 var userMarker;
 
-var self = this;
-
 var singleAP;
 
 var customMapOptions = {
@@ -27,64 +25,43 @@ var customMapOptions = {
   name: MAP_ID // this is displayed on the top right corner button
 }
 
-function drawForward(a){
-  var data = a[0]
-  var startT = a[1]
-  var endT = a[2]
-  var totalSeconds = a[3]/1000
+function plotData(set){
+  var data = set['data']
+  var startT = set['startT']
+  var endT = set['endT']
+  var totalSeconds = (endT - startT) / 1000
   var scaleFactor = AQ_SIZE/totalSeconds
-
-  for (i in data) {
-    console.log(Object.keys(data[i]))
-    for (j in data[i]){
-      if(j!=singleAP) continue;
-      var apArr = data[i][j]
-      var point = new google.maps.Point(196,60) // AQ top right
-      var thisLength = ((endT - apArr[0][4])/1000 * scaleFactor)
-      point.y += thisLength
-      MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/routerdot.png", apArr[0][1])
-
-      // draw it's shadows
-      apArr.forEach(function(el,i) {
-        point.y = 60
-        var thisLength = ((endT-el[4])/1000)*scaleFactor
-        point.y += thisLength
-        MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/Red-Circle.png", String(el[3]))
-      })
-    }
-  }
-}
-
-function drawBackward(b){
-  var data = b[0]
-  var startT = b[1]
-  var endT = b[2]
-  var totalSeconds = b[3]/1000
-  var scaleFactor = AQ_SIZE/totalSeconds
+  var revrsd = set['reversed']
 
   for (i in data) {
     for (j in data[i]){
+      console.log(j)
       if(j!=singleAP) continue;
       var apArr = data[i][j]
       var point = new google.maps.Point(190,60) // AQ top right
-      var thisLength = AQ_SIZE - ((endT - apArr[0][4])/1000 * scaleFactor)
+      var thisLength = ((endT - apArr[0][4])/1000 * scaleFactor)
+
+      if (revrsd) {
+        thisLength = AQ_SIZE - thisLength
+        point.x = 195
+      }
+
       point.y += thisLength
       MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/routerdot.png", apArr[0][1])
 
       // draw it's shadows
       apArr.forEach(function(el,i) {
         point.y = 60
-        var thisLength = AQ_SIZE - (((endT-el[4])/1000)*scaleFactor)
+        var thisLength = (((endT-el[4])/1000)*scaleFactor)
+
+        if(revrsd) {
+          thisLength = AQ_SIZE - thisLength
+        }
+
         point.y += thisLength
         MapTools.addMarker(MapProj.fromPointToLatLng(point), "images/Red-Circle.png", String(el[3]))
       })
     }
-  }
-}
-
-function markIt(scanResults, data){
-  for (i in data[0]) {
-    // console.log(i)
   }
 }
 
@@ -110,16 +87,11 @@ function initialize() {
 
   // raw_data = test_data
   $.post(SERVER_URL, {'tables': ['_1', '_R_1'], 'raw_data':['_3']}, function(r) {
-    var a = r[0]
-    var b = r[1]
 
-    singleAP = "00:1f:45:6c:87:b0"
+    singleAP = "00:1f:45:64:71:d0"
 
-    drawForward(a)
-    drawBackward(b)
-
-    var testData = r[2]
-    markIt(testData[0].slice(0,170), a)
+    plotData(r[0])
+    plotData(r[1])
 
 
   })

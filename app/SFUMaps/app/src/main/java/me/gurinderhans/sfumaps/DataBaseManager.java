@@ -18,6 +18,8 @@ import java.util.HashMap;
  */
 public class DataBaseManager extends SQLiteOpenHelper {
 
+    // TODO: class requires more work - [under construction]
+
     public static final String TAG = DataBaseManager.class.getSimpleName();
 
     public static final String DATABASE_NAME = "WIFI_DATA";
@@ -170,10 +172,10 @@ public class DataBaseManager extends SQLiteOpenHelper {
     }
 
 
-    /**
+    /*
      * get campus hierarchy
      */
-    void getHierarchy() {
+    /*void getHierarchy() {
 
         SQLiteDatabase db = getReadableDatabase();
 
@@ -225,6 +227,6 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
         cursor.close();
         db.close();
-    }
+    }*/
 
 }

@@ -9,6 +9,8 @@ import java.util.HashMap;
  */
 public class Tree<T> {
 
+    // TODO: Won't be getting to this for a while - [limbo state]
+
     private T head;
 
     private ArrayList<Tree<T>> leafs = new ArrayList<>();

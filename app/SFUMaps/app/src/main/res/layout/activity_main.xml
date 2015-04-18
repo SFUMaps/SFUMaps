@@ -11,40 +11,4 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity" />
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="1">
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.63"/>
-
-        <EditText
-            android:id="@+id/table_name"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textAutoComplete"
-            android:layout_weight="0.35"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.05"
-            android:id="@+id/changeTable"
-            android:text="Go"/>
-
-        <ProgressBar
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_weight="0.001"
-            android:layout_marginTop="10dp"
-            android:id="@+id/wifiScanningStatus"
-            android:indeterminate="true"/>
-
-    </LinearLayout>
-    
-
 </RelativeLayout>

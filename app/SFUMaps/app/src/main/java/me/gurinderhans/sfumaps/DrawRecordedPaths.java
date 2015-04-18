@@ -42,6 +42,8 @@ public class DrawRecordedPaths {
      * -
      * 7. direction -> is the path vertical or horizontal? : Street = Vertical, Avenue = Horizontal or SP = at some angle
      * -
+     * 8. reverse -> _R
+     * -
      * ==> tableName = '{1}_{2}_{3}_{4}_{5}_{6}_{7}' % (prefix, universityName, campusName, buildingName, floorLevel, pathwayName, direction)
      * -
      * i.e. -> 'apsdata_SFU_BURNABY_AQ_3000_North_Avenue'

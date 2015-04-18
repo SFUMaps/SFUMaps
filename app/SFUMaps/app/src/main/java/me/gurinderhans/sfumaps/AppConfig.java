@@ -36,7 +36,7 @@ public class AppConfig {
     public static void loadPreferences(Context ctx) {
 
         SharedPreferences prefs = ctx.getSharedPreferences(Keys.KEY_APP_CONFIG_PREFS, Context.MODE_PRIVATE);
-        createPrefs(prefs);
+        harcodePrefs(prefs); // set our prefs before loading them
 
         ALL_SSIDS = prefs.getStringSet(Keys.KEY_CONFIG_SSID_SET, new HashSet<String>());
         RSSI_THRESHOLD = prefs.getInt(Keys.KEY_CONFIG_RSSI_THRESHOLD, 0);
@@ -47,7 +47,7 @@ public class AppConfig {
      *
      * @param prefs - sharedPrefs
      */
-    private static void createPrefs(SharedPreferences prefs) {
+    private static void harcodePrefs(SharedPreferences prefs) {
 
         prefs.edit().putInt(Keys.KEY_CONFIG_RSSI_THRESHOLD, -65).apply();
 
