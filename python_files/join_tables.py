@@ -25,7 +25,7 @@ def insert(tables, name, conn):
     with conn:
         cursor = conn.cursor()
         # create table
-        createTable = "CREATE TABLE IF NOT EXISTS "+name+" (_id INTEGER PRIMARY KEY AUTOINCREMENT, ssid TEXT, bssid, TEXT, freq INTEGER, level INTEGER, rec_time INTEGER)"
+        createTable = "CREATE TABLE IF NOT EXISTS "+name+" (_id INTEGER PRIMARY KEY AUTOINCREMENT, ssid TEXT, bssid TEXT, freq INTEGER, level INTEGER, rec_time INTEGER)"
         cursor.execute(createTable)
 
         # insert data

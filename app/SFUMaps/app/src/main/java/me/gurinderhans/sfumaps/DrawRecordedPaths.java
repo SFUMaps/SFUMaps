@@ -1,6 +1,7 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -88,10 +89,10 @@ public class DrawRecordedPaths {
 
             }
             Log.i(TAG, "forward and reverse combined: " + (forward.size() + reverse.size()));
+            plotData(forward, false);
+            plotData(reverse, true);
 
             // parse out the data
-
-
 
 
             // TODO: How about a Header for splitting by keys to get a constant runtime method
@@ -101,44 +102,34 @@ public class DrawRecordedPaths {
 
     }
 
-//    void createTable(ArrayList<HashMap<String, Object>> data, boolean reversed) {
-//        long startT = ((Number) data.get(0).get(Keys.KEY_TIME)).longValue();
-//        long endT = ((Number) data.get(data.size() - 1).get(Keys.KEY_TIME)).longValue();
-//
-//        HashMap<String, Object> returnVal = new HashMap<>();
-//    }
+    float AQ_SIZE = 140f;
 
-//    void plotData(HashMap<String, ArrayList<HashMap<String, Object>>> data) {
-//
-//        for (String key : data.keySet()) {
-//            for (int i = 0; i < data.get(key).size(); i++) {
-//                HashMap<String, Object> dataRow = data.get(key).get(i);
-//                PointF point = new PointF(196, 60);
-//
-//                // maybe the problem is this, so how about using time to figure out where the points go,
-//                // that will be more accurate. basically --> ((endTime - thisTime) / 1000) * (scaleFactor = AQ_SIZE / totalSeconds)
-//                // so that it fits in the AQ
-//
-//                long thisTime = Long.parseLong((String) dataRow.get(Keys.KEY_TIME));
-//                float mark = 60 + ((endT - thisTime) / 1000 * scaleFactor);
-//                point.y = mark;
-//
-////                point.y += (i * (AQ_SIZE / (data.get(key).size() - 1.03)));
-//
-//
-//                dataRow.put(Keys.KEY_POINT, point);
-//
-//                MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point),
-//                        (String) dataRow.get(Keys.KEY_SSID),
-//                        (String) dataRow.get(Keys.KEY_BSSID));
-//            }
-//        }
-//
-//        // maybe wont need this if we use id from database
-//        for (String key : separatedData.keySet()) {
-//            for (HashMap<String, Object> row : separatedData.get(key)) {
-//                combinedList.add(row);
-//            }
-//        }
-//    }
+    void plotData(ArrayList<HashMap<String, Object>> data, boolean isReversed) {
+
+        long startT = Long.parseLong(String.valueOf(data.get(0).get(Keys.KEY_TIME)));
+        long endT = Long.parseLong(String.valueOf(data.get(data.size() - 1).get(Keys.KEY_TIME)));
+
+        float totalSeconds = (endT - startT) / 1000f;
+        float scaleFactor = AQ_SIZE / totalSeconds;
+
+        PointF point = new PointF(196, 60);
+
+        for (HashMap<String, Object> row : data) {
+
+            float pos = ((endT - Long.parseLong(String.valueOf(row.get(Keys.KEY_TIME)))) / 1000f) * scaleFactor;
+
+            if (isReversed) {
+                pos = AQ_SIZE - pos;
+            }
+
+            point.y = 60 + pos;
+
+            Log.i(TAG, "pointY: " + point.y);
+
+            if (Integer.parseInt(String.valueOf(row.get(Keys.KEY_ROWID))) % 100 == 0) {
+                MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point), row.get(Keys.KEY_SSID).toString(), "d");
+            }
+
+        }
+    }
 }
