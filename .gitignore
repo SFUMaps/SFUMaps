@@ -26,5 +26,5 @@ Temporary Items
 # Custom ignores
 SFU-Floor-Plans
 webapp/maptiles
-python_files/venv
+python_files/testEnv
 *.pyc

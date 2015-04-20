@@ -5,12 +5,12 @@ Import required modules
 
 import sqlite3, difflib
 import SimpleHTTPServer, SocketServer, os, sys, json
-# from pprint import pprint
+# import plotly.plotly as py
 from datetime import datetime
 from urlparse import urlparse, parse_qs
-
-# import plotly.plotly as py
+from pprint import pprint
 # from plotly.graph_objs import *
+
 
 # CONSTS ----------------
 
@@ -24,6 +24,9 @@ DB_CURSOR = sqlite3.connect("wifi_data.db").cursor()
 function def(s)
 ---------------
 """
+
+# small printer
+p = lambda obj: pprint(obj)
 
 # converts unix timestamp to a readable date time
 dt = lambda x: datetime.fromtimestamp(x)
@@ -116,7 +119,23 @@ def mergeData():
 
     return [parseData(fwd), parseData(bck)]
 
-mergeData()
+def graphData(table):
+
+    data = table['data']
+
+    traces=[]
+    for i in data:
+        if i!="SFUNET": continue
+        for j in data[i]:
+            rssis = [k[3] for k in data[i][j]]
+            xTimes = [k[-1] for k in data[i][j]]
+            # traces.append((xTimes, rssis))
+            traces.append(Scatter(x=xTimes, y=rssis))
+    return traces
+
+
+# s = Data(graphData(mergeData()[0]))
+# unique_url = py.plot(s, filename = 'basic-line')
 
 
 """
@@ -138,19 +157,14 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             content = self.rfile.read(content_length)
             post_data = parse_qs(urlparse(content).path)
+            print post_data
 
             data=mergeData()
 
-            # for i in post_data['tables[]']:
-
-            # for i in post_data['raw_data[]']:
-            #     parser.set_table("apsdata_SFU_BURNABY_AQ_3000_East_Street"+i)
-            #     data.append([parser.data, parser.startT, parser.endT, parser.totalMillis, parser.times])
-
 
             self.send_response(200)
-            self.send_header('Content-type','application/json')
-            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps( data ))
         except:
@@ -159,26 +173,12 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 httpd = SocketServer.TCPServer((server_addr, server_port), ServerHandler)
 
-print "Serving on port:", server_port
-
-try: httpd.serve_forever()
-except KeyboardInterrupt: httpd.shutdown()
-
-# def graphData(self):
-    # traces=[]
-#     for i in data:
-#         for j in data[i]:
-#             rssis = [k[3] for k in data[i][j]]
-#             xTimes = [k[-1] for k in data[i][j]]
-#             traces.append((xTimes, rssis))
-#     return traces
+# print "Serving on port:", server_port
+# try: httpd.serve_forever()
+# except: pass
 #
-# parser.set_table("apsdata_SFU_BURNABY_AQ_3000_East_Street_1")
-# parser.parseData()
-# data = [Scatter( y=parser.times )]
-# s = Data(data)
-# # unique_url = py.plot(data, filename = 'basic-line')
-# # print [parser.data, parser.startT, parser.endT, parser.totalMillis, parser.times]
+# httpd.server_close()
+
 
 
 

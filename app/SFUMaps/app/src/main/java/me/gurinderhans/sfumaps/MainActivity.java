@@ -83,10 +83,10 @@ public class MainActivity extends FragmentActivity {
     }
 
     /**
-     * - Defines map settings
-     * - Here we bring our own custom map tiles with a custom MapTileProvider
+     * - define map settings
+     * - set custom map tiles
      * - TODO: figure out user's initial location here
-     * - And then we draw the recorded paths here
+     * - draw the recorded paths here
      */
     private void setUpMap() {
 
@@ -134,7 +134,7 @@ public class MainActivity extends FragmentActivity {
         super.onResume();
 
         setUpMapIfNeeded();
-        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+//        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 //        showData(wifiManager.getScanResults());
 //        mHandler.postDelayed(wifiScanner, 0);
     }
@@ -155,46 +155,5 @@ public class MainActivity extends FragmentActivity {
             mHandler.postDelayed(wifiScanner, 0);
         }
     }
-
-
-
-    /* The METHODS below don't belong here ????? */
-// ============================================================================
-//    public void displayData(List<ScanResult> scanData) {
-//
-//        HashMap<Integer, Integer> diffs = new HashMap<>();
-//
-//        for (int i = 0; i < drawRecordedPaths.combinedList.size(); i++) {
-//            HashMap<String, Object> dataRow = drawRecordedPaths.combinedList.get(i);
-//            for (ScanResult res : scanData) {
-//                if (dataRow.get(Keys.KEY_BSSID).equals(res.BSSID)) {
-//                    diffs.put(i, Math.abs(Math.abs(Integer.parseInt((String) dataRow.get(Keys.KEY_RSSI))) - Math.abs(res.level)));
-//                }
-//            }
-//        }
-//
-//        int minHashRow = minMapVal(diffs);
-//
-//        Log.i(TAG, minHashRow + "");
-//        if (minHashRow != -1) {
-//            HashMap<String, Object> row = drawRecordedPaths.combinedList.get(minHashRow);
-//            PointF pointF = (PointF) row.get(Keys.KEY_POINT);
-//            // set marker to this pos
-//            userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(pointF));
-//        }
-//
-//    }
-//
-//    public int minMapVal(HashMap<Integer, Integer> map) {
-//        int minKey = -1;
-//        int minVal = 1000000;
-//        for (int key : map.keySet()) {
-//            if (map.get(key) < minVal) {
-//                minKey = key;
-//                minVal = map.get(key);
-//            }
-//        }
-//        return minKey;
-//    }
 
 }

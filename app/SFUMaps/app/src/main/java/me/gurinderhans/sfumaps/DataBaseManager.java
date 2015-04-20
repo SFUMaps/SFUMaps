@@ -46,7 +46,6 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        Log.i(TAG, "Old version: " + oldVersion + " New version: " + newVersion);
         upgradeDb = true;
     }
 
@@ -61,7 +60,6 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
         if (upgradeDb) {
             upgradeDb = false;
-//            copyDatabaseFromAssets(db);
         }
     }
 
@@ -127,9 +125,15 @@ public class DataBaseManager extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
 
         if (cursor.moveToFirst()) {
-            do tables.add(cursor.getString(0));
-            while (cursor.moveToNext() && !(cursor.getString(0).equals("android_metadata")));
-        } else Log.i("ERROR", "Unable to move cursor!");
+            do {
+                String tableName = cursor.getString(0);
+                if (tableName.startsWith(AppConfig.DATABASE_TABLE_PREFIX))
+                    tables.add(tableName);
+            } while (cursor.moveToNext());
+
+        } else {
+            Log.i("ERROR", "Unable to move cursor!");
+        }
 
         cursor.close();
         db.close();
@@ -146,12 +150,11 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
         ArrayList<HashMap<String, Object>> data = new ArrayList<>();
 
-        String GET_TABLE_DATA_QUERY = "SELECT * FROM " + tablename;
-
-        Cursor cursor = db.rawQuery(GET_TABLE_DATA_QUERY, null);
+        Cursor cursor = db.query(tablename, null, null, null, null, null, null);
 
         if (cursor.moveToFirst()) {
             do {
+
                 HashMap<String, Object> tableRow = new HashMap<>();
                 tableRow.put(Keys.KEY_ROWID, cursor.getString(0));
                 tableRow.put(Keys.KEY_SSID, cursor.getString(1));

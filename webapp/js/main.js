@@ -86,15 +86,18 @@ function initialize() {
   userMarker = MapTools.addMarker(new google.maps.LatLng(0,0))
 
   // raw_data = test_data
-  $.post(SERVER_URL, {'tables': ['_1', '_R_1'], 'raw_data':['_3']}, function(r) {
+  $.post(SERVER_URL, {'tables': ['_1', '_R_1'], 'table_raw_data':['_3']}, function(r) {
 
-    singleAP = "00:1f:45:64:71:d0"
+    console.log(r)
 
+    singleAP = "00:1f:45:6c:8e:30"
+  //
     plotData(r[0])
     plotData(r[1])
-
-
+  //
+  //
   })
+
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);

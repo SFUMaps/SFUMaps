@@ -14,6 +14,9 @@ public final class Keys {
     public static final String KEY_TIME = "rec_time";
     public static final String KEY_POINT = "point";
 
+    // database check keys
+    public static final String KEY_REVERSED = "REVERSE";
+
     // SharedPrefs keys
     public static final String KEY_APP_CONFIG_PREFS = "MapConfig";
 
@@ -25,8 +28,7 @@ public final class Keys {
     public static final String KEY_HIERARCHY_NAME = "name";
     public static final String KEY_HIERARCHY_SELF_ID = "self";
     public static final String KEY_HIERARCHY_PARENT_ID = "parent";
-    public static final String KEY_HIERARCHY_VALUE= "value";
-
+    public static final String KEY_HIERARCHY_VALUE = "value";
 
 
     // empty constructor
