@@ -5,17 +5,12 @@ Import required modules
 
 import sqlite3, difflib
 import SimpleHTTPServer, SocketServer, os, sys, json
-# import plotly.plotly as py
 from datetime import datetime
-from urlparse import urlparse, parse_qs
 from pprint import pprint
-# from plotly.graph_objs import *
 
 
 # CONSTS ----------------
-
 SSIDS = ["SFUNET", "SFUNET-SECURE", "eduroam"]
-
 # init this class for the specified database
 DB_CURSOR = sqlite3.connect("wifi_data.db").cursor()
 
@@ -27,17 +22,15 @@ function def(s)
 
 # small printer
 p = lambda obj: pprint(obj)
-
 # converts unix timestamp to a readable date time
 dt = lambda x: datetime.fromtimestamp(x)
-
 # returns the similarity ratio for two lists
 diff = lambda x, y: difflib.SequenceMatcher(None, x, y).ratio()
 
 # returns the list of all tables in the database
 def get_data_tables():
     DB_CURSOR.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    return [str(i[0]) for i in DB_CURSOR.fetchall()[1:]] # ignore android metadata table
+    return [str(i[0]) for i in DB_CURSOR.fetchall()[1:]] # ignore `android_metadata` table
 
 
 # get data for the specified table and return
@@ -45,7 +38,7 @@ def get_data_tables():
 def createTable(tableName):
     # fetch data from table and its reverse
     DB_CURSOR.execute("select * from " + tableName)
-    # sanitize the list // also remove alien SSIDS
+    # sanitize the list and also remove alien SSIDS
     data = [ [  str(i[1])
               , str(i[2])
               , int(i[3])
@@ -55,10 +48,6 @@ def createTable(tableName):
     # set start & finish time vars
     startT = data[0][-1]
     endT = data[-1][-1]
-
-    # time values that data was recorded at to make sure
-    # we have a constant rate
-    # times = [i[-1]-startT for i in data]
 
     # is the data reversed ?
     revrsd = ("_R" in tableName) and True or False
@@ -113,35 +102,19 @@ def parseData(dict_data={}):
 
     return dict_data
 
-def mergeData():
-    fwd=createTable("apsdata_SFU_BURNABY_AQ_3000_East_Street_1")
-    bck=createTable("apsdata_SFU_BURNABY_AQ_3000_East_Street_R_1")
+def getData():
+    fwd = createTable("apsdata_SFU_BURNABY_AQ_3000_East_Street_1")
+    bck = createTable("apsdata_SFU_BURNABY_AQ_3000_East_Street_R_1")
 
     return [parseData(fwd), parseData(bck)]
-
-def graphData(table):
-
-    data = table['data']
-
-    traces=[]
-    for i in data:
-        if i!="SFUNET": continue
-        for j in data[i]:
-            rssis = [k[3] for k in data[i][j]]
-            xTimes = [k[-1] for k in data[i][j]]
-            # traces.append((xTimes, rssis))
-            traces.append(Scatter(x=xTimes, y=rssis))
-    return traces
-
-
-# s = Data(graphData(mergeData()[0]))
-# unique_url = py.plot(s, filename = 'basic-line')
 
 
 """
 Server Functionality
 --------------------
 """
+
+from urlparse import urlparse, parse_qs
 
 server_addr, server_port = ('localhost', 8080)
 
@@ -154,12 +127,12 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         try:
-            content_length = int(self.headers['Content-Length'])
-            content = self.rfile.read(content_length)
-            post_data = parse_qs(urlparse(content).path)
-            print post_data
+            # content_length = int(self.headers['Content-Length'])
+            # content = self.rfile.read(content_length)
+            # post_data = parse_qs(urlparse(content).path)
+            # print post_data
 
-            data=mergeData()
+            data=getData()
 
 
             self.send_response(200)
@@ -173,11 +146,11 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 httpd = SocketServer.TCPServer((server_addr, server_port), ServerHandler)
 
-# print "Serving on port:", server_port
-# try: httpd.serve_forever()
-# except: pass
-#
-# httpd.server_close()
+print "Serving on port:", server_port
+try: httpd.serve_forever()
+except: pass
+
+httpd.server_close()
 
 
 

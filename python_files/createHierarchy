@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+# name              : createHierarchy.py
+# description       : maps a JSON tree to a SQL database
+# date              : Apr 12, 2015
+# usage             : ./createHierarchy /path/to/json/file.json -o /path/to/some/db/file.db
+
+
+import sys, sqlite3, time, json
+from color import color
+from pprint import pprint
+
+
+""" for measuring how long the script takes to run """
+tm = time.time() # record initial time
+
+
+"""
+ ----------------------------------------------
+/         HIERARCHY OF THE JSON TREE          /|
+---------------------------------------------  |
+|                                            | |
+|    |--University Level                     | |
+|        |--Campus Level                     | |
+|            |--Building Level               | |
+|                |--Floor Level              | |
+|                    |--Individual Paths     | |
+|                                            | |
+|---------------------------------------------/
+
+"""
+
+def insert(data):
+
+    parentId = data[0]
+    selfId = data[1]
+    name = data[2]
+    value = (len(data) > 3) and data[3] or ""
+
+    INSERT_QUERY = """INSERT INTO hierarchy (name, self_ID, parent_ID, value)
+    VALUES ('{0}', '{1}', '{2}', '{3}')""".format(name, selfId, parentId, value)
+
+    cur.execute(INSERT_QUERY)
+
+def looper(h, p, s):
+
+    if type(h) != dict: return
+
+    else:
+        # increment parent and self IDs
+        p += 1; s += 1
+        for i in h:
+            if type(h[i]) != dict:
+                # we have a value field
+                print p,'\t|',s,'\t|',i,'\t|',h[i]
+                insert( (p,s,i,h[i]) )
+            else:
+                print p,'\t|',s,'\t|',i
+                insert( (p,s,i) )
+
+            looper(h[i], p, s)
+
+
+
+h = json.loads(open("hierarchy.json").read()) # hierarchy JSON tree
+
+con = sqlite3.connect("N_wifi_data")
+
+with con:
+
+    cur = con.cursor()
+
+    # create hierarchy table schema for database
+    createTableQuery = """CREATE TABLE IF NOT EXISTS hierarchy (
+    _id         INTEGER PRIMARY KEY,
+    name        TEXT,
+    self_ID     INTEGER,
+    parent_ID   INTEGER,
+    value       TEXT
+    )"""
+    cur.execute(createTableQuery)
+
+    looper(h, -1, 0) # start
+
+print color.BOLD+('Took: '+color.DARKCYAN+str(time.time()-tm)+' seconds :)')+color.END

@@ -9,7 +9,7 @@ import java.util.HashMap;
  */
 public class Tree<T> {
 
-    // TODO: Won't be getting to this for a while - [limbo state]
+    // TODO: Won't be getting to this for a while
 
     private T head;
 

@@ -43,16 +43,16 @@ public class DrawRecordedPaths {
      */
 
     /*  University
-     |--Campuses
-        |--Buildings
-            |--Floors
-                |--Individual Roads (Streets and Avenues)
+        |--Campuses
+            |--Buildings
+                |--Floors
+                    |--Individual Roads (Streets and Avenues)
      */
 
     /* AQ
-    "startPoint": "57.959, 54.997"
-    "endPoint": "201.212, 201.065"
-    AQ = 146.068 units long
+    "startPoint": "167.19162, 86.0535"
+    "endPoint": "167.19162, 169.8098"
+    AQ = 79.37495 units long
      */
 
 
@@ -61,7 +61,9 @@ public class DrawRecordedPaths {
     DataBaseManager dataBaseManager;
     GoogleMap mMap;
 
-    public DrawRecordedPaths(Context ctx, GoogleMap map, boolean debugState) {
+    static HashMap<String, ArrayList<HashMap<String, Object>>> allAPs = new HashMap<>();
+
+    public DrawRecordedPaths(Context ctx, GoogleMap map) {
         this.mMap = map;
 
         dataBaseManager = new DataBaseManager(ctx);
@@ -74,10 +76,8 @@ public class DrawRecordedPaths {
             boolean do_reverse = false;
 
             for (HashMap<String, Object> row : dataBaseManager.getTableData(tableName)) {
-                // check for reverse header row
-                // TODO: maybe wanna do more stricter checking later on
                 if (row.get(Keys.KEY_SSID).equals(Keys.KEY_REVERSED) && row.get(Keys.KEY_BSSID).equals(Keys.KEY_REVERSED)) {
-                    do_reverse = true;
+                    do_reverse = true; // if true we are done the normal way and should start adding to the reverse row
                     continue;
                 }
 
@@ -88,22 +88,37 @@ public class DrawRecordedPaths {
                 }
 
             }
-            Log.i(TAG, "forward and reverse combined: " + (forward.size() + reverse.size()));
+
+            // plotting needs to happen differently
             plotData(forward, false);
             plotData(reverse, true);
 
-            // parse out the data
 
 
-            // TODO: How about a Header for splitting by keys to get a constant runtime method
-//            MapTools.separateByKeys(dataBaseManager.getTableData(tableName), AppConfig.ALL_SSIDS, Keys.KEY_SSID);
+            // after the plotting we can combine both arrays and split by bssids to make searching for a point easier
+
+            // split forward and reverse by BSSID
+            ArrayList<HashMap<String, Object>> combinedAPList = new ArrayList<>();
+            combinedAPList.addAll(forward);
+            combinedAPList.addAll(reverse);
+
+            allAPs = MapTools.separateByKeys(combinedAPList, Keys.KEY_BSSID);
+
+            Log.i(TAG, allAPs.size()+"");
+
+
+
+
+            // TODO: Make a Header in the table for splitting by keys to get a constant runtime
 
         }
 
     }
 
-    float AQ_SIZE = 140f;
+    float AQ_SIZE = 83f;
 
+    // computes the points for each access point
+    // FIXME: we could probably do this before-hand unless we're going the "machine learning way" where it learns every time it is run
     void plotData(ArrayList<HashMap<String, Object>> data, boolean isReversed) {
 
         long startT = Long.parseLong(String.valueOf(data.get(0).get(Keys.KEY_TIME)));
@@ -112,7 +127,7 @@ public class DrawRecordedPaths {
         float totalSeconds = (endT - startT) / 1000f;
         float scaleFactor = AQ_SIZE / totalSeconds;
 
-        PointF point = new PointF(196, 60);
+        PointF point = new PointF(168, 88);
 
         for (HashMap<String, Object> row : data) {
 
@@ -122,11 +137,14 @@ public class DrawRecordedPaths {
                 pos = AQ_SIZE - pos;
             }
 
-            point.y = 60 + pos;
+            point.y = 88 + pos;
 
-            Log.i(TAG, "pointY: " + point.y);
+//            Log.i(TAG, "pointY: " + point.y);
+//            Log.i(TAG, "data: " + row);
 
-            if (Integer.parseInt(String.valueOf(row.get(Keys.KEY_ROWID))) % 100 == 0) {
+            row.put(Keys.KEY_POINT, point);
+
+            if (Integer.parseInt(String.valueOf(row.get(Keys.KEY_ROWID))) % 200 == 0) {
                 MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point), row.get(Keys.KEY_SSID).toString(), "d");
             }
 

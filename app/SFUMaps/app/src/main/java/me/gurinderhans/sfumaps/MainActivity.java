@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -12,10 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,8 +20,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class MainActivity extends FragmentActivity {
 
@@ -68,7 +63,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     /**
-     * If Map == null then get the map fragment and initialize it
+     * If (Map == null) then get the map fragment and initialize it
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
@@ -100,7 +95,7 @@ public class MainActivity extends FragmentActivity {
         Map.getUiSettings().setMapToolbarEnabled(false);
 
         // draw our recorded paths
-        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map, true);
+        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
 
         // just put the user navigation marker in the center as we don't yet know user's location
         LatLng mapCenter = MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE / 2, AppConfig.TILE_SIZE / 2)); //west
@@ -126,6 +121,8 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
+        // register receiver
+        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
     }
 
@@ -134,15 +131,15 @@ public class MainActivity extends FragmentActivity {
         super.onResume();
 
         setUpMapIfNeeded();
-//        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+        mHandler.postDelayed(wifiScanner, 0); // start scanner
 //        showData(wifiManager.getScanResults());
-//        mHandler.postDelayed(wifiScanner, 0);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        unregisterReceiver(wifiReceiver);
+        unregisterReceiver(wifiReceiver);
     }
 
 
@@ -150,8 +147,22 @@ public class MainActivity extends FragmentActivity {
     private class WifiReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context c, Intent intent) {
-//            displayData(wifiManager.getScanResults());
-            Log.i(TAG, "Received Results");
+
+            for (ScanResult result : wifiManager.getScanResults()) {
+                if (AppConfig.ALL_SSIDS.contains(result.SSID)) {
+                    ArrayList<HashMap<String, Object>> points = DrawRecordedPaths.allAPs.get(result.BSSID);
+                    if (points != null) {
+                        for (HashMap<String, Object> recordedPoint : points) {
+                            if (result.level == recordedPoint.get(Keys.KEY_RSSI)) {
+                                LatLng userPos = MercatorProjection.fromPointToLatLng(((PointF) recordedPoint.get(Keys.KEY_POINT)));
+                                userNavMarker.setPosition(userPos);
+                            }
+                        }
+                    } else {
+                        Log.i(TAG, "AP not found in database, use: " + DrawRecordedPaths.allAPs);
+                    }
+                }
+            }
             mHandler.postDelayed(wifiScanner, 0);
         }
     }

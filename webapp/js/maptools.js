@@ -83,7 +83,7 @@ var MapTools = (function() {
       title = title || ""
       return marker = new google.maps.Marker({
           position: pos,
-          map: Map,
+          map: _Map,
           icon: iconPath,
           title: title,
       });

@@ -19,6 +19,7 @@ import java.util.HashMap;
 public class DataBaseManager extends SQLiteOpenHelper {
 
     // TODO: class requires more work - [under construction]
+    // TODO: convert into a singleton
 
     public static final String TAG = DataBaseManager.class.getSimpleName();
 

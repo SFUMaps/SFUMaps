@@ -1,9 +1,9 @@
 #!/usr/bin/env python
+# name              : imgsplit.py
+# description       : creates map tiles from an image
+# date              : Apr 08, 2015
+# usage             : ./imgsplit.py ( k || [n, n-1, n-2, ... , 1]) [filepath]
 
-"""
-slice image into n tiles and organize
-them into their folders for app to use
-"""
 
 import os, sys, math, struct, image_slicer
 from time import time

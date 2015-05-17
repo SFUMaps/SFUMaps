@@ -7,12 +7,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Created by ghans on 2/9/15.
  */
 public class MapTools {
+
+    public static final String TAG = MapTools.class.getSimpleName();
 
     // TODO: Class under construction
 
@@ -23,24 +24,25 @@ public class MapTools {
 
     /**
      * @param dataArray - the data array that we are splitting by keys
-     * @param keys      - the key(s) that we split the data by
      * @param keyIndex  - the index of the key in that array object
      * @return - return the [Array] separated by keys
      */
-    public static HashMap<String, ArrayList<HashMap<String, Object>>> separateByKeys(ArrayList<HashMap<String, Object>> dataArray, Set<String> keys, String keyIndex) {
+    public static HashMap<String, ArrayList<HashMap<String, Object>>> separateByKeys(ArrayList<HashMap<String, Object>> dataArray, String keyIndex) {
 
-        HashMap<String, ArrayList<HashMap<String, Object>>> seperated = new HashMap<>();
+        HashMap<String, ArrayList<HashMap<String, Object>>> separated = new HashMap<>();
 
-        for (String key : keys) {
-            seperated.put(key, new ArrayList<HashMap<String, Object>>());
+        for (HashMap<String, Object> row : dataArray) {
+
+            String key = (String) row.get(keyIndex);
+
+            if (!separated.containsKey(key)) {
+                separated.put(key, new ArrayList<HashMap<String, Object>>());
+            }
+
+            separated.get(key).add(row);
         }
 
-        for (HashMap<String, Object> i : dataArray) {
-            if(seperated.keySet().contains(i.get(keyIndex)))
-                seperated.get(i.get(keyIndex)).add(i);
-        }
-
-        return seperated;
+        return separated;
     }
 
     /**
