@@ -148,14 +148,15 @@ public class MainActivity extends FragmentActivity {
         @Override
         public void onReceive(Context c, Intent intent) {
 
+            ArrayList<PointF> matchedPoints = new ArrayList<>();
+
             for (ScanResult result : wifiManager.getScanResults()) {
                 if (AppConfig.ALL_SSIDS.contains(result.SSID)) {
                     ArrayList<HashMap<String, Object>> points = DrawRecordedPaths.allAPs.get(result.BSSID);
                     if (points != null) {
                         for (HashMap<String, Object> recordedPoint : points) {
                             if (result.level == recordedPoint.get(Keys.KEY_RSSI)) {
-                                LatLng userPos = MercatorProjection.fromPointToLatLng(((PointF) recordedPoint.get(Keys.KEY_POINT)));
-                                userNavMarker.setPosition(userPos);
+                                matchedPoints.add((PointF) recordedPoint.get(Keys.KEY_POINT));
                             }
                         }
                     } else {
@@ -163,8 +164,37 @@ public class MainActivity extends FragmentActivity {
                     }
                 }
             }
+
+            // for now we assume user's position is the centroid of all points
+            if (matchedPoints.size() > 0) {
+                PointF centroid = getCentroid(matchedPoints);
+                userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(centroid));
+            }
+
             mHandler.postDelayed(wifiScanner, 0);
+
         }
+    }
+
+
+    /**
+     * @param points - list of points
+     * @return - return the centroid point (mean value)
+     */
+    PointF getCentroid(ArrayList<PointF> points) {
+
+        float Sx = 0, Sy = 0;
+
+        for (PointF point : points) {
+            Sx += point.x;
+            Sy += point.y;
+        }
+
+        Sx /= points.size();
+        Sy /= points.size();
+
+
+        return new PointF(Sx, Sy);
     }
 
 }
