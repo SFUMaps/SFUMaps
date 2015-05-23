@@ -161,22 +161,57 @@ public class MainActivity extends FragmentActivity {
         super.onPause();
     }
 
+    String getBestMatch(List<ScanResult> scanResults) {
+        HashMap<String, Object> bestAP = new HashMap<>();
+
+        int minDiff = Integer.MAX_VALUE;
+        String apBSSID = "";
+
+        for (ScanResult result : scanResults) {
+            int scanRSSI = result.level;
+            for (HashMap<String, Object> ap : DrawRecordedPaths.specialAPs) {
+                if (ap.get(Keys.KEY_BSSID).equals(result.BSSID)) {
+                    int recordedRSSI = Integer.parseInt(ap.get(Keys.KEY_RSSI) + "");
+                    int diff = Math.abs(scanRSSI - recordedRSSI);
+
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        apBSSID = result.BSSID;
+                    }
+
+                }
+            }
+        }
+
+        return apBSSID;
+    }
+
+    boolean isInRange(int min, int max, int value) {
+        return (value >= min && value <= max);
+    }
 
     // broadcast receiver for knowing when the wifi scan finishes
     private class WifiReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context c, Intent intent) {
 
-            String seenAPs = "";
+            StringBuilder seenAPs = new StringBuilder("");
 
             ArrayList<PointF> matchedPoints = new ArrayList<>();
 
-            ArrayList<HashMap<String, Object>> bestMatch = DrawRecordedPaths.allAPs.get(getBestMatch(wifiManager.getScanResults()));
+            String bestMatchBSSID = getBestMatch(wifiManager.getScanResults());
 
-            
+            seenAPs.append(DrawRecordedPaths.allAPs.get(bestMatchBSSID).get(0).get(Keys.KEY_SSID) + ", " + bestMatchBSSID);
 
+            ArrayList<HashMap<String, Object>> bestMatch = DrawRecordedPaths.allAPs.get(bestMatchBSSID);
 
-//            wifiManager.getScanResults()
+            for (HashMap<String, Object> ap : DrawRecordedPaths.specialAPs) {
+                if (ap.get(Keys.KEY_BSSID).equals(bestMatchBSSID)) {
+                    PointF pos = (PointF) ap.get(Keys.KEY_POINT);
+                    userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(pos));
+                }
+            }
+
 
 //            for (ScanResult result : wifiManager.getScanResults()) {
 //                // compute the differences and get the min diff
@@ -215,43 +250,13 @@ public class MainActivity extends FragmentActivity {
 //            }
 //
 //
-//            Toast.makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
-//            infoBox.setText(seenAPs);
+            Toast.makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
+            infoBox.setText(seenAPs);
 
             // scan again
 //            mHandler.postDelayed(wifiScanner, 0);
 
         }
-    }
-
-
-    String getBestMatch(List<ScanResult> scanResults) {
-        HashMap<String, Object> bestAP = new HashMap<>();
-
-        int minDiff = Integer.MAX_VALUE;
-        String apBSSID = "";
-
-        for (ScanResult result : scanResults) {
-            int scanRSSI = result.level;
-            for (HashMap<String, Object> ap : DrawRecordedPaths.specialAPs) {
-                if (ap.get(Keys.KEY_BSSID).equals(result.BSSID)) {
-                    int recordedRSSI = Integer.parseInt(ap.get(Keys.KEY_RSSI) + "");
-                    int diff = Math.abs(scanRSSI - recordedRSSI);
-
-                    if (diff < minDiff) {
-                        minDiff = diff;
-                        apBSSID = result.BSSID;
-                    }
-
-                }
-            }
-        }
-
-        return apBSSID;
-    }
-
-    boolean isInRange(int min, int max, int value) {
-        return (value >= min && value <= max);
     }
 
 

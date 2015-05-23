@@ -53,13 +53,14 @@ public class AppConfig {
         prefs.edit().putInt(Keys.KEY_CONFIG_RSSI_THRESHOLD, -65).apply();
 
         Set<String> ssidSet = new HashSet<>();
-        ssidSet.add("SHAW-BD8CD9-5G");
-        ssidSet.add("SHAW-BD8CD9");
-        ssidSet.add("TELUS7280");
-        ssidSet.add("virus");
-        ssidSet.add("Atwal");
-        ssidSet.add("Lal-guest");
-
+        ssidSet.add("#TELUSDirect");
+        ssidSet.add("#TELUS");
+        ssidSet.add("ThirdEyeStudio-Guest");
+        ssidSet.add("ThirdEyeStudio");
+        ssidSet.add("ThirdEyeProWeb");
+        ssidSet.add("ThirdEyeProWeb");
+        ssidSet.add("ratel");
+        ssidSet.add("ratel5");
 
 
         prefs.edit().putStringSet(Keys.KEY_CONFIG_SSID_SET, ssidSet).apply();
