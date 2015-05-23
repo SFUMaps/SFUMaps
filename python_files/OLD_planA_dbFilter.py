@@ -5,7 +5,7 @@ from color import color
 
 tm = time.time()
 
-db_name=""
+db_name="wifi_data.db"
 
 if len(sys.argv)==2: db_name = sys.argv[1]
 else:
@@ -13,7 +13,7 @@ else:
     sys.exit()
 
 RSSI_THRESHOLD = -65
-WIFIS = ["SFUNET", "SFUNET-SECURE", "eduroam"]
+WIFIS = ["SFUNET", "SFUNET-SECURE", "eduroam", "SHAW-BD8CD9-5G", "SHAW-BD8CD9"]
 
 con = sqlite3.connect(db_name)
 N_con = sqlite3.connect('N_'+db_name)
@@ -43,6 +43,7 @@ def getStrongestBssids(d):
         if (str(bssid)) not in dic:
             dic[(str(bssid))] = (ssid, bssid, freq, rssi, time)
 
+    print dic
     uniqueDataSet = dic.values()
 
     return uniqueDataSet

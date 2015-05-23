@@ -11,4 +11,20 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scanWifi"
+        android:text="Scan" />
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="180px">
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/infoBox"/>
+    </ScrollView>
+
 </RelativeLayout>

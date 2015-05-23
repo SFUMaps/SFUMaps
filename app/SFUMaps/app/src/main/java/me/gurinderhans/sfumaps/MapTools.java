@@ -1,5 +1,7 @@
 package me.gurinderhans.sfumaps;
 
+import android.graphics.PointF;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -58,5 +60,26 @@ public class MapTools {
                 .title(dir)
                 .snippet(ssid)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
+    }
+
+
+    /**
+     * @param points - list of points
+     * @return - return the centroid point (mean value)
+     */
+    public static PointF getCentroid(ArrayList<PointF> points) {
+//
+        float Sx = 0, Sy = 0;
+
+        for (PointF point : points) {
+            Sx += point.x;
+            Sy += point.y;
+        }
+
+        Sx /= points.size();
+        Sy /= points.size();
+
+
+        return new PointF(Sx, Sy);
     }
 }

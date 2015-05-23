@@ -118,7 +118,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
     /**
      * @return - list of all database tables
      */
-    ArrayList<String> getTableNames() {
+    ArrayList<String> getDataTables() {
 
         SQLiteDatabase db = getReadableDatabase();
         ArrayList<String> tables = new ArrayList<>();

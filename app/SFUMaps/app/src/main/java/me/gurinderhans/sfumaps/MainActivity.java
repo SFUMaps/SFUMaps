@@ -11,6 +11,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,6 +26,7 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends FragmentActivity {
 
@@ -36,6 +41,10 @@ public class MainActivity extends FragmentActivity {
     Marker userNavMarker; // marks users current location
 
     DrawRecordedPaths drawRecordedPaths; // reference to our custom class that draws recorded paths
+
+    // TEMP: for debugging
+    Button scanButton;
+    TextView infoBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +68,18 @@ public class MainActivity extends FragmentActivity {
         };
 
         setUpMapIfNeeded();
+
+
+        scanButton = (Button) findViewById(R.id.scanWifi);
+        infoBox = (TextView) findViewById(R.id.infoBox);
+
+        scanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHandler.postDelayed(wifiScanner, 0); // start scanner
+                Toast.makeText(getApplicationContext(), "Scanning...", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -132,14 +153,12 @@ public class MainActivity extends FragmentActivity {
 
         setUpMapIfNeeded();
 
-        mHandler.postDelayed(wifiScanner, 0); // start scanner
-//        showData(wifiManager.getScanResults());
+//        mHandler.postDelayed(wifiScanner, 0); // start scanner
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        unregisterReceiver(wifiReceiver);
     }
 
 
@@ -148,53 +167,92 @@ public class MainActivity extends FragmentActivity {
         @Override
         public void onReceive(Context c, Intent intent) {
 
+            String seenAPs = "";
+
             ArrayList<PointF> matchedPoints = new ArrayList<>();
 
-            for (ScanResult result : wifiManager.getScanResults()) {
-                if (AppConfig.ALL_SSIDS.contains(result.SSID)) {
-                    ArrayList<HashMap<String, Object>> points = DrawRecordedPaths.allAPs.get(result.BSSID);
-                    if (points != null) {
-                        for (HashMap<String, Object> recordedPoint : points) {
-                            if (result.level == recordedPoint.get(Keys.KEY_RSSI)) {
-                                matchedPoints.add((PointF) recordedPoint.get(Keys.KEY_POINT));
-                            }
-                        }
-                    } else {
-                        Log.i(TAG, "AP not found in database, use: " + DrawRecordedPaths.allAPs);
+            ArrayList<HashMap<String, Object>> bestMatch = DrawRecordedPaths.allAPs.get(getBestMatch(wifiManager.getScanResults()));
+
+            
+
+
+//            wifiManager.getScanResults()
+
+//            for (ScanResult result : wifiManager.getScanResults()) {
+//                // compute the differences and get the min diff
+//
+//                ArrayList<HashMap<String, Object>> points = DrawRecordedPaths.allAPs.get(result.BSSID);
+//                if (points != null) {
+//                    for (HashMap<String, Object> recordedPoint : points) {
+//                        int rRSSI = Integer.parseInt(recordedPoint.get(Keys.KEY_RSSI) + "");
+//
+//                        if (isInRange(rRSSI - 2, rRSSI + 2, result.level)) {
+//                            PointF point = (PointF) recordedPoint.get(Keys.KEY_POINT);
+//                            String ssid = recordedPoint.get(Keys.KEY_SSID) + "";
+//                            String bssid = recordedPoint.get(Keys.KEY_BSSID) + "";
+//                            String rssi = recordedPoint.get(Keys.KEY_RSSI) + "";
+//
+//                            seenAPs += ssid + " " + bssid + " : " + rssi + "\n";
+//
+//                            matchedPoints.add(point);
+////                            MapTools.addMarker(Map, MercatorProjection.fromPointToLatLng(point), bssid, rssi);
+////                            break;
+//                        }
+//
+//                    }
+//                } else {
+//                    Log.i(TAG, "AP not found in database. We have this: " + DrawRecordedPaths.allAPs);
+//                }
+//            }
+//
+//            Log.i(TAG, "matched size: " + matchedPoints.size());
+//
+//            // for now we assume user's position is the centroid of all points
+//            if (matchedPoints.size() > 0) {
+//                PointF centroid = MapTools.getCentroid(matchedPoints);
+//                Log.i(TAG, "loc computed: " + centroid);
+//                userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(centroid));
+//            }
+//
+//
+//            Toast.makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
+//            infoBox.setText(seenAPs);
+
+            // scan again
+//            mHandler.postDelayed(wifiScanner, 0);
+
+        }
+    }
+
+
+    String getBestMatch(List<ScanResult> scanResults) {
+        HashMap<String, Object> bestAP = new HashMap<>();
+
+        int minDiff = Integer.MAX_VALUE;
+        String apBSSID = "";
+
+        for (ScanResult result : scanResults) {
+            int scanRSSI = result.level;
+            for (HashMap<String, Object> ap : DrawRecordedPaths.specialAPs) {
+                if (ap.get(Keys.KEY_BSSID).equals(result.BSSID)) {
+                    int recordedRSSI = Integer.parseInt(ap.get(Keys.KEY_RSSI) + "");
+                    int diff = Math.abs(scanRSSI - recordedRSSI);
+
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        apBSSID = result.BSSID;
                     }
+
                 }
             }
-
-            // for now we assume user's position is the centroid of all points
-            if (matchedPoints.size() > 0) {
-                PointF centroid = getCentroid(matchedPoints);
-                userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(centroid));
-            }
-
-            mHandler.postDelayed(wifiScanner, 0);
-
-        }
-    }
-
-
-    /**
-     * @param points - list of points
-     * @return - return the centroid point (mean value)
-     */
-    PointF getCentroid(ArrayList<PointF> points) {
-
-        float Sx = 0, Sy = 0;
-
-        for (PointF point : points) {
-            Sx += point.x;
-            Sy += point.y;
         }
 
-        Sx /= points.size();
-        Sy /= points.size();
-
-
-        return new PointF(Sx, Sy);
+        return apBSSID;
     }
+
+    boolean isInRange(int min, int max, int value) {
+        return (value >= min && value <= max);
+    }
+
 
 }

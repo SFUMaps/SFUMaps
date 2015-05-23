@@ -2,7 +2,7 @@ import sqlite3
 from pprint import pprint
 
 
-SSIDS = ["SFUNET", "SFUNET-SECURE", "eduroam"]
+SSIDS = ["SHAW-BD8CD9-5G", "SHAW-BD8CD9", "TELUS7280", "virus", "Atwal", "Lal-guest"]
 
 conn = sqlite3.connect("wifi_data.db")
 Nconn = sqlite3.connect("WIFI_DATA")
@@ -54,7 +54,8 @@ def header(name, cur):
     print 'added header'
 
 
-table1 = get_data("apsdata_SFU_BURNABY_AQ_3000_East_Street_1", conn)
-table2 = get_data("apsdata_SFU_BURNABY_AQ_3000_East_Street_R_1", conn)
+table1 = get_data("apsdata_test", conn)
+table2 = get_data("apsdata_test_R", conn)
 
-insert([table1, table2], "apsdata_SFU_BURNABY_AQ_3000_East_Street", Nconn)
+insert([table1, table2], "apsdata_home", Nconn)
+# plug in this table into app and run

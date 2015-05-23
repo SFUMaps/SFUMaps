@@ -7,6 +7,8 @@ import android.util.Log;
 import com.google.android.gms.maps.GoogleMap;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -49,105 +51,93 @@ public class DrawRecordedPaths {
                     |--Individual Roads (Streets and Avenues)
      */
 
-    /* AQ
-    "startPoint": "167.19162, 86.0535"
-    "endPoint": "167.19162, 169.8098"
-    AQ = 79.37495 units long
-     */
-
 
     public static final String TAG = DrawRecordedPaths.class.getSimpleName();
-
     DataBaseManager dataBaseManager;
     GoogleMap mMap;
 
+    static int MAP_X = 128;
+    static int MAP_Y = 90;
+    static int MAP_SZ = 80;
+
+    /*
+    * 127.96904, [84.98686, 170.96043]
+    * */
+
     static HashMap<String, ArrayList<HashMap<String, Object>>> allAPs = new HashMap<>();
+    static ArrayList<HashMap<String, Object>> specialAPs = new ArrayList<>();
 
     public DrawRecordedPaths(Context ctx, GoogleMap map) {
         this.mMap = map;
 
         dataBaseManager = new DataBaseManager(ctx);
 
-        for (String tableName : dataBaseManager.getTableNames()) {
+        for (String dataTable : dataBaseManager.getDataTables()) {
 
-            ArrayList<HashMap<String, Object>> forward = new ArrayList<>();
-            ArrayList<HashMap<String, Object>> reverse = new ArrayList<>();
+            ArrayList<HashMap<String, Object>> allTableData = dataBaseManager.getTableData(dataTable);
 
-            boolean do_reverse = false;
+            long startT = Long.parseLong(allTableData.get(0).get(Keys.KEY_TIME) + "");
+            long endT = Long.parseLong(allTableData.get(allTableData.size() - 1).get(Keys.KEY_TIME) + "");
 
-            for (HashMap<String, Object> row : dataBaseManager.getTableData(tableName)) {
-                if (row.get(Keys.KEY_SSID).equals(Keys.KEY_REVERSED) && row.get(Keys.KEY_BSSID).equals(Keys.KEY_REVERSED)) {
-                    do_reverse = true; // if true we are done the normal way and should start adding to the reverse row
-                    continue;
-                }
+            allAPs = MapTools.separateByKeys(allTableData, Keys.KEY_BSSID);
 
-                if (do_reverse) {
-                    reverse.add(row);
-                } else {
-                    forward.add(row);
-                }
+            specialAPs = getSpecialAPs();
 
+            // plot special AP's
+            plotData(specialAPs, startT, endT, MAP_SZ, true);
+
+            // plot other AP's
+            for (String key : allAPs.keySet()) {
+                plotData(allAPs.get(key), startT, endT, MAP_SZ, false);
             }
-
-            // plotting needs to happen differently
-            plotData(forward, false);
-            plotData(reverse, true);
-
-
-
-            // after the plotting we can combine both arrays and split by bssids to make searching for a point easier
-
-            // split forward and reverse by BSSID
-            ArrayList<HashMap<String, Object>> combinedAPList = new ArrayList<>();
-            combinedAPList.addAll(forward);
-            combinedAPList.addAll(reverse);
-
-            allAPs = MapTools.separateByKeys(combinedAPList, Keys.KEY_BSSID);
-
-            Log.i(TAG, allAPs.size()+"");
-
-
-
-
-            // TODO: Make a Header in the table for splitting by keys to get a constant runtime
 
         }
 
     }
 
-    float AQ_SIZE = 83f;
 
-    // computes the points for each access point
-    // FIXME: we could probably do this before-hand unless we're going the "machine learning way" where it learns every time it is run
-    void plotData(ArrayList<HashMap<String, Object>> data, boolean isReversed) {
-
-        long startT = Long.parseLong(String.valueOf(data.get(0).get(Keys.KEY_TIME)));
-        long endT = Long.parseLong(String.valueOf(data.get(data.size() - 1).get(Keys.KEY_TIME)));
+    void plotData(ArrayList<HashMap<String, Object>> data, long startT, long endT, float path_length, boolean drawOnMap) {
 
         float totalSeconds = (endT - startT) / 1000f;
-        float scaleFactor = AQ_SIZE / totalSeconds;
+        float scaleFactor = path_length / totalSeconds;
 
-        PointF point = new PointF(168, 88);
+        PointF point = new PointF(MAP_X, MAP_Y);
 
         for (HashMap<String, Object> row : data) {
 
             float pos = ((endT - Long.parseLong(String.valueOf(row.get(Keys.KEY_TIME)))) / 1000f) * scaleFactor;
 
-            if (isReversed) {
-                pos = AQ_SIZE - pos;
-            }
-
-            point.y = 88 + pos;
-
-//            Log.i(TAG, "pointY: " + point.y);
-//            Log.i(TAG, "data: " + row);
+            point.y = MAP_Y + pos;
 
             row.put(Keys.KEY_POINT, point);
 
-            if (Integer.parseInt(String.valueOf(row.get(Keys.KEY_ROWID))) % 200 == 0) {
-                MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point), row.get(Keys.KEY_SSID).toString(), "d");
+            if (drawOnMap) {
+                MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point), row.get(Keys.KEY_SSID).toString(), row.get(Keys.KEY_RSSI) + "");
             }
 
         }
     }
+
+    ArrayList<HashMap<String, Object>> getSpecialAPs() {
+        ArrayList<HashMap<String, Object>> specialAPs = new ArrayList<>();
+
+
+        for (String key : allAPs.keySet()) {
+            ArrayList<HashMap<String, Object>> thisAP = allAPs.get(key);
+
+            Collections.sort(thisAP, new Comparator<HashMap<String, Object>>() {
+                @Override
+                public int compare(HashMap<String, Object> lhs, HashMap<String, Object> rhs) {
+                    int firstValue = Integer.parseInt(lhs.get(Keys.KEY_RSSI) + "");
+                    int secondValue = Integer.parseInt(rhs.get(Keys.KEY_RSSI) + "");
+                    return (secondValue < firstValue ? -1 : (secondValue == firstValue ? 0 : 1));
+                }
+            });
+            specialAPs.add(thisAP.get(0));
+        }
+
+        return specialAPs;
+
+    }
+
 }

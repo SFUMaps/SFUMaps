@@ -53,9 +53,14 @@ public class AppConfig {
         prefs.edit().putInt(Keys.KEY_CONFIG_RSSI_THRESHOLD, -65).apply();
 
         Set<String> ssidSet = new HashSet<>();
-        ssidSet.add("SFUNET");
-        ssidSet.add("SFUNET-SECURE");
-        ssidSet.add("eduroam");
+        ssidSet.add("SHAW-BD8CD9-5G");
+        ssidSet.add("SHAW-BD8CD9");
+        ssidSet.add("TELUS7280");
+        ssidSet.add("virus");
+        ssidSet.add("Atwal");
+        ssidSet.add("Lal-guest");
+
+
 
         prefs.edit().putStringSet(Keys.KEY_CONFIG_SSID_SET, ssidSet).apply();
 
