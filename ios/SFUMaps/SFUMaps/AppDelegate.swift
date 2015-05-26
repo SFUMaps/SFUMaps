@@ -9,18 +9,6 @@
 import UIKit
 
 
-class DemoViewController: UIViewController {
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        var camera = GMSCameraPosition.cameraWithLatitude(37.78318,
-            longitude:-122.40374, zoom:18)
-        
-        var mapView = GMSMapView.mapWithFrame(CGRectZero, camera:camera)
-        self.view = mapView
-    }
-}
-
 @UIApplicationMain
 
 class AppDelegate: UIResponder, UIApplicationDelegate {

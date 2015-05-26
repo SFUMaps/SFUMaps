@@ -9,6 +9,7 @@
 
 import UIKit
 
+
 class MapViewController: UIViewController, TypesTableViewControllerDelegate {
   
   @IBOutlet weak var mapCenterPinImage: UIImageView!
