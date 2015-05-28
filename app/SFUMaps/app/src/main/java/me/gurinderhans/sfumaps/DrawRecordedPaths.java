@@ -53,19 +53,13 @@ public class DrawRecordedPaths {
 
 
     public static final String TAG = DrawRecordedPaths.class.getSimpleName();
-    DataBaseManager dataBaseManager;
-    GoogleMap mMap;
-
     static int MAP_X = 128;
     static int MAP_Y = 90;
     static int MAP_SZ = 80;
-
-    /*
-    * 127.96904, [84.98686, 170.96043]
-    * */
-
     static HashMap<String, ArrayList<HashMap<String, Object>>> allAPs = new HashMap<>();
     static ArrayList<HashMap<String, Object>> specialAPs = new ArrayList<>();
+    DataBaseManager dataBaseManager;
+    GoogleMap mMap;
 
     public DrawRecordedPaths(Context ctx, GoogleMap map) {
         this.mMap = map;
@@ -81,7 +75,8 @@ public class DrawRecordedPaths {
 
             allAPs = MapTools.separateByKeys(allTableData, Keys.KEY_BSSID);
 
-            specialAPs = getSpecialAPs();
+            specialAPs = getSpecialAPs(allAPs);
+            Log.i(TAG, "special APs size: " + specialAPs.size());
 
             // plot special AP's
             plotData(specialAPs, startT, endT, MAP_SZ, true);
@@ -118,12 +113,12 @@ public class DrawRecordedPaths {
         }
     }
 
-    ArrayList<HashMap<String, Object>> getSpecialAPs() {
+    ArrayList<HashMap<String, Object>> getSpecialAPs(HashMap<String, ArrayList<HashMap<String, Object>>> input) {
         ArrayList<HashMap<String, Object>> specialAPs = new ArrayList<>();
 
 
-        for (String key : allAPs.keySet()) {
-            ArrayList<HashMap<String, Object>> thisAP = allAPs.get(key);
+        for (String key : input.keySet()) {
+            ArrayList<HashMap<String, Object>> thisAP = input.get(key);
 
             Collections.sort(thisAP, new Comparator<HashMap<String, Object>>() {
                 @Override
@@ -133,7 +128,15 @@ public class DrawRecordedPaths {
                     return (secondValue < firstValue ? -1 : (secondValue == firstValue ? 0 : 1));
                 }
             });
-            specialAPs.add(thisAP.get(0));
+
+            HashMap<String, Object> bestAP = thisAP.get(0);
+            int rssi = Integer.parseInt(bestAP.get(Keys.KEY_RSSI) + "");
+
+            if (rssi > AppConfig.RSSI_THRESHOLD &&
+                    AppConfig.ALL_SSIDS.contains(bestAP.get(Keys.KEY_SSID))) {
+                Log.i(TAG, "AP: " + bestAP.get(Keys.KEY_SSID) + " RSSI: " + rssi);
+                specialAPs.add(thisAP.get(0));
+            }
         }
 
         return specialAPs;

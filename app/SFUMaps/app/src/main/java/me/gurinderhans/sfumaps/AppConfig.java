@@ -53,15 +53,9 @@ public class AppConfig {
         prefs.edit().putInt(Keys.KEY_CONFIG_RSSI_THRESHOLD, -65).apply();
 
         Set<String> ssidSet = new HashSet<>();
-        ssidSet.add("#TELUSDirect");
-        ssidSet.add("#TELUS");
-        ssidSet.add("ThirdEyeStudio-Guest");
-        ssidSet.add("ThirdEyeStudio");
-        ssidSet.add("ThirdEyeProWeb");
-        ssidSet.add("ThirdEyeProWeb");
-        ssidSet.add("ratel");
-        ssidSet.add("ratel5");
-
+        ssidSet.add("SFUNET-SECURE");
+        ssidSet.add("SFUNET");
+        ssidSet.add("eduroam");
 
         prefs.edit().putStringSet(Keys.KEY_CONFIG_SSID_SET, ssidSet).apply();
 

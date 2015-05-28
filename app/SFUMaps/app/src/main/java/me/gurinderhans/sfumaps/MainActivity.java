@@ -32,18 +32,24 @@ public class MainActivity extends FragmentActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    // system classes that provide access to the wifi scanner
+
     WifiManager wifiManager; // system service that handles wifi
     WifiReceiver wifiReceiver; // broadcast receiver that listens for wifi scans and gets back the results
     Handler mHandler; // handler for initiating a wifi scan
     Runnable wifiScanner; // runs the system wifi scan
 
+    // google maps
+
     GoogleMap Map;
     Marker userNavMarker; // marks users current location
 
-    DrawRecordedPaths drawRecordedPaths; // reference to our custom class that draws recorded paths
+    // reference to our custom class that draws recorded paths
+
+    DrawRecordedPaths drawRecordedPaths;
 
     // TEMP: for debugging
-    Button scanButton;
+
     TextView infoBox;
 
     @Override
@@ -54,7 +60,7 @@ public class MainActivity extends FragmentActivity {
         // load app preferences
         AppConfig.loadPreferences(getApplicationContext());
 
-        // load up the variables
+        // load wifi manager, reciever, handler to handle wifi scans
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mHandler = new Handler();
         wifiReceiver = new WifiReceiver();
@@ -67,19 +73,11 @@ public class MainActivity extends FragmentActivity {
             }
         };
 
+        // init map
         setUpMapIfNeeded();
 
-
-        scanButton = (Button) findViewById(R.id.scanWifi);
+        // info box to show stuff for dev purporses
         infoBox = (TextView) findViewById(R.id.infoBox);
-
-        scanButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mHandler.postDelayed(wifiScanner, 0); // start scanner
-                Toast.makeText(getApplicationContext(), "Scanning...", Toast.LENGTH_SHORT).show();
-            }
-        });
 
     }
 
@@ -112,14 +110,14 @@ public class MainActivity extends FragmentActivity {
         // here we add our own tile overlay with custom image tiles
         Map.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
 
-        // hide the marker toolbar - the two buttons on the bottom right that open in google maps
+        // hide the marker toolbar - the two buttons on the bottom right that go to google maps
         Map.getUiSettings().setMapToolbarEnabled(false);
 
         // draw our recorded paths
         drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
 
         // just put the user navigation marker in the center as we don't yet know user's location
-        LatLng mapCenter = MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE / 2, AppConfig.TILE_SIZE / 2)); //west
+        LatLng mapCenter = MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
         userNavMarker = Map.addMarker(new MarkerOptions()
                 .position(mapCenter)
                 .title("Position")
@@ -153,7 +151,7 @@ public class MainActivity extends FragmentActivity {
 
         setUpMapIfNeeded();
 
-//        mHandler.postDelayed(wifiScanner, 0); // start scanner
+        mHandler.postDelayed(wifiScanner, 0); // start scanner
     }
 
     @Override
@@ -195,48 +193,36 @@ public class MainActivity extends FragmentActivity {
         @Override
         public void onReceive(Context c, Intent intent) {
 
+            List<ScanResult> scanResults = wifiManager.getScanResults();
+
             StringBuilder seenAPs = new StringBuilder("");
+            String bestMatchBSSID = getBestMatch(scanResults);
 
-            ArrayList<PointF> matchedPoints = new ArrayList<>();
+            seenAPs.append(DrawRecordedPaths.allAPs.get(bestMatchBSSID).get(0).get(Keys.KEY_SSID));
+            seenAPs.append(",");
+            seenAPs.append(bestMatchBSSID);
 
-            String bestMatchBSSID = getBestMatch(wifiManager.getScanResults());
+//            ArrayList<HashMap<String, Object>> bestMatch = DrawRecordedPaths.allAPs.get(bestMatchBSSID);
 
-            seenAPs.append(DrawRecordedPaths.allAPs.get(bestMatchBSSID).get(0).get(Keys.KEY_SSID) + ", " + bestMatchBSSID);
-
-            ArrayList<HashMap<String, Object>> bestMatch = DrawRecordedPaths.allAPs.get(bestMatchBSSID);
-
-            for (HashMap<String, Object> ap : DrawRecordedPaths.specialAPs) {
+            for (HashMap<String, Object> ap: DrawRecordedPaths.specialAPs) {
                 if (ap.get(Keys.KEY_BSSID).equals(bestMatchBSSID)) {
-                    PointF pos = (PointF) ap.get(Keys.KEY_POINT);
-                    userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(pos));
+                    userNavMarker.setPosition(MercatorProjection.fromPointToLatLng((PointF) ap.get(Keys.KEY_POINT)));
                 }
             }
 
 
-//            for (ScanResult result : wifiManager.getScanResults()) {
-//                // compute the differences and get the min diff
-//
-//                ArrayList<HashMap<String, Object>> points = DrawRecordedPaths.allAPs.get(result.BSSID);
-//                if (points != null) {
-//                    for (HashMap<String, Object> recordedPoint : points) {
-//                        int rRSSI = Integer.parseInt(recordedPoint.get(Keys.KEY_RSSI) + "");
-//
-//                        if (isInRange(rRSSI - 2, rRSSI + 2, result.level)) {
-//                            PointF point = (PointF) recordedPoint.get(Keys.KEY_POINT);
-//                            String ssid = recordedPoint.get(Keys.KEY_SSID) + "";
-//                            String bssid = recordedPoint.get(Keys.KEY_BSSID) + "";
-//                            String rssi = recordedPoint.get(Keys.KEY_RSSI) + "";
-//
-//                            seenAPs += ssid + " " + bssid + " : " + rssi + "\n";
-//
-//                            matchedPoints.add(point);
-////                            MapTools.addMarker(Map, MercatorProjection.fromPointToLatLng(point), bssid, rssi);
-////                            break;
+
+
+//            ArrayList<PointF> matchedPoints = new ArrayList<>();
+//            for(ScanResult res: scanResults) {
+//                if (res.BSSID.equals(bestMatchBSSID)) {
+//                    // figure out further location from bestMatchBSSID
+//                    for (HashMap<String, Object> match : bestMatch) {
+//                        int recordedRSSI = Integer.parseInt(match.get(Keys.KEY_RSSI)+"");
+//                        if (isInRange(recordedRSSI - 1, recordedRSSI +1, res.level)) {
+//                            matchedPoints.add((PointF) match.get(Keys.KEY_POINT));
 //                        }
-//
 //                    }
-//                } else {
-//                    Log.i(TAG, "AP not found in database. We have this: " + DrawRecordedPaths.allAPs);
 //                }
 //            }
 //
@@ -248,13 +234,13 @@ public class MainActivity extends FragmentActivity {
 //                Log.i(TAG, "loc computed: " + centroid);
 //                userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(centroid));
 //            }
-//
-//
-            Toast.makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
+
+
+//            Toast.makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
             infoBox.setText(seenAPs);
 
             // scan again
-//            mHandler.postDelayed(wifiScanner, 0);
+            mHandler.postDelayed(wifiScanner, 0);
 
         }
     }

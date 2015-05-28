@@ -191,7 +191,8 @@ public class MainActivity extends Activity {
                 mWiFiDatabaseManager.addApData(result.SSID, result.BSSID,
                         Integer.toString(result.frequency),
                         Integer.toString(result.level),
-                        rec_time, tableName);
+                        rec_time,
+                        tableName);
 
             mSortedAPsList.add(ap);
         }

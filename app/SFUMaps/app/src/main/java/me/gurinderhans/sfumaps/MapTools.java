@@ -68,7 +68,7 @@ public class MapTools {
      * @return - return the centroid point (mean value)
      */
     public static PointF getCentroid(ArrayList<PointF> points) {
-//
+
         float Sx = 0, Sy = 0;
 
         for (PointF point : points) {
