@@ -11,10 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,9 +21,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity;
 
 public class MainActivity extends FragmentActivity {
 
@@ -57,27 +55,30 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // load app preferences
-        AppConfig.loadPreferences(getApplicationContext());
+        this.startActivity(new Intent(this, RecordWifiDataActivity.class));
 
-        // load wifi manager, reciever, handler to handle wifi scans
-        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        mHandler = new Handler();
-        wifiReceiver = new WifiReceiver();
+//        // load app preferences
+//        AppConfig.loadPreferences(getApplicationContext());
+//
+//        // load wifi manager, reciever, handler to handle wifi scans
+//        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+//        mHandler = new Handler();
+//        wifiReceiver = new WifiReceiver();
+//
+//        // create the runnable to handle scans
+//        wifiScanner = new Runnable() {
+//            @Override
+//            public void run() {
+//                wifiManager.startScan();
+//            }
+//        };
 
-        // create the runnable to handle scans
-        wifiScanner = new Runnable() {
-            @Override
-            public void run() {
-                wifiManager.startScan();
-            }
-        };
 
         // init map
-        setUpMapIfNeeded();
+//        setUpMapIfNeeded();
 
         // info box to show stuff for dev purporses
-        infoBox = (TextView) findViewById(R.id.infoBox);
+//        infoBox = (TextView) findViewById(R.id.infoBox);
 
     }
 
@@ -149,9 +150,9 @@ public class MainActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
 
-        setUpMapIfNeeded();
+//        setUpMapIfNeeded();
 
-        mHandler.postDelayed(wifiScanner, 0); // start scanner
+//        mHandler.postDelayed(wifiScanner, 0); // start scanner
     }
 
     @Override

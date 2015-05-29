@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -36,7 +37,7 @@ public class VisibleAPsFragment extends Fragment {
     public static final String TAG = VisibleAPsFragment.class.getSimpleName();
     public static final String KEY_RSSI_DIFFERENCE = "rssi_diff";
     public static final String KEY_RECORDED_VAL = "recorded_val";
-    public static final String[] SSID_OPTIONS = {"SFUNET", "SFUNET-SECURE", "eduroam"};
+    public static final String[] SSID_OPTIONS = {"SFUNET", "SFUNET-SECURE", "eduroam", "TELUS0469"};
     public static ArrayList<String> ALL_SSIDS;
 
     Context context;
@@ -48,6 +49,8 @@ public class VisibleAPsFragment extends Fragment {
     WifiReceiver wifiReceiver;
     Handler mHandler;
     Runnable scanner;
+
+    ArrayList<HashMap<String, String>> sortValue = new ArrayList<>();
 
 
     public VisibleAPsFragment newInstance(String tblName) {
@@ -64,7 +67,7 @@ public class VisibleAPsFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        ALL_SSIDS = new ArrayList<>(Arrays.asList("SHAW-BD8CD9-5G", "SHAW-BD8CD9", "SFUNET", "SFUNET-SECURE", "eduroam"));
+        ALL_SSIDS = new ArrayList<>(Arrays.asList("TELUS0469", "TELUS7280", "SFUNET", "SFUNET-SECURE", "eduroam"));
         tableName = this.getArguments().getString(WiFiDatabaseManager.KEY_TABLE_NAME, "null");
         context = getActivity().getApplicationContext();
         mHandler = new Handler();
@@ -81,6 +84,29 @@ public class VisibleAPsFragment extends Fragment {
 
         ListView tableDataListView = (ListView) rootView.findViewById(R.id.visibleTableDataListView);
         tableDataListView.setAdapter(mSimpleAdapter);
+
+        tableDataListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.i(TAG, "Clicked on row: " + position);
+
+                String value = matchingSignalsPickedUp.get(position).get("SortID");
+                String newVal = value.equals("0") ? "100" : "0";
+                matchingSignalsPickedUp.get(position).put("SortID", newVal);
+
+                // add to sort value
+                HashMap<String, String> val = new HashMap<>();
+                val.put(matchingSignalsPickedUp.get(position).get(WiFiDatabaseManager.KEY_BSSID), newVal);
+                sortValue.add(val);
+
+                Collections.sort(matchingSignalsPickedUp, new SortAscending("SortID"));
+
+                Log.i(TAG, "matching: " + matchingSignalsPickedUp);
+
+                mSimpleAdapter.notifyDataSetChanged();
+
+            }
+        });
 
         scanner = new Runnable() {
             @Override
@@ -141,6 +167,14 @@ public class VisibleAPsFragment extends Fragment {
                     scannedAp.put(KEY_RSSI_DIFFERENCE, "Difference: " + Math.abs(Math.abs(recordedVal) - Math.abs(newVal)) + ""); //modifying
                     scannedAp.put(KEY_RECORDED_VAL, "Recorded RSSI: " + recordedVal + "");//adding new map
                     scannedAp.put(WiFiDatabaseManager.KEY_RSSI, "Current RSSI: " + newVal);//adding new map
+
+//                    for (HashMap<String, String> val : sortValue) {
+//                        if (val.get(WiFiDatabaseManager.KEY_BSSID).equals(scannedAp.get(WiFiDatabaseManager.KEY_BSSID))) {
+//                            scannedAp.put("SortID", val.get("SortID"));
+//                        }
+//                    }
+
+                    scannedAp.put("SortID", "100");
                     matchingSignalsPickedUp.add(scannedAp);
                     break;
                 }
@@ -156,7 +190,7 @@ public class VisibleAPsFragment extends Fragment {
             }
         });
 
-//        Collections.sort(matchingSignalsPickedUp, new SortByRSSI(WiFiDatabaseManager.KEY_RSSI));
+        Collections.sort(matchingSignalsPickedUp, new SortAscending("SortID"));
 
 
         //show the RSSI diff in list view

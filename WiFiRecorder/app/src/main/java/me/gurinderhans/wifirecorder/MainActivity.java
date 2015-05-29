@@ -32,6 +32,8 @@ import java.util.List;
 public class MainActivity extends Activity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
+
+    // switch variable
     boolean record = false;
 
     Context context;

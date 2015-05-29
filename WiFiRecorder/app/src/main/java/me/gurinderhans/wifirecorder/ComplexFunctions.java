@@ -97,6 +97,21 @@ class SortByRSSI implements Comparator<HashMap<String, String>> {
     }
 }
 
+
+class SortAscending implements Comparator<HashMap<String, String>> {
+    private final String key;
+
+    public SortAscending(String key) {
+        this.key = key;
+    }
+
+    public int compare(HashMap<String, String> first, HashMap<String, String> second) {
+        int firstValue = Integer.parseInt(first.get(key));
+        int secondValue = Integer.parseInt(second.get(key));
+        return (secondValue > firstValue ? -1 : (secondValue == firstValue ? 0 : 1));
+    }
+}
+
 class SortByTime implements Comparator<HashMap<String, String>> {
     private final String key;
 

@@ -3,5 +3,24 @@
 
     <string name="app_name">SFUMaps</string>
     <string name="title_activity_main">Map</string>
+    <string name="title_activity_record_wifi_data">RecordWifiDataActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Recorder strings-->
+
+    <!-- activity strings -->
+    <string name="recorder_activity_title">Recorder</string>
+
+    <color name="recorder_activity_color">#3F51B5</color>
+    <color name="recorder_activity_color_dark">#303F9F</color>
+
+    <string name="table_text_input_hint">Table Name</string>
+
+    <!-- menu strings -->
+    <string name="menu_action_record_play">Play</string>
+    <string name="menu_action_list_tables">List Tables</string>
+
 
 </resources>

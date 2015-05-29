@@ -5,4 +5,22 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="RecorderActivity" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+
+        <item name="actionBarStyle">@style/RecorderActivity.ActionBar</item>
+
+        <item name="android:windowContentOverlay">@null</item>
+
+        <item name="colorPrimary">@color/recorder_activity_color</item>
+        <item name="colorPrimaryDark">@color/recorder_activity_color_dark</item>
+    </style>
+
+    <style name="RecorderActivity.ActionBar" parent="style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <!-- remove shadow below action bar -->
+        <item name="elevation">0dp</item>
+
+        <item name="title">@string/recorder_activity_title</item>
+    </style>
+
 </resources>
