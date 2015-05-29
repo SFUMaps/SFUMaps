@@ -11,17 +11,24 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import me.gurinderhans.sfumaps.DataBaseManager;
+import me.gurinderhans.sfumaps.Keys;
+import me.gurinderhans.sfumaps.MapTools;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.wifirecorder.Model.WiFiAccessPoint;
 import me.gurinderhans.sfumaps.wifirecorder.View.WifiAPListViewAdapter;
@@ -36,8 +43,10 @@ public class RecordWifiDataActivity extends ActionBarActivity {
     EditText recordDataName;
     Handler mHandler = new Handler();
     MenuItem recordButton;
+    MenuItem listButton;
     boolean record;
     String runningTable;
+    Map<String, String> keepOnTop = new HashMap<>();
 
 
     // controller fields
@@ -72,6 +81,18 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         mWifiAPListViewAdapter = new WifiAPListViewAdapter(getApplicationContext());
         mWifiApListView.setAdapter(mWifiAPListViewAdapter);
 
+        mWifiApListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String key = mWifiAPListViewAdapter.getItem(position).BSSID;
+                if (keepOnTop.containsKey(key)) {
+                    keepOnTop.remove(key);
+                } else {
+                    keepOnTop.put(key, "sf");
+                }
+            }
+        });
+
     }
 
     @Override
@@ -80,11 +101,14 @@ public class RecordWifiDataActivity extends ActionBarActivity {
 
         // reset
         record = false;
+        runningTable = null;
         recordDataName.setEnabled(true);
         recordDataName.setText("");
         mHandler.removeCallbacks(scanner);
         this.invalidateOptionsMenu();
-        runningTable = null;
+
+        // load scanned results initially to prevent blank table view
+        manageData(mWifiManager.getScanResults());
 
         // register receiver and start recording
         registerReceiver(mWifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -104,11 +128,13 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_record_wifi_data, menu);
 
-        // get record action button
+        // assign menu buttons
         recordButton = menu.getItem(0);
+        listButton = menu.getItem(1);
 
         // set button state
         recordButton.setIcon(R.drawable.ic_play_arrow_white_24dp);
+        listButton.setIcon(R.drawable.ic_sort_white_24dp);
 
         return true;
     }
@@ -133,14 +159,17 @@ public class RecordWifiDataActivity extends ActionBarActivity {
             int record_icon = record ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp;
             recordButton.setIcon(record_icon);
 
-            // TODO: set button title
-
+            // set button title
+            recordButton.setTitle(record ? "Pause" : "Play");
 
             recordDataName.setEnabled(!record);
+            listButton.setEnabled(!record);
 
             // clear text input after recording finished and enable field
-            if (!record)
+            if (!record) {
                 recordDataName.setText("");
+            }
+
 
             return true;
         }
@@ -159,19 +188,26 @@ public class RecordWifiDataActivity extends ActionBarActivity {
                 builder.setItems(tables, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         // the user clicked on tables[which]
                         runningTable = tables[which].toString();
-                        item.setIcon(R.drawable.ic_clear_white_24dp);
-
-                        // disable recording when we're inspecting a table
+                        listButton.setIcon(R.drawable.ic_clear_white_24dp);
+                        listButton.setTitle("Cancel");
                         recordButton.setEnabled(false);
+
+                        recordDataName.setText(runningTable);
+                        recordDataName.setEnabled(false);
 
                     }
                 }).show();
+
             } else {
                 runningTable = null;
-                item.setIcon(R.drawable.ic_sort_white_24dp);
+                listButton.setIcon(R.drawable.ic_sort_white_24dp);
+                listButton.setTitle("List");
                 recordButton.setEnabled(true);
+                recordDataName.setText("");
+                recordDataName.setEnabled(true);
             }
 
             return true;
@@ -180,41 +216,77 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void inspectTable(String tblName) {
+    private void inspectTable(List<ScanResult> scannedData) {
 
-        for(HashMap<String, Object> row: dbManager.getTableData(tblName)) {
-            //runningtAble
+        mWifiAPListViewAdapter.clear();
+
+        ArrayList<HashMap<String, Object>> data = dbManager.getTableData(runningTable);
+
+        MapTools.removeDups(data);
+
+
+        for (HashMap<String, Object> row : data) {
+            for (ScanResult res : scannedData) {
+                if (row.get(Keys.KEY_BSSID).equals(res.BSSID)) {
+
+                    int diff = Math.abs(Integer.parseInt(row.get(Keys.KEY_RSSI).toString()) - res.level);
+                    boolean onTop = keepOnTop.containsKey(res.BSSID);
+
+                    mWifiAPListViewAdapter.add(new WiFiAccessPoint(res.SSID, res.BSSID, res.level, res.frequency, null, diff, Integer.parseInt(row.get(Keys.KEY_RSSI).toString()), onTop));
+
+                    mWifiAPListViewAdapter.sort(new Comparator<WiFiAccessPoint>() {
+                        @Override
+                        public int compare(WiFiAccessPoint lhs, WiFiAccessPoint rhs) {
+                            if (lhs.isOnTop && !rhs.isOnTop)
+                                return -1;
+
+                            if (!lhs.isOnTop && rhs.isOnTop)
+                                return 1;
+
+                            return 0;
+                        }
+                    });
+                }
+            }
         }
+
+        mWifiAPListViewAdapter.notifyDataSetChanged();
     }
 
     private void manageData(List<ScanResult> data) {
 
-        // inspect table
-//         inspectTable(runningTable);
+        // inspect table MODE
+        if (runningTable != null) {
+            inspectTable(data);
+        } else {
 
-        // cache record so we don't abrupt data recording in the middle of the loop
-        boolean localRecordDataFlag = record;
+            // normal viewing / recording MODE
 
-        // clear adapter
-        mWifiAPListViewAdapter.clear();
+            // cache record so we don't abrupt data recording in the middle of the loop
+            boolean localRecordDataFlag = record;
 
-        // add data to adapter and if enabled, add to db
-        for (ScanResult res : data) {
+            // clear adapter
+            mWifiAPListViewAdapter.clear();
 
-            // create point
-            WiFiAccessPoint point = new WiFiAccessPoint(res.SSID, res.BSSID, res.level, res.frequency, -1);
+            // add data to adapter and if enabled, add to db
+            for (ScanResult res : data) {
 
-            // add to adapter
-            mWifiAPListViewAdapter.add(point);
+                // create point
+                WiFiAccessPoint point = new WiFiAccessPoint(res.SSID, res.BSSID, res.level, res.frequency, -1l, null, null, null);
 
-            // record if true
-            if (localRecordDataFlag) {
-                dbManager.addAccessPoint(point, recordDataName.getText().toString());
+                // add to adapter
+                mWifiAPListViewAdapter.add(point);
+
+                // record if true
+                if (localRecordDataFlag) {
+                    dbManager.addAccessPoint(point, recordDataName.getText().toString());
+                }
             }
+
+            // tell adapter to update
+            mWifiAPListViewAdapter.notifyDataSetChanged();
         }
 
-        // tell adapter to update
-        mWifiAPListViewAdapter.notifyDataSetChanged();
     }
 
     private class WiFiReceiver extends BroadcastReceiver {

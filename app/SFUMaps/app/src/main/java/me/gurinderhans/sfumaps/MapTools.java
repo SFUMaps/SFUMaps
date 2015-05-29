@@ -47,6 +47,32 @@ public class MapTools {
         return separated;
     }
 
+
+    /**
+     *
+     * @param input - input data to remove dups from
+     */
+    public static void removeDups(ArrayList<HashMap<String, Object>> input) {
+        int count = input.size();
+
+        for (int i = 0; i < count; i++) {
+            for (int j = i + 1; j < count; j++) {
+                HashMap<String, Object> a = input.get(i);
+                HashMap<String, Object> b = input.get(j);
+
+                boolean ssid = a.get(Keys.KEY_SSID).equals(b.get(Keys.KEY_SSID));
+                boolean bssid = a.get(Keys.KEY_BSSID).equals(b.get(Keys.KEY_BSSID));
+                boolean rssi = a.get(Keys.KEY_RSSI).equals(b.get(Keys.KEY_RSSI));
+
+                if (ssid && bssid && rssi) {
+                    input.remove(j--);
+                    count--;
+                }
+            }
+        }
+    }
+
+
     /**
      * @param googleMap - the map
      * @param latLng    - latlng coordinate on the map

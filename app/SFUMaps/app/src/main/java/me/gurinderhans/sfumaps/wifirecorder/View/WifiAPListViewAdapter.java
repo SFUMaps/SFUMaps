@@ -56,6 +56,7 @@ public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
             accessPointHolder.ssid = (TextView) convertView.findViewById(R.id.ssid);
             accessPointHolder.bssid = (TextView) convertView.findViewById(R.id.bssid);
             accessPointHolder.rssi = (TextView) convertView.findViewById(R.id.rssi);
+            accessPointHolder.rssiDiff = (TextView) convertView.findViewById(R.id.rssiDiff);
 
             // assign holder
             convertView.setTag(accessPointHolder);
@@ -69,6 +70,20 @@ public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
         accessPointHolder.bssid.setText(accessPoint.BSSID);
         accessPointHolder.rssi.setText(accessPoint.RSSI + "");
 
+        // type optional
+        if (accessPoint.RSSI_DIFF != null) {
+            accessPointHolder.rssiDiff.setText(accessPoint.RECORDED_RSSI + " | " + accessPoint.RSSI + " = " + accessPoint.RSSI_DIFF);
+
+            accessPointHolder.rssiDiff.setVisibility(View.VISIBLE);
+        } else accessPointHolder.rssiDiff.setVisibility(View.INVISIBLE);
+
+
+        if (accessPoint.isOnTop != null && accessPoint.isOnTop) {
+            accessPointHolder.rssi.setBackgroundColor(context.getResources().getColor(R.color.selected_access_point));
+        } else {
+            accessPointHolder.rssi.setBackgroundColor(context.getResources().getColor(R.color.recorder_activity_color_dark));
+        }
+
         // return the completed view to render on screen
         return convertView;
     }
@@ -78,5 +93,6 @@ public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
         TextView ssid;
         TextView bssid;
         TextView rssi;
+        TextView rssiDiff;
     }
 }

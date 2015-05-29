@@ -10,12 +10,16 @@ public class WiFiAccessPoint {
     // member variables
     public String SSID;
     public String BSSID;
-    public int RSSI;
-    public int FREQ;
-    public long TIME;
+    public Integer RSSI;
+    public Integer FREQ;
+    public Long TIME;
+    public Integer RSSI_DIFF;
+    public Integer RECORDED_RSSI;
+    public Boolean isOnTop;
 
 
-    public WiFiAccessPoint(String ssid, String bssid, int rssi, int freq, long time) {
+
+    public WiFiAccessPoint(String ssid, String bssid, Integer rssi, Integer freq, Long time, Integer rssi_diff, Integer recorded_rssi, Boolean isOnTop) {
         super();
 
         // assign variables
@@ -24,5 +28,8 @@ public class WiFiAccessPoint {
         this.RSSI = rssi;
         this.FREQ = freq;
         this.TIME = time;
+        this.RSSI_DIFF = rssi_diff;
+        this.RECORDED_RSSI = recorded_rssi;
+        this.isOnTop = isOnTop;
     }
 }

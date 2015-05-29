@@ -72,12 +72,17 @@ public class DataBaseManager extends SQLiteOpenHelper {
     }
 
 
-    public void addAccessPoint(WiFiAccessPoint point, String tbl_name) {
+    /**
+     * add an access point to the specified database table
+     * @param point - Access Point
+     * @param tblName - table name to add the access point to
+     */
+    public void addAccessPoint(WiFiAccessPoint point, String tblName) {
 
         // get a writable database
         SQLiteDatabase db = getWritableDatabase();
 
-        String table = TABLE_NAME + "_" + tbl_name;
+        String table = TABLE_NAME + "_" + tblName;
 
         String CREATE_CONTACTS_TABLE = "CREATE TABLE IF NOT EXISTS " + table + " (" + Keys.KEY_ROWID + " INTEGER PRIMARY KEY, " +
                 Keys.KEY_SSID + " TEXT, " +

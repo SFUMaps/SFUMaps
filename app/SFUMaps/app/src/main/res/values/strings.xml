@@ -15,12 +15,14 @@
 
     <color name="recorder_activity_color">#3F51B5</color>
     <color name="recorder_activity_color_dark">#303F9F</color>
+    <color name="selected_access_point">#F44336</color>
 
     <string name="table_text_input_hint">Table Name</string>
 
     <!-- menu strings -->
     <string name="menu_action_record_play">Play</string>
-    <string name="menu_action_list_tables">List Tables</string>
+    <string name="menu_action_list_tables">List</string>
+
 
 
 </resources>
