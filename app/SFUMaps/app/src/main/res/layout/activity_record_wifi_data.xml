@@ -12,9 +12,9 @@
         android:hint="@string/table_text_input_hint"
         android:inputType="textNoSuggestions"
         android:paddingBottom="10dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:paddingTop="10dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="0dp"
         android:singleLine="true"
         android:textColor="#ffffff"
         android:textColorHint="#eeeeee"
@@ -24,6 +24,7 @@
         android:id="@+id/scanned_APs"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/database_table_name"/>
+        android:layout_below="@id/database_table_name"
+        android:divider="@null" />
 
 </RelativeLayout>

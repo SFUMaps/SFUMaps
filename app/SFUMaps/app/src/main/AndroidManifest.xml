@@ -40,6 +40,8 @@
             android:name=".wifirecorder.Controller.RecordWifiDataActivity"
             android:label="@string/title_activity_record_wifi_data" >
         </activity>
+        <activity android:name=".wifirecorder.Controller.ListDataTablesActivity"
+            android:label="ListDataTables" />
     </application>
 
 </manifest>
