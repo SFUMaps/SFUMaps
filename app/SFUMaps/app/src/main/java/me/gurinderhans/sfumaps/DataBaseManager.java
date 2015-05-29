@@ -153,7 +153,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
     /**
      * @return - list of all database tables
      */
-    ArrayList<String> getDataTables() {
+    public ArrayList<String> getDataTables() {
 
         SQLiteDatabase db = getReadableDatabase();
         ArrayList<String> tables = new ArrayList<>();
@@ -181,7 +181,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
      * @param tablename - the name of the table that we want the data from
      * @return - the table data
      */
-    ArrayList<HashMap<String, Object>> getTableData(String tablename) {
+    public ArrayList<HashMap<String, Object>> getTableData(String tablename) {
         SQLiteDatabase db = getReadableDatabase();
 
         ArrayList<HashMap<String, Object>> data = new ArrayList<>();

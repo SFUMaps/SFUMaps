@@ -1,7 +1,9 @@
 package me.gurinderhans.sfumaps.wifirecorder.Controller;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
@@ -9,11 +11,14 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.DataBaseManager;
@@ -30,16 +35,15 @@ public class RecordWifiDataActivity extends ActionBarActivity {
     ListView mWifiApListView;
     EditText recordDataName;
     Handler mHandler = new Handler();
-    ;
-    boolean record;
     MenuItem recordButton;
+    boolean record;
+    String runningTable;
 
 
     // controller fields
     WifiAPListViewAdapter mWifiAPListViewAdapter;
     WifiManager mWifiManager;
     WiFiReceiver mWifiReceiver = new WiFiReceiver();
-    ;
     DataBaseManager dbManager;
     private Runnable scanner = new Runnable() {
         @Override
@@ -80,6 +84,7 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         recordDataName.setText("");
         mHandler.removeCallbacks(scanner);
         this.invalidateOptionsMenu();
+        runningTable = null;
 
         // register receiver and start recording
         registerReceiver(mWifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -109,7 +114,7 @@ public class RecordWifiDataActivity extends ActionBarActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -128,23 +133,67 @@ public class RecordWifiDataActivity extends ActionBarActivity {
             int record_icon = record ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp;
             recordButton.setIcon(record_icon);
 
+            // TODO: set button title
+
+
+            recordDataName.setEnabled(!record);
+
+            // clear text input after recording finished and enable field
+            if (!record)
+                recordDataName.setText("");
+
             return true;
         }
 
         // list tables button click
         if (id == R.id.list_tables) {
-            this.startActivity(new Intent(RecordWifiDataActivity.this, ListDataTablesActivity.class));
+
+            if (runningTable == null) {
+                // show tables dialog
+                ArrayList<String> dataTables = dbManager.getDataTables();
+                final CharSequence tables[] = dataTables.toArray(new CharSequence[dataTables.size()]);
+
+                // create dialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Pick a table");
+                builder.setItems(tables, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // the user clicked on tables[which]
+                        runningTable = tables[which].toString();
+                        item.setIcon(R.drawable.ic_clear_white_24dp);
+
+                        // disable recording when we're inspecting a table
+                        recordButton.setEnabled(false);
+
+                    }
+                }).show();
+            } else {
+                runningTable = null;
+                item.setIcon(R.drawable.ic_sort_white_24dp);
+                recordButton.setEnabled(true);
+            }
+
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void inspectTable(String tblName) {
+
+        for(HashMap<String, Object> row: dbManager.getTableData(tblName)) {
+            //runningtAble
+        }
+    }
 
     private void manageData(List<ScanResult> data) {
 
+        // inspect table
+//         inspectTable(runningTable);
+
         // cache record so we don't abrupt data recording in the middle of the loop
-        boolean localRecordData = record;
+        boolean localRecordDataFlag = record;
 
         // clear adapter
         mWifiAPListViewAdapter.clear();
@@ -159,7 +208,7 @@ public class RecordWifiDataActivity extends ActionBarActivity {
             mWifiAPListViewAdapter.add(point);
 
             // record if true
-            if (localRecordData) {
+            if (localRecordDataFlag) {
                 dbManager.addAccessPoint(point, recordDataName.getText().toString());
             }
         }
