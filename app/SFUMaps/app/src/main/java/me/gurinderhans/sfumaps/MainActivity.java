@@ -55,10 +55,12 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // load app preferences
+        AppConfig.loadPreferences(getApplicationContext());
+
+        // start activity
         this.startActivity(new Intent(this, RecordWifiDataActivity.class));
 
-//        // load app preferences
-//        AppConfig.loadPreferences(getApplicationContext());
 //
 //        // load wifi manager, reciever, handler to handle wifi scans
 //        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
