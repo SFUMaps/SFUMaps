@@ -35,7 +35,11 @@ import me.gurinderhans.sfumaps.wifirecorder.View.WifiAPListViewAdapter;
 
 public class RecordWifiDataActivity extends ActionBarActivity {
 
+
     public static final String TAG = RecordWifiDataActivity.class.getSimpleName();
+
+    // Constants
+    public static final int TOTAL_SCANS = 20;
 
     // UI
     ListView mWifiApListView;
@@ -45,11 +49,12 @@ public class RecordWifiDataActivity extends ActionBarActivity {
     Map<String, String> keepOnTop = new HashMap<>();
     ArrayList<HashMap<String, Object>> inspectingTableData = new ArrayList<>();
 
-    // activity modes
+    // Activity Modes
     boolean MODE_RECORD_DATA;
     boolean MODE_INSPECT_DATA;
 
     // controller fields
+    int numScansLeft = -1;
     private WifiAPListViewAdapter mWifiAPListViewAdapter;
     private WifiManager mWifiManager;
     private WiFiReceiver mWifiReceiver = new WiFiReceiver();
@@ -60,6 +65,19 @@ public class RecordWifiDataActivity extends ActionBarActivity {
             mWifiManager.startScan();
         }
     };
+    private Comparator<WiFiAccessPoint> comparator = new Comparator<WiFiAccessPoint>() {
+        @Override
+        public int compare(WiFiAccessPoint lhs, WiFiAccessPoint rhs) {
+            if (lhs.isOnTop && !rhs.isOnTop)
+                return -1;
+
+            if (!lhs.isOnTop && rhs.isOnTop)
+                return 1;
+
+            return 0;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,11 +170,6 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         // record button click
         if (id == R.id.record) {
 
@@ -170,6 +183,8 @@ public class RecordWifiDataActivity extends ActionBarActivity {
             if (!MODE_RECORD_DATA) {
                 recordDataTableInput.setText("");
             }
+
+            numScansLeft = TOTAL_SCANS;
 
             return true;
         }
@@ -194,7 +209,6 @@ public class RecordWifiDataActivity extends ActionBarActivity {
 
                         // clear arrays for re-use
                         inspectingTableData.clear();
-                        keepOnTop.clear();
 
                         inspectingTable = tables[which].toString();
 
@@ -238,15 +252,35 @@ public class RecordWifiDataActivity extends ActionBarActivity {
 
         } else {
 
+
             // cache record so we don't abrupt data recording in the middle of the loop
             boolean localRecordDataFlag = MODE_RECORD_DATA;
+
+            // manage number of scans
+            if (localRecordDataFlag) {
+                getSupportActionBar().setTitle(numScansLeft + "");
+                numScansLeft--;
+
+                // no more scans left
+                if (numScansLeft == 0) {
+                    MODE_RECORD_DATA = false;
+
+                    recordDataTableInput.setText("");
+                    recordDataTableInput.setEnabled(true);
+
+                    invalidateOptionsMenu();
+                }
+            } else {
+                getSupportActionBar().setTitle(getString(R.string.recorder_activity_title));
+            }
+
 
             mWifiAPListViewAdapter.clear();
 
             // add data to adapter and if enabled, add to db
             for (ScanResult res : data) {
 
-                WiFiAccessPoint point = new WiFiAccessPoint(res.SSID, res.BSSID, res.level, res.frequency, -1l, null, null, null);
+                WiFiAccessPoint point = new WiFiAccessPoint(res.SSID, res.BSSID, res.level, res.frequency, -1l, null, null, keepOnTop.containsKey(res.BSSID));
                 mWifiAPListViewAdapter.add(point);
 
                 if (localRecordDataFlag) {
@@ -254,11 +288,18 @@ public class RecordWifiDataActivity extends ActionBarActivity {
                 }
             }
 
+            mWifiAPListViewAdapter.sort(comparator);
+
             mWifiAPListViewAdapter.notifyDataSetChanged();
         }
 
     }
 
+    /**
+     * compares scanned data with previously recorded data and displays the union
+     *
+     * @param scannedData
+     */
     private void inspectTableData(List<ScanResult> scannedData) {
 
         mWifiAPListViewAdapter.clear();
@@ -290,22 +331,11 @@ public class RecordWifiDataActivity extends ActionBarActivity {
                     boolean onTop = keepOnTop.containsKey(res.BSSID);
 
                     mWifiAPListViewAdapter.add(new WiFiAccessPoint(res.SSID, res.BSSID, res.level, res.frequency, null, diff, Integer.parseInt(row.get(Keys.KEY_RSSI).toString()), onTop));
-
-                    mWifiAPListViewAdapter.sort(new Comparator<WiFiAccessPoint>() {
-                        @Override
-                        public int compare(WiFiAccessPoint lhs, WiFiAccessPoint rhs) {
-                            if (lhs.isOnTop && !rhs.isOnTop)
-                                return -1;
-
-                            if (!lhs.isOnTop && rhs.isOnTop)
-                                return 1;
-
-                            return 0;
-                        }
-                    });
                 }
             }
         }
+
+        mWifiAPListViewAdapter.sort(comparator);
 
         mWifiAPListViewAdapter.notifyDataSetChanged();
     }

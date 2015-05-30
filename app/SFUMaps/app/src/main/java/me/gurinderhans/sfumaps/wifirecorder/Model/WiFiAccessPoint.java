@@ -7,7 +7,7 @@ public class WiFiAccessPoint {
 
     public static final String TAG = WiFiAccessPoint.class.getSimpleName();
 
-    // member variables
+    // class vars
     public String SSID;
     public String BSSID;
     public Integer RSSI;
@@ -18,11 +18,10 @@ public class WiFiAccessPoint {
     public Boolean isOnTop;
 
 
-
     public WiFiAccessPoint(String ssid, String bssid, Integer rssi, Integer freq, Long time, Integer rssi_diff, Integer recorded_rssi, Boolean isOnTop) {
         super();
 
-        // assign variables
+        // assignments
         this.SSID = ssid;
         this.BSSID = bssid;
         this.RSSI = rssi;

@@ -22,15 +22,7 @@ public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
 
     public WifiAPListViewAdapter(Context ctx) {
         super(ctx, R.layout.lv_item_wifi_ap);
-
-        // assign data
         this.context = ctx;
-    }
-
-
-    @Override
-    public WiFiAccessPoint getItem(int position) {
-        return super.getItem(position);
     }
 
     @Override
@@ -70,13 +62,9 @@ public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
         accessPointHolder.bssid.setText(accessPoint.BSSID);
         accessPointHolder.rssi.setText(accessPoint.RSSI + "");
 
-        // type optional
         if (accessPoint.RSSI_DIFF != null) {
             accessPointHolder.rssiDiff.setText(accessPoint.RECORDED_RSSI + " | " + accessPoint.RSSI + " = " + accessPoint.RSSI_DIFF);
-
-            accessPointHolder.rssiDiff.setVisibility(View.VISIBLE);
-        } else accessPointHolder.rssiDiff.setVisibility(View.INVISIBLE);
-
+        } else accessPointHolder.rssiDiff.setText("");
 
         if (accessPoint.isOnTop != null && accessPoint.isOnTop) {
             accessPointHolder.rssi.setBackgroundColor(context.getResources().getColor(R.color.selected_access_point));
