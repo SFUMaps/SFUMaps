@@ -11,7 +11,6 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,15 +40,17 @@ public class RecordWifiDataActivity extends ActionBarActivity {
 
     // UI
     ListView mWifiApListView;
-    EditText recordDataName;
+    EditText recordDataTableInput;
     Handler mHandler = new Handler();
     MenuItem recordButton;
     MenuItem listButton;
-    boolean record;
     String runningTable;
     Map<String, String> keepOnTop = new HashMap<>();
     ArrayList<HashMap<String, Object>> runningTableData = new ArrayList<>();
 
+    // activity modes
+    boolean MODE_RECORD_DATA;
+    boolean MODE_INSPECT_DATA;
 
     // controller fields
     WifiAPListViewAdapter mWifiAPListViewAdapter;
@@ -75,7 +76,7 @@ public class RecordWifiDataActivity extends ActionBarActivity {
 
         // get views and services
         mWifiApListView = (ListView) findViewById(R.id.scanned_APs);
-        recordDataName = (EditText) findViewById(R.id.database_table_name);
+        recordDataTableInput = (EditText) findViewById(R.id.database_table_name);
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         dbManager = DataBaseManager.getInstance(getApplicationContext());
 
@@ -102,14 +103,16 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         super.onResume();
 
         // reset
-        record = false;
+        MODE_RECORD_DATA = false;
+        MODE_INSPECT_DATA = false;
         runningTable = null;
         runningTableData.clear();
         keepOnTop.clear();
-        recordDataName.setEnabled(true);
-        recordDataName.setText("");
-        mHandler.removeCallbacks(scanner);
-        this.invalidateOptionsMenu();
+        recordDataTableInput.setEnabled(true);
+        recordDataTableInput.setText("");
+
+        // redraw menu
+        invalidateOptionsMenu();
 
         // load scanned results initially to prevent blank table view
         manageData(mWifiManager.getScanResults());
@@ -125,6 +128,9 @@ public class RecordWifiDataActivity extends ActionBarActivity {
 
         // unregister the wifi receiver
         unregisterReceiver(mWifiReceiver);
+
+        // remove handler callbacks
+        mHandler.removeCallbacks(scanner);
     }
 
     @Override
@@ -136,9 +142,17 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         recordButton = menu.getItem(0);
         listButton = menu.getItem(1);
 
-        // set button state
-        recordButton.setIcon(R.drawable.ic_play_arrow_white_24dp);
-        listButton.setIcon(R.drawable.ic_sort_white_24dp);
+        // update button icon & title
+        recordButton.setIcon(MODE_RECORD_DATA ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp);
+        recordButton.setTitle(this.getString(MODE_RECORD_DATA ? R.string.menu_action_record_pause : R.string.menu_action_record_play));
+
+        // list button icon & title
+        listButton.setIcon(MODE_INSPECT_DATA ? R.drawable.ic_clear_white_24dp : R.drawable.ic_sort_white_24dp);
+        listButton.setTitle(getString(MODE_INSPECT_DATA ? R.string.menu_action_cancel : R.string.menu_action_list_tables));
+
+        // enable / disable
+        listButton.setEnabled(!MODE_RECORD_DATA);
+        recordButton.setEnabled(!MODE_INSPECT_DATA);
 
         return true;
     }
@@ -158,22 +172,18 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         // record button click
         if (id == R.id.record) {
 
-            // set icon to opposite and inverse record
-            record = !record;
-            int record_icon = record ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp;
-            recordButton.setIcon(record_icon);
+            // flip state
+            MODE_RECORD_DATA = !MODE_RECORD_DATA;
 
-            // set button title
-            recordButton.setTitle(record ? "Pause" : "Play");
+            // redraw menu
+            invalidateOptionsMenu();
 
-            recordDataName.setEnabled(!record);
-            listButton.setEnabled(!record);
+            recordDataTableInput.setEnabled(!MODE_RECORD_DATA);
 
             // clear text input after recording finished and enable field
-            if (!record) {
-                recordDataName.setText("");
+            if (!MODE_RECORD_DATA) {
+                recordDataTableInput.setText("");
             }
-
 
             return true;
         }
@@ -181,38 +191,50 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         // list tables button click
         if (id == R.id.list_tables) {
 
-            if (runningTable == null) {
+            if (!MODE_INSPECT_DATA) {
+
                 // show tables dialog
                 ArrayList<String> dataTables = dbManager.getDataTables();
                 final CharSequence tables[] = dataTables.toArray(new CharSequence[dataTables.size()]);
 
                 // create dialog
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Pick a table");
+                builder.setTitle(getString(R.string.choose_data_table));
                 builder.setItems(tables, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
+                        // now we are inspecting data
+                        MODE_INSPECT_DATA = true;
+
+                        // clear arrays for re-use
+                        runningTableData.clear();
+                        keepOnTop.clear();
+
                         // the user clicked on tables[which]
                         runningTable = tables[which].toString();
-                        listButton.setIcon(R.drawable.ic_clear_white_24dp);
-                        listButton.setTitle("Cancel");
-                        recordButton.setEnabled(false);
 
-                        recordDataName.setText(runningTable);
-                        recordDataName.setEnabled(false);
+                        recordDataTableInput.setText(runningTable);
+                        recordDataTableInput.setEnabled(false);
+
+                        // redraw menu
+                        invalidateOptionsMenu();
+
 
                     }
                 }).show();
 
             } else {
+
+                MODE_INSPECT_DATA = false;
+
+                // clear views and inputs
                 runningTable = null;
-                runningTableData.clear();
-                listButton.setIcon(R.drawable.ic_sort_white_24dp);
-                listButton.setTitle("List");
-                recordButton.setEnabled(true);
-                recordDataName.setText("");
-                recordDataName.setEnabled(true);
+                recordDataTableInput.setText("");
+                recordDataTableInput.setEnabled(true);
+
+                // redraw menu
+                invalidateOptionsMenu();
             }
 
             return true;
@@ -221,6 +243,11 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * takes care of the scanned data, whether to just display it, record it, or inspect it
+     *
+     * @param data
+     */
     private void manageData(List<ScanResult> data) {
 
         // inspect table MODE
@@ -231,7 +258,7 @@ public class RecordWifiDataActivity extends ActionBarActivity {
             // normal viewing / recording MODE
 
             // cache record so we don't abrupt data recording in the middle of the loop
-            boolean localRecordDataFlag = record;
+            boolean localRecordDataFlag = MODE_RECORD_DATA;
 
             // clear adapter
             mWifiAPListViewAdapter.clear();
@@ -247,7 +274,7 @@ public class RecordWifiDataActivity extends ActionBarActivity {
 
                 // record if true
                 if (localRecordDataFlag) {
-                    dbManager.addAccessPoint(point, recordDataName.getText().toString());
+                    dbManager.addAccessPoint(point, recordDataTableInput.getText().toString());
                 }
             }
 

@@ -56,6 +56,7 @@ public class AppConfig {
         ssidSet.add("SFUNET-SECURE");
         ssidSet.add("SFUNET");
         ssidSet.add("eduroam");
+        ssidSet.add("TELUS0469");
 
         prefs.edit().putStringSet(Keys.KEY_CONFIG_SSID_SET, ssidSet).apply();
 

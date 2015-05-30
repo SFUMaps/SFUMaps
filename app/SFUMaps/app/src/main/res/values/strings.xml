@@ -21,7 +21,11 @@
 
     <!-- menu strings -->
     <string name="menu_action_record_play">Play</string>
+    <string name="menu_action_record_pause">Pause</string>
+
+    <string name="choose_data_table">Pick a table</string>
     <string name="menu_action_list_tables">List</string>
+    <string name="menu_action_cancel">Cancel</string>
 
 
 
