@@ -8,13 +8,17 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, CLLocationManagerDelegate {
 
     @IBOutlet weak var viewMap: GMSMapView!
     
     @IBOutlet weak var bbFindAddress: UIBarButtonItem!
     
     @IBOutlet weak var lblInfo: UILabel!
+    
+    var locationManager = CLLocationManager()
+    
+    var didFindMyLocation = false
     
     
     override func viewDidLoad() {
@@ -24,6 +28,9 @@ class ViewController: UIViewController {
         let camera: GMSCameraPosition = GMSCameraPosition.cameraWithLatitude(
             49.279014, longitude: -122.916528, zoom: 18.0)
         viewMap.camera = camera
+        
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
         
     }
 
