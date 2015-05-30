@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1E36851461259B15508726D8 /* libPods-SFUMaps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B58BC3BDBB0D9B4EBC824EA /* libPods-SFUMaps.a */; };
 		4128B2BE1B1A5ACA00BD3572 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4128B2BD1B1A5ACA00BD3572 /* AppDelegate.swift */; };
 		4128B2C01B1A5ACA00BD3572 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4128B2BF1B1A5ACA00BD3572 /* ViewController.swift */; };
 		4128B2C31B1A5ACA00BD3572 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4128B2C11B1A5ACA00BD3572 /* Main.storyboard */; };
@@ -26,6 +27,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1D8B277499265FBA735BEA30 /* Pods-SFUMaps.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFUMaps.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps.debug.xcconfig"; sourceTree = "<group>"; };
 		4128B2B81B1A5ACA00BD3572 /* SFUMaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFUMaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4128B2BC1B1A5ACA00BD3572 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4128B2BD1B1A5ACA00BD3572 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -36,6 +38,9 @@
 		4128B2CD1B1A5ACA00BD3572 /* SFUMapsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SFUMapsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4128B2D21B1A5ACA00BD3572 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4128B2D31B1A5ACA00BD3572 /* SFUMapsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFUMapsTests.swift; sourceTree = "<group>"; };
+		414A6ECB1B1A630300942963 /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
+		6B58BC3BDBB0D9B4EBC824EA /* libPods-SFUMaps.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SFUMaps.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D63370A747CA419E1873713 /* Pods-SFUMaps.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFUMaps.release.xcconfig"; path = "Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E36851461259B15508726D8 /* libPods-SFUMaps.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,6 +68,8 @@
 				4128B2BA1B1A5ACA00BD3572 /* SFUMaps */,
 				4128B2D01B1A5ACA00BD3572 /* SFUMapsTests */,
 				4128B2B91B1A5ACA00BD3572 /* Products */,
+				A6C76DCD68F7E1E2E9464E30 /* Pods */,
+				6CCD87211137B56D4B343014 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -83,6 +91,7 @@
 				4128B2C41B1A5ACA00BD3572 /* Images.xcassets */,
 				4128B2C61B1A5ACA00BD3572 /* LaunchScreen.xib */,
 				4128B2BB1B1A5ACA00BD3572 /* Supporting Files */,
+				414A6ECB1B1A630300942963 /* Bridging-Header.h */,
 			);
 			path = SFUMaps;
 			sourceTree = "<group>";
@@ -112,6 +121,23 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		6CCD87211137B56D4B343014 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6B58BC3BDBB0D9B4EBC824EA /* libPods-SFUMaps.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A6C76DCD68F7E1E2E9464E30 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1D8B277499265FBA735BEA30 /* Pods-SFUMaps.debug.xcconfig */,
+				9D63370A747CA419E1873713 /* Pods-SFUMaps.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -119,9 +145,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4128B2D71B1A5ACA00BD3572 /* Build configuration list for PBXNativeTarget "SFUMaps" */;
 			buildPhases = (
+				23DC8C914B647CB4CA118C02 /* Check Pods Manifest.lock */,
 				4128B2B41B1A5ACA00BD3572 /* Sources */,
 				4128B2B51B1A5ACA00BD3572 /* Frameworks */,
 				4128B2B61B1A5ACA00BD3572 /* Resources */,
+				6702460EAEF9D3C4CF8DC1C5 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -206,6 +234,39 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		23DC8C914B647CB4CA118C02 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		6702460EAEF9D3C4CF8DC1C5 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4128B2B41B1A5ACA00BD3572 /* Sources */ = {
@@ -340,21 +401,25 @@
 		};
 		4128B2D81B1A5ACA00BD3572 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1D8B277499265FBA735BEA30 /* Pods-SFUMaps.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = SFUMaps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SFUMaps/Bridging-Header.h";
 			};
 			name = Debug;
 		};
 		4128B2D91B1A5ACA00BD3572 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9D63370A747CA419E1873713 /* Pods-SFUMaps.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = SFUMaps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SFUMaps/Bridging-Header.h";
 			};
 			name = Release;
 		};
@@ -411,6 +476,7 @@
 				4128B2D91B1A5ACA00BD3572 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4128B2DA1B1A5ACA00BD3572 /* Build configuration list for PBXNativeTarget "SFUMapsTests" */ = {
 			isa = XCConfigurationList;
@@ -419,6 +485,7 @@
 				4128B2DC1B1A5ACA00BD3572 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
