@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,8 +47,8 @@ public class RecordWifiDataActivity extends ActionBarActivity {
     EditText recordDataTableInput;
     Handler mHandler = new Handler();
     String inspectingTable;
-    Map<String, String> keepOnTop = new HashMap<>();
     ArrayList<HashMap<String, Object>> inspectingTableData = new ArrayList<>();
+    Map<String, String> keepOnTop = new HashMap<>();
 
     // Activity Modes
     boolean MODE_RECORD_DATA;
@@ -68,11 +69,11 @@ public class RecordWifiDataActivity extends ActionBarActivity {
     private Comparator<WiFiAccessPoint> comparator = new Comparator<WiFiAccessPoint>() {
         @Override
         public int compare(WiFiAccessPoint lhs, WiFiAccessPoint rhs) {
-            if (lhs.isOnTop && !rhs.isOnTop)
-                return -1;
-
             if (!lhs.isOnTop && rhs.isOnTop)
                 return 1;
+
+            if (lhs.isOnTop && !rhs.isOnTop)
+                return -1;
 
             return 0;
         }
@@ -105,9 +106,12 @@ public class RecordWifiDataActivity extends ActionBarActivity {
                 String key = mWifiAPListViewAdapter.getItem(position).BSSID;
                 if (keepOnTop.containsKey(key))
                     keepOnTop.remove(key);
-                else
-                    keepOnTop.put(key, "");
+                else keepOnTop.put(key, "");
 
+                // by doing this we refresh the list view right away
+                // so that the keepOnTop items get updated instantly
+                // rather than having to wait for the next wifi scan to finish
+                manageData(mWifiManager.getScanResults());
             }
         });
 
@@ -120,13 +124,16 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         // reset
         MODE_RECORD_DATA = false;
         MODE_INSPECT_DATA = false;
+
+        setActivityMode();
+
         inspectingTable = null;
         inspectingTableData.clear();
         keepOnTop.clear();
-        recordDataTableInput.setEnabled(true);
-        recordDataTableInput.setText("");
+//        recordDataTableInput.setEnabled(true);
+//        recordDataTableInput.setText("");
 
-        invalidateOptionsMenu();
+//        invalidateOptionsMenu();
 
         manageData(mWifiManager.getScanResults());
 
@@ -174,17 +181,8 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         if (id == R.id.record) {
 
             MODE_RECORD_DATA = !MODE_RECORD_DATA;
-
-            invalidateOptionsMenu();
-
-            recordDataTableInput.setEnabled(!MODE_RECORD_DATA);
-
-            // clear text input after recording finished and enable field
-            if (!MODE_RECORD_DATA) {
-                recordDataTableInput.setText("");
-            }
-
             numScansLeft = TOTAL_SCANS;
+            setActivityMode();
 
             return true;
         }
@@ -199,39 +197,26 @@ public class RecordWifiDataActivity extends ActionBarActivity {
                 final CharSequence tables[] = dataTables.toArray(new CharSequence[dataTables.size()]);
 
                 // create dialog
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(getString(R.string.choose_data_table));
-                builder.setItems(tables, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.choose_data_table))
+                        .setItems(tables, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                        MODE_INSPECT_DATA = true;
+                                MODE_INSPECT_DATA = true;
 
-                        // clear arrays for re-use
-                        inspectingTableData.clear();
+                                inspectingTableData.clear();
+                                inspectingTable = tables[which].toString();
 
-                        inspectingTable = tables[which].toString();
+                                setActivityMode();
 
-                        // disable text field and set title to inspecting table
-                        recordDataTableInput.setText(inspectingTable);
-                        recordDataTableInput.setEnabled(false);
-
-                        invalidateOptionsMenu();
-
-
-                    }
-                }).show();
+                            }
+                        }).show();
 
             } else {
-
                 MODE_INSPECT_DATA = false;
-
-                // clear views and inputs
                 inspectingTable = null;
-                recordDataTableInput.setText("");
-                recordDataTableInput.setEnabled(true);
-
-                invalidateOptionsMenu();
+                setActivityMode();
             }
 
             return true;
@@ -240,66 +225,85 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * takes care of the scanned data, whether to just display it, record it, or inspect it
-     *
-     * @param data
-     */
-    private void manageData(List<ScanResult> data) {
+    public void setActivityMode() {
 
-        if (inspectingTable != null) {
-            inspectTableData(data);
+        Log.i(TAG, "setting top menu");
 
-        } else {
-
-
-            // cache record so we don't abrupt data recording in the middle of the loop
-            boolean localRecordDataFlag = MODE_RECORD_DATA;
-
-            // manage number of scans
-            if (localRecordDataFlag) {
-                getSupportActionBar().setTitle(numScansLeft + "");
-                numScansLeft--;
-
-                // no more scans left
-                if (numScansLeft == 0) {
-                    MODE_RECORD_DATA = false;
-
-                    recordDataTableInput.setText("");
-                    recordDataTableInput.setEnabled(true);
-
-                    invalidateOptionsMenu();
-                }
-            } else {
-                getSupportActionBar().setTitle(getString(R.string.recorder_activity_title));
-            }
-
-
-            mWifiAPListViewAdapter.clear();
-
-            // add data to adapter and if enabled, add to db
-            for (ScanResult res : data) {
-
-                WiFiAccessPoint point = new WiFiAccessPoint(res.SSID, res.BSSID, res.level, res.frequency, -1l, null, null, keepOnTop.containsKey(res.BSSID));
-                mWifiAPListViewAdapter.add(point);
-
-                if (localRecordDataFlag) {
-                    dbManager.addAccessPoint(point, recordDataTableInput.getText().toString());
-                }
-            }
-
-            mWifiAPListViewAdapter.sort(comparator);
-
-            mWifiAPListViewAdapter.notifyDataSetChanged();
+        if (MODE_INSPECT_DATA) {
+            //
+            Log.i(TAG, "inspect data is ON");
+            recordDataTableInput.setEnabled(false);
+            recordDataTableInput.setText(inspectingTable);
         }
 
+        if (MODE_RECORD_DATA) {
+            //
+            Log.i(TAG, "record data is ON");
+            recordDataTableInput.setEnabled(false);
+        }
+
+        if (!MODE_INSPECT_DATA && !MODE_RECORD_DATA) {
+            //
+            Log.i(TAG, "none of the modes are ON");
+
+            getSupportActionBar().setTitle(getString(R.string.recorder_activity_title));
+
+            recordDataTableInput.setText("");
+            recordDataTableInput.setEnabled(true);
+        }
+
+
+        // set menu
+        invalidateOptionsMenu();
     }
 
-    /**
-     * compares scanned data with previously recorded data and displays the union
-     *
-     * @param scannedData
-     */
+    private void manageData(List<ScanResult> data) {
+
+        if (MODE_INSPECT_DATA) {
+            inspectTableData(mWifiManager.getScanResults());
+            return;
+        }
+
+        // cache record so we don't abrupt data recording
+        // in the middle of the loop if the global variable changes
+        boolean localRecordDataFlag = MODE_RECORD_DATA;
+
+        // set activity header
+        if (localRecordDataFlag) {
+            getSupportActionBar().setTitle(numScansLeft + "");
+            numScansLeft--;
+
+            // no more scans left
+            if (numScansLeft == 0) {
+                MODE_RECORD_DATA = false;
+                setActivityMode();
+            }
+        }
+
+
+        mWifiAPListViewAdapter.clear();
+
+        for (ScanResult res : data) {
+
+            WiFiAccessPoint point = new WiFiAccessPoint(res.SSID,
+                    res.BSSID,
+                    res.level,
+                    res.frequency,
+                    System.currentTimeMillis(),
+                    null,
+                    null,
+                    keepOnTop.containsKey(res.BSSID));
+
+            mWifiAPListViewAdapter.add(point);
+
+            if (localRecordDataFlag)
+                dbManager.addAccessPoint(point, recordDataTableInput.getText().toString());
+        }
+
+        mWifiAPListViewAdapter.sort(comparator);
+        mWifiAPListViewAdapter.notifyDataSetChanged();
+    }
+
     private void inspectTableData(List<ScanResult> scannedData) {
 
         mWifiAPListViewAdapter.clear();
@@ -308,6 +312,7 @@ public class RecordWifiDataActivity extends ActionBarActivity {
             // get data
             inspectingTableData = dbManager.getTableData(inspectingTable);
 
+            // clean data
             MapTools.removeDups(inspectingTableData);
 
             // remove unnecessary networks
@@ -326,26 +331,27 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         for (HashMap<String, Object> row : inspectingTableData) {
             for (ScanResult res : scannedData) {
                 if (row.get(Keys.KEY_BSSID).equals(res.BSSID)) {
-
-                    int diff = Math.abs(Integer.parseInt(row.get(Keys.KEY_RSSI).toString()) - res.level);
-                    boolean onTop = keepOnTop.containsKey(res.BSSID);
-
-                    mWifiAPListViewAdapter.add(new WiFiAccessPoint(res.SSID, res.BSSID, res.level, res.frequency, null, diff, Integer.parseInt(row.get(Keys.KEY_RSSI).toString()), onTop));
+                    mWifiAPListViewAdapter.add(
+                            new WiFiAccessPoint(res.SSID,
+                                    res.BSSID,
+                                    res.level,
+                                    res.frequency,
+                                    System.currentTimeMillis(),
+                                    Math.abs(Integer.parseInt(row.get(Keys.KEY_RSSI).toString()) - res.level),
+                                    Integer.parseInt(row.get(Keys.KEY_RSSI).toString()),
+                                    keepOnTop.containsKey(res.BSSID)));
                 }
             }
         }
 
         mWifiAPListViewAdapter.sort(comparator);
-
         mWifiAPListViewAdapter.notifyDataSetChanged();
     }
 
     private class WiFiReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             manageData(mWifiManager.getScanResults());
-
             mHandler.postDelayed(scanner, 0);
         }
     }
