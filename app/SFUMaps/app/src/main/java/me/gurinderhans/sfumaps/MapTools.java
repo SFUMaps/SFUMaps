@@ -8,6 +8,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -46,6 +48,40 @@ public class MapTools {
 
         return separated;
     }
+
+
+    /**
+     * @param input - input data to remove dups from
+     */
+    public static void removeDups(ArrayList<HashMap<String, Object>> input) {
+
+        Collections.sort(input, new Comparator<HashMap<String, Object>>() {
+            @Override
+            public int compare(HashMap<String, Object> lhs, HashMap<String, Object> rhs) {
+                int firstValue = Integer.parseInt(lhs.get(Keys.KEY_RSSI).toString());
+                int secondValue = Integer.parseInt(rhs.get(Keys.KEY_RSSI).toString());
+                return (secondValue < firstValue ? -1 : (secondValue == firstValue ? 0 : 1));
+            }
+        });
+
+        int count = input.size();
+
+        for (int i = 0; i < count; i++) {
+            for (int j = i + 1; j < count; j++) {
+                HashMap<String, Object> a = input.get(i);
+                HashMap<String, Object> b = input.get(j);
+
+                boolean ssid = a.get(Keys.KEY_SSID).equals(b.get(Keys.KEY_SSID));
+                boolean bssid = a.get(Keys.KEY_BSSID).equals(b.get(Keys.KEY_BSSID));
+
+                if (ssid && bssid) {
+                    input.remove(j--);
+                    count--;
+                }
+            }
+        }
+    }
+
 
     /**
      * @param googleMap - the map

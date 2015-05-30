@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:orientation="horizontal"
+    android:weightSum="1">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.7"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/ssid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SSID"
+            android:textColor="#444"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/bssid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BSSID"
+            android:textColor="#444"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/rssiDiff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#444"
+            android:textStyle="bold"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.3"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/rssi"
+            android:layout_width="75dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="end"
+            android:background="@color/recorder_activity_color_dark"
+            android:gravity="center"
+            android:text="Level"
+            android:textColor="#fff"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

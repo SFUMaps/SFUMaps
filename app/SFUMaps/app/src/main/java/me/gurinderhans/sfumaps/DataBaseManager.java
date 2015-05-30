@@ -1,5 +1,6 @@
 package me.gurinderhans.sfumaps;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,32 +14,38 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import me.gurinderhans.sfumaps.wifirecorder.Model.WiFiAccessPoint;
+
 /**
  * Created by ghans on 1/24/15.
  */
 public class DataBaseManager extends SQLiteOpenHelper {
 
-    // TODO: class requires more work - [under construction]
-    // TODO: convert into a singleton
-
     public static final String TAG = DataBaseManager.class.getSimpleName();
 
+    // constants
     public static final String DATABASE_NAME = "WIFI_DATA";
     public static final int DATABASE_VERSION = 1;
     public static final String ASSETS_DATABASE_PATH = "databases/" + DATABASE_NAME;
-
+    public static final String TABLE_NAME = "apsdata";
+    // singleton variable
+    private static DataBaseManager mInstance = null;
+    Context context;
+    // member variables
     private boolean createDb = false, upgradeDb = false;
 
-    Context context;
-
-    /**
-     * @param ctx - application context
-     */
-    public DataBaseManager(Context ctx) {
+    private DataBaseManager(Context ctx) {
         super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = ctx;
     }
 
+    public static DataBaseManager getInstance(Context ctx) {
+
+        if (mInstance == null) {
+            mInstance = new DataBaseManager(ctx);
+        }
+        return mInstance;
+    }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
@@ -66,10 +73,43 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
 
     /**
+     * add an access point to the specified database table
+     * @param point - Access Point
+     * @param tblName - table name to add the access point to
+     */
+    public void addAccessPoint(WiFiAccessPoint point, String tblName) {
+
+        // get a writable database
+        SQLiteDatabase db = getWritableDatabase();
+
+        String table = TABLE_NAME + "_" + tblName;
+
+        String CREATE_CONTACTS_TABLE = "CREATE TABLE IF NOT EXISTS " + table + " (" + Keys.KEY_ROWID + " INTEGER PRIMARY KEY, " +
+                Keys.KEY_SSID + " TEXT, " +
+                Keys.KEY_BSSID + " TEXT, " +
+                Keys.KEY_FREQ + " TEXT, " +
+                Keys.KEY_RSSI + " TEXT, " +
+                Keys.KEY_TIME + " TEXT)";
+        db.execSQL(CREATE_CONTACTS_TABLE);
+
+        ContentValues values = new ContentValues();
+        values.put(Keys.KEY_SSID, point.SSID);
+        values.put(Keys.KEY_BSSID, point.BSSID);
+        values.put(Keys.KEY_RSSI, point.RSSI);
+        values.put(Keys.KEY_FREQ, point.FREQ);
+        values.put(Keys.KEY_TIME, point.TIME);
+
+        // insert row
+        db.insert(table, null, values);
+        db.close(); // Closing database connection
+    }
+
+
+    /**
      * Copies the database file stored in assets folder to the
      * application database location
      *
-     * @param db - application database that we copy our database contents to
+     * @param db - application database that we copy the contents to ( --> )
      */
     private void copyDatabaseFromAssets(SQLiteDatabase db) {
 
@@ -118,7 +158,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
     /**
      * @return - list of all database tables
      */
-    ArrayList<String> getDataTables() {
+    public ArrayList<String> getDataTables() {
 
         SQLiteDatabase db = getReadableDatabase();
         ArrayList<String> tables = new ArrayList<>();
@@ -146,7 +186,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
      * @param tablename - the name of the table that we want the data from
      * @return - the table data
      */
-    ArrayList<HashMap<String, Object>> getTableData(String tablename) {
+    public ArrayList<HashMap<String, Object>> getTableData(String tablename) {
         SQLiteDatabase db = getReadableDatabase();
 
         ArrayList<HashMap<String, Object>> data = new ArrayList<>();

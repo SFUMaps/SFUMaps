@@ -64,7 +64,7 @@ public class DrawRecordedPaths {
     public DrawRecordedPaths(Context ctx, GoogleMap map) {
         this.mMap = map;
 
-        dataBaseManager = new DataBaseManager(ctx);
+        dataBaseManager = DataBaseManager.getInstance(ctx);
 
         for (String dataTable : dataBaseManager.getDataTables()) {
 
