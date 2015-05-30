@@ -130,10 +130,6 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         inspectingTable = null;
         inspectingTableData.clear();
         keepOnTop.clear();
-//        recordDataTableInput.setEnabled(true);
-//        recordDataTableInput.setText("");
-
-//        invalidateOptionsMenu();
 
         manageData(mWifiManager.getScanResults());
 
@@ -268,6 +264,9 @@ public class RecordWifiDataActivity extends ActionBarActivity {
         // in the middle of the loop if the global variable changes
         boolean localRecordDataFlag = MODE_RECORD_DATA;
 
+        // cache table name to avoid name changing during data
+        String cachedTableName = recordDataTableInput.getText().toString();
+
         // set activity header
         if (localRecordDataFlag) {
             getSupportActionBar().setTitle(numScansLeft + "");
@@ -297,7 +296,7 @@ public class RecordWifiDataActivity extends ActionBarActivity {
             mWifiAPListViewAdapter.add(point);
 
             if (localRecordDataFlag)
-                dbManager.addAccessPoint(point, recordDataTableInput.getText().toString());
+                dbManager.addAccessPoint(point, cachedTableName);
         }
 
         mWifiAPListViewAdapter.sort(comparator);
