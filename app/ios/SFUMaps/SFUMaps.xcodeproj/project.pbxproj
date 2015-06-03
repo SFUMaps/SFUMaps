@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C1F24E6C2C281D23ABF13DB /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A008EF1A41FE5DEF4F8C05BF /* libPods.a */; };
 		ADA0E8E61B1ADD0200AFB858 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */; };
 		ADA0E8E81B1ADD0200AFB858 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8E71B1ADD0200AFB858 /* ViewController.swift */; };
 		ADA0E8ED1B1ADD0200AFB858 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADA0E8EC1B1ADD0200AFB858 /* Images.xcassets */; };
 		ADA0E8F01B1ADD0200AFB858 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = ADA0E8EE1B1ADD0200AFB858 /* LaunchScreen.xib */; };
 		ADA0E8FC1B1ADD0300AFB858 /* SFUMapsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8FB1B1ADD0300AFB858 /* SFUMapsTests.swift */; };
 		ADA0E90A1B1BAB9800AFB858 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ADA0E9091B1BAB9800AFB858 /* Main.storyboard */; };
+		BE6D61097747773DA4C58A8D /* libPods-SFUMaps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FE98BADE437F0BEACAC1C6A /* libPods-SFUMaps.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,8 +27,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		62EA54A0E35DA6ACA2AB6B48 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
-		A008EF1A41FE5DEF4F8C05BF /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		11E1A5AAB1005FD983A601EB /* Pods-SFUMaps.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFUMaps.release.xcconfig"; path = "Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps.release.xcconfig"; sourceTree = "<group>"; };
+		4FE98BADE437F0BEACAC1C6A /* libPods-SFUMaps.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SFUMaps.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADA0E8E01B1ADD0200AFB858 /* SFUMaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFUMaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADA0E8E41B1ADD0200AFB858 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -40,7 +40,7 @@
 		ADA0E8FB1B1ADD0300AFB858 /* SFUMapsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFUMapsTests.swift; sourceTree = "<group>"; };
 		ADA0E9051B1B947000AFB858 /* SFUMaps-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SFUMaps-Bridging-Header.h"; sourceTree = "<group>"; };
 		ADA0E9091B1BAB9800AFB858 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
-		CB91C9B8351A8E0D20116E8D /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		F17931545FBBDE043BC4C3B2 /* Pods-SFUMaps.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFUMaps.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,7 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C1F24E6C2C281D23ABF13DB /* libPods.a in Frameworks */,
+				BE6D61097747773DA4C58A8D /* libPods-SFUMaps.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,11 +62,11 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		903CB61D228B3F95F889879B /* Pods */ = {
+		5DB15EDC5CB1C28853CD3D09 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				CB91C9B8351A8E0D20116E8D /* Pods.debug.xcconfig */,
-				62EA54A0E35DA6ACA2AB6B48 /* Pods.release.xcconfig */,
+				F17931545FBBDE043BC4C3B2 /* Pods-SFUMaps.debug.xcconfig */,
+				11E1A5AAB1005FD983A601EB /* Pods-SFUMaps.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -77,8 +77,8 @@
 				ADA0E8E21B1ADD0200AFB858 /* SFUMaps */,
 				ADA0E8F81B1ADD0300AFB858 /* SFUMapsTests */,
 				ADA0E8E11B1ADD0200AFB858 /* Products */,
-				903CB61D228B3F95F889879B /* Pods */,
 				EF9ADD84724AA2207A9314D3 /* Frameworks */,
+				5DB15EDC5CB1C28853CD3D09 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -133,7 +133,7 @@
 		EF9ADD84724AA2207A9314D3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A008EF1A41FE5DEF4F8C05BF /* libPods.a */,
+				4FE98BADE437F0BEACAC1C6A /* libPods-SFUMaps.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -263,7 +263,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -393,7 +393,7 @@
 		};
 		ADA0E9001B1ADD0300AFB858 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CB91C9B8351A8E0D20116E8D /* Pods.debug.xcconfig */;
+			baseConfigurationReference = F17931545FBBDE043BC4C3B2 /* Pods-SFUMaps.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -407,7 +407,7 @@
 		};
 		ADA0E9011B1ADD0300AFB858 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 62EA54A0E35DA6ACA2AB6B48 /* Pods.release.xcconfig */;
+			baseConfigurationReference = 11E1A5AAB1005FD983A601EB /* Pods-SFUMaps.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
