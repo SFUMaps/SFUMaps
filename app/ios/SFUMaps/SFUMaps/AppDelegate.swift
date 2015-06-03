@@ -2,8 +2,8 @@
 //  AppDelegate.swift
 //  SFUMaps
 //
-//  Created by Gurinder Hans on 2015-05-30.
-//  Copyright (c) 2015 ghans. All rights reserved.
+//  Created by Raja Noronha on 2015-05-30.
+//  Copyright (c) 2015 Bosco Noronha. All rights reserved.
 //
 
 import UIKit
@@ -15,10 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        
-        // register google maps key
+        // Override point for customization after application launch.
         GMSServices.provideAPIKey("AIzaSyATozdll-2bfkeR0jVcQ4CPhfuUAAyXmAo")
-        
         return true
     }
 

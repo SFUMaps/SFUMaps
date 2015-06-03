@@ -2,36 +2,70 @@
 //  ViewController.swift
 //  SFUMaps
 //
-//  Created by Gurinder Hans on 2015-05-30.
-//  Copyright (c) 2015 ghans. All rights reserved.
+//  Created by Raja Noronha on 2015-05-30.
+//  Copyright (c) 2015 Bosco Noronha. All rights reserved.
 //
 
 import UIKit
 
-class ViewController: UIViewController {
-
+class ViewController: UIViewController, CLLocationManagerDelegate {
+    
+    @IBOutlet weak var viewMap: GMSMapView!
+    
+    @IBOutlet weak var myLocation: UIButton!
+    
+ 
+    var locationManager = CLLocationManager()
+    
+    var didFindMyLocation = false
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
         
-        // load map
-        var camera = GMSCameraPosition.cameraWithLatitude(-33.86,
-            longitude: 151.20, zoom: 6)
-        var mapView = GMSMapView.mapWithFrame(CGRectZero, camera: camera)
-//        mapView.myLocationEnabled = true
+        //SFU AQ location
+        super.viewDidLoad()
+        var camera = GMSCameraPosition.cameraWithLatitude(49.279014, longitude: -122.916528, zoom: 18.0)
+        
+        var mapView = GMSMapView.mapWithFrame(CGRectZero, camera:camera)
         self.view = mapView
         
-        var marker = GMSMarker()
-        marker.position = CLLocationCoordinate2DMake(-33.86, 151.20)
-        marker.title = "Sydney"
-        marker.snippet = "Australia"
-        marker.map = mapView
+        
+        
     }
-
+    
+    
+    
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    
+    // MARK: IBAction method implementation
+    
+    @IBAction func changeMapType(sender: AnyObject) {
 
+        
+    }
+    
+    
+    @IBAction func findAddress(sender: AnyObject) {
+        
+    }
+    
+    
+    @IBAction func createRoute(sender: AnyObject) {
+        
+    }
+    
+    
+    @IBAction func changeTravelMode(sender: AnyObject) {
+        
+    }
+    
 
 }
 

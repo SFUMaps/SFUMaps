@@ -7,52 +7,52 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1E36851461259B15508726D8 /* libPods-SFUMaps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B58BC3BDBB0D9B4EBC824EA /* libPods-SFUMaps.a */; };
-		4128B2BE1B1A5ACA00BD3572 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4128B2BD1B1A5ACA00BD3572 /* AppDelegate.swift */; };
-		4128B2C01B1A5ACA00BD3572 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4128B2BF1B1A5ACA00BD3572 /* ViewController.swift */; };
-		4128B2C31B1A5ACA00BD3572 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4128B2C11B1A5ACA00BD3572 /* Main.storyboard */; };
-		4128B2C51B1A5ACA00BD3572 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4128B2C41B1A5ACA00BD3572 /* Images.xcassets */; };
-		4128B2C81B1A5ACA00BD3572 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4128B2C61B1A5ACA00BD3572 /* LaunchScreen.xib */; };
-		4128B2D41B1A5ACA00BD3572 /* SFUMapsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4128B2D31B1A5ACA00BD3572 /* SFUMapsTests.swift */; };
+		4C1F24E6C2C281D23ABF13DB /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A008EF1A41FE5DEF4F8C05BF /* libPods.a */; };
+		ADA0E8E61B1ADD0200AFB858 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */; };
+		ADA0E8E81B1ADD0200AFB858 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8E71B1ADD0200AFB858 /* ViewController.swift */; };
+		ADA0E8ED1B1ADD0200AFB858 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADA0E8EC1B1ADD0200AFB858 /* Images.xcassets */; };
+		ADA0E8F01B1ADD0200AFB858 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = ADA0E8EE1B1ADD0200AFB858 /* LaunchScreen.xib */; };
+		ADA0E8FC1B1ADD0300AFB858 /* SFUMapsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8FB1B1ADD0300AFB858 /* SFUMapsTests.swift */; };
+		ADA0E90A1B1BAB9800AFB858 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ADA0E9091B1BAB9800AFB858 /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		4128B2CE1B1A5ACA00BD3572 /* PBXContainerItemProxy */ = {
+		ADA0E8F61B1ADD0300AFB858 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 4128B2B01B1A5ACA00BD3572 /* Project object */;
+			containerPortal = ADA0E8D81B1ADD0200AFB858 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 4128B2B71B1A5ACA00BD3572;
+			remoteGlobalIDString = ADA0E8DF1B1ADD0200AFB858;
 			remoteInfo = SFUMaps;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1D8B277499265FBA735BEA30 /* Pods-SFUMaps.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFUMaps.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps.debug.xcconfig"; sourceTree = "<group>"; };
-		4128B2B81B1A5ACA00BD3572 /* SFUMaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFUMaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4128B2BC1B1A5ACA00BD3572 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4128B2BD1B1A5ACA00BD3572 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		4128B2BF1B1A5ACA00BD3572 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		4128B2C21B1A5ACA00BD3572 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		4128B2C41B1A5ACA00BD3572 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		4128B2C71B1A5ACA00BD3572 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		4128B2CD1B1A5ACA00BD3572 /* SFUMapsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SFUMapsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4128B2D21B1A5ACA00BD3572 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4128B2D31B1A5ACA00BD3572 /* SFUMapsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFUMapsTests.swift; sourceTree = "<group>"; };
-		414A6ECB1B1A630300942963 /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
-		6B58BC3BDBB0D9B4EBC824EA /* libPods-SFUMaps.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SFUMaps.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9D63370A747CA419E1873713 /* Pods-SFUMaps.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFUMaps.release.xcconfig"; path = "Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps.release.xcconfig"; sourceTree = "<group>"; };
+		62EA54A0E35DA6ACA2AB6B48 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		A008EF1A41FE5DEF4F8C05BF /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADA0E8E01B1ADD0200AFB858 /* SFUMaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFUMaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADA0E8E41B1ADD0200AFB858 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		ADA0E8E71B1ADD0200AFB858 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		ADA0E8EC1B1ADD0200AFB858 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		ADA0E8EF1B1ADD0200AFB858 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		ADA0E8F51B1ADD0300AFB858 /* SFUMapsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SFUMapsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		ADA0E8FA1B1ADD0300AFB858 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ADA0E8FB1B1ADD0300AFB858 /* SFUMapsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFUMapsTests.swift; sourceTree = "<group>"; };
+		ADA0E9051B1B947000AFB858 /* SFUMaps-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SFUMaps-Bridging-Header.h"; sourceTree = "<group>"; };
+		ADA0E9091B1BAB9800AFB858 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		CB91C9B8351A8E0D20116E8D /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		4128B2B51B1A5ACA00BD3572 /* Frameworks */ = {
+		ADA0E8DD1B1ADD0200AFB858 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1E36851461259B15508726D8 /* libPods-SFUMaps.a in Frameworks */,
+				4C1F24E6C2C281D23ABF13DB /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4128B2CA1B1A5ACA00BD3572 /* Frameworks */ = {
+		ADA0E8F21B1ADD0300AFB858 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -62,94 +62,94 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4128B2AF1B1A5ACA00BD3572 = {
+		903CB61D228B3F95F889879B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				4128B2BA1B1A5ACA00BD3572 /* SFUMaps */,
-				4128B2D01B1A5ACA00BD3572 /* SFUMapsTests */,
-				4128B2B91B1A5ACA00BD3572 /* Products */,
-				A6C76DCD68F7E1E2E9464E30 /* Pods */,
-				6CCD87211137B56D4B343014 /* Frameworks */,
+				CB91C9B8351A8E0D20116E8D /* Pods.debug.xcconfig */,
+				62EA54A0E35DA6ACA2AB6B48 /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		ADA0E8D71B1ADD0200AFB858 = {
+			isa = PBXGroup;
+			children = (
+				ADA0E8E21B1ADD0200AFB858 /* SFUMaps */,
+				ADA0E8F81B1ADD0300AFB858 /* SFUMapsTests */,
+				ADA0E8E11B1ADD0200AFB858 /* Products */,
+				903CB61D228B3F95F889879B /* Pods */,
+				EF9ADD84724AA2207A9314D3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		4128B2B91B1A5ACA00BD3572 /* Products */ = {
+		ADA0E8E11B1ADD0200AFB858 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4128B2B81B1A5ACA00BD3572 /* SFUMaps.app */,
-				4128B2CD1B1A5ACA00BD3572 /* SFUMapsTests.xctest */,
+				ADA0E8E01B1ADD0200AFB858 /* SFUMaps.app */,
+				ADA0E8F51B1ADD0300AFB858 /* SFUMapsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4128B2BA1B1A5ACA00BD3572 /* SFUMaps */ = {
+		ADA0E8E21B1ADD0200AFB858 /* SFUMaps */ = {
 			isa = PBXGroup;
 			children = (
-				4128B2BD1B1A5ACA00BD3572 /* AppDelegate.swift */,
-				4128B2BF1B1A5ACA00BD3572 /* ViewController.swift */,
-				4128B2C11B1A5ACA00BD3572 /* Main.storyboard */,
-				4128B2C41B1A5ACA00BD3572 /* Images.xcassets */,
-				4128B2C61B1A5ACA00BD3572 /* LaunchScreen.xib */,
-				4128B2BB1B1A5ACA00BD3572 /* Supporting Files */,
-				414A6ECB1B1A630300942963 /* Bridging-Header.h */,
+				ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */,
+				ADA0E8E71B1ADD0200AFB858 /* ViewController.swift */,
+				ADA0E8EC1B1ADD0200AFB858 /* Images.xcassets */,
+				ADA0E9091B1BAB9800AFB858 /* Main.storyboard */,
+				ADA0E8EE1B1ADD0200AFB858 /* LaunchScreen.xib */,
+				ADA0E8E31B1ADD0200AFB858 /* Supporting Files */,
+				ADA0E9051B1B947000AFB858 /* SFUMaps-Bridging-Header.h */,
 			);
 			path = SFUMaps;
 			sourceTree = "<group>";
 		};
-		4128B2BB1B1A5ACA00BD3572 /* Supporting Files */ = {
+		ADA0E8E31B1ADD0200AFB858 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				4128B2BC1B1A5ACA00BD3572 /* Info.plist */,
+				ADA0E8E41B1ADD0200AFB858 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		4128B2D01B1A5ACA00BD3572 /* SFUMapsTests */ = {
+		ADA0E8F81B1ADD0300AFB858 /* SFUMapsTests */ = {
 			isa = PBXGroup;
 			children = (
-				4128B2D31B1A5ACA00BD3572 /* SFUMapsTests.swift */,
-				4128B2D11B1A5ACA00BD3572 /* Supporting Files */,
+				ADA0E8FB1B1ADD0300AFB858 /* SFUMapsTests.swift */,
+				ADA0E8F91B1ADD0300AFB858 /* Supporting Files */,
 			);
 			path = SFUMapsTests;
 			sourceTree = "<group>";
 		};
-		4128B2D11B1A5ACA00BD3572 /* Supporting Files */ = {
+		ADA0E8F91B1ADD0300AFB858 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				4128B2D21B1A5ACA00BD3572 /* Info.plist */,
+				ADA0E8FA1B1ADD0300AFB858 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		6CCD87211137B56D4B343014 /* Frameworks */ = {
+		EF9ADD84724AA2207A9314D3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6B58BC3BDBB0D9B4EBC824EA /* libPods-SFUMaps.a */,
+				A008EF1A41FE5DEF4F8C05BF /* libPods.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		A6C76DCD68F7E1E2E9464E30 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				1D8B277499265FBA735BEA30 /* Pods-SFUMaps.debug.xcconfig */,
-				9D63370A747CA419E1873713 /* Pods-SFUMaps.release.xcconfig */,
-			);
-			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4128B2B71B1A5ACA00BD3572 /* SFUMaps */ = {
+		ADA0E8DF1B1ADD0200AFB858 /* SFUMaps */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4128B2D71B1A5ACA00BD3572 /* Build configuration list for PBXNativeTarget "SFUMaps" */;
+			buildConfigurationList = ADA0E8FF1B1ADD0300AFB858 /* Build configuration list for PBXNativeTarget "SFUMaps" */;
 			buildPhases = (
-				23DC8C914B647CB4CA118C02 /* Check Pods Manifest.lock */,
-				4128B2B41B1A5ACA00BD3572 /* Sources */,
-				4128B2B51B1A5ACA00BD3572 /* Frameworks */,
-				4128B2B61B1A5ACA00BD3572 /* Resources */,
-				6702460EAEF9D3C4CF8DC1C5 /* Copy Pods Resources */,
+				4288C0146024766426ED8BC1 /* Check Pods Manifest.lock */,
+				ADA0E8DC1B1ADD0200AFB858 /* Sources */,
+				ADA0E8DD1B1ADD0200AFB858 /* Frameworks */,
+				ADA0E8DE1B1ADD0200AFB858 /* Resources */,
+				9A536E828564CF7B09B6119A /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -157,46 +157,46 @@
 			);
 			name = SFUMaps;
 			productName = SFUMaps;
-			productReference = 4128B2B81B1A5ACA00BD3572 /* SFUMaps.app */;
+			productReference = ADA0E8E01B1ADD0200AFB858 /* SFUMaps.app */;
 			productType = "com.apple.product-type.application";
 		};
-		4128B2CC1B1A5ACA00BD3572 /* SFUMapsTests */ = {
+		ADA0E8F41B1ADD0300AFB858 /* SFUMapsTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4128B2DA1B1A5ACA00BD3572 /* Build configuration list for PBXNativeTarget "SFUMapsTests" */;
+			buildConfigurationList = ADA0E9021B1ADD0300AFB858 /* Build configuration list for PBXNativeTarget "SFUMapsTests" */;
 			buildPhases = (
-				4128B2C91B1A5ACA00BD3572 /* Sources */,
-				4128B2CA1B1A5ACA00BD3572 /* Frameworks */,
-				4128B2CB1B1A5ACA00BD3572 /* Resources */,
+				ADA0E8F11B1ADD0300AFB858 /* Sources */,
+				ADA0E8F21B1ADD0300AFB858 /* Frameworks */,
+				ADA0E8F31B1ADD0300AFB858 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				4128B2CF1B1A5ACA00BD3572 /* PBXTargetDependency */,
+				ADA0E8F71B1ADD0300AFB858 /* PBXTargetDependency */,
 			);
 			name = SFUMapsTests;
 			productName = SFUMapsTests;
-			productReference = 4128B2CD1B1A5ACA00BD3572 /* SFUMapsTests.xctest */;
+			productReference = ADA0E8F51B1ADD0300AFB858 /* SFUMapsTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		4128B2B01B1A5ACA00BD3572 /* Project object */ = {
+		ADA0E8D81B1ADD0200AFB858 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0630;
-				ORGANIZATIONNAME = ghans;
+				ORGANIZATIONNAME = "Bosco Noronha";
 				TargetAttributes = {
-					4128B2B71B1A5ACA00BD3572 = {
+					ADA0E8DF1B1ADD0200AFB858 = {
 						CreatedOnToolsVersion = 6.3.2;
 					};
-					4128B2CC1B1A5ACA00BD3572 = {
+					ADA0E8F41B1ADD0300AFB858 = {
 						CreatedOnToolsVersion = 6.3.2;
-						TestTargetID = 4128B2B71B1A5ACA00BD3572;
+						TestTargetID = ADA0E8DF1B1ADD0200AFB858;
 					};
 				};
 			};
-			buildConfigurationList = 4128B2B31B1A5ACA00BD3572 /* Build configuration list for PBXProject "SFUMaps" */;
+			buildConfigurationList = ADA0E8DB1B1ADD0200AFB858 /* Build configuration list for PBXProject "SFUMaps" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -204,29 +204,29 @@
 				en,
 				Base,
 			);
-			mainGroup = 4128B2AF1B1A5ACA00BD3572;
-			productRefGroup = 4128B2B91B1A5ACA00BD3572 /* Products */;
+			mainGroup = ADA0E8D71B1ADD0200AFB858;
+			productRefGroup = ADA0E8E11B1ADD0200AFB858 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4128B2B71B1A5ACA00BD3572 /* SFUMaps */,
-				4128B2CC1B1A5ACA00BD3572 /* SFUMapsTests */,
+				ADA0E8DF1B1ADD0200AFB858 /* SFUMaps */,
+				ADA0E8F41B1ADD0300AFB858 /* SFUMapsTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		4128B2B61B1A5ACA00BD3572 /* Resources */ = {
+		ADA0E8DE1B1ADD0200AFB858 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4128B2C31B1A5ACA00BD3572 /* Main.storyboard in Resources */,
-				4128B2C81B1A5ACA00BD3572 /* LaunchScreen.xib in Resources */,
-				4128B2C51B1A5ACA00BD3572 /* Images.xcassets in Resources */,
+				ADA0E90A1B1BAB9800AFB858 /* Main.storyboard in Resources */,
+				ADA0E8F01B1ADD0200AFB858 /* LaunchScreen.xib in Resources */,
+				ADA0E8ED1B1ADD0200AFB858 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4128B2CB1B1A5ACA00BD3572 /* Resources */ = {
+		ADA0E8F31B1ADD0300AFB858 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -236,7 +236,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		23DC8C914B647CB4CA118C02 /* Check Pods Manifest.lock */ = {
+		4288C0146024766426ED8BC1 /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -251,7 +251,7 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		6702460EAEF9D3C4CF8DC1C5 /* Copy Pods Resources */ = {
+		9A536E828564CF7B09B6119A /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -263,52 +263,44 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		4128B2B41B1A5ACA00BD3572 /* Sources */ = {
+		ADA0E8DC1B1ADD0200AFB858 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4128B2C01B1A5ACA00BD3572 /* ViewController.swift in Sources */,
-				4128B2BE1B1A5ACA00BD3572 /* AppDelegate.swift in Sources */,
+				ADA0E8E81B1ADD0200AFB858 /* ViewController.swift in Sources */,
+				ADA0E8E61B1ADD0200AFB858 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4128B2C91B1A5ACA00BD3572 /* Sources */ = {
+		ADA0E8F11B1ADD0300AFB858 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4128B2D41B1A5ACA00BD3572 /* SFUMapsTests.swift in Sources */,
+				ADA0E8FC1B1ADD0300AFB858 /* SFUMapsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		4128B2CF1B1A5ACA00BD3572 /* PBXTargetDependency */ = {
+		ADA0E8F71B1ADD0300AFB858 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4128B2B71B1A5ACA00BD3572 /* SFUMaps */;
-			targetProxy = 4128B2CE1B1A5ACA00BD3572 /* PBXContainerItemProxy */;
+			target = ADA0E8DF1B1ADD0200AFB858 /* SFUMaps */;
+			targetProxy = ADA0E8F61B1ADD0300AFB858 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		4128B2C11B1A5ACA00BD3572 /* Main.storyboard */ = {
+		ADA0E8EE1B1ADD0200AFB858 /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				4128B2C21B1A5ACA00BD3572 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		4128B2C61B1A5ACA00BD3572 /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4128B2C71B1A5ACA00BD3572 /* Base */,
+				ADA0E8EF1B1ADD0200AFB858 /* Base */,
 			);
 			name = LaunchScreen.xib;
 			sourceTree = "<group>";
@@ -316,7 +308,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		4128B2D51B1A5ACA00BD3572 /* Debug */ = {
+		ADA0E8FD1B1ADD0300AFB858 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -361,7 +353,7 @@
 			};
 			name = Debug;
 		};
-		4128B2D61B1A5ACA00BD3572 /* Release */ = {
+		ADA0E8FE1B1ADD0300AFB858 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -399,31 +391,34 @@
 			};
 			name = Release;
 		};
-		4128B2D81B1A5ACA00BD3572 /* Debug */ = {
+		ADA0E9001B1ADD0300AFB858 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1D8B277499265FBA735BEA30 /* Pods-SFUMaps.debug.xcconfig */;
+			baseConfigurationReference = CB91C9B8351A8E0D20116E8D /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = SFUMaps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "SFUMaps/Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "SFUMaps/SFUMaps-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
-		4128B2D91B1A5ACA00BD3572 /* Release */ = {
+		ADA0E9011B1ADD0300AFB858 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9D63370A747CA419E1873713 /* Pods-SFUMaps.release.xcconfig */;
+			baseConfigurationReference = 62EA54A0E35DA6ACA2AB6B48 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = SFUMaps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "SFUMaps/Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "SFUMaps/SFUMaps-Bridging-Header.h";
 			};
 			name = Release;
 		};
-		4128B2DB1B1A5ACA00BD3572 /* Debug */ = {
+		ADA0E9031B1ADD0300AFB858 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -442,7 +437,7 @@
 			};
 			name = Debug;
 		};
-		4128B2DC1B1A5ACA00BD3572 /* Release */ = {
+		ADA0E9041B1ADD0300AFB858 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -460,34 +455,34 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4128B2B31B1A5ACA00BD3572 /* Build configuration list for PBXProject "SFUMaps" */ = {
+		ADA0E8DB1B1ADD0200AFB858 /* Build configuration list for PBXProject "SFUMaps" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				4128B2D51B1A5ACA00BD3572 /* Debug */,
-				4128B2D61B1A5ACA00BD3572 /* Release */,
+				ADA0E8FD1B1ADD0300AFB858 /* Debug */,
+				ADA0E8FE1B1ADD0300AFB858 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4128B2D71B1A5ACA00BD3572 /* Build configuration list for PBXNativeTarget "SFUMaps" */ = {
+		ADA0E8FF1B1ADD0300AFB858 /* Build configuration list for PBXNativeTarget "SFUMaps" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				4128B2D81B1A5ACA00BD3572 /* Debug */,
-				4128B2D91B1A5ACA00BD3572 /* Release */,
+				ADA0E9001B1ADD0300AFB858 /* Debug */,
+				ADA0E9011B1ADD0300AFB858 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4128B2DA1B1A5ACA00BD3572 /* Build configuration list for PBXNativeTarget "SFUMapsTests" */ = {
+		ADA0E9021B1ADD0300AFB858 /* Build configuration list for PBXNativeTarget "SFUMapsTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				4128B2DB1B1A5ACA00BD3572 /* Debug */,
-				4128B2DC1B1A5ACA00BD3572 /* Release */,
+				ADA0E9031B1ADD0300AFB858 /* Debug */,
+				ADA0E9041B1ADD0300AFB858 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 4128B2B01B1A5ACA00BD3572 /* Project object */;
+	rootObject = ADA0E8D81B1ADD0200AFB858 /* Project object */;
 }

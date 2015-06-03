@@ -1,10 +1,10 @@
 PODS:
-  - GoogleMaps (1.10.0)
+  - Google-Maps-iOS-SDK (1.9.2)
 
 DEPENDENCIES:
-  - GoogleMaps
+  - Google-Maps-iOS-SDK
 
 SPEC CHECKSUMS:
-  GoogleMaps: 8eafd25b658a6401ca45a185700716c4a9e9edf2
+  Google-Maps-iOS-SDK: 4c008abdb68e03ae125c7f674be841d369e2b3de
 
 COCOAPODS: 0.37.2
