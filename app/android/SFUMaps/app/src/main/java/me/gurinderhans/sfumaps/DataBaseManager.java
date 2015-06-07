@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import me.gurinderhans.sfumaps.wifirecorder.Model.WiFiAccessPoint;
+import me.gurinderhans.sfumaps.Factory.WiFiAccessPoint;
 
 /**
  * Created by ghans on 1/24/15.

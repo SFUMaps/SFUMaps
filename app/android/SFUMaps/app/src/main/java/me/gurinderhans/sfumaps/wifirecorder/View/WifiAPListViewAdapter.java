@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import me.gurinderhans.sfumaps.Factory.WiFiAccessPoint;
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.wifirecorder.Model.WiFiAccessPoint;
 
 /**
  * Created by ghans on 15-05-28.
@@ -16,8 +16,6 @@ import me.gurinderhans.sfumaps.wifirecorder.Model.WiFiAccessPoint;
 public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
 
     public static final String TAG = WifiAPListViewAdapter.class.getSimpleName();
-
-    // member variables
     Context context;
 
     public WifiAPListViewAdapter(Context ctx) {
