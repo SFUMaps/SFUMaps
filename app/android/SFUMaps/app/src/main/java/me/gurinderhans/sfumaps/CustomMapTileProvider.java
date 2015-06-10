@@ -1,13 +1,26 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Picture;
+import android.graphics.RectF;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
+import com.larvalabs.svgandroid.SVG;
+import com.larvalabs.svgandroid.SVGBuilder;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by ghans on 1/17/15.
@@ -89,3 +102,4 @@ public class CustomMapTileProvider implements TileProvider {
     }
 
 }
+

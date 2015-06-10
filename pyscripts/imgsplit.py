@@ -66,7 +66,7 @@ def main( dims ):
     basedir = os.path.dirname(imgpath)
     for i in zoomlvls:
         thisImgPath=imgpath
-        sz = (2**i)*256
+        sz = (2**i)*256 # img size dimensions
         if sz != dims[0]:
             rImg = Img.resize( (sz, sz) )
             thisImgPath = basedir+'/'+str(sz)+'_'+fname

@@ -38,8 +38,8 @@ public class Campus {
         String mName;
         PointF startPoint;
         PointF endPoint;
-        List<Street> streets;
-        List<Avenue> avenues;
+//        List<Street> streets;
+//        List<Avenue> avenues;
 
         public Building(String name) {
             this.mName = name;

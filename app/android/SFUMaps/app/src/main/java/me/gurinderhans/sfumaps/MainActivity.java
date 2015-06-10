@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,7 +21,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
+import com.jakewharton.disklrucache.DiskLruCache;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,17 +42,15 @@ public class MainActivity extends FragmentActivity {
     Runnable wifiScanner; // runs the system wifi scan
 
     // google maps
-
     GoogleMap Map;
     Marker userNavMarker; // marks users current location
 
     // reference to our custom class that draws recorded paths
-
     DrawRecordedPaths drawRecordedPaths;
 
     // TEMP: for debugging
-
     TextView infoBox;
+    private DiskLruCache mTileCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +60,15 @@ public class MainActivity extends FragmentActivity {
         // load app preferences
         AppConfig.loadPreferences(getApplicationContext());
 
-        // start activity
-        this.startActivity(new Intent(this, RecordWifiDataActivity.class));
+        (findViewById(R.id.backend_panel)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // start activity
+                startActivity(new Intent(getApplicationContext(), RecordWifiDataActivity.class));
+            }
+        });
 
-//
+
 //        // load wifi manager, reciever, handler to handle wifi scans
 //        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 //        mHandler = new Handler();
@@ -75,9 +82,8 @@ public class MainActivity extends FragmentActivity {
 //            }
 //        };
 
-
         // init map
-//        setUpMapIfNeeded();
+        setUpMapIfNeeded();
 
         // info box to show stuff for dev purporses
 //        infoBox = (TextView) findViewById(R.id.infoBox);
@@ -107,20 +113,50 @@ public class MainActivity extends FragmentActivity {
      */
     private void setUpMap() {
 
-        Map.setMapType(GoogleMap.MAP_TYPE_NONE); // hide the default google maps overlay
-        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0f, 0f), 2.0f)); // set the camera to (0,0) with zoom=2
+//        Map.setMapType(GoogleMap.MAP_TYPE_NONE); // hide the default google maps overlay
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.783107, -122.403789), 2.0f)); // set the camera to (0,0) with zoom=2
 
         // here we add our own tile overlay with custom image tiles
-        Map.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
+//        Map.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
+
+        MapTools.copyTileAsset(this, "floor1-2015-v1.svg");
+
+//        Log.i(TAG, "file dir: " + getFilesDir());
+
+        mTileCache = MapTools.openDiskCache(this);
+        mTileCache = null;
+
+        Log.i(TAG, "tile cache: " + mTileCache);
+
+        TileProvider provider;
+        try {
+            SVGTileProvider svgProvider = new SVGTileProvider(MapTools.getTileFile(getApplicationContext(), "floor1-2015-v1.svg"), getResources().getDisplayMetrics().densityDpi / 160f);
+            if (mTileCache == null) {
+                // Use the SVGTileProvider directly as the TileProvider without a cache
+                provider = svgProvider;
+                Log.i(TAG, "using SVG provider");
+            } else {
+                // Wrap the SVGTileProvider ina a CachedTileProvider for caching on disk
+                provider = new CachedTileProvider(Integer.toString(0), svgProvider, mTileCache);
+                Log.i(TAG, "using cache provider");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Could not create Tile Provider.");
+            return;
+        }
+
+        Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+
 
         // hide the marker toolbar - the two buttons on the bottom right that go to google maps
         Map.getUiSettings().setMapToolbarEnabled(false);
 
         // draw our recorded paths
-        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
+//        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
 
         // just put the user navigation marker in the center as we don't yet know user's location
-        LatLng mapCenter = MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
+        LatLng mapCenter = new LatLng(37.783107, -122.403789);//MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
         userNavMarker = Map.addMarker(new MarkerOptions()
                 .position(mapCenter)
                 .title("Position")
@@ -152,7 +188,7 @@ public class MainActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
 
-//        setUpMapIfNeeded();
+        setUpMapIfNeeded();
 
 //        mHandler.postDelayed(wifiScanner, 0); // start scanner
     }
@@ -207,13 +243,11 @@ public class MainActivity extends FragmentActivity {
 
 //            ArrayList<HashMap<String, Object>> bestMatch = DrawRecordedPaths.allAPs.get(bestMatchBSSID);
 
-            for (HashMap<String, Object> ap: DrawRecordedPaths.specialAPs) {
+            for (HashMap<String, Object> ap : DrawRecordedPaths.specialAPs) {
                 if (ap.get(Keys.KEY_BSSID).equals(bestMatchBSSID)) {
                     userNavMarker.setPosition(MercatorProjection.fromPointToLatLng((PointF) ap.get(Keys.KEY_POINT)));
                 }
             }
-
-
 
 
 //            ArrayList<PointF> matchedPoints = new ArrayList<>();
@@ -247,6 +281,4 @@ public class MainActivity extends FragmentActivity {
 
         }
     }
-
-
 }

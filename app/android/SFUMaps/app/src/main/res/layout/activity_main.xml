@@ -11,14 +11,15 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity" />
 
-    <ScrollView
+    <ImageButton
+        android:id="@+id/backend_panel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="180px">
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/infoBox"/>
-    </ScrollView>
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:src="@drawable/ic_adb_white_24dp" />
 
 </RelativeLayout>
