@@ -34,7 +34,9 @@ public class MainActivity extends FragmentActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
-    // system classes that provide access to the wifi scanner
+
+    // TODO: either disable indoor map of real life buildings on map, or simply don't allow that much zooming in
+
 
     WifiManager wifiManager; // system service that handles wifi
     WifiReceiver wifiReceiver; // broadcast receiver that listens for wifi scans and gets back the results
@@ -113,15 +115,13 @@ public class MainActivity extends FragmentActivity {
      */
     private void setUpMap() {
 
-//        Map.setMapType(GoogleMap.MAP_TYPE_NONE); // hide the default google maps overlay
-        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.783107, -122.403789), 2.0f)); // set the camera to (0,0) with zoom=2
+        Map.setMapType(GoogleMap.MAP_TYPE_NONE); // hide the default google maps overlay
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 3f)); // set the camera to (0,0) with zoom=3
 
         // here we add our own tile overlay with custom image tiles
 //        Map.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
 
         MapTools.copyTileAsset(this, "floor1-2015-v1.svg");
-
-//        Log.i(TAG, "file dir: " + getFilesDir());
 
         mTileCache = MapTools.openDiskCache(this);
         mTileCache = null;
@@ -134,11 +134,9 @@ public class MainActivity extends FragmentActivity {
             if (mTileCache == null) {
                 // Use the SVGTileProvider directly as the TileProvider without a cache
                 provider = svgProvider;
-                Log.i(TAG, "using SVG provider");
             } else {
                 // Wrap the SVGTileProvider ina a CachedTileProvider for caching on disk
                 provider = new CachedTileProvider(Integer.toString(0), svgProvider, mTileCache);
-                Log.i(TAG, "using cache provider");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -147,7 +145,6 @@ public class MainActivity extends FragmentActivity {
         }
 
         Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
-
 
         // hide the marker toolbar - the two buttons on the bottom right that go to google maps
         Map.getUiSettings().setMapToolbarEnabled(false);

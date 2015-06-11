@@ -52,18 +52,10 @@ public class SVGTileProvider implements TileProvider {
         RectF limits = svg.getLimits();
 
         mBaseMatrix = new Matrix();
-        mBaseMatrix.setPolyToPoly(
-                new float[]{
-                        0, 0,
-                        limits.width(), 0,
-                        limits.width(), limits.height()
-                }, 0,
-                new float[]{
-                        40.95635986328125f, 98.94217824936158f,
-                        40.95730018615723f, 98.94123077396628f,
-                        40.95791244506836f, 98.94186019897214f
-                }, 0, 3
-        );
+
+        // scale svg to fit screen - FIXME: is this device independent ?
+        mBaseMatrix.setScale(0.25f,0.25f);
+
     }
 
     @Override
