@@ -27,11 +27,12 @@ import java.util.List;
 public class MapTools {
 
     public static final String TAG = MapTools.class.getSimpleName();
+
+
     public static final String TILE_PATH = "maptiles";
     private static final int MAX_DISK_CACHE_BYTES = 1024 * 1024 * 2; // 2MB
-    // TODO: Class under construction
-    /* SVG Tile Provider */
-    private static String[] mapTileAssets;
+
+    private static String[] mapTileAssets; // tile assets list cache
 
     // empty constructor
     private MapTools() {
@@ -109,11 +110,6 @@ public class MapTools {
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
     }
 
-
-    //
-    // SVG TILE PROVIDER Methods
-    //
-
     /**
      * @param points - list of points
      * @return - return the centroid point (mean value)
@@ -139,7 +135,7 @@ public class MapTools {
      */
     public static boolean hasTileAsset(Context context, String filename) {
 
-        //cache the list of available files
+        // cache the list of available files
         if (mapTileAssets == null) {
             try {
                 mapTileAssets = context.getAssets().list(TILE_PATH);
@@ -198,11 +194,14 @@ public class MapTools {
         return new File(folder, filename);
     }
 
+    /**
+     * @param mContext  - application context
+     * @param usedTiles - list of tiles to remove
+     */
     public static void removeUnusedTiles(Context mContext, final ArrayList<String> usedTiles) {
         // remove all files are stored in the tile path but are not used
         File folder = new File(mContext.getFilesDir(), TILE_PATH);
         File[] unused = folder.listFiles(new FilenameFilter() {
-
             @Override
             public boolean accept(File dir, String filename) {
                 return !usedTiles.contains(filename);
@@ -216,17 +215,13 @@ public class MapTools {
         }
     }
 
-    public static boolean hasTile(Context mContext, String filename) {
-        return getTileFile(mContext, filename).exists();
-    }
-
 
     //
     // LRU Cache
     //
 
     public static DiskLruCache openDiskCache(Context c) {
-        File cacheDir = new File(c.getCacheDir(), "tiles");
+        File cacheDir = new File(c.getCacheDir(), TILE_PATH);
         try {
             return DiskLruCache.open(cacheDir, 1, 3, MAX_DISK_CACHE_BYTES);
         } catch (IOException e) {

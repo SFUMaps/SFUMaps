@@ -18,7 +18,7 @@ import java.io.OutputStream;
  */
 public class CachedTileProvider implements TileProvider {
 
-    private static final String TAG = SVGTileProvider.class.getSimpleName();
+    private static final String TAG = CachedTileProvider.class.getSimpleName();
 
     private static final String KEY_FORMAT = "%d_%d_%d_%s";
 

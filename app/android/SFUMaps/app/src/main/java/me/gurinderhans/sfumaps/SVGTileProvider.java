@@ -37,13 +37,12 @@ public class SVGTileProvider implements TileProvider {
     private final int mDimension;
 
     private final List<File> mTileFiles;
-    private File mNoTileFile;
 
     /**
      * NOTE: must use a synchronize block when using {@link android.graphics.Picture#draw(android.graphics.Canvas)}
      */
     private Picture mSvgPicture;
-    private File mCurrentSvgFile;
+    private String mCurrentSvgFileName;
 
     public SVGTileProvider(List<File> files, float dpi) throws IOException {
         mScale = Math.round(dpi + .3f); // Make it look nice on N7 (1.3 dpi)
@@ -52,18 +51,12 @@ public class SVGTileProvider implements TileProvider {
         mPool = new TileGeneratorPool(POOL_MAX_SIZE);
 
         mTileFiles = files;
+        mCurrentSvgFileName = files.get(0).getName();
 
         SVG svg = new SVGBuilder().readFromInputStream(new FileInputStream(files.get(0))).build();
         mSvgPicture = svg.getPicture();
         mBaseMatrix = new Matrix();
 
-        mCurrentSvgFile = files.get(0);
-
-        // set no tile file
-        for (File f : mTileFiles) {
-            if (f.getName().equals("not_found.svg"))
-                mNoTileFile = f;
-        }
 
         // scale svg to fit screen
         mBaseMatrix.setScale(0.25f, 0.25f);
@@ -75,7 +68,6 @@ public class SVGTileProvider implements TileProvider {
         TileGenerator tileGenerator = mPool.get();
         byte[] tileData = tileGenerator.getTileImageData(x, y, zoom);
         mPool.restore(tileGenerator);
-        Log.i(TAG, "svg provider get tile");
         return new Tile(mDimension, mDimension, tileData);
     }
 
@@ -118,19 +110,15 @@ public class SVGTileProvider implements TileProvider {
 
             try {
                 // check if the correct svg is assigned as of now
-                if (!mCurrentSvgFile.getName().split("-")[1].equals(zoom + "")) {
+                if (!mCurrentSvgFileName.split("-")[1].equals(zoom + "")) {
                     // replace with the correct version
 
                     for (File f : mTileFiles) {
                         if (f.getName().split("-")[1].equals(zoom + "")) {
                             mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(f)).build().getPicture();
-                            mCurrentSvgFile = f;
-                            Log.i(TAG, "set svg: " + f.getName());
+                            mCurrentSvgFileName = f.getName();
+                            Log.i(TAG, "set svg to: " + f.getName());
                             break;
-                        } else {
-                            // handle stuff here...
-                            mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(mNoTileFile)).build().getPicture();
-                            mCurrentSvgFile = mNoTileFile;
                         }
                     }
                 }

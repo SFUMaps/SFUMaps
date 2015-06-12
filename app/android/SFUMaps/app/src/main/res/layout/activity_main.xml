@@ -20,6 +20,6 @@
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
-        android:src="@drawable/ic_adb_white_24dp" />
+        android:src="@drawable/ic_adb_black_24dp" />
 
 </RelativeLayout>

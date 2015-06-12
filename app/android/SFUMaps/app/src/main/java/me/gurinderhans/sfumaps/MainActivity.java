@@ -1,24 +1,14 @@
 package me.gurinderhans.sfumaps;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.PointF;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -26,11 +16,7 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity;
 
@@ -38,24 +24,13 @@ public class MainActivity extends FragmentActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
-
     // TODO: either disable indoor map of real life buildings on map, or simply don't allow that much zooming in
-
-
-    WifiManager wifiManager; // system service that handles wifi
-    WifiReceiver wifiReceiver; // broadcast receiver that listens for wifi scans and gets back the results
-    Handler mHandler; // handler for initiating a wifi scan
-    Runnable wifiScanner; // runs the system wifi scan
 
     // google maps
     GoogleMap Map;
     Marker userNavMarker; // marks users current location
 
-    // reference to our custom class that draws recorded paths
-    DrawRecordedPaths drawRecordedPaths;
-
-    // TEMP: for debugging
-    TextView infoBox;
+    // tile provider cache
     private DiskLruCache mTileCache;
 
     @Override
@@ -69,31 +44,12 @@ public class MainActivity extends FragmentActivity {
         (findViewById(R.id.backend_panel)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // start activity
                 startActivity(new Intent(getApplicationContext(), RecordWifiDataActivity.class));
             }
         });
 
-
-//        // load wifi manager, reciever, handler to handle wifi scans
-//        wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-//        mHandler = new Handler();
-//        wifiReceiver = new WifiReceiver();
-//
-//        // create the runnable to handle scans
-//        wifiScanner = new Runnable() {
-//            @Override
-//            public void run() {
-//                wifiManager.startScan();
-//            }
-//        };
-
         // init map
         setUpMapIfNeeded();
-
-        // info box to show stuff for dev purporses
-//        infoBox = (TextView) findViewById(R.id.infoBox);
-
     }
 
     /**
@@ -114,7 +70,7 @@ public class MainActivity extends FragmentActivity {
     /**
      * - define map settings
      * - set custom map tiles
-     * - TODO: figure out user's initial location here
+     * - TODO: get user's initial location here
      * - draw the recorded paths here
      */
     private void setUpMap() {
@@ -135,7 +91,7 @@ public class MainActivity extends FragmentActivity {
                 // Use the SVGTileProvider directly as the TileProvider without a cache
                 provider = svgProvider;
             } else {
-                // Wrap the SVGTileProvider ina a CachedTileProvider for caching on disk
+                // Wrap the SVGTileProvider in a CachedTileProvider for caching on disk
                 provider = new CachedTileProvider(Integer.toString(0), svgProvider, mTileCache);
             }
         } catch (IOException e) {
@@ -176,106 +132,16 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
-        // register receiver
-        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         setUpMapIfNeeded();
-
-//        mHandler.postDelayed(wifiScanner, 0); // start scanner
     }
 
     @Override
     public void onPause() {
         super.onPause();
-    }
-
-    String getBestMatch(List<ScanResult> scanResults) {
-        HashMap<String, Object> bestAP = new HashMap<>();
-
-        int minDiff = Integer.MAX_VALUE;
-        String apBSSID = "";
-
-        for (ScanResult result : scanResults) {
-            int scanRSSI = result.level;
-            for (HashMap<String, Object> ap : DrawRecordedPaths.specialAPs) {
-                if (ap.get(Keys.KEY_BSSID).equals(result.BSSID)) {
-                    int recordedRSSI = Integer.parseInt(ap.get(Keys.KEY_RSSI) + "");
-                    int diff = Math.abs(scanRSSI - recordedRSSI);
-
-                    if (diff < minDiff) {
-                        minDiff = diff;
-                        apBSSID = result.BSSID;
-                    }
-
-                }
-            }
-        }
-
-        return apBSSID;
-    }
-
-    boolean isInRange(int min, int max, int value) {
-        return (value >= min && value <= max);
-    }
-
-    // broadcast receiver for knowing when the wifi scan finishes
-    private class WifiReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context c, Intent intent) {
-
-            List<ScanResult> scanResults = wifiManager.getScanResults();
-
-            StringBuilder seenAPs = new StringBuilder("");
-            String bestMatchBSSID = getBestMatch(scanResults);
-
-            seenAPs.append(DrawRecordedPaths.allAPs.get(bestMatchBSSID).get(0).get(Keys.KEY_SSID));
-            seenAPs.append(",");
-            seenAPs.append(bestMatchBSSID);
-
-//            ArrayList<HashMap<String, Object>> bestMatch = DrawRecordedPaths.allAPs.get(bestMatchBSSID);
-
-            for (HashMap<String, Object> ap : DrawRecordedPaths.specialAPs) {
-                if (ap.get(Keys.KEY_BSSID).equals(bestMatchBSSID)) {
-                    userNavMarker.setPosition(MercatorProjection.fromPointToLatLng((PointF) ap.get(Keys.KEY_POINT)));
-                }
-            }
-
-
-//            ArrayList<PointF> matchedPoints = new ArrayList<>();
-//            for(ScanResult res: scanResults) {
-//                if (res.BSSID.equals(bestMatchBSSID)) {
-//                    // figure out further location from bestMatchBSSID
-//                    for (HashMap<String, Object> match : bestMatch) {
-//                        int recordedRSSI = Integer.parseInt(match.get(Keys.KEY_RSSI)+"");
-//                        if (isInRange(recordedRSSI - 1, recordedRSSI +1, res.level)) {
-//                            matchedPoints.add((PointF) match.get(Keys.KEY_POINT));
-//                        }
-//                    }
-//                }
-//            }
-//
-//            Log.i(TAG, "matched size: " + matchedPoints.size());
-//
-//            // for now we assume user's position is the centroid of all points
-//            if (matchedPoints.size() > 0) {
-//                PointF centroid = MapTools.getCentroid(matchedPoints);
-//                Log.i(TAG, "loc computed: " + centroid);
-//                userNavMarker.setPosition(MercatorProjection.fromPointToLatLng(centroid));
-//            }
-
-
-//            Toast.makeText(getApplicationContext(), "Scan finished", Toast.LENGTH_SHORT).show();
-            infoBox.setText(seenAPs);
-
-            // scan again
-            mHandler.postDelayed(wifiScanner, 0);
-
-        }
     }
 }
