@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by ghans on 2/9/15.
@@ -26,7 +27,8 @@ import java.util.HashMap;
 public class MapTools {
 
     public static final String TAG = MapTools.class.getSimpleName();
-    private static final String TILE_PATH = "maptiles";
+    public static final String TILE_PATH = "maptiles";
+    private static final int MAX_DISK_CACHE_BYTES = 1024 * 1024 * 2; // 2MB
     // TODO: Class under construction
     /* SVG Tile Provider */
     private static String[] mapTileAssets;
@@ -107,6 +109,11 @@ public class MapTools {
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
     }
 
+
+    //
+    // SVG TILE PROVIDER Methods
+    //
+
     /**
      * @param points - list of points
      * @return - return the centroid point (mean value)
@@ -127,11 +134,6 @@ public class MapTools {
         return new PointF(Sx, Sy);
     }
 
-
-    //
-    // SVG TILE PROVIDER Methods
-    //
-
     /**
      * Returns true if the given tile file exists as a local asset.
      */
@@ -140,7 +142,7 @@ public class MapTools {
         //cache the list of available files
         if (mapTileAssets == null) {
             try {
-                mapTileAssets = context.getAssets().list("maptiles");
+                mapTileAssets = context.getAssets().list(TILE_PATH);
             } catch (IOException e) {
                 // no assets
                 mapTileAssets = new String[0];
@@ -196,7 +198,6 @@ public class MapTools {
         return new File(folder, filename);
     }
 
-
     public static void removeUnusedTiles(Context mContext, final ArrayList<String> usedTiles) {
         // remove all files are stored in the tile path but are not used
         File folder = new File(mContext.getFilesDir(), TILE_PATH);
@@ -224,8 +225,6 @@ public class MapTools {
     // LRU Cache
     //
 
-    private static final int MAX_DISK_CACHE_BYTES = 1024 * 1024 * 2; // 2MB
-
     public static DiskLruCache openDiskCache(Context c) {
         File cacheDir = new File(c.getCacheDir(), "tiles");
         try {
@@ -248,6 +247,28 @@ public class MapTools {
                 // ignore
             }
         }
+    }
+
+    public static List<File> getTileFiles(Context c) {
+
+        List<File> tileFiles = new ArrayList<>();
+
+        try {
+            String[] files = c.getAssets().list(MapTools.TILE_PATH);
+
+            // copy tiles to application cache dir and add fetch file object
+            for (String fl : files) {
+                if (MapTools.copyTileAsset(c, fl)) {
+                    tileFiles.add(MapTools.getTileFile(c, fl));
+                    Log.i(TAG, "copied: " + fl + " to files dir && " + "added: " + fl + " to tileFiles list");
+                }
+            }
+
+        } catch (IOException e) {
+            // unable to list assets folder, return empty array
+            Log.i(TAG, "unable to list assets directory");
+        }
+        return tileFiles;
     }
 
 

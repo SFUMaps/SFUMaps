@@ -79,7 +79,7 @@ public class CachedTileProvider implements TileProvider {
 
     private static byte[] readStreamAsByteArray(InputStream inputStream) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int read;
+        int read = 0;
         byte[] data = new byte[1024];
         try {
             while ((read = inputStream.read(data, 0, data.length)) != -1) {
@@ -123,8 +123,6 @@ public class CachedTileProvider implements TileProvider {
                 Log.d(TAG, "Added tile to cache " + key);
             }
         }
-
-        Log.i(TAG, "returned tile: " + tile.toString());
         return tile;
     }
 

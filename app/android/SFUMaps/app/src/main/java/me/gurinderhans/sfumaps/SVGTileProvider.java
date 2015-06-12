@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Picture;
-import android.graphics.RectF;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.Tile;
@@ -37,12 +36,14 @@ public class SVGTileProvider implements TileProvider {
     private final int mScale;
     private final int mDimension;
 
-    private List<File> svgLayers;
+    private final List<File> mTileFiles;
+    private File mNoTileFile;
 
     /**
      * NOTE: must use a synchronize block when using {@link android.graphics.Picture#draw(android.graphics.Canvas)}
      */
     private Picture mSvgPicture;
+    private File mCurrentSvgFile;
 
     public SVGTileProvider(List<File> files, float dpi) throws IOException {
         mScale = Math.round(dpi + .3f); // Make it look nice on N7 (1.3 dpi)
@@ -50,14 +51,22 @@ public class SVGTileProvider implements TileProvider {
 
         mPool = new TileGeneratorPool(POOL_MAX_SIZE);
 
-        svgLayers = files;
+        mTileFiles = files;
 
         SVG svg = new SVGBuilder().readFromInputStream(new FileInputStream(files.get(0))).build();
         mSvgPicture = svg.getPicture();
         mBaseMatrix = new Matrix();
 
+        mCurrentSvgFile = files.get(0);
+
+        // set no tile file
+        for (File f : mTileFiles) {
+            if (f.getName().equals("not_found.svg"))
+                mNoTileFile = f;
+        }
+
         // scale svg to fit screen
-        mBaseMatrix.setScale(0.25f,0.25f);
+        mBaseMatrix.setScale(0.25f, 0.25f);
 
     }
 
@@ -71,7 +80,7 @@ public class SVGTileProvider implements TileProvider {
     }
 
     private class TileGeneratorPool {
-        private final ConcurrentLinkedQueue<TileGenerator> mPool = new ConcurrentLinkedQueue<TileGenerator>();
+        private final ConcurrentLinkedQueue<TileGenerator> mPool = new ConcurrentLinkedQueue<>();
         private final int mMaxSize;
 
         private TileGeneratorPool(int maxSize) {
@@ -106,17 +115,31 @@ public class SVGTileProvider implements TileProvider {
         }
 
         public byte[] getTileImageData(int x, int y, int zoom) {
-            mStream.reset();
 
-            if (zoom == 4) {
+            try {
+                // check if the correct svg is assigned as of now
+                if (!mCurrentSvgFile.getName().split("-")[1].equals(zoom + "")) {
+                    // replace with the correct version
 
-                try {
-                    SVG svg = new SVGBuilder().readFromInputStream(new FileInputStream(svgLayers.get(1))).build();
-                    mSvgPicture = svg.getPicture();
-                } catch (Exception e) {
-                    // TODO: do shit here...
+                    for (File f : mTileFiles) {
+                        if (f.getName().split("-")[1].equals(zoom + "")) {
+                            mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(f)).build().getPicture();
+                            mCurrentSvgFile = f;
+                            Log.i(TAG, "set svg: " + f.getName());
+                            break;
+                        } else {
+                            // handle stuff here...
+                            mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(mNoTileFile)).build().getPicture();
+                            mCurrentSvgFile = mNoTileFile;
+                        }
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+
+            mStream.reset();
 
             Matrix matrix = new Matrix(mBaseMatrix);
             float scale = (float) (Math.pow(2, zoom) * mScale);

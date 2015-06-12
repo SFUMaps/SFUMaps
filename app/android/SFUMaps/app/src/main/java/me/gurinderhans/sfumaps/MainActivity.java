@@ -16,7 +16,9 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -118,28 +120,17 @@ public class MainActivity extends FragmentActivity {
     private void setUpMap() {
 
         Map.setMapType(GoogleMap.MAP_TYPE_NONE); // hide the default google maps overlay
-        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 1f)); // set the camera to (0,0) with zoom=3
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 1f)); // set the camera to (0,0) with zoom=1
+
 
         // here we add our own tile overlay with custom image tiles
-//        Map.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
 
-
-
-        MapTools.copyTileAsset(this, "sfu.svg");
-        MapTools.copyTileAsset(this, "floor1-2015-v1.svg");
-
-//        mTileCache = MapTools.openDiskCache(this);
-        mTileCache = null;
-
-        Log.i(TAG, "tile cache: " + mTileCache);
+        mTileCache = MapTools.openDiskCache(this);
 
         TileProvider provider;
         try {
-            List<File> files = new ArrayList<>();
-            files.add(MapTools.getTileFile(getApplicationContext(), "sfu.svg"));
-            files.add(MapTools.getTileFile(getApplicationContext(), "floor1-2015-v1.svg"));
 
-            SVGTileProvider svgProvider = new SVGTileProvider(files, getResources().getDisplayMetrics().densityDpi / 160f);
+            SVGTileProvider svgProvider = new SVGTileProvider(MapTools.getTileFiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
             if (mTileCache == null) {
                 // Use the SVGTileProvider directly as the TileProvider without a cache
                 provider = svgProvider;
@@ -162,7 +153,7 @@ public class MainActivity extends FragmentActivity {
 //        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
 
         // just put the user navigation marker in the center as we don't yet know user's location
-        LatLng mapCenter = new LatLng(37.783107, -122.403789);//MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
+        LatLng mapCenter = new LatLng(0, 0);//MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
         userNavMarker = Map.addMarker(new MarkerOptions()
                 .position(mapCenter)
                 .title("Position")
