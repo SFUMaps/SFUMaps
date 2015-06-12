@@ -24,7 +24,9 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -116,21 +118,28 @@ public class MainActivity extends FragmentActivity {
     private void setUpMap() {
 
         Map.setMapType(GoogleMap.MAP_TYPE_NONE); // hide the default google maps overlay
-        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 3f)); // set the camera to (0,0) with zoom=3
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 1f)); // set the camera to (0,0) with zoom=3
 
         // here we add our own tile overlay with custom image tiles
 //        Map.addTileOverlay(new TileOverlayOptions().tileProvider(new CustomMapTileProvider(getResources().getAssets())));
 
+
+
+        MapTools.copyTileAsset(this, "sfu.svg");
         MapTools.copyTileAsset(this, "floor1-2015-v1.svg");
 
-        mTileCache = MapTools.openDiskCache(this);
+//        mTileCache = MapTools.openDiskCache(this);
         mTileCache = null;
 
         Log.i(TAG, "tile cache: " + mTileCache);
 
         TileProvider provider;
         try {
-            SVGTileProvider svgProvider = new SVGTileProvider(MapTools.getTileFile(getApplicationContext(), "floor1-2015-v1.svg"), getResources().getDisplayMetrics().densityDpi / 160f);
+            List<File> files = new ArrayList<>();
+            files.add(MapTools.getTileFile(getApplicationContext(), "sfu.svg"));
+            files.add(MapTools.getTileFile(getApplicationContext(), "floor1-2015-v1.svg"));
+
+            SVGTileProvider svgProvider = new SVGTileProvider(files, getResources().getDisplayMetrics().densityDpi / 160f);
             if (mTileCache == null) {
                 // Use the SVGTileProvider directly as the TileProvider without a cache
                 provider = svgProvider;

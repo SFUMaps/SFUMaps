@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -36,24 +37,26 @@ public class SVGTileProvider implements TileProvider {
     private final int mScale;
     private final int mDimension;
 
+    private List<File> svgLayers;
+
     /**
      * NOTE: must use a synchronize block when using {@link android.graphics.Picture#draw(android.graphics.Canvas)}
      */
-    private final Picture mSvgPicture;
+    private Picture mSvgPicture;
 
-    public SVGTileProvider(File file, float dpi) throws IOException {
+    public SVGTileProvider(List<File> files, float dpi) throws IOException {
         mScale = Math.round(dpi + .3f); // Make it look nice on N7 (1.3 dpi)
         mDimension = BASE_TILE_SIZE * mScale;
 
         mPool = new TileGeneratorPool(POOL_MAX_SIZE);
 
-        SVG svg = new SVGBuilder().readFromInputStream(new FileInputStream(file)).build();
-        mSvgPicture = svg.getPicture();
-        RectF limits = svg.getLimits();
+        svgLayers = files;
 
+        SVG svg = new SVGBuilder().readFromInputStream(new FileInputStream(files.get(0))).build();
+        mSvgPicture = svg.getPicture();
         mBaseMatrix = new Matrix();
 
-        // scale svg to fit screen - FIXME: is this device independent ?
+        // scale svg to fit screen
         mBaseMatrix.setScale(0.25f,0.25f);
 
     }
@@ -104,6 +107,16 @@ public class SVGTileProvider implements TileProvider {
 
         public byte[] getTileImageData(int x, int y, int zoom) {
             mStream.reset();
+
+            if (zoom == 4) {
+
+                try {
+                    SVG svg = new SVGBuilder().readFromInputStream(new FileInputStream(svgLayers.get(1))).build();
+                    mSvgPicture = svg.getPicture();
+                } catch (Exception e) {
+                    // TODO: do shit here...
+                }
+            }
 
             Matrix matrix = new Matrix(mBaseMatrix);
             float scale = (float) (Math.pow(2, zoom) * mScale);
