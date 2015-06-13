@@ -8,7 +8,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by ghans on 2/9/15.
@@ -215,56 +213,25 @@ public class MapTools {
         }
     }
 
+    public static HashMap<String, File> getTileFiles(Context c) {
 
-    //
-    // LRU Cache
-    //
-
-    public static DiskLruCache openDiskCache(Context c) {
-        File cacheDir = new File(c.getCacheDir(), TILE_PATH);
-        try {
-            return DiskLruCache.open(cacheDir, 1, 3, MAX_DISK_CACHE_BYTES);
-        } catch (IOException e) {
-            Log.e(TAG, "Couldn't open disk cache.");
-
-        }
-        return null;
-    }
-
-    public static void clearDiskCache(Context c) {
-        DiskLruCache cache = openDiskCache(c);
-        if (cache != null) {
-            try {
-                Log.d(TAG, "Clearing map tile disk cache");
-                cache.delete();
-                cache.close();
-            } catch (IOException e) {
-                // ignore
-            }
-        }
-    }
-
-    public static List<File> getTileFiles(Context c) {
-
-        List<File> tileFiles = new ArrayList<>();
+        HashMap<String, File> tileFiles = new HashMap<>();
 
         try {
             String[] files = c.getAssets().list(MapTools.TILE_PATH);
 
-            // copy tiles to application cache dir and add fetch file object
-            for (String fl : files) {
-                if (MapTools.copyTileAsset(c, fl)) {
-                    tileFiles.add(MapTools.getTileFile(c, fl));
-                    Log.i(TAG, "copied: " + fl + " to files dir && " + "added: " + fl + " to tileFiles list");
+            for (String f : files) {
+                if (copyTileAsset(c, f)) {
+                    String zoomLvl = f.split("-")[SVGTileProvider.FILE_NAME_ZOOM_LVL_INDEX];
+                    tileFiles.put(zoomLvl, getTileFile(c, f));
+                    Log.i(TAG, "copied: " + f + " to files dir && " + "added: " + f + " to tileFiles list");
                 }
             }
 
         } catch (IOException e) {
-            // unable to list assets folder, return empty array
             Log.i(TAG, "unable to list assets directory");
         }
         return tileFiles;
     }
-
 
 }

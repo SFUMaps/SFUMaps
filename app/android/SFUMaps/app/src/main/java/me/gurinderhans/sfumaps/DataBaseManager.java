@@ -74,7 +74,8 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
     /**
      * add an access point to the specified database table
-     * @param point - Access Point
+     *
+     * @param point   - Access Point
      * @param tblName - table name to add the access point to
      */
     public void addAccessPoint(WiFiAccessPoint point, String tblName) {

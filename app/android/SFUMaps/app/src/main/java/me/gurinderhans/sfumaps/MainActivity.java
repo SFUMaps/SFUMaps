@@ -9,12 +9,12 @@ import android.view.View;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
-import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.IOException;
 
@@ -27,18 +27,14 @@ public class MainActivity extends FragmentActivity {
     // TODO: either disable indoor map of real life buildings on map, or simply don't allow that much zooming in
 
     // google maps
-    GoogleMap Map;
-    Marker userNavMarker; // marks users current location
-
-    // tile provider cache
-    private DiskLruCache mTileCache;
+    private GoogleMap Map;
+    private Marker userNavMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // load app preferences
         AppConfig.loadPreferences(getApplicationContext());
 
         (findViewById(R.id.backend_panel)).setOnClickListener(new View.OnClickListener() {
@@ -48,7 +44,6 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
-        // init map
         setUpMapIfNeeded();
     }
 
@@ -70,43 +65,37 @@ public class MainActivity extends FragmentActivity {
     /**
      * - define map settings
      * - set custom map tiles
-     * - TODO: get user's initial location here
+     * - get user's initial location here
      * - draw the recorded paths here
      */
     private void setUpMap() {
 
-        Map.setMapType(GoogleMap.MAP_TYPE_NONE); // hide the default google maps overlay
-        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 1f)); // set the camera to (0,0) with zoom=1
+        // hide default overlay and set initial position
+        Map.setMapType(GoogleMap.MAP_TYPE_NONE);
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 1f));
 
-
-        // here we add our own tile overlay with custom image tiles
-
-        mTileCache = MapTools.openDiskCache(this);
-
-        TileProvider provider;
-        try {
-
-            SVGTileProvider svgProvider = new SVGTileProvider(MapTools.getTileFiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
-            if (mTileCache == null) {
-                // Use the SVGTileProvider directly as the TileProvider without a cache
-                provider = svgProvider;
-            } else {
-                // Wrap the SVGTileProvider in a CachedTileProvider for caching on disk
-                provider = new CachedTileProvider(Integer.toString(0), svgProvider, mTileCache);
+        // set max zoom for map
+        Map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                float maxZoom = 7.0f;
+                if (cameraPosition.zoom > maxZoom)
+                    Map.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
             }
+        });
+
+        // add custom overlay
+        try {
+            TileProvider provider = new SVGTileProvider(MapTools.getTileFiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
+            Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
         } catch (IOException e) {
             e.printStackTrace();
             Log.d(TAG, "Could not create Tile Provider.");
             return;
         }
 
-        Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
-
         // hide the marker toolbar - the two buttons on the bottom right that go to google maps
         Map.getUiSettings().setMapToolbarEnabled(false);
-
-        // draw our recorded paths
-//        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
 
         // just put the user navigation marker in the center as we don't yet know user's location
         LatLng mapCenter = new LatLng(0, 0);//MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
@@ -131,6 +120,9 @@ public class MainActivity extends FragmentActivity {
                 marker.setSnippet(MercatorProjection.fromLatLngToPoint(marker.getPosition()).toString());
             }
         });
+
+        // draw our recorded paths
+//        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
 
     }
 

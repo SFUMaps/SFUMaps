@@ -6,10 +6,10 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Picture;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
-import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.BufferedOutputStream;
@@ -17,14 +17,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by ghans on 15-06-07.
  */
 public class SVGTileProvider implements TileProvider {
-    private static final String TAG = SVGTileProvider.class.getSimpleName();
+
+    public static final String TAG = SVGTileProvider.class.getSimpleName();
+
+    // map tile asset name info indices
+    public static final int FILE_NAME_ZOOM_LVL_INDEX = 0;
+    public static final int FILE_NAME_FLOOR_LEVEL_INDEX = 1;
+
 
     private static final int POOL_MAX_SIZE = 5;
     private static final int BASE_TILE_SIZE = 256;
@@ -36,30 +42,21 @@ public class SVGTileProvider implements TileProvider {
     private final int mScale;
     private final int mDimension;
 
-    private final List<File> mTileFiles;
+    private final HashMap<String, File> mTileFiles;
+    Pair<String, File> mPreviousSVG;
 
-    /**
-     * NOTE: must use a synchronize block when using {@link android.graphics.Picture#draw(android.graphics.Canvas)}
-     */
     private Picture mSvgPicture;
-    private String mCurrentSvgFileName;
 
-    public SVGTileProvider(List<File> files, float dpi) throws IOException {
+    public SVGTileProvider(HashMap<String, File> files, float dpi) throws IOException {
         mScale = Math.round(dpi + .3f); // Make it look nice on N7 (1.3 dpi)
         mDimension = BASE_TILE_SIZE * mScale;
-
         mPool = new TileGeneratorPool(POOL_MAX_SIZE);
-
         mTileFiles = files;
-        mCurrentSvgFileName = files.get(0).getName();
 
-        SVG svg = new SVGBuilder().readFromInputStream(new FileInputStream(files.get(0))).build();
-        mSvgPicture = svg.getPicture();
+        mPreviousSVG = new Pair<>("-1", null);
+
         mBaseMatrix = new Matrix();
-
-
-        // scale svg to fit screen
-        mBaseMatrix.setScale(0.25f, 0.25f);
+        mBaseMatrix.setScale(0.25f, 0.25f); // scale svg to fit screen
 
     }
 
@@ -107,28 +104,24 @@ public class SVGTileProvider implements TileProvider {
         }
 
         public byte[] getTileImageData(int x, int y, int zoom) {
-
             try {
-                // check if the correct svg is assigned as of now
-                if (!mCurrentSvgFileName.split("-")[1].equals(zoom + "")) {
-                    // replace with the correct version
-
-                    for (File f : mTileFiles) {
-                        if (f.getName().split("-")[1].equals(zoom + "")) {
-                            mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(f)).build().getPicture();
-                            mCurrentSvgFileName = f.getName();
-                            Log.i(TAG, "set svg to: " + f.getName());
-                            break;
-                        }
+                // check if the svg hasn't been updated for this zoom level
+                if (!mPreviousSVG.first.equals(zoom + "")) {
+                    File f = mTileFiles.get(zoom + "");
+                    if (f != null) {
+                        mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(f)).build().getPicture();
+                        mPreviousSVG = new Pair<>(f.getName().split("-")[FILE_NAME_ZOOM_LVL_INDEX], f);
+                        Log.i(TAG, "set svg to: " + mPreviousSVG.second);
+                    } else {
+                        // just load the last loaded svg
+                        mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(mPreviousSVG.second)).build().getPicture();
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-
             mStream.reset();
-
             Matrix matrix = new Matrix(mBaseMatrix);
             float scale = (float) (Math.pow(2, zoom) * mScale);
             matrix.postScale(scale, scale);
@@ -138,10 +131,7 @@ public class SVGTileProvider implements TileProvider {
             Canvas c = new Canvas(mBitmap);
             c.setMatrix(matrix);
 
-            // NOTE: Picture is not thread-safe.
-            synchronized (mSvgPicture) {
-                mSvgPicture.draw(c);
-            }
+            mSvgPicture.draw(c);
 
             BufferedOutputStream stream = new BufferedOutputStream(mStream);
             mBitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);

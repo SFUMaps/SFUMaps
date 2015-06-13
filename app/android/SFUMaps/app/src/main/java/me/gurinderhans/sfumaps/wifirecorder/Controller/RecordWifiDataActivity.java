@@ -28,10 +28,10 @@ import java.util.Map;
 
 import me.gurinderhans.sfumaps.AppConfig;
 import me.gurinderhans.sfumaps.DataBaseManager;
+import me.gurinderhans.sfumaps.Factory.WiFiAccessPoint;
 import me.gurinderhans.sfumaps.Keys;
 import me.gurinderhans.sfumaps.MapTools;
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.Factory.WiFiAccessPoint;
 import me.gurinderhans.sfumaps.wifirecorder.View.WifiAPListViewAdapter;
 
 public class RecordWifiDataActivity extends ActionBarActivity {

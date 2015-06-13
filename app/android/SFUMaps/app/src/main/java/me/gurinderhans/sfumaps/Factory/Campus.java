@@ -21,7 +21,7 @@ public class Campus {
         this.campusName = name;
         this.startPoint = new PointF(58.12f, 54.5f);
         this.endPoint = new PointF(201.11f, 201.0f);
-        Log.i(TAG, (endPoint.x-startPoint.x)+", "+(endPoint.y-startPoint.y)+"");
+        Log.i(TAG, (endPoint.x - startPoint.x) + ", " + (endPoint.y - startPoint.y) + "");
 
         // buildings will be pulled out of a database or something
 //        createBuildings(Arrays.asList("AQ", "ASB", "TASC1", "TASC2"));

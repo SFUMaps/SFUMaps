@@ -11,17 +11,24 @@ public class Tree<T> {
 
     // TODO: Won't be getting to this for a while
 
+    private static final int indent = 2;
     private T head;
-
     private ArrayList<Tree<T>> leafs = new ArrayList<>();
-
     private Tree<T> parent = null;
-
     private HashMap<T, Tree<T>> locate = new HashMap<>();
 
     public Tree(T head) {
         this.head = head;
         locate.put(head, this);
+    }
+
+    public static <T> Collection<T> getSuccessors(T of, Collection<Tree<T>> in) {
+        for (Tree<T> tree : in) {
+            if (tree.locate.containsKey(of)) {
+                return tree.getSuccessors(of);
+            }
+        }
+        return new ArrayList<>();
     }
 
     public void addLeaf(T root, T leaf) {
@@ -78,21 +85,10 @@ public class Tree<T> {
         return leafs;
     }
 
-    public static <T> Collection<T> getSuccessors(T of, Collection<Tree<T>> in) {
-        for (Tree<T> tree : in) {
-            if (tree.locate.containsKey(of)) {
-                return tree.getSuccessors(of);
-            }
-        }
-        return new ArrayList<>();
-    }
-
     @Override
     public String toString() {
         return printTree(0);
     }
-
-    private static final int indent = 2;
 
     private String printTree(int increment) {
         String s = "";
