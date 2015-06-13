@@ -1,2 +1,2 @@
 # SFUMaps
-An interactive and live maps application for the SFU campuses.
+An interactive on the go map for SFU Campuses. Available for Android and iOS!
