@@ -1,6 +1,7 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.Intent;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -45,6 +46,11 @@ public class MainActivity extends FragmentActivity {
         });
 
         setUpMapIfNeeded();
+
+        MapTools.addTextMarker(Map, MercatorProjection.fromPointToLatLng(new PointF(110, 146)), MapTools.createPureTextIcon(this, "Naheeno Park"));
+        MapTools.addTextMarker(Map, MercatorProjection.fromPointToLatLng(new PointF(151, 106)), MapTools.createPureTextIcon(this, "AQ"));
+
+
     }
 
     /**

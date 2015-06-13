@@ -107,7 +107,7 @@ public class DrawRecordedPaths {
             row.put(Keys.KEY_POINT, point);
 
             if (drawOnMap) {
-                MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point), row.get(Keys.KEY_SSID).toString(), row.get(Keys.KEY_RSSI) + "");
+//                MapTools.addMarker(mMap, MercatorProjection.fromPointToLatLng(point), row.get(Keys.KEY_SSID).toString(), row.get(Keys.KEY_RSSI) + "");
             }
 
         }

@@ -28,4 +28,6 @@
     <string name="menu_action_cancel">Cancel</string>
 
 
+    <color name="map_text_color">#666</color>
+
 </resources>

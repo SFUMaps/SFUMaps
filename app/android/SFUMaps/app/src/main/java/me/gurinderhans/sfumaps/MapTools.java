@@ -1,10 +1,14 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -104,8 +108,14 @@ public class MapTools {
         googleMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(dir)
-                .snippet(ssid)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.routerdot)));
+                .snippet(ssid));
+    }
+
+    public static void addTextMarker(GoogleMap map, LatLng latLng, BitmapDescriptor markerImage) {
+        map.addMarker(new MarkerOptions()
+                .position(latLng)
+                .icon(markerImage)
+                .anchor(0.5f, 1));
     }
 
     /**
@@ -232,6 +242,23 @@ public class MapTools {
             Log.i(TAG, "unable to list assets directory");
         }
         return tileFiles;
+    }
+
+
+    public static BitmapDescriptor createPureTextIcon(Context c, String text) {
+
+        Bitmap bmp = Bitmap.createBitmap(200, 55, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bmp);
+
+        Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        textPaint.setTextSize(24f);
+        textPaint.setFakeBoldText(true);
+        textPaint.setARGB(100, 0, 0, 0); // alpha, r, g, b (Black, semi see-through)
+
+
+        canvas.drawText(text, 0, 50, textPaint); // paint defines the text color, stroke width, size
+
+        return BitmapDescriptorFactory.fromBitmap(bmp);
     }
 
 }
