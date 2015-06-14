@@ -35,9 +35,7 @@ public class MainActivity extends FragmentActivity {
 
     // TODO: either disable indoor map of real life buildings on map, or simply don't allow that much zooming in
 
-    // google maps
     private GoogleMap Map;
-    private Marker userNavMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,13 +59,15 @@ public class MainActivity extends FragmentActivity {
         MapTools.addTextMarker(this,
                 Map,
                 new PointF(107f, 150f),
-                MapTools.createPureTextIcon(this, "Naheeno Park", null, null),
+                MapTools.createPureTextIcon(this, "Naheeno Park", null),
+                0f,
                 null);
 
         MapTools.addTextMarker(this,
                 Map,
                 new PointF(122f, 103f),
-                MapTools.createPureTextIcon(this, "W.A.C Bennett Library", null, null),
+                MapTools.createPureTextIcon(this, "W.A.C Bennett Library", null),
+                180f,
                 null);
 
     }
@@ -124,7 +124,7 @@ public class MainActivity extends FragmentActivity {
 
         // just put the user navigation marker in the center as we don't yet know user's location
         LatLng mapCenter = new LatLng(0, 0);//MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
-        userNavMarker = Map.addMarker(new MarkerOptions()
+        Map.addMarker(new MarkerOptions()
                 .position(mapCenter)
                 .title("Position")
                 .snippet(MercatorProjection.fromLatLngToPoint(mapCenter).toString())

@@ -9,6 +9,7 @@ import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -115,24 +116,6 @@ public class MapTools {
                 .snippet(ssid));
     }
 
-
-    public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation,
-                                       Bitmap textIcon, Integer imageIcon) {
-
-        // get passed in icon or use the default one
-        int iconId = (imageIcon == null) ? R.drawable.location_marker : imageIcon;
-
-        Bitmap a = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
-                .build().getPicture());
-        a = combineImages(a, textIcon);
-
-        Log.i(TAG, "width: " + a.getScaledWidth((int) c.getResources().getDisplayMetrics().density));
-        // add icon image on actual point
-        return map.addMarker(new MarkerOptions()
-                        .position(MercatorProjection.fromPointToLatLng(screenLocation))
-                        .icon(BitmapDescriptorFactory.fromBitmap(a))
-        );
-    }
 
     /**
      * @param points - list of points
@@ -260,25 +243,17 @@ public class MapTools {
         return tileFiles;
     }
 
-    /**
-     * @param c
-     * @param text
-     * @param rotation
-     * @param contentRotation
-     * @return
-     */
-    public static Bitmap createPureTextIcon(Context c, String text, Integer rotation, Integer contentRotation) {
+    public static Bitmap createPureTextIcon(Context c, String text, Pair<Integer, Integer> rotation) {
 
         IconGenerator generator = new IconGenerator(c);
         generator.setBackground(null);
         generator.setTextAppearance(R.style.MapTextRawStyle);
         generator.setContentPadding(0, 0, 0, 0);
 
-        if (rotation != null)
-            generator.setRotation(rotation);
-
-        if (contentRotation != null)
-            generator.setContentRotation(contentRotation);
+        if (rotation != null) {
+            generator.setRotation(rotation.first);
+            generator.setContentRotation(rotation.second);
+        }
 
         return generator.makeIcon(text);
     }
@@ -295,6 +270,27 @@ public class MapTools {
         return bitmap;
     }
 
+
+    public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation,
+                                       Bitmap textIcon, float rotation, Integer imageIcon) {
+
+        // get passed in icon or use the default one
+        int iconId = (imageIcon == null) ? R.drawable.location_marker : imageIcon;
+
+        Bitmap a = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
+                .build().getPicture());
+
+        // combine text and image
+        a = combineImages(a, textIcon);
+
+        // add icon image on actual point
+        return map.addMarker(new MarkerOptions()
+                        .position(MercatorProjection.fromPointToLatLng(screenLocation))
+                        .icon(BitmapDescriptorFactory.fromBitmap(a))
+                        .anchor(0f, 1f)
+                        .rotation(rotation)
+        );
+    }
 
     public static Bitmap combineImages(Bitmap c, Bitmap s) { // can add a 3rd parameter 'String loc' if you want to save the new image - left some code to do that at the bottom
 
