@@ -1,7 +1,11 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Picture;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -19,6 +23,7 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.google.maps.android.ui.BubbleIconFactory;
 import com.google.maps.android.ui.IconGenerator;
+import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.IOException;
 
@@ -51,9 +56,19 @@ public class MainActivity extends FragmentActivity {
 
         setUpMapIfNeeded();
 
-        // some random sample text for demo
-        MapTools.addTextMarker(Map, MercatorProjection.fromPointToLatLng(new PointF(107f, 150f)), MapTools.createPureTextIcon(this, "Naheeno Park"));
-        MapTools.addTextMarker(Map, MercatorProjection.fromPointToLatLng(new PointF(140f, 107.5f)), MapTools.createPureTextIcon(this, "AQ"));
+
+        // some random sample text for just doing it
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(107f, 150f),
+                MapTools.createPureTextIcon(this, "Naheeno Park", null, null),
+                null);
+
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(122f, 103f),
+                MapTools.createPureTextIcon(this, "W.A.C Bennett Library", null, null),
+                null);
 
     }
 
@@ -82,7 +97,7 @@ public class MainActivity extends FragmentActivity {
 
         // hide default overlay and set initial position
         Map.setMapType(GoogleMap.MAP_TYPE_NONE);
-        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 1f));
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 
         // set max zoom for map
         Map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {

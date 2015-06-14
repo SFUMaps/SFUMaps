@@ -1,15 +1,24 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Picture;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
+import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ghans on 2/9/15.
@@ -105,11 +115,23 @@ public class MapTools {
                 .snippet(ssid));
     }
 
-    public static void addTextMarker(GoogleMap map, LatLng latLng, BitmapDescriptor markerImage) {
-        map.addMarker(new MarkerOptions()
-                .position(latLng)
-                .icon(markerImage)
-                .anchor(0.5f, 1));
+
+    public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation,
+                                       Bitmap textIcon, Integer imageIcon) {
+
+        // get passed in icon or use the default one
+        int iconId = (imageIcon == null) ? R.drawable.location_marker : imageIcon;
+
+        Bitmap a = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
+                .build().getPicture());
+        a = combineImages(a, textIcon);
+
+        Log.i(TAG, "width: " + a.getScaledWidth((int) c.getResources().getDisplayMetrics().density));
+        // add icon image on actual point
+        return map.addMarker(new MarkerOptions()
+                        .position(MercatorProjection.fromPointToLatLng(screenLocation))
+                        .icon(BitmapDescriptorFactory.fromBitmap(a))
+        );
     }
 
     /**
@@ -238,14 +260,58 @@ public class MapTools {
         return tileFiles;
     }
 
-    public static BitmapDescriptor createPureTextIcon(Context c, String text) {
+    /**
+     * @param c
+     * @param text
+     * @param rotation
+     * @param contentRotation
+     * @return
+     */
+    public static Bitmap createPureTextIcon(Context c, String text, Integer rotation, Integer contentRotation) {
 
         IconGenerator generator = new IconGenerator(c);
         generator.setBackground(null);
         generator.setTextAppearance(R.style.MapTextRawStyle);
         generator.setContentPadding(0, 0, 0, 0);
 
-        return BitmapDescriptorFactory.fromBitmap(generator.makeIcon(text));
+        if (rotation != null)
+            generator.setRotation(rotation);
+
+        if (contentRotation != null)
+            generator.setContentRotation(contentRotation);
+
+        return generator.makeIcon(text);
+    }
+
+    /**
+     * @param picture
+     * @return
+     */
+    public static Bitmap pictureDrawableToBitmap(Picture picture) {
+        PictureDrawable pd = new PictureDrawable(picture);
+        Bitmap bitmap = Bitmap.createBitmap(pd.getIntrinsicWidth(), pd.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawPicture(pd.getPicture());
+        return bitmap;
+    }
+
+
+    public static Bitmap combineImages(Bitmap c, Bitmap s) { // can add a 3rd parameter 'String loc' if you want to save the new image - left some code to do that at the bottom
+
+        Bitmap cs;
+        int width, height;
+
+        width = c.getWidth() + s.getWidth() + 5;
+        height = c.getHeight() + 5;
+
+        cs = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        Canvas comboImage = new Canvas(cs);
+
+        comboImage.drawBitmap(c, 0f, 5f, null);
+        comboImage.drawBitmap(s, c.getWidth() + 5, 0f, null);
+
+        return cs;
     }
 
 }
