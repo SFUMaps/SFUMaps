@@ -1,0 +1,41 @@
+"3000": {
+    "Roads": {
+        "North": {
+            "Info": {
+                "type": "avenue",
+                "area": {
+                    "startPoint": "-1, -1",
+                    "endPoint": "-1, -1"
+                }
+            }
+        },
+        "East": {
+            "Info": {
+                "type": "street",
+                "area": {
+                    "startPoint": "186.256, 55.375",
+                    "endPoint": "201.212, 201.065"
+                }
+            }
+        }
+    },
+    "Rooms": {
+        "AQ3181": {
+            "Info": {
+                "area": {
+                    "startPoint": "-1, -1",
+                    "endPoint": "-1, -1"
+                }
+            }
+        },
+        "AQ3182": {
+            "Info": {
+                "area": {
+                    "startPoint": "-1, -1",
+                    "endPoint": "-1, -1"
+                }
+            }
+        }
+    },
+    "POIs": {}
+}

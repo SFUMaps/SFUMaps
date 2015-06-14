@@ -1,9 +1,6 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.Log;
 
@@ -12,6 +9,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.ui.IconGenerator;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,10 +27,6 @@ import java.util.HashMap;
 public class MapTools {
 
     public static final String TAG = MapTools.class.getSimpleName();
-
-
-    public static final String TILE_PATH = "maptiles";
-    private static final int MAX_DISK_CACHE_BYTES = 1024 * 1024 * 2; // 2MB
 
     private static String[] mapTileAssets; // tile assets list cache
 
@@ -146,7 +140,7 @@ public class MapTools {
         // cache the list of available files
         if (mapTileAssets == null) {
             try {
-                mapTileAssets = context.getAssets().list(TILE_PATH);
+                mapTileAssets = context.getAssets().list(AppConfig.TILE_PATH);
             } catch (IOException e) {
                 // no assets
                 mapTileAssets = new String[0];
@@ -174,7 +168,7 @@ public class MapTools {
 
         // copy file from asset to internal storage
         try {
-            InputStream is = context.getAssets().open(TILE_PATH + File.separator + filename);
+            InputStream is = context.getAssets().open(AppConfig.TILE_PATH + File.separator + filename);
             File f = getTileFile(context, filename);
             FileOutputStream os = new FileOutputStream(f);
 
@@ -195,7 +189,7 @@ public class MapTools {
      * Return a {@link File} pointing to the storage location for map tiles.
      */
     public static File getTileFile(Context context, String filename) {
-        File folder = new File(context.getFilesDir(), TILE_PATH);
+        File folder = new File(context.getFilesDir(), AppConfig.TILE_PATH);
         if (!folder.exists()) {
             folder.mkdirs();
         }
@@ -208,7 +202,7 @@ public class MapTools {
      */
     public static void removeUnusedTiles(Context mContext, final ArrayList<String> usedTiles) {
         // remove all files are stored in the tile path but are not used
-        File folder = new File(mContext.getFilesDir(), TILE_PATH);
+        File folder = new File(mContext.getFilesDir(), AppConfig.TILE_PATH);
         File[] unused = folder.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
@@ -228,7 +222,7 @@ public class MapTools {
         HashMap<String, File> tileFiles = new HashMap<>();
 
         try {
-            String[] files = c.getAssets().list(MapTools.TILE_PATH);
+            String[] files = c.getAssets().list(AppConfig.TILE_PATH);
 
             for (String f : files) {
                 if (copyTileAsset(c, f)) {
@@ -244,21 +238,14 @@ public class MapTools {
         return tileFiles;
     }
 
-
     public static BitmapDescriptor createPureTextIcon(Context c, String text) {
 
-        Bitmap bmp = Bitmap.createBitmap(200, 55, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmp);
+        IconGenerator generator = new IconGenerator(c);
+        generator.setBackground(null);
+        generator.setTextAppearance(R.style.MapTextRawStyle);
+        generator.setContentPadding(0, 0, 0, 0);
 
-        Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setTextSize(24f);
-        textPaint.setFakeBoldText(true);
-        textPaint.setARGB(100, 0, 0, 0); // alpha, r, g, b (Black, semi see-through)
-
-
-        canvas.drawText(text, 0, 50, textPaint); // paint defines the text color, stroke width, size
-
-        return BitmapDescriptorFactory.fromBitmap(bmp);
+        return BitmapDescriptorFactory.fromBitmap(generator.makeIcon(text));
     }
 
 }

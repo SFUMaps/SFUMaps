@@ -10,12 +10,15 @@ import android.view.View;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
+import com.google.maps.android.ui.BubbleIconFactory;
+import com.google.maps.android.ui.IconGenerator;
 
 import java.io.IOException;
 
@@ -36,7 +39,8 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AppConfig.loadPreferences(getApplicationContext());
+        // load app preferences
+        AppConfig.loadPreferences(this);
 
         (findViewById(R.id.backend_panel)).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,9 +51,9 @@ public class MainActivity extends FragmentActivity {
 
         setUpMapIfNeeded();
 
-        MapTools.addTextMarker(Map, MercatorProjection.fromPointToLatLng(new PointF(110, 146)), MapTools.createPureTextIcon(this, "Naheeno Park"));
-        MapTools.addTextMarker(Map, MercatorProjection.fromPointToLatLng(new PointF(151, 106)), MapTools.createPureTextIcon(this, "AQ"));
-
+        // some random sample text for demo
+        MapTools.addTextMarker(Map, MercatorProjection.fromPointToLatLng(new PointF(107f, 150f)), MapTools.createPureTextIcon(this, "Naheeno Park"));
+        MapTools.addTextMarker(Map, MercatorProjection.fromPointToLatLng(new PointF(140f, 107.5f)), MapTools.createPureTextIcon(this, "AQ"));
 
     }
 
