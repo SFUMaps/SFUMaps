@@ -1,11 +1,7 @@
 package me.gurinderhans.sfumaps;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Picture;
 import android.graphics.PointF;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -14,16 +10,12 @@ import android.view.View;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
-import com.google.maps.android.ui.BubbleIconFactory;
-import com.google.maps.android.ui.IconGenerator;
-import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.IOException;
 
@@ -61,15 +53,41 @@ public class MainActivity extends FragmentActivity {
                 new PointF(107f, 150f),
                 MapTools.createPureTextIcon(this, "Naheeno Park", null),
                 0f,
-                null);
+                null,
+                MapTools.MapLabelIconAlign.TOP);
+
 
         MapTools.addTextMarker(this,
                 Map,
-                new PointF(122f, 103f),
+                new PointF(121.805f, 104.698f),
                 MapTools.createPureTextIcon(this, "W.A.C Bennett Library", null),
-                180f,
-                null);
+                0f,
+                null,
+                MapTools.MapLabelIconAlign.RIGHT);
 
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(121.625f, 112.704f),
+                MapTools.createPureTextIcon(this, "Food Court", null),
+                0f,
+                null,
+                MapTools.MapLabelIconAlign.LEFT);
+
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(175.723f, 108.439f),
+                MapTools.createPureTextIcon(this, "Rennaisance Coffee", null),
+                0f,
+                null,
+                MapTools.MapLabelIconAlign.LEFT);
+
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(98.211f, 120.623f),
+                MapTools.createPureTextIcon(this, "Terry Fox Field", null),
+                0f,
+                null,
+                MapTools.MapLabelIconAlign.TOP);
     }
 
     /**

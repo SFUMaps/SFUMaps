@@ -2,19 +2,15 @@ package me.gurinderhans.sfumaps;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Picture;
 import android.graphics.PointF;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
 import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -30,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by ghans on 2/9/15.
@@ -41,17 +36,29 @@ public class MapTools {
 
     private static String[] mapTileAssets; // tile assets list cache
 
+    // enum for placing label icon on which side
+    public enum MapLabelIconAlign {
+        TOP, LEFT, RIGHT
+    }
+
     // empty constructor
     private MapTools() {
         /* To make sure this class cannot be instantiated */
     }
+
+
+    //
+    // MARK: Wifi Data parsing methods
+    //
+
 
     /**
      * @param dataArray - the data array that we are splitting by keys
      * @param keyIndex  - the index of the key in that array object
      * @return - return the [Array] separated by keys
      */
-    public static HashMap<String, ArrayList<HashMap<String, Object>>> separateByKeys(ArrayList<HashMap<String, Object>> dataArray, String keyIndex) {
+    public static HashMap<String, ArrayList<HashMap<String, Object>>> separateByKeys(
+            ArrayList<HashMap<String, Object>> dataArray, String keyIndex) {
 
         HashMap<String, ArrayList<HashMap<String, Object>>> separated = new HashMap<>();
 
@@ -103,21 +110,6 @@ public class MapTools {
     }
 
     /**
-     * @param googleMap - the map
-     * @param latLng    - latlng coordinate on the map
-     * @param ssid      - SSID name for the label
-     * @param dir       - direction?
-     */
-    public static void addMarker(GoogleMap googleMap, LatLng latLng, String ssid, String dir) {
-
-        googleMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(dir)
-                .snippet(ssid));
-    }
-
-
-    /**
      * @param points - list of points
      * @return - return the centroid point (mean value)
      */
@@ -136,6 +128,12 @@ public class MapTools {
 
         return new PointF(Sx, Sy);
     }
+
+
+    //
+    // MARK: Tile Assets methods
+    //
+
 
     /**
      * Returns true if the given tile file exists as a local asset.
@@ -201,10 +199,6 @@ public class MapTools {
         return new File(folder, filename);
     }
 
-    /**
-     * @param mContext  - application context
-     * @param usedTiles - list of tiles to remove
-     */
     public static void removeUnusedTiles(Context mContext, final ArrayList<String> usedTiles) {
         // remove all files are stored in the tile path but are not used
         File folder = new File(mContext.getFilesDir(), AppConfig.TILE_PATH);
@@ -243,7 +237,74 @@ public class MapTools {
         return tileFiles;
     }
 
-    public static Bitmap createPureTextIcon(Context c, String text, Pair<Integer, Integer> rotation) {
+
+    //
+    // MARK: Map Maker Labels methods
+    //
+
+
+    public static Bitmap combineLabelBitmaps(Bitmap a, Bitmap b, MapLabelIconAlign alignment) {
+
+        if (alignment == MapLabelIconAlign.TOP) {
+            Bitmap bmp = Bitmap.createBitmap(b.getWidth(), a.getHeight() + b.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bmp);
+            canvas.drawBitmap(a, b.getWidth() / 2f - (a.getWidth() / 2), 0f, null);
+            canvas.drawBitmap(b, 0, a.getHeight(), null);
+            return bmp;
+        }
+
+        int width = a.getWidth() + b.getWidth() + 5; // extra padding of 5
+        int height = (alignment == MapLabelIconAlign.LEFT) ? a.getHeight() : b.getHeight();
+
+        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bmp);
+
+        if (alignment == MapLabelIconAlign.LEFT) {
+            canvas.drawBitmap(a, 0f, 0f, null);
+            canvas.drawBitmap(b, a.getWidth() + 5, -6f, null);
+        } else if (alignment == MapLabelIconAlign.RIGHT) {
+            canvas.drawBitmap(b, 0f, 0f, null);
+            canvas.drawBitmap(a, b.getWidth() + 5, 6f, null);
+        }
+
+
+        return bmp;
+    }
+
+    public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation,
+                                       Bitmap textIcon, float rotation, Integer imageIconId,
+                                       MapLabelIconAlign imageIconAlignment) {
+
+
+        // get passed in icon or use the default one
+        int iconId = (imageIconId == null) ? R.drawable.location_marker : imageIconId;
+
+        Bitmap imageIcon = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
+                .build().getPicture());
+
+        // combine text and image
+        imageIcon = combineLabelBitmaps(imageIcon, textIcon, imageIconAlignment);
+
+        Pair<Float, Float> labelAnchor = new Pair<>(0f, 0f);
+        if (imageIconAlignment == MapLabelIconAlign.LEFT) {
+            labelAnchor = new Pair<>(0f, 1f);
+        } else if (imageIconAlignment == MapLabelIconAlign.RIGHT) {
+            labelAnchor = new Pair<>(1f, 1f);
+        } else if (imageIconAlignment == MapLabelIconAlign.TOP) {
+            labelAnchor = new Pair<>(0.5f, 0.5f);
+        }
+
+        // add icon image on actual point
+        return map.addMarker(new MarkerOptions()
+                        .position(MercatorProjection.fromPointToLatLng(screenLocation))
+                        .icon(BitmapDescriptorFactory.fromBitmap(imageIcon))
+                        .anchor(labelAnchor.first, labelAnchor.second)
+                        .rotation(rotation)
+        );
+    }
+
+    public static Bitmap createPureTextIcon(Context c, String text,
+                                            Pair<Integer, Integer> rotation) {
 
         IconGenerator generator = new IconGenerator(c);
         generator.setBackground(null);
@@ -258,56 +319,12 @@ public class MapTools {
         return generator.makeIcon(text);
     }
 
-    /**
-     * @param picture
-     * @return
-     */
     public static Bitmap pictureDrawableToBitmap(Picture picture) {
         PictureDrawable pd = new PictureDrawable(picture);
         Bitmap bitmap = Bitmap.createBitmap(pd.getIntrinsicWidth(), pd.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         canvas.drawPicture(pd.getPicture());
         return bitmap;
-    }
-
-
-    public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation,
-                                       Bitmap textIcon, float rotation, Integer imageIcon) {
-
-        // get passed in icon or use the default one
-        int iconId = (imageIcon == null) ? R.drawable.location_marker : imageIcon;
-
-        Bitmap a = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
-                .build().getPicture());
-
-        // combine text and image
-        a = combineImages(a, textIcon);
-
-        // add icon image on actual point
-        return map.addMarker(new MarkerOptions()
-                        .position(MercatorProjection.fromPointToLatLng(screenLocation))
-                        .icon(BitmapDescriptorFactory.fromBitmap(a))
-                        .anchor(0f, 1f)
-                        .rotation(rotation)
-        );
-    }
-
-    public static Bitmap combineImages(Bitmap c, Bitmap s) { // can add a 3rd parameter 'String loc' if you want to save the new image - left some code to do that at the bottom
-
-        Bitmap cs;
-        int width, height;
-
-        width = c.getWidth() + s.getWidth() + 5;
-        height = c.getHeight() + 5;
-
-        cs = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-        Canvas comboImage = new Canvas(cs);
-
-        comboImage.drawBitmap(c, 0f, 5f, null);
-        comboImage.drawBitmap(s, c.getWidth() + 5, 0f, null);
-
-        return cs;
     }
 
 }
