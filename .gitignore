@@ -23,7 +23,5 @@ Temporary Items
 .apdisk
 
 # Custom ignores
-SFU-Floor-Plans
-maptiles
 venv
 *.pyc

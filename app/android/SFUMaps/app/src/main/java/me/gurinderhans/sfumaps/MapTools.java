@@ -279,25 +279,28 @@ public class MapTools {
         // get passed in icon or use the default one
         int iconId = (imageIconId == null) ? R.drawable.location_marker : imageIconId;
 
-        Bitmap imageIcon = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
+        Bitmap markerIcon = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
                 .build().getPicture());
 
         // combine text and image
-        imageIcon = combineLabelBitmaps(imageIcon, textIcon, imageIconAlignment);
+        markerIcon = combineLabelBitmaps(markerIcon, textIcon, imageIconAlignment);
 
         Pair<Float, Float> labelAnchor = new Pair<>(0f, 0f);
-        if (imageIconAlignment == MapLabelIconAlign.LEFT) {
+
+        if (imageIconAlignment == MapLabelIconAlign.LEFT)
             labelAnchor = new Pair<>(0f, 1f);
-        } else if (imageIconAlignment == MapLabelIconAlign.RIGHT) {
+
+        else if (imageIconAlignment == MapLabelIconAlign.RIGHT)
             labelAnchor = new Pair<>(1f, 1f);
-        } else if (imageIconAlignment == MapLabelIconAlign.TOP) {
+
+        else if (imageIconAlignment == MapLabelIconAlign.TOP)
             labelAnchor = new Pair<>(0.5f, 0.5f);
-        }
+
 
         // add icon image on actual point
         return map.addMarker(new MarkerOptions()
                         .position(MercatorProjection.fromPointToLatLng(screenLocation))
-                        .icon(BitmapDescriptorFactory.fromBitmap(imageIcon))
+                        .icon(BitmapDescriptorFactory.fromBitmap(markerIcon))
                         .anchor(labelAnchor.first, labelAnchor.second)
                         .rotation(rotation)
         );

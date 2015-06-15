@@ -75,14 +75,6 @@ public class MainActivity extends FragmentActivity {
 
         MapTools.addTextMarker(this,
                 Map,
-                new PointF(175.723f, 108.439f),
-                MapTools.createPureTextIcon(this, "Rennaisance Coffee", null),
-                0f,
-                null,
-                MapTools.MapLabelIconAlign.LEFT);
-
-        MapTools.addTextMarker(this,
-                Map,
                 new PointF(98.211f, 120.623f),
                 MapTools.createPureTextIcon(this, "Terry Fox Field", null),
                 0f,
