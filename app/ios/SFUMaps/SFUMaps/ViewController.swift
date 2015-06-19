@@ -25,10 +25,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         // Do any additional setup after loading the view, typically from a nib.
         
         //SFU AQ location
-        var camera = GMSCameraPosition.cameraWithLatitude(49.279014, longitude: -122.916528, zoom: 18.0)
         
-        var mapView = GMSMapView.mapWithFrame(CGRectZero, camera:camera)
+        //var camera = GMSCameraPosition.cameraWithLatitude(49.279014, longitude: -122.916528, zoom: 18.0)
+        var mapView = GMSMapView(frame: self.view.bounds)
+        //var mapView = GMSMapView.mapWithFrame(CGRectZero, camera:camera)
         self.view = mapView
+        var southWest = CLLocationCoordinate2DMake(49.272216,-122.933793)
+        var northEast = CLLocationCoordinate2DMake(49.281288,-122.902336)
+        var bounds = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
+        var camera = mapView.cameraForBounds(bounds, insets:UIEdgeInsetsZero)
+        mapView.camera = camera;
+        
+        GMSCameraUpdate.fitBounds(bounds)
         
 
         
@@ -46,13 +54,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         mapView.settings.compassButton = true
         
         //Set max & min zoom levels
-        mapView.setMinZoom(15, maxZoom: 21)
+        //mapView.setMinZoom(15, maxZoom: 21)
         
-        var southWest = CLLocationCoordinate2DMake(49.273319,-122.934577);
-        var northEast = CLLocationCoordinate2DMake(49.280993,-122.901603);
-        var bounds = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
-        var camera1 = mapView.cameraForBounds(bounds, insets:UIEdgeInsetsZero)
-        mapView.camera = camera1;
+        
         
 
         
