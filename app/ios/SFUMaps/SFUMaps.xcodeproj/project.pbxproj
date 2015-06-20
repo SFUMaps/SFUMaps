@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AD8F9AA61B33BAC500AC21D8 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8F9AA51B33BAC500AC21D8 /* Controller.swift */; };
 		ADA0E8E61B1ADD0200AFB858 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */; };
 		ADA0E8E81B1ADD0200AFB858 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8E71B1ADD0200AFB858 /* ViewController.swift */; };
 		ADA0E8ED1B1ADD0200AFB858 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ADA0E8EC1B1ADD0200AFB858 /* Images.xcassets */; };
@@ -29,6 +30,7 @@
 /* Begin PBXFileReference section */
 		11E1A5AAB1005FD983A601EB /* Pods-SFUMaps.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFUMaps.release.xcconfig"; path = "Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps.release.xcconfig"; sourceTree = "<group>"; };
 		4FE98BADE437F0BEACAC1C6A /* libPods-SFUMaps.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SFUMaps.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD8F9AA51B33BAC500AC21D8 /* Controller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		ADA0E8E01B1ADD0200AFB858 /* SFUMaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFUMaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADA0E8E41B1ADD0200AFB858 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 			children = (
 				ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */,
 				ADA0E8E71B1ADD0200AFB858 /* ViewController.swift */,
+				AD8F9AA51B33BAC500AC21D8 /* Controller.swift */,
 				ADA0E8EC1B1ADD0200AFB858 /* Images.xcassets */,
 				ADA0E9091B1BAB9800AFB858 /* Main.storyboard */,
 				ADA0E8EE1B1ADD0200AFB858 /* LaunchScreen.xib */,
@@ -273,6 +276,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD8F9AA61B33BAC500AC21D8 /* Controller.swift in Sources */,
 				ADA0E8E81B1ADD0200AFB858 /* ViewController.swift in Sources */,
 				ADA0E8E61B1ADD0200AFB858 /* AppDelegate.swift in Sources */,
 			);
