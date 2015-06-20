@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Picture;
 import android.graphics.PointF;
 import android.graphics.drawable.PictureDrawable;
+import android.hardware.camera2.CameraCaptureSession;
 import android.util.Log;
 import android.util.Pair;
 
@@ -242,38 +243,9 @@ public class MapTools {
     // MARK: Map Maker Labels methods
     //
 
-
-    public static Bitmap combineLabelBitmaps(Bitmap a, Bitmap b, MapLabelIconAlign alignment) {
-
-        if (alignment == MapLabelIconAlign.TOP) {
-            Bitmap bmp = Bitmap.createBitmap(b.getWidth(), a.getHeight() + b.getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bmp);
-            canvas.drawBitmap(a, b.getWidth() / 2f - (a.getWidth() / 2), 0f, null);
-            canvas.drawBitmap(b, 0, a.getHeight(), null);
-            return bmp;
-        }
-
-        int width = a.getWidth() + b.getWidth() + 5; // extra padding of 5
-        int height = (alignment == MapLabelIconAlign.LEFT) ? a.getHeight() : b.getHeight();
-
-        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmp);
-
-        if (alignment == MapLabelIconAlign.LEFT) {
-            canvas.drawBitmap(a, 0f, 0f, null);
-            canvas.drawBitmap(b, a.getWidth() + 5, -6f, null);
-        } else if (alignment == MapLabelIconAlign.RIGHT) {
-            canvas.drawBitmap(b, 0f, 0f, null);
-            canvas.drawBitmap(a, b.getWidth() + 5, 6f, null);
-        }
-
-
-        return bmp;
-    }
-
-    public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation,
-                                       Bitmap textIcon, float rotation, Integer imageIconId,
-                                       MapLabelIconAlign imageIconAlignment) {
+    public static Marker addTextAndIconMarker(Context c, GoogleMap map, PointF screenLocation,
+                                              Bitmap textIcon, float rotation, Integer imageIconId,
+                                              MapLabelIconAlign imageIconAlignment) {
 
 
         // get passed in icon or use the default one
@@ -305,6 +277,46 @@ public class MapTools {
                         .rotation(rotation)
         );
     }
+
+    public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation, Bitmap textIcon, float markerRotation) {
+        //
+        return map.addMarker(new MarkerOptions()
+                .position(MercatorProjection.fromPointToLatLng(screenLocation))
+                .icon(BitmapDescriptorFactory.fromBitmap(textIcon))
+                .rotation(markerRotation)
+                .flat(true).draggable(true)
+                .title("Position")
+                .snippet(screenLocation.toString()));
+    }
+
+    public static Bitmap combineLabelBitmaps(Bitmap a, Bitmap b, MapLabelIconAlign alignment) {
+
+        if (alignment == MapLabelIconAlign.TOP) {
+            Bitmap bmp = Bitmap.createBitmap(b.getWidth(), a.getHeight() + b.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bmp);
+            canvas.drawBitmap(a, b.getWidth() / 2f - (a.getWidth() / 2), 0f, null);
+            canvas.drawBitmap(b, 0, a.getHeight(), null);
+            return bmp;
+        }
+
+        int width = a.getWidth() + b.getWidth() + 5; // extra padding of 5
+        int height = (alignment == MapLabelIconAlign.LEFT) ? a.getHeight() : b.getHeight();
+
+        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bmp);
+
+        if (alignment == MapLabelIconAlign.LEFT) {
+            canvas.drawBitmap(a, 0f, 0f, null);
+            canvas.drawBitmap(b, a.getWidth() + 5, -6f, null);
+        } else if (alignment == MapLabelIconAlign.RIGHT) {
+            canvas.drawBitmap(b, 0f, 0f, null);
+            canvas.drawBitmap(a, b.getWidth() + 5, 6f, null);
+        }
+
+
+        return bmp;
+    }
+
 
     public static Bitmap createPureTextIcon(Context c, String text,
                                             Pair<Integer, Integer> rotation) {

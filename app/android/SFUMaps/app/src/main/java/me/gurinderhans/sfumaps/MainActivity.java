@@ -14,6 +14,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
@@ -48,7 +50,9 @@ public class MainActivity extends FragmentActivity {
 
 
         // some random sample text for just doing it
-        MapTools.addTextMarker(this,
+
+        // random locations
+        MapTools.addTextAndIconMarker(this,
                 Map,
                 new PointF(107f, 150f),
                 MapTools.createPureTextIcon(this, "Naheeno Park", null),
@@ -57,7 +61,7 @@ public class MainActivity extends FragmentActivity {
                 MapTools.MapLabelIconAlign.TOP);
 
 
-        MapTools.addTextMarker(this,
+        MapTools.addTextAndIconMarker(this,
                 Map,
                 new PointF(121.805f, 104.698f),
                 MapTools.createPureTextIcon(this, "W.A.C Bennett Library", null),
@@ -65,7 +69,7 @@ public class MainActivity extends FragmentActivity {
                 null,
                 MapTools.MapLabelIconAlign.RIGHT);
 
-        MapTools.addTextMarker(this,
+        MapTools.addTextAndIconMarker(this,
                 Map,
                 new PointF(121.625f, 112.704f),
                 MapTools.createPureTextIcon(this, "Food Court", null),
@@ -73,13 +77,39 @@ public class MainActivity extends FragmentActivity {
                 null,
                 MapTools.MapLabelIconAlign.LEFT);
 
-        MapTools.addTextMarker(this,
+        MapTools.addTextAndIconMarker(this,
                 Map,
                 new PointF(98.211f, 120.623f),
                 MapTools.createPureTextIcon(this, "Terry Fox Field", null),
                 0f,
                 null,
                 MapTools.MapLabelIconAlign.TOP);
+
+
+        // add road markers
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(90.98202f, 139.12495f),
+                MapTools.createPureTextIcon(this, "Gaglardi Way", null),
+                -28f);
+
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(35.420155f, 110.39347f),
+                MapTools.createPureTextIcon(this, "University Dr W", null),
+                -38f);
+
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(198.84691f, 108.44006f),
+                MapTools.createPureTextIcon(this, "University High Street", null),
+                0f);
+
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(214.28412f, 81.674225f),
+                MapTools.createPureTextIcon(this, "University Crescent", null),
+                5f);
     }
 
     /**
@@ -113,7 +143,7 @@ public class MainActivity extends FragmentActivity {
         Map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
-                float maxZoom = 7.0f;
+                float maxZoom = 117.0f;
                 if (cameraPosition.zoom > maxZoom)
                     Map.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
             }
@@ -156,6 +186,15 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
+        // Polylines are useful for marking paths and routes on the map.
+        Polyline polyline = Map.addPolyline(new PolylineOptions().geodesic(true)
+                .add(new LatLng(-33.866, 151.195))  // Sydney
+                .add(new LatLng(-18.142, 178.431))  // Fiji
+                .add(new LatLng(21.291, -157.821))  // Hawaii
+                .add(new LatLng(37.423, -122.091))  // Mountain View
+        );
+        polyline.setZIndex(1000); //Or some large number :)
+        
         // draw our recorded paths
 //        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
 
