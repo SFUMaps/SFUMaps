@@ -6,13 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Picture;
 import android.graphics.PointF;
 import android.graphics.drawable.PictureDrawable;
-import android.hardware.camera2.CameraCaptureSession;
-import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
@@ -215,27 +212,6 @@ public class MapTools {
                 f.delete();
             }
         }
-    }
-
-    public static HashMap<String, File> getTileFiles(Context c) {
-
-        HashMap<String, File> tileFiles = new HashMap<>();
-
-        try {
-            String[] files = c.getAssets().list(AppConfig.TILE_PATH);
-
-            for (String f : files) {
-                if (copyTileAsset(c, f)) {
-                    String zoomLvl = f.split("-")[SVGTileProvider.FILE_NAME_ZOOM_LVL_INDEX];
-                    tileFiles.put(zoomLvl, getTileFile(c, f));
-                    Log.i(TAG, "copied: " + f + " to files dir && " + "added: " + f + " to tileFiles list");
-                }
-            }
-
-        } catch (IOException e) {
-            Log.i(TAG, "unable to list assets directory");
-        }
-        return tileFiles;
     }
 
 

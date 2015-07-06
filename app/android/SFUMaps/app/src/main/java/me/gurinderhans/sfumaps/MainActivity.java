@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -19,11 +21,13 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements OnCameraChangeListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -113,7 +117,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     /**
-     * If (Map == null) then get the map fragment and initialize it
+     * If (Map == null) then get the map fragment and initialize it.
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
@@ -128,36 +132,22 @@ public class MainActivity extends FragmentActivity {
     }
 
     /**
-     * - define map settings
-     * - set custom map tiles
-     * - get user's initial location here
-     * - draw the recorded paths here
+     * <ul>
+     * <li>Define map settings</li>
+     * <li>Set custom map tiles</li>
+     * <li>Get user's initial location here</li>
+     * <li>Draw the recorded paths here</li>
+     * </ul>
      */
     private void setUpMap() {
 
         // hide default overlay and set initial position
         Map.setMapType(GoogleMap.MAP_TYPE_NONE);
-        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
+        Map.setIndoorEnabled(false);
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.2788738, -122.9161411), 16f));
 
         // set max zoom for map
-        Map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-            @Override
-            public void onCameraChange(CameraPosition cameraPosition) {
-                float maxZoom = 117.0f;
-                if (cameraPosition.zoom > maxZoom)
-                    Map.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
-            }
-        });
-
-        // add custom overlay
-        try {
-            TileProvider provider = new SVGTileProvider(MapTools.getTileFiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
-            Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d(TAG, "Could not create Tile Provider.");
-            return;
-        }
+        Map.setOnCameraChangeListener(this);
 
         // hide the marker toolbar - the two buttons on the bottom right that go to google maps
         Map.getUiSettings().setMapToolbarEnabled(false);
@@ -194,9 +184,30 @@ public class MainActivity extends FragmentActivity {
                 .add(new LatLng(37.423, -122.091))  // Mountain View
         );
         polyline.setZIndex(1000); //Or some large number :)
-        
+
         // draw our recorded paths
 //        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
+
+        // add custom overlay
+        try {
+
+            ArrayList<File> tileFiles = new ArrayList<>();
+            String[] files = getAssets().list(AppConfig.TILE_PATH);
+
+            for (String f : files) {
+                if (MapTools.copyTileAsset(this, f)) {
+                    tileFiles.add(MapTools.getTileFile(this, f));
+                    Log.i(TAG, "copied: " + f + " to files dir && " + "added: " + f + " to tileFiles list");
+                }
+            }
+
+            TileProvider provider = new SVGTileProvider(tileFiles, getResources().getDisplayMetrics().densityDpi / 160f);
+            Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Could not create Tile Provider. Unable to list map tile files directory");
+        }
 
     }
 
@@ -209,5 +220,10 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    @Override
+    public void onCameraChange(CameraPosition cameraPosition) {
+        ((TextView) findViewById(R.id.mapZoomLevelDisplay)).setText(cameraPosition.zoom + "");
     }
 }
