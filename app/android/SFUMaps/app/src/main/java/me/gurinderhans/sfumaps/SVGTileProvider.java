@@ -101,15 +101,23 @@ public class SVGTileProvider implements TileProvider {
 
         public byte[] getTileImageData(int x, int y, int zoom) {
 
-            for (File f : mTileFiles) {
-                String zoomLvl = f.getName().split("-")[FILE_NAME_ZOOM_LVL_INDEX];
-                if (zoomLvl.equals(zoom + "")) {
-                    try {
+
+            // FIXME: when zooming out the wrong svg gets set as this time we are in reverse mode and mSvgPicture isn't updated properly
+            // and for example the image thing for level 2 is set only at zoom level 2 but not 3 and 4, but then again it is set at zoom level 5
+            // however when we're zooming out it hits level 5 first and this one sticks until we manually hit level 2 but these tiles then get
+            // cached so we don't get zoom level 2 images until we actually go to zoom level 2. (It's kinda hard to see as you'll have to look really closely)
+            // The ACTUAL FIX ? -> use a <HashMap> or something to map the file to zoom levels and then fetch that file for those zoom levels, we just have to
+            // make sure each zoom level has a file connected to it and that it isn't empty
+            try {
+                for (File f : mTileFiles) {
+                    String zoomLvl = f.getName().split("-")[FILE_NAME_ZOOM_LVL_INDEX];
+                    if (zoomLvl.equals(zoom + "")) {
                         mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(f)).build().getPicture();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } else {
                     }
                 }
+            } catch (Exception e) {
+
             }
 
             mStream.reset();

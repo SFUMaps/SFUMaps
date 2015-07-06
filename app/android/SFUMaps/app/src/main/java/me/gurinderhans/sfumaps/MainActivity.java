@@ -144,7 +144,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
         // hide default overlay and set initial position
         Map.setMapType(GoogleMap.MAP_TYPE_NONE);
         Map.setIndoorEnabled(false);
-        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.2788738, -122.9161411), 16f));
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 
         // set max zoom for map
         Map.setOnCameraChangeListener(this);
