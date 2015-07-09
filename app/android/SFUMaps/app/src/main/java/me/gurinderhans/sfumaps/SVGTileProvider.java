@@ -7,6 +7,7 @@ import android.graphics.Matrix;
 import android.graphics.Picture;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
@@ -16,6 +17,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -42,12 +44,12 @@ public class SVGTileProvider implements TileProvider {
     private final TileGeneratorPool mPool;
     private final Matrix mBaseMatrix;
 
-    private final ArrayList<File> mTileFiles;
+    private final ArrayList<Pair<String, File>> mTileFiles;
 
     @Nullable
     private Picture mSvgPicture;
 
-    public SVGTileProvider(ArrayList<File> files, float dpi) {
+    public SVGTileProvider(ArrayList<Pair<String, File>> files, float dpi) {
         mScale = Math.round(dpi + .3f); // Make it look nice on N7 (1.3 dpi)
         mDimension = BASE_TILE_SIZE * mScale;
         mPool = new TileGeneratorPool(POOL_MAX_SIZE);
@@ -101,15 +103,15 @@ public class SVGTileProvider implements TileProvider {
 
         public byte[] getTileImageData(int x, int y, int zoom) {
 
-            for (File f : mTileFiles) {
-                String zoomLvl = f.getName().split("-")[FILE_NAME_ZOOM_LVL_INDEX];
-                if (zoomLvl.equals(zoom + "")) {
-                    try {
-                        mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(f)).build().getPicture();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+            // TODO: rad
+            try {
+                mSvgPicture = new SVGBuilder()
+                        .readFromInputStream(new FileInputStream(mTileFiles.get(zoom).second))
+                        .build()
+                        .getPicture();
+            } catch (FileNotFoundException e) {
+                // TODO: do something here...?
+                e.printStackTrace();
             }
 
             mStream.reset();
@@ -122,7 +124,8 @@ public class SVGTileProvider implements TileProvider {
             Canvas c = new Canvas(mBitmap);
             c.setMatrix(matrix);
 
-            mSvgPicture.draw(c);
+            if (mSvgPicture != null)
+                mSvgPicture.draw(c);
 
             BufferedOutputStream stream = new BufferedOutputStream(mStream);
             mBitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);

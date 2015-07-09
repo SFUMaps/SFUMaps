@@ -21,10 +21,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
 import me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity;
 
 public class MainActivity extends FragmentActivity implements OnCameraChangeListener {
@@ -144,7 +140,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
         // hide default overlay and set initial position
         Map.setMapType(GoogleMap.MAP_TYPE_NONE);
         Map.setIndoorEnabled(false);
-        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(49.2788738, -122.9161411), 16f));
+        Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 
         // set max zoom for map
         Map.setOnCameraChangeListener(this);
@@ -188,26 +184,8 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
         // draw our recorded paths
 //        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
 
-        // add custom overlay
-        try {
-
-            ArrayList<File> tileFiles = new ArrayList<>();
-            String[] files = getAssets().list(AppConfig.TILE_PATH);
-
-            for (String f : files) {
-                if (MapTools.copyTileAsset(this, f)) {
-                    tileFiles.add(MapTools.getTileFile(this, f));
-                    Log.i(TAG, "copied: " + f + " to files dir && " + "added: " + f + " to tileFiles list");
-                }
-            }
-
-            TileProvider provider = new SVGTileProvider(tileFiles, getResources().getDisplayMetrics().densityDpi / 160f);
-            Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d(TAG, "Could not create Tile Provider. Unable to list map tile files directory");
-        }
+        TileProvider provider = new SVGTileProvider(MapTools.getMapTiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
+        Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
 
     }
 
@@ -226,4 +204,5 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
     public void onCameraChange(CameraPosition cameraPosition) {
         ((TextView) findViewById(R.id.mapZoomLevelDisplay)).setText(cameraPosition.zoom + "");
     }
+
 }
