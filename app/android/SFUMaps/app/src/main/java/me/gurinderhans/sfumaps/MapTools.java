@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Picture;
 import android.graphics.PointF;
 import android.graphics.drawable.PictureDrawable;
+import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  * Created by ghans on 2/9/15.
@@ -212,6 +214,41 @@ public class MapTools {
                 f.delete();
             }
         }
+    }
+
+    // returns an array list of pairs which match the file with the zoom level for the map
+    public static ArrayList<Pair<String, File>> getMapTiles(Context c) {
+        try {
+            ArrayList<Pair<String, File>> tileFiles = new ArrayList<>();
+            String[] files = c.getAssets().list(AppConfig.TILE_PATH);
+
+            // copy tiles to internal storage
+            // TODO: check for failure in copying
+            for (String f : files)
+                copyTileAsset(c, f);
+
+            // TODO: make sure the file at index 0 is the one with lowest zoom
+            File currentFile = getTileFile(c, files[0]);
+
+            // map zoom level -> [0,25) just to keep out of bounds for safety
+            for (int i = 0; i < 25; i++) {
+                for (String f : files) {
+                    String zoom_floor_val = f.split(Pattern.quote("."))[0]; // extract zoom and floor level values by removing extension
+
+                    // if file zoom value matches with the loop value
+                    if (zoom_floor_val.split("-")[SVGTileProvider.FILE_NAME_ZOOM_LVL_INDEX].equals(i + ""))
+                        currentFile = getTileFile(c, f);
+                }
+                tileFiles.add(Pair.create(i + "", currentFile));
+            }
+            return tileFiles;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(MainActivity.TAG, "Could not create Tile Provider. Unable to list map tile files directory");
+        }
+
+        return null;
     }
 
 
