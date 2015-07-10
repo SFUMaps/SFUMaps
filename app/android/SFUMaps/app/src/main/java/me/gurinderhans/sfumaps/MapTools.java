@@ -37,11 +37,6 @@ public class MapTools {
 
     private static String[] mapTileAssets; // tile assets list cache
 
-    // enum for placing label icon on which side
-    public enum MapLabelIconAlign {
-        TOP, LEFT, RIGHT
-    }
-
     // empty constructor
     private MapTools() {
         /* To make sure this class cannot be instantiated */
@@ -51,7 +46,6 @@ public class MapTools {
     //
     // MARK: Wifi Data parsing methods
     //
-
 
     /**
      * @param dataArray - the data array that we are splitting by keys
@@ -130,12 +124,6 @@ public class MapTools {
         return new PointF(Sx, Sy);
     }
 
-
-    //
-    // MARK: Tile Assets methods
-    //
-
-
     /**
      * Returns true if the given tile file exists as a local asset.
      */
@@ -159,6 +147,11 @@ public class MapTools {
         }
         return false;
     }
+
+
+    //
+    // MARK: Tile Assets methods
+    //
 
     /**
      * Copy the file from the assets to the map tiles directory if it was
@@ -259,41 +252,6 @@ public class MapTools {
     // MARK: Map Maker Labels methods
     //
 
-    public static Marker addTextAndIconMarker(Context c, GoogleMap map, PointF screenLocation,
-                                              Bitmap textIcon, float rotation, Integer imageIconId,
-                                              MapLabelIconAlign imageIconAlignment) {
-
-
-        // get passed in icon or use the default one
-        int iconId = (imageIconId == null) ? R.drawable.location_marker : imageIconId;
-
-        Bitmap markerIcon = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
-                .build().getPicture());
-
-        // combine text and image
-        markerIcon = combineLabelBitmaps(markerIcon, textIcon, imageIconAlignment);
-
-        Pair<Float, Float> labelAnchor = new Pair<>(0f, 0f);
-
-        if (imageIconAlignment == MapLabelIconAlign.LEFT)
-            labelAnchor = new Pair<>(0f, 1f);
-
-        else if (imageIconAlignment == MapLabelIconAlign.RIGHT)
-            labelAnchor = new Pair<>(1f, 1f);
-
-        else if (imageIconAlignment == MapLabelIconAlign.TOP)
-            labelAnchor = new Pair<>(0.5f, 0.5f);
-
-
-        // add icon image on actual point
-        return map.addMarker(new MarkerOptions()
-                        .position(MercatorProjection.fromPointToLatLng(screenLocation))
-                        .icon(BitmapDescriptorFactory.fromBitmap(markerIcon))
-                        .anchor(labelAnchor.first, labelAnchor.second)
-                        .rotation(rotation)
-        );
-    }
-
     public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation, Bitmap textIcon, float markerRotation) {
         //
         return map.addMarker(new MarkerOptions()
@@ -333,7 +291,6 @@ public class MapTools {
         return bmp;
     }
 
-
     public static Bitmap createPureTextIcon(Context c, String text,
                                             Pair<Integer, Integer> rotation) {
 
@@ -356,6 +313,46 @@ public class MapTools {
         Canvas canvas = new Canvas(bitmap);
         canvas.drawPicture(pd.getPicture());
         return bitmap;
+    }
+
+    public static Marker addTextAndIconMarker(Context c, GoogleMap map, PointF screenLocation,
+                                              Bitmap textIcon, float rotation, Integer imageIconId,
+                                              MapLabelIconAlign imageIconAlignment) {
+
+
+        // get passed in icon or use the default one
+        int iconId = (imageIconId == null) ? R.drawable.location_marker : imageIconId;
+
+        Bitmap markerIcon = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
+                .build().getPicture());
+
+        // combine text and image
+        markerIcon = combineLabelBitmaps(markerIcon, textIcon, imageIconAlignment);
+
+        Pair<Float, Float> labelAnchor = new Pair<>(0f, 0f);
+
+        if (imageIconAlignment == MapLabelIconAlign.LEFT)
+            labelAnchor = new Pair<>(0f, 1f);
+
+        else if (imageIconAlignment == MapLabelIconAlign.RIGHT)
+            labelAnchor = new Pair<>(1f, 1f);
+
+        else if (imageIconAlignment == MapLabelIconAlign.TOP)
+            labelAnchor = new Pair<>(0.5f, 0.5f);
+
+
+        // add icon image on actual point
+        return map.addMarker(new MarkerOptions()
+                        .position(MercatorProjection.fromPointToLatLng(screenLocation))
+                        .icon(BitmapDescriptorFactory.fromBitmap(markerIcon))
+                        .anchor(labelAnchor.first, labelAnchor.second)
+                        .rotation(rotation)
+        );
+    }
+
+    // enum for placing label icon on which side
+    public enum MapLabelIconAlign {
+        TOP, LEFT, RIGHT
     }
 
 }

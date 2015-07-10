@@ -52,20 +52,6 @@ public class SVGTileProvider implements TileProvider {
         mBaseMatrix = new Matrix();
         mBaseMatrix.setScale(0.25f, 0.25f); // scale to fit to screen
         mTilePictures = files;
-
-        // fill the pictures array
-//        while (mTilePictures.size() < mTileFiles.size())
-//            mTilePictures.add(null);
-
-        /*// load the first image SVG into mem.
-        try {
-            Pair<String, File> filePair = mTileFiles.get(0);
-            Picture svg = new SVGBuilder().readFromInputStream(new FileInputStream(filePair.second)).build().getPicture();
-            mTilePictures.add(Pair.create(filePair.first, svg));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-
     }
 
     @Override
@@ -96,8 +82,7 @@ public class SVGTileProvider implements TileProvider {
             if (mPool.size() < mMaxSize && mPool.offer(tileGenerator)) {
                 return;
             }
-            // pool is too big or returning to pool failed, so just try to clean
-            // up.
+            // pool is too big or returning to pool failed, so just try to clean up.
             tileGenerator.cleanUp();
         }
     }
@@ -114,22 +99,6 @@ public class SVGTileProvider implements TileProvider {
         public byte[] getTileImageData(int x, int y, int zoom) {
 
             mSvgPicture = mTilePictures.get(zoom).second;
-            // try grabbing svg for current zoom level
-//            if (mTilePictures.get(zoom) != null) {
-//            } else {
-            // fetch image for this zoom level
-//                try {
-//                    Pair<String, File> filePair = mTileFiles.get(zoom);
-//                    Picture svg = new SVGBuilder().readFromInputStream(
-//                            new FileInputStream(filePair.second)).build().getPicture();
-//
-//                    mTilePictures.set(zoom, Pair.create(filePair.first, svg));
-//                    mSvgPicture = svg;
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                }
-
-//            }
 
             mStream.reset();
             Matrix matrix = new Matrix(mBaseMatrix);
