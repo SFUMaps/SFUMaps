@@ -30,4 +30,9 @@
 
     <color name="map_text_color">#666</color>
 
+    <color name="main_activity_color_primary">#c41230</color>
+    <color name="main_activity_color_primary_dark">#a31129</color>
+
+    <color name="transparent_status_bar_color">#4D000000</color>
+
 </resources>

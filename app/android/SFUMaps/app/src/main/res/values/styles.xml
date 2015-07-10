@@ -5,6 +5,11 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="MainActivity" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/main_activity_color_primary</item>
+        <item name="colorPrimaryDark">@color/main_activity_color_primary_dark</item>
+    </style>
+
     <style name="RecorderActivity" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
 
