@@ -17,6 +17,7 @@ import com.google.maps.android.ui.IconGenerator;
 import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -217,9 +218,9 @@ public class MapTools {
     }
 
     // returns an array list of pairs which match the file with the zoom level for the map
-    public static ArrayList<Pair<String, File>> getMapTiles(Context c) {
+    public static ArrayList<Pair<String, Picture>> getMapTiles(Context c) {
         try {
-            ArrayList<Pair<String, File>> tileFiles = new ArrayList<>();
+            ArrayList<Pair<String, Picture>> tileFiles = new ArrayList<>();
             String[] files = c.getAssets().list(AppConfig.TILE_PATH);
 
             // copy tiles to internal storage
@@ -228,7 +229,8 @@ public class MapTools {
                 copyTileAsset(c, f);
 
             // TODO: make sure the file at index 0 is the one with lowest zoom
-            File currentFile = getTileFile(c, files[0]);
+            Picture currentFile = new SVGBuilder().readFromInputStream(
+                    new FileInputStream(getTileFile(c, files[0]))).build().getPicture();
 
             // map zoom level -> [0,25) just to keep out of bounds for safety
             for (int i = 0; i < 25; i++) {
@@ -237,7 +239,8 @@ public class MapTools {
 
                     // if file zoom value matches with the loop value
                     if (zoom_floor_val.split("-")[SVGTileProvider.FILE_NAME_ZOOM_LVL_INDEX].equals(i + ""))
-                        currentFile = getTileFile(c, f);
+                        currentFile = new SVGBuilder().readFromInputStream(
+                                new FileInputStream(getTileFile(c, f))).build().getPicture();
                 }
                 tileFiles.add(Pair.create(i + "", currentFile));
             }

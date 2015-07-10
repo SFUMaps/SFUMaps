@@ -11,13 +11,9 @@ import android.util.Pair;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
-import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -44,18 +40,32 @@ public class SVGTileProvider implements TileProvider {
     private final TileGeneratorPool mPool;
     private final Matrix mBaseMatrix;
 
-    private final ArrayList<Pair<String, File>> mTileFiles;
+    private final ArrayList<Pair<String, Picture>> mTilePictures;
 
     @Nullable
     private Picture mSvgPicture;
 
-    public SVGTileProvider(ArrayList<Pair<String, File>> files, float dpi) {
+    public SVGTileProvider(ArrayList<Pair<String, Picture>> files, float dpi) {
         mScale = Math.round(dpi + .3f); // Make it look nice on N7 (1.3 dpi)
         mDimension = BASE_TILE_SIZE * mScale;
         mPool = new TileGeneratorPool(POOL_MAX_SIZE);
         mBaseMatrix = new Matrix();
         mBaseMatrix.setScale(0.25f, 0.25f); // scale to fit to screen
-        mTileFiles = files;
+        mTilePictures = files;
+
+        // fill the pictures array
+//        while (mTilePictures.size() < mTileFiles.size())
+//            mTilePictures.add(null);
+
+        /*// load the first image SVG into mem.
+        try {
+            Pair<String, File> filePair = mTileFiles.get(0);
+            Picture svg = new SVGBuilder().readFromInputStream(new FileInputStream(filePair.second)).build().getPicture();
+            mTilePictures.add(Pair.create(filePair.first, svg));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+
     }
 
     @Override
@@ -103,16 +113,23 @@ public class SVGTileProvider implements TileProvider {
 
         public byte[] getTileImageData(int x, int y, int zoom) {
 
-            // TODO: rad
-            try {
-                mSvgPicture = new SVGBuilder()
-                        .readFromInputStream(new FileInputStream(mTileFiles.get(zoom).second))
-                        .build()
-                        .getPicture();
-            } catch (FileNotFoundException e) {
-                // TODO: do something here...?
-                e.printStackTrace();
-            }
+            mSvgPicture = mTilePictures.get(zoom).second;
+            // try grabbing svg for current zoom level
+//            if (mTilePictures.get(zoom) != null) {
+//            } else {
+            // fetch image for this zoom level
+//                try {
+//                    Pair<String, File> filePair = mTileFiles.get(zoom);
+//                    Picture svg = new SVGBuilder().readFromInputStream(
+//                            new FileInputStream(filePair.second)).build().getPicture();
+//
+//                    mTilePictures.set(zoom, Pair.create(filePair.first, svg));
+//                    mSvgPicture = svg;
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                }
+
+//            }
 
             mStream.reset();
             Matrix matrix = new Matrix(mBaseMatrix);
