@@ -22,6 +22,10 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
+import java.util.ArrayList;
+
+import me.gurinderhans.sfumaps.Factory.GridNode;
+import me.gurinderhans.sfumaps.Factory.MapGrid;
 import me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity;
 
 public class MainActivity extends FragmentActivity implements OnCameraChangeListener {
@@ -122,6 +126,88 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
                 new PointF(214.28412f, 81.674225f),
                 MapTools.createPureTextIcon(this, "University Crescent", null),
                 5f);
+
+
+        // create grid
+        MapGrid grid = new MapGrid(new PointF(158.65297f, 106.69752f), new PointF(170.47316f, 118.315834f));
+
+        GridNode frm = new GridNode(2, 3, MapGrid.WALKABLE_PATH_CHAR, new PointF(158.65297f, 106.69752f));
+        GridNode to = new GridNode(6, 8, MapGrid.WALKABLE_PATH_CHAR, new PointF(158.65297f, 106.69752f));
+        grid.mMapGrid.get(frm.x).get(frm.y).setNodeCharId("A");
+        grid.mMapGrid.get(to.x).get(to.y).setNodeCharId("B");
+
+        // no walk area
+//        GridNode no_walk = new GridNode(4, 5, MapGrid.NON_WALKABLE_PATH_CHAR, new PointF(158.65297f, 106.69752f));
+//        grid.mMapGrid.get(no_walk.x).get(no_walk.y).setNodeCharId(MapGrid.NON_WALKABLE_PATH_CHAR);
+
+        // A* search
+        ArrayList<GridNode> open_list = new ArrayList<>();
+        ArrayList<GridNode> closed_list = new ArrayList<>();
+
+        //
+        open_list.add(frm.cost(frm, to));
+
+        GridNode endNode = new GridNode(-1, -1, "@", new PointF(158.65297f, 106.69752f));
+
+        while (open_list.size() != 0) {
+            Log.i(TAG, "open list size: " + open_list.size());
+
+            int min_fcost_node_index = GridNode.getMinFcostNodeIndex(open_list);
+
+            GridNode current_node = open_list.get(min_fcost_node_index);
+
+            if (current_node.x == to.x && current_node.y == to.y) {
+                // path found
+                endNode = current_node;
+                break;
+            }
+
+
+            // add to closed list and remove from open
+            closed_list.add(current_node);
+            open_list.remove(min_fcost_node_index);
+
+            for (GridNode n : grid.neighbours(current_node)) {
+                Log.i(TAG, "node: " + n.toString());
+                n.parentNode = current_node;
+
+                if (GridNode.searchNode(n, closed_list) > -1) {
+                    continue;
+                }
+
+                float tenative_g_score = current_node.gcost + GridNode.dist(current_node, n);
+
+                if (GridNode.searchNode(n, open_list) == -1 || tenative_g_score < n.gcost) {
+                    open_list.add(n.cost(frm, to));
+                    int nbr_indedx = GridNode.searchNode(n, open_list);
+                    GridNode tmp = open_list.get(nbr_indedx);
+                    tmp.gcost = tenative_g_score;
+                    tmp.fcost = tenative_g_score + GridNode.dist(n, to);
+
+                    Log.i(TAG, "node parent: " + tmp.parentNode);
+                    open_list.set(nbr_indedx, tmp);
+                }
+            }
+
+        }
+
+        ArrayList<GridNode> cpath = new ArrayList<>();
+
+        while (endNode.parentNode != null) {
+            endNode = endNode.parentNode;
+            cpath.add(endNode);
+        }
+
+        cpath.remove(cpath.size() - 1);
+
+        Log.i(TAG, "node path size: " + cpath.size());
+
+
+        for (GridNode pathNode : cpath) {
+            grid.mMapGrid.get(pathNode.x).get(pathNode.y).setNodeCharId("@");
+        }
+
+        grid.printMap(this, Map);
     }
 
     /**
