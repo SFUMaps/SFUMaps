@@ -50,7 +50,7 @@ public class SVGTileProvider implements TileProvider {
         mDimension = BASE_TILE_SIZE * mScale;
         mPool = new TileGeneratorPool(POOL_MAX_SIZE);
         mBaseMatrix = new Matrix();
-        mBaseMatrix.setScale(0.25f, 0.25f); // scale to fit to screen
+        mBaseMatrix.setScale(0.15f, 0.15f); // scale to fit to screen
         mTilePictures = files;
     }
 
