@@ -11,6 +11,7 @@ public class GridNode {
     public PointF node_position;
     public String charId;
 
+    // array indicies
     public final int x;
     public final int y;
 
@@ -23,7 +24,9 @@ public class GridNode {
 
     // @constructor
     public GridNode(int x, int y, String charId, PointF startPoint) {
-        this.node_position = new PointF(startPoint.x + x * MapGrid.EACH_POINT_DIST, startPoint.y + y * MapGrid.EACH_POINT_DIST);
+
+        this.node_position = new PointF(startPoint.x + x * MapGrid.HORIZONTAL_EACH_POINT_DIST , startPoint.y + y * MapGrid.VERTICAL_EACH_POINT_DIST);
+
         this.charId = charId;
 
         this.x = x;
@@ -34,7 +37,7 @@ public class GridNode {
         this.charId = charId;
     }
 
-    public GridNode cost(GridNode start, GridNode end) {
+    public GridNode computeCost(GridNode start, GridNode end) {
         this.gcost = dist(this, start);
         this.hcost = dist(this, end);
         this.fcost = this.gcost + this.hcost;

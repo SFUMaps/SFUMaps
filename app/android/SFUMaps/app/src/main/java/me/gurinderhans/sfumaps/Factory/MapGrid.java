@@ -2,13 +2,10 @@ package me.gurinderhans.sfumaps.Factory;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import junit.framework.Assert;
 
 import java.util.ArrayList;
 
@@ -24,7 +21,8 @@ public class MapGrid {
 
     public static final String WALKABLE_PATH_CHAR = ".";
     public static final String NON_WALKABLE_PATH_CHAR = "x";
-    public static final float EACH_POINT_DIST = 1.18f;
+    public static final float VERTICAL_EACH_POINT_DIST = 0.272f;
+    public static final float HORIZONTAL_EACH_POINT_DIST = 0.276f;
 
     public final PointF startPoint;
     public final PointF endPoint;
@@ -38,23 +36,23 @@ public class MapGrid {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
 
-        this.mapWidth = (int) Math.abs(endPoint.x - startPoint.x);
-        this.mapHeight = (int) Math.abs(endPoint.y - startPoint.y);
-
-        Log.i(TAG, "[MAP] width: " + mapWidth + " height: " + mapHeight);
+        this.mapWidth = 4 * ((int) Math.abs(endPoint.x - startPoint.x));
+        this.mapHeight = 4 * ((int) Math.abs(endPoint.y - startPoint.y));
 
         // create the map grid
         for (int i = 0; i < mapHeight; i++) {
-
             ArrayList<GridNode> tmpRow = new ArrayList<>();
-
             for (int j = 0; j < mapWidth; j++)
                 tmpRow.add(new GridNode(j, i, WALKABLE_PATH_CHAR, startPoint));
-
             mMapGrid.add(tmpRow);
-            Log.i(TAG, "map each row size: " + tmpRow.size());
         }
-        Log.i(TAG, "[MAP] grid size: " + mMapGrid.size() + " x " + mMapGrid.get(0).size());
+    }
+
+    public void setNonWalkablePath(GridNode node_from, GridNode node_to) {
+        for (int i = node_from.x; i <= node_to.x; i++) {
+            for (int j = node_from.y; j <= node_to.y; j++)
+                mMapGrid.get(i).get(j).setNodeCharId(NON_WALKABLE_PATH_CHAR);
+        }
     }
 
     public boolean in_bounds(GridNode node) {
@@ -66,9 +64,12 @@ public class MapGrid {
         int x = node.x;
         int y = node.y;
 
+
         // TODO: make sure x and y are in correct order
         // TODO: path blocker checks here or w/e
-//        if mMapGrid.get(x).get(y) == NON_WALKABLE_PATH_CHAR
+        if (mMapGrid.get(x).get(y).charId.equals(NON_WALKABLE_PATH_CHAR)) {
+            return new ArrayList<>(); // return empty if its a path blocker
+        }
 
         // test nodes
         GridNode node1 = new GridNode(x, y - 1, WALKABLE_PATH_CHAR, startPoint);
@@ -102,15 +103,6 @@ public class MapGrid {
         return nreturn;
     }
 
-    public static int getDrawable(Context context, String name) {
-        Assert.assertNotNull(context);
-        Assert.assertNotNull(name);
-
-        return context.getResources().getIdentifier(name,
-                "drawable", context.getPackageName());
-    }
-
-
     /**
      * Prints the map on screen
      */
@@ -124,19 +116,23 @@ public class MapGrid {
 
                 if (node.charId.equals(NON_WALKABLE_PATH_CHAR)) {
                     icon_id = R.drawable.grid_cross;
+                    continue;
                 } else if (node.charId.equals("A")) {
                     icon_id = R.drawable.sfunetsecuredot;
                 } else if (node.charId.equals("B")) {
                     icon_id = R.drawable.eduroamdot;
                 } else if (node.charId.equals("@")) {
                     icon_id = R.drawable.path_dot;
+                    continue;
                 } else {
                     icon_id = R.drawable.map_grid_point;
+//                    return;
                 }
 
                 map.addMarker(new MarkerOptions()
                                 .position(MercatorProjection.fromPointToLatLng(node.node_position))
                                 .icon(BitmapDescriptorFactory.fromResource(icon_id))
+                                .title("Pos: " + node.x + ", " + node.y)
                 );
             }
         }
