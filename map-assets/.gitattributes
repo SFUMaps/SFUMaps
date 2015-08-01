@@ -1,0 +1,4 @@
+./build filter=lfs diff=lfs merge=lfs -text
+./maps filter=lfs diff=lfs merge=lfs -text
+./sfumap-reference.psd filter=lfs diff=lfs merge=lfs -text
+./sfumap.psd filter=lfs diff=lfs merge=lfs -text
