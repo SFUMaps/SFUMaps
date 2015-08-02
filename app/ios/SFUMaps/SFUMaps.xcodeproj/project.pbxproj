@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AD68237A1B3F139F00793B11 /* file-page1.png in Resources */ = {isa = PBXBuildFile; fileRef = AD6823791B3F139F00793B11 /* file-page1.png */; };
 		AD8F9AA61B33BAC500AC21D8 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8F9AA51B33BAC500AC21D8 /* Controller.swift */; };
 		ADA0E8E61B1ADD0200AFB858 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */; };
 		ADA0E8E81B1ADD0200AFB858 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA0E8E71B1ADD0200AFB858 /* ViewController.swift */; };
@@ -30,6 +31,7 @@
 /* Begin PBXFileReference section */
 		11E1A5AAB1005FD983A601EB /* Pods-SFUMaps.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SFUMaps.release.xcconfig"; path = "Pods/Target Support Files/Pods-SFUMaps/Pods-SFUMaps.release.xcconfig"; sourceTree = "<group>"; };
 		4FE98BADE437F0BEACAC1C6A /* libPods-SFUMaps.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SFUMaps.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD6823791B3F139F00793B11 /* file-page1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "file-page1.png"; path = "Images.xcassets/Image.imageset/file-page1.png"; sourceTree = "<group>"; };
 		AD8F9AA51B33BAC500AC21D8 /* Controller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		ADA0E8E01B1ADD0200AFB858 /* SFUMaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFUMaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADA0E8E41B1ADD0200AFB858 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 		ADA0E8E21B1ADD0200AFB858 /* SFUMaps */ = {
 			isa = PBXGroup;
 			children = (
+				AD6823791B3F139F00793B11 /* file-page1.png */,
 				ADA0E8E51B1ADD0200AFB858 /* AppDelegate.swift */,
 				ADA0E8E71B1ADD0200AFB858 /* ViewController.swift */,
 				AD8F9AA51B33BAC500AC21D8 /* Controller.swift */,
@@ -223,6 +226,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD68237A1B3F139F00793B11 /* file-page1.png in Resources */,
 				ADA0E90A1B1BAB9800AFB858 /* Main.storyboard in Resources */,
 				ADA0E8F01B1ADD0200AFB858 /* LaunchScreen.xib in Resources */,
 				ADA0E8ED1B1ADD0200AFB858 /* Images.xcassets in Resources */,
