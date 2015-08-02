@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public class GridNode {
     public PointF node_position;
-    public String charId;
+    public boolean isWalkable = true;
 
     // array indicies
     public final int x;
@@ -23,18 +23,12 @@ public class GridNode {
     public GridNode parentNode = null;
 
     // @constructor
-    public GridNode(int x, int y, String charId, PointF startPoint) {
+    public GridNode(int x, int y, MapGrid mapGrid) {
 
-        this.node_position = new PointF(startPoint.x + x * MapGrid.EACH_POINT_DIST, startPoint.y + y * MapGrid.EACH_POINT_DIST);
-
-        this.charId = charId;
+        this.node_position = new PointF(mapGrid.startPoint.x + x * MapGrid.EACH_POINT_DIST, mapGrid.startPoint.y + y * MapGrid.EACH_POINT_DIST);
 
         this.x = x;
         this.y = y;
-    }
-
-    public void setNodeCharId(String charId) {
-        this.charId = charId;
     }
 
     public GridNode computeCost(GridNode start, GridNode end) {

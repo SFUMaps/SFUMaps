@@ -12,9 +12,6 @@ public class MapGrid {
 
     public static final String TAG = MapGrid.class.getSimpleName();
 
-    public static final String WALKABLE_PATH_CHAR = ".";
-    public static final String NON_WALKABLE_PATH_CHAR = "x";
-
     public static final float EACH_POINT_DIST = 0.125f;
 
     public final PointF startPoint;
@@ -38,7 +35,7 @@ public class MapGrid {
         for (int i = 0; i < mapHeight; i++) {
             ArrayList<GridNode> tmpRow = new ArrayList<>();
             for (int j = 0; j < mapWidth; j++)
-                tmpRow.add(new GridNode(j, i, WALKABLE_PATH_CHAR, startPoint));
+                tmpRow.add(new GridNode(j, i, this));
             mMapGrid.add(tmpRow);
         }
     }
@@ -62,19 +59,19 @@ public class MapGrid {
 
         // TODO: make sure x and y are in correct order
         // TODO: path blocker checks here or w/e
-        if (!mMapGrid.get(x).get(y).charId.equals(WALKABLE_PATH_CHAR)) {
+        if (!mMapGrid.get(x).get(y).isWalkable) {
             return new ArrayList<>(); // return empty if its a path blocker
         }
 
         // test nodes
-        GridNode node1 = new GridNode(x, y - 1, WALKABLE_PATH_CHAR, startPoint);
-        GridNode node2 = new GridNode(x, y + 1, WALKABLE_PATH_CHAR, startPoint);
-        GridNode node3 = new GridNode(x + 1, y, WALKABLE_PATH_CHAR, startPoint);
-        GridNode node4 = new GridNode(x - 1, y + 1, WALKABLE_PATH_CHAR, startPoint);
-        GridNode node5 = new GridNode(x - 1, y - 1, WALKABLE_PATH_CHAR, startPoint);
-        GridNode node6 = new GridNode(x - 1, y + 1, WALKABLE_PATH_CHAR, startPoint);
-        GridNode node7 = new GridNode(x + 1, y + 1, WALKABLE_PATH_CHAR, startPoint);
-        GridNode node8 = new GridNode(x + 1, y - 1, WALKABLE_PATH_CHAR, startPoint);
+        GridNode node1 = new GridNode(x, y - 1, this);
+        GridNode node2 = new GridNode(x, y + 1, this);
+        GridNode node3 = new GridNode(x + 1, y, this);
+        GridNode node4 = new GridNode(x - 1, y + 1, this);
+        GridNode node5 = new GridNode(x - 1, y - 1, this);
+        GridNode node6 = new GridNode(x - 1, y + 1, this);
+        GridNode node7 = new GridNode(x + 1, y + 1, this);
+        GridNode node8 = new GridNode(x + 1, y - 1, this);
 
         ArrayList<GridNode> nreturn = new ArrayList<>();
 

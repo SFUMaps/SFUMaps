@@ -66,8 +66,6 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
         setUpMapIfNeeded();
 
 
-        // some random sample text to fill up the map
-
         // random locations
         MapTools.addTextAndIconMarker(this,
                 Map,
@@ -142,15 +140,11 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 
         // create grid
         MapGrid grid = mapGrid = new MapGrid(new PointF(121f, 100f), new PointF(192f, 183f));
-        GridNode frm = new GridNode(167, 230, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
-        GridNode to = new GridNode(320, 253, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
+        GridNode frm = new GridNode(167, 230, grid);
+        GridNode to = new GridNode(320, 253, grid);
 
         // blocking areas
 //        grid.setNonWalkablePath(new GridNode(231, 171, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(317, 251, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
-//        grid.setNonWalkablePath(new GridNode(12, 0, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(56, 16, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
-//        grid.setNonWalkablePath(new GridNode(57, 3, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(73, 11, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
-//        grid.setNonWalkablePath(new GridNode(29, 2, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(36, 5, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
-//        grid.setNonWalkablePath(new GridNode(31, 2, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(36, 3, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
 
 
         //
@@ -164,7 +158,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
         // add initial node (start node)
         open_list.add(frm.computeCost(frm, to));
 
-        GridNode endNode = new GridNode(-1, -1, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
+        GridNode endNode = new GridNode(-1, -1, grid);
 
         while (open_list.size() != 0) {
             Log.i(TAG, "open list size: " + open_list.size());
@@ -190,7 +184,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
                 if (GridNode.searchNode(n, closed_list) > -1)
                     continue;
 
-                if (!n.charId.equals(MapGrid.WALKABLE_PATH_CHAR)) {
+                if (n.isWalkable) {
 
                     float tenative_g_score = current_node.gcost + GridNode.dist(current_node, n);
 
@@ -215,14 +209,14 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 
         PolylineOptions path_line_data = new PolylineOptions().geodesic(true);
 
-        GridNode node = new GridNode(to.y, to.x, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
+        GridNode node = new GridNode(to.y, to.x, grid);
         path_line_data.add(MercatorProjection.fromPointToLatLng(node.node_position));
 
         ArrayList<GridNode> cpath = new ArrayList<>();
         while (endNode.parentNode != null) {
             endNode = endNode.parentNode;
             // need to switch x and y here for the indicies, as real life x, y are inverse of matrix x,y
-            GridNode mapNode = new GridNode(endNode.y, endNode.x, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
+            GridNode mapNode = new GridNode(endNode.y, endNode.x, grid);
             path_line_data.add(MercatorProjection.fromPointToLatLng(mapNode.node_position));
         }
 
@@ -342,7 +336,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
                     // draw this and couple points around it
                     Map.addMarker(new MarkerOptions()
                                     .position(MercatorProjection.fromPointToLatLng(thisNode.node_position))
-                                    .icon(BitmapDescriptorFactory.fromResource(thisNode.charId.equals(MapGrid.WALKABLE_PATH_CHAR) ? R.drawable.map_path : R.drawable.no_path))
+                                    .icon(BitmapDescriptorFactory.fromResource(thisNode.isWalkable ? R.drawable.map_path : R.drawable.no_path))
                                     .anchor(0.5f, 0.5f)
                                     .title("Pos: " + thisNode.y + ", " + thisNode.x)
                     );
