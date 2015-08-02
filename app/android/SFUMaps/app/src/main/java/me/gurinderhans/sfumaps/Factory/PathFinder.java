@@ -52,7 +52,7 @@ public class PathFinder {
                 return path;
             }
 
-            for (GridNode neighborNode : grid.getMyNeighbours(currentNode)) {
+            for (GridNode neighborNode : grid.getNeighbors(currentNode)) {
 
                 if (!neighborNode.isWalkable || closedSet.contains(neighborNode))
                     continue;

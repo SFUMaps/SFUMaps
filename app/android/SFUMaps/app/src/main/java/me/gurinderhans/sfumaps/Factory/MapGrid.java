@@ -61,54 +61,8 @@ public class MapGrid {
         }
     }
 
-//    public boolean inBounds(Point p) {
-//        return p.x >= 0 && p.x < mapGridSizeX
-//                && p.y >= 0 && p.y < mapGridSizeY;
-//    }
-
-//    public List<GridNode> getNeighbours(GridNode node) {
-//        int x = node.gridX;
-//        int y = node.gridY;
-//
-//
-//        // TODO: make sure gridX and gridY are in correct order
-//        // TODO: path blocker checks here or w/e
-//        if (!getNode(x, y).isWalkable) {
-//            return new ArrayList<>(); // return empty if its a path blocker
-//        }
-//
-//        // TODO: simplify this
-//
-//        // test neighbours
-//        List<Point> points = new ArrayList<>();
-//        points.add(new Point(x, y - 1));
-//        points.add(new Point(x, y + 1));
-//        points.add(new Point(x + 1, y));
-//        points.add(new Point(x - 1, y + 1));
-//        points.add(new Point(x - 1, y - 1));
-//        points.add(new Point(x - 1, y + 1));
-//        points.add(new Point(x + 1, y + 1));
-//        points.add(new Point(x + 1, y - 1));
-//
-//        List<GridNode> neighbours = new ArrayList<>();
-//
-//        for (Point p : points) {
-//            if (inBounds(p)) {
-//
-//                GridNode thisNode = getNode(p.x, p.y);
-//
-//                if (thisNode.isWalkable) {
-//                    Log.i(TAG, "is valid neighbour, gridX: " + thisNode.gridX + " gridY: " + thisNode.gridY);
-//                    neighbours.add(thisNode);
-//                }
-//            }
-//        }
-//
-//        return neighbours;
-//    }
-
-    public List<GridNode> getMyNeighbours(GridNode node) {
-        List<GridNode> neighbours = new ArrayList<>();
+    public List<GridNode> getNeighbors(GridNode node) {
+        List<GridNode> neighbors = new ArrayList<>();
 
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
@@ -119,13 +73,13 @@ public class MapGrid {
                 int checkY = node.gridY + y;
 
                 if (checkX >= 0 && checkX < mapGridSizeX && checkY >= 0 && checkY < mapGridSizeY) {
-                    neighbours.add(getNode(checkX, checkY));
+                    neighbors.add(getNode(checkX, checkY));
                 }
 
             }
         }
 
-        return neighbours;
+        return neighbors;
     }
 
 }
