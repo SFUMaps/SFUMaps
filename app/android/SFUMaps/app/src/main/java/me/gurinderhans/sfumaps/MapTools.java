@@ -350,6 +350,11 @@ public class MapTools {
         );
     }
 
+    // checks if point B is within point A of `range`
+    public static boolean inRange(PointF a, PointF b, float range) {
+        return Math.abs(a.x - b.x) <= range && Math.abs(a.y - b.y) <= range;
+    }
+
     // enum for placing label icon on which side
     public enum MapLabelIconAlign {
         TOP, LEFT, RIGHT

@@ -27,8 +27,8 @@ public class CustomMapTileProvider implements TileProvider {
     }
 
     /**
-     * @param x    - the x value of the map grid where the tile will be placed
-     * @param y    - the y value of the map grid where the tile will be placed
+     * @param x    - the gridX value of the map grid where the tile will be placed
+     * @param y    - the gridY value of the map grid where the tile will be placed
      * @param zoom - current zoom level of the map
      * @return - return a Tile object containing the tile image at that map grid coordinate
      */
@@ -39,8 +39,8 @@ public class CustomMapTileProvider implements TileProvider {
     }
 
     /**
-     * @param x    - the x value of the map grid where the tile will be placed
-     * @param y    - the y value of the map grid where the tile will be placed
+     * @param x    - the gridX value of the map grid where the tile will be placed
+     * @param y    - the gridY value of the map grid where the tile will be placed
      * @param zoom - current zoom level of the map
      * @return - return the Tile image
      */
@@ -79,8 +79,8 @@ public class CustomMapTileProvider implements TileProvider {
     }
 
     /**
-     * @param x    - the x value of the map grid where the tile will be placed
-     * @param y    - the y value of the map grid where the tile will be placed
+     * @param x    - the gridX value of the map grid where the tile will be placed
+     * @param y    - the gridY value of the map grid where the tile will be placed
      * @param zoom - current zoom level of the map
      * @return - return the name of the tile image file
      */

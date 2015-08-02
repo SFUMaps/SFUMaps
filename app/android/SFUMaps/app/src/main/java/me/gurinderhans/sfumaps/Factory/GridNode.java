@@ -2,75 +2,41 @@ package me.gurinderhans.sfumaps.Factory;
 
 import android.graphics.PointF;
 
-import java.util.ArrayList;
-
 /**
  * Created by ghans on 15-07-29.
  */
 public class GridNode {
+
+    public static final String TAG = GridNode.class.getSimpleName();
+
+    // map world position
     public PointF node_position;
 
     public boolean isWalkable = false;
 
-    // array indicies
-    public final int x;
-    public final int y;
+    // array indices
+    public final int gridX;
+    public final int gridY;
 
     // node costs
-    public float gcost = -1f;
-    public float hcost = -1f;
-    public float fcost = -1f;
+    public float gCost = -1f;
+    public float hCost = -1f;
 
     public GridNode parentNode = null;
 
     // @constructor
     public GridNode(int x, int y, MapGrid mapGrid) {
-        this.x = x;
-        this.y = y;
+        this.gridX = x;
+        this.gridY = y;
         this.node_position = new PointF(mapGrid.startPoint.x + x * MapGrid.EACH_POINT_DIST, mapGrid.startPoint.y + y * MapGrid.EACH_POINT_DIST);
+    }
+
+    public float getFCost() {
+        return gCost + hCost;
     }
 
     public void setWalkable(boolean walkable) {
         this.isWalkable = walkable;
     }
 
-    public GridNode computeCost(GridNode start, GridNode end) {
-        this.gcost = dist(this, start);
-        this.hcost = dist(this, end);
-        this.fcost = this.gcost + this.hcost;
-
-        return this;
-    }
-
-    public static float dist(GridNode a, GridNode b) {
-        float dX = Math.abs(a.x - b.x);
-        float dY = Math.abs(a.y - b.y);
-
-        if (dX > dY)
-            return 1.4f * dY + (dX - dY);
-
-        return 1.4f * dX + (dY - dX);
-    }
-
-    public static int searchNode(GridNode node, ArrayList<GridNode> node_list) {
-        for (int i = 0; i < node_list.size(); i++) {
-            if (node.x == node_list.get(i).x && node.y == node_list.get(i).y) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public static int getMinFcostNodeIndex(ArrayList<GridNode> list) {
-        float minCost = Float.MAX_VALUE;
-        int returnIndex = -1;
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).fcost < minCost) {
-                minCost = list.get(i).fcost;
-                returnIndex = i;
-            }
-        }
-
-        return returnIndex;
-    }
 }
