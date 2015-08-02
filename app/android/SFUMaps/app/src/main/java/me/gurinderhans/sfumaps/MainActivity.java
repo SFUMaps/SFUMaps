@@ -2,37 +2,51 @@ package me.gurinderhans.sfumaps;
 
 import android.content.Intent;
 import android.graphics.PointF;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
-import java.io.IOException;
-
 import me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements OnCameraChangeListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
-
-    // TODO: either disable indoor map of real life buildings on map, or simply don't allow that much zooming in
 
     private GoogleMap Map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // set activity theme to light text
+        this.setTheme(R.style.MainActivity);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // setting the status bar transparent
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            getWindow().setStatusBarColor(getResources().getColor(R.color.transparent_status_bar_color));
 
         // load app preferences
         AppConfig.loadPreferences(this);
@@ -47,8 +61,10 @@ public class MainActivity extends FragmentActivity {
         setUpMapIfNeeded();
 
 
-        // some random sample text for just doing it
-        MapTools.addTextMarker(this,
+        // some random sample text to fill up the map
+
+        // random locations
+        MapTools.addTextAndIconMarker(this,
                 Map,
                 new PointF(107f, 150f),
                 MapTools.createPureTextIcon(this, "Naheeno Park", null),
@@ -57,7 +73,7 @@ public class MainActivity extends FragmentActivity {
                 MapTools.MapLabelIconAlign.TOP);
 
 
-        MapTools.addTextMarker(this,
+        MapTools.addTextAndIconMarker(this,
                 Map,
                 new PointF(121.805f, 104.698f),
                 MapTools.createPureTextIcon(this, "W.A.C Bennett Library", null),
@@ -65,7 +81,7 @@ public class MainActivity extends FragmentActivity {
                 null,
                 MapTools.MapLabelIconAlign.RIGHT);
 
-        MapTools.addTextMarker(this,
+        MapTools.addTextAndIconMarker(this,
                 Map,
                 new PointF(121.625f, 112.704f),
                 MapTools.createPureTextIcon(this, "Food Court", null),
@@ -73,17 +89,43 @@ public class MainActivity extends FragmentActivity {
                 null,
                 MapTools.MapLabelIconAlign.LEFT);
 
-        MapTools.addTextMarker(this,
+        MapTools.addTextAndIconMarker(this,
                 Map,
                 new PointF(98.211f, 120.623f),
                 MapTools.createPureTextIcon(this, "Terry Fox Field", null),
                 0f,
                 null,
                 MapTools.MapLabelIconAlign.TOP);
+
+
+        // add road markers
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(90.98202f, 139.12495f),
+                MapTools.createPureTextIcon(this, "Gaglardi Way", null),
+                -28f);
+
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(35.420155f, 110.39347f),
+                MapTools.createPureTextIcon(this, "University Dr W", null),
+                -38f);
+
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(198.84691f, 108.44006f),
+                MapTools.createPureTextIcon(this, "University High Street", null),
+                0f);
+
+        MapTools.addTextMarker(this,
+                Map,
+                new PointF(214.28412f, 81.674225f),
+                MapTools.createPureTextIcon(this, "University Crescent", null),
+                5f);
     }
 
     /**
-     * If (Map == null) then get the map fragment and initialize it
+     * If (Map == null) then get the map fragment and initialize it.
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
@@ -98,36 +140,22 @@ public class MainActivity extends FragmentActivity {
     }
 
     /**
-     * - define map settings
-     * - set custom map tiles
-     * - get user's initial location here
-     * - draw the recorded paths here
+     * <ul>
+     * <li>Define map settings</li>
+     * <li>Set custom map tiles</li>
+     * <li>Get user's initial location here</li>
+     * <li>Draw the recorded paths here</li>
+     * </ul>
      */
     private void setUpMap() {
 
         // hide default overlay and set initial position
         Map.setMapType(GoogleMap.MAP_TYPE_NONE);
+        Map.setIndoorEnabled(false);
         Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 
         // set max zoom for map
-        Map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-            @Override
-            public void onCameraChange(CameraPosition cameraPosition) {
-                float maxZoom = 7.0f;
-                if (cameraPosition.zoom > maxZoom)
-                    Map.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
-            }
-        });
-
-        // add custom overlay
-        try {
-            TileProvider provider = new SVGTileProvider(MapTools.getTileFiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
-            Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d(TAG, "Could not create Tile Provider.");
-            return;
-        }
+        Map.setOnCameraChangeListener(this);
 
         // hide the marker toolbar - the two buttons on the bottom right that go to google maps
         Map.getUiSettings().setMapToolbarEnabled(false);
@@ -156,8 +184,20 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
+        // Polylines are useful for marking paths and routes on the map.
+        Polyline polyline = Map.addPolyline(new PolylineOptions().geodesic(true)
+                .add(new LatLng(-33.866, 151.195))  // Sydney
+                .add(new LatLng(-18.142, 178.431))  // Fiji
+                .add(new LatLng(21.291, -157.821))  // Hawaii
+                .add(new LatLng(37.423, -122.091))  // Mountain View
+        );
+        polyline.setZIndex(1000); //Or some large number :)
+
         // draw our recorded paths
 //        drawRecordedPaths = new DrawRecordedPaths(getApplicationContext(), Map);
+
+        TileProvider provider = new SVGTileProvider(MapTools.getMapTiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
+        Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
 
     }
 
@@ -171,4 +211,10 @@ public class MainActivity extends FragmentActivity {
     public void onPause() {
         super.onPause();
     }
+
+    @Override
+    public void onCameraChange(CameraPosition cameraPosition) {
+        ((TextView) findViewById(R.id.mapZoomLevelDisplay)).setText(cameraPosition.zoom + "");
+    }
+
 }

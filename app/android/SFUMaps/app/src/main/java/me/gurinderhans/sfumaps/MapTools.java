@@ -11,13 +11,13 @@ import android.util.Pair;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
 import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  * Created by ghans on 2/9/15.
@@ -36,11 +37,6 @@ public class MapTools {
 
     private static String[] mapTileAssets; // tile assets list cache
 
-    // enum for placing label icon on which side
-    public enum MapLabelIconAlign {
-        TOP, LEFT, RIGHT
-    }
-
     // empty constructor
     private MapTools() {
         /* To make sure this class cannot be instantiated */
@@ -50,7 +46,6 @@ public class MapTools {
     //
     // MARK: Wifi Data parsing methods
     //
-
 
     /**
      * @param dataArray - the data array that we are splitting by keys
@@ -129,12 +124,6 @@ public class MapTools {
         return new PointF(Sx, Sy);
     }
 
-
-    //
-    // MARK: Tile Assets methods
-    //
-
-
     /**
      * Returns true if the given tile file exists as a local asset.
      */
@@ -158,6 +147,11 @@ public class MapTools {
         }
         return false;
     }
+
+
+    //
+    // MARK: Tile Assets methods
+    //
 
     /**
      * Copy the file from the assets to the map tiles directory if it was
@@ -216,25 +210,41 @@ public class MapTools {
         }
     }
 
-    public static HashMap<String, File> getTileFiles(Context c) {
-
-        HashMap<String, File> tileFiles = new HashMap<>();
-
+    // returns an array list of pairs which match the file with the zoom level for the map
+    public static ArrayList<Pair<String, Picture>> getMapTiles(Context c) {
         try {
+            ArrayList<Pair<String, Picture>> tileFiles = new ArrayList<>();
             String[] files = c.getAssets().list(AppConfig.TILE_PATH);
 
-            for (String f : files) {
-                if (copyTileAsset(c, f)) {
-                    String zoomLvl = f.split("-")[SVGTileProvider.FILE_NAME_ZOOM_LVL_INDEX];
-                    tileFiles.put(zoomLvl, getTileFile(c, f));
-                    Log.i(TAG, "copied: " + f + " to files dir && " + "added: " + f + " to tileFiles list");
+            // copy tiles to internal storage
+            // TODO: check for failure in copying
+            for (String f : files)
+                copyTileAsset(c, f);
+
+            // TODO: make sure the file at index 0 is the one with lowest zoom
+            Picture currentFile = new SVGBuilder().readFromInputStream(
+                    new FileInputStream(getTileFile(c, files[0]))).build().getPicture();
+
+            // map zoom level -> [0,25) just to keep out of bounds for safety
+            for (int i = 0; i < 25; i++) {
+                for (String f : files) {
+                    String zoom_floor_val = f.split(Pattern.quote("."))[0]; // extract zoom and floor level values by removing extension
+
+                    // if file zoom value matches with the loop value
+                    if (zoom_floor_val.split("-")[SVGTileProvider.FILE_NAME_ZOOM_LVL_INDEX].equals(i + ""))
+                        currentFile = new SVGBuilder().readFromInputStream(
+                                new FileInputStream(getTileFile(c, f))).build().getPicture();
                 }
+                tileFiles.add(Pair.create(i + "", currentFile));
             }
+            return tileFiles;
 
         } catch (IOException e) {
-            Log.i(TAG, "unable to list assets directory");
+            e.printStackTrace();
+            Log.d(MainActivity.TAG, "Could not create Tile Provider. Unable to list map tile files directory");
         }
-        return tileFiles;
+
+        return null;
     }
 
 
@@ -242,6 +252,16 @@ public class MapTools {
     // MARK: Map Maker Labels methods
     //
 
+    public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation, Bitmap textIcon, float markerRotation) {
+        //
+        return map.addMarker(new MarkerOptions()
+                .position(MercatorProjection.fromPointToLatLng(screenLocation))
+                .icon(BitmapDescriptorFactory.fromBitmap(textIcon))
+                .rotation(markerRotation)
+                .flat(true).draggable(true)
+                .title("Position")
+                .snippet(screenLocation.toString()));
+    }
 
     public static Bitmap combineLabelBitmaps(Bitmap a, Bitmap b, MapLabelIconAlign alignment) {
 
@@ -271,9 +291,33 @@ public class MapTools {
         return bmp;
     }
 
-    public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation,
-                                       Bitmap textIcon, float rotation, Integer imageIconId,
-                                       MapLabelIconAlign imageIconAlignment) {
+    public static Bitmap createPureTextIcon(Context c, String text,
+                                            Pair<Integer, Integer> rotation) {
+
+        IconGenerator generator = new IconGenerator(c);
+        generator.setBackground(null);
+        generator.setTextAppearance(R.style.MapTextRawStyle);
+        generator.setContentPadding(0, 0, 0, 0);
+
+        if (rotation != null) {
+            generator.setRotation(rotation.first);
+            generator.setContentRotation(rotation.second);
+        }
+
+        return generator.makeIcon(text);
+    }
+
+    public static Bitmap pictureDrawableToBitmap(Picture picture) {
+        PictureDrawable pd = new PictureDrawable(picture);
+        Bitmap bitmap = Bitmap.createBitmap(pd.getIntrinsicWidth(), pd.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawPicture(pd.getPicture());
+        return bitmap;
+    }
+
+    public static Marker addTextAndIconMarker(Context c, GoogleMap map, PointF screenLocation,
+                                              Bitmap textIcon, float rotation, Integer imageIconId,
+                                              MapLabelIconAlign imageIconAlignment) {
 
 
         // get passed in icon or use the default one
@@ -306,28 +350,9 @@ public class MapTools {
         );
     }
 
-    public static Bitmap createPureTextIcon(Context c, String text,
-                                            Pair<Integer, Integer> rotation) {
-
-        IconGenerator generator = new IconGenerator(c);
-        generator.setBackground(null);
-        generator.setTextAppearance(R.style.MapTextRawStyle);
-        generator.setContentPadding(0, 0, 0, 0);
-
-        if (rotation != null) {
-            generator.setRotation(rotation.first);
-            generator.setContentRotation(rotation.second);
-        }
-
-        return generator.makeIcon(text);
-    }
-
-    public static Bitmap pictureDrawableToBitmap(Picture picture) {
-        PictureDrawable pd = new PictureDrawable(picture);
-        Bitmap bitmap = Bitmap.createBitmap(pd.getIntrinsicWidth(), pd.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        canvas.drawPicture(pd.getPicture());
-        return bitmap;
+    // enum for placing label icon on which side
+    public enum MapLabelIconAlign {
+        TOP, LEFT, RIGHT
     }
 
 }

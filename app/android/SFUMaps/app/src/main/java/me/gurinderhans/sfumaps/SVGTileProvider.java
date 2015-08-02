@@ -5,19 +5,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Picture;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
-import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -35,29 +33,25 @@ public class SVGTileProvider implements TileProvider {
     private static final int POOL_MAX_SIZE = 5;
     private static final int BASE_TILE_SIZE = 256;
 
-    private final TileGeneratorPool mPool;
-
-    private final Matrix mBaseMatrix;
-
     private final int mScale;
     private final int mDimension;
 
-    private final HashMap<String, File> mTileFiles;
-    Pair<String, File> mPreviousSVG;
 
+    private final TileGeneratorPool mPool;
+    private final Matrix mBaseMatrix;
+
+    private final ArrayList<Pair<String, Picture>> mTilePictures;
+
+    @Nullable
     private Picture mSvgPicture;
 
-    public SVGTileProvider(HashMap<String, File> files, float dpi) throws IOException {
+    public SVGTileProvider(ArrayList<Pair<String, Picture>> files, float dpi) {
         mScale = Math.round(dpi + .3f); // Make it look nice on N7 (1.3 dpi)
         mDimension = BASE_TILE_SIZE * mScale;
         mPool = new TileGeneratorPool(POOL_MAX_SIZE);
-        mTileFiles = files;
-
-        mPreviousSVG = new Pair<>("-1", null);
-
         mBaseMatrix = new Matrix();
-        mBaseMatrix.setScale(0.25f, 0.25f); // scale svg to fit screen
-
+        mBaseMatrix.setScale(0.25f, 0.25f); // scale to fit to screen
+        mTilePictures = files;
     }
 
     @Override
@@ -88,8 +82,7 @@ public class SVGTileProvider implements TileProvider {
             if (mPool.size() < mMaxSize && mPool.offer(tileGenerator)) {
                 return;
             }
-            // pool is too big or returning to pool failed, so just try to clean
-            // up.
+            // pool is too big or returning to pool failed, so just try to clean up.
             tileGenerator.cleanUp();
         }
     }
@@ -104,22 +97,8 @@ public class SVGTileProvider implements TileProvider {
         }
 
         public byte[] getTileImageData(int x, int y, int zoom) {
-            try {
-                // check if the svg hasn't been updated for this zoom level
-                if (!mPreviousSVG.first.equals(zoom + "")) {
-                    File f = mTileFiles.get(zoom + "");
-                    if (f != null) {
-                        mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(f)).build().getPicture();
-                        mPreviousSVG = new Pair<>(f.getName().split("-")[FILE_NAME_ZOOM_LVL_INDEX], f);
-                        Log.i(TAG, "set svg to: " + mPreviousSVG.second);
-                    } else {
-                        // just load the last loaded svg
-                        mSvgPicture = new SVGBuilder().readFromInputStream(new FileInputStream(mPreviousSVG.second)).build().getPicture();
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
+            mSvgPicture = mTilePictures.get(zoom).second;
 
             mStream.reset();
             Matrix matrix = new Matrix(mBaseMatrix);
@@ -131,7 +110,8 @@ public class SVGTileProvider implements TileProvider {
             Canvas c = new Canvas(mBitmap);
             c.setMatrix(matrix);
 
-            mSvgPicture.draw(c);
+            if (mSvgPicture != null)
+                mSvgPicture.draw(c);
 
             BufferedOutputStream stream = new BufferedOutputStream(mStream);
             mBitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
