@@ -1,9 +1,11 @@
 package me.gurinderhans.sfumaps.Factory;
 
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ghans on 15-07-29.
@@ -17,8 +19,8 @@ public class MapGrid {
     public final PointF startPoint;
     public final PointF endPoint;
 
-    public final int mapHeight;
-    public final int mapWidth;
+    public final int rows;
+    public final int cols;
 
     public ArrayList<ArrayList<GridNode>> mMapGrid = new ArrayList<>();
 
@@ -26,73 +28,78 @@ public class MapGrid {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
 
-        this.mapWidth = 8 * ((int) Math.abs(endPoint.x - startPoint.x));
-        this.mapHeight = 8 * ((int) Math.abs(endPoint.y - startPoint.y));
+        this.rows = 8 * ((int) Math.abs(endPoint.y - startPoint.y));
+        this.cols = 8 * ((int) Math.abs(endPoint.x - startPoint.x));
 
-        Log.i(TAG, "map size: " + mapWidth + " x " + mapHeight);
+        Log.i(TAG, "map size: " + cols + " x " + rows);
 
         // create the map grid
-        for (int i = 0; i < mapHeight; i++) {
-            ArrayList<GridNode> tmpRow = new ArrayList<>();
-            for (int j = 0; j < mapWidth; j++)
-                tmpRow.add(new GridNode(j, i, this));
-            mMapGrid.add(tmpRow);
+        for (int x = 0; x < cols; x++) {
+            ArrayList<GridNode> tmp = new ArrayList<>();
+            for (int y = 0; y < rows; y++) {
+                tmp.add(new GridNode(x, y, this));
+            }
+            mMapGrid.add(tmp);
         }
     }
 
-    public void setNonWalkablePath(GridNode node_from, GridNode node_to) {
-        /*for (int i = node_from.x; i <= node_to.x; i++) {
-            for (int j = node_from.y; j <= node_to.y; j++)
-                mMapGrid.get(i).get(j).setNodeCharId(NON_WALKABLE_PATH_CHAR);
-        }*/
+    public GridNode get_node(int x, int y) {
+        return mMapGrid.get(x).get(y);
     }
 
-    public boolean in_bounds(GridNode node) {
-        return node.x >= 0 && node.x < mapWidth
-                && node.y >= 0 && node.y < mapHeight;
+    public void createWalkablePath(GridNode node_from, GridNode node_to) {
+        for (int x = node_from.x; x <= node_to.x; x++) {
+            for (int y = node_from.y; y <= node_to.y; y++) {
+                Log.i(TAG, "x: " + x + " y: " + y);
+                get_node(x, y).setWalkable(true);
+            }
+        }
     }
 
-    public ArrayList<GridNode> neighbours(GridNode node) {
+    public boolean in_bounds(Point p) {
+        return p.x >= 0 && p.x < cols
+                && p.y >= 0 && p.y < rows;
+    }
+
+    public List<GridNode> getNeighbours(GridNode node) {
         int x = node.x;
         int y = node.y;
 
 
         // TODO: make sure x and y are in correct order
         // TODO: path blocker checks here or w/e
-        if (!mMapGrid.get(x).get(y).isWalkable) {
+        if (!get_node(x, y).isWalkable) {
             return new ArrayList<>(); // return empty if its a path blocker
         }
 
-        // test nodes
-        GridNode node1 = new GridNode(x, y - 1, this);
-        GridNode node2 = new GridNode(x, y + 1, this);
-        GridNode node3 = new GridNode(x + 1, y, this);
-        GridNode node4 = new GridNode(x - 1, y + 1, this);
-        GridNode node5 = new GridNode(x - 1, y - 1, this);
-        GridNode node6 = new GridNode(x - 1, y + 1, this);
-        GridNode node7 = new GridNode(x + 1, y + 1, this);
-        GridNode node8 = new GridNode(x + 1, y - 1, this);
+        // TODO: simplify this
 
-        ArrayList<GridNode> nreturn = new ArrayList<>();
+        // test neighbours
+        List<Point> points = new ArrayList<>();
+        points.add(new Point(x, y - 1));
+        points.add(new Point(x, y + 1));
+        points.add(new Point(x + 1, y));
+        points.add(new Point(x - 1, y + 1));
+        points.add(new Point(x - 1, y - 1));
+        points.add(new Point(x - 1, y + 1));
+        points.add(new Point(x + 1, y + 1));
+        points.add(new Point(x + 1, y - 1));
 
-        if (in_bounds(node1))
-            nreturn.add(node1);
-        if (in_bounds(node2))
-            nreturn.add(node2);
-        if (in_bounds(node3))
-            nreturn.add(node3);
-        if (in_bounds(node4))
-            nreturn.add(node4);
-        if (in_bounds(node5))
-            nreturn.add(node5);
-        if (in_bounds(node6))
-            nreturn.add(node6);
-        if (in_bounds(node7))
-            nreturn.add(node7);
-        if (in_bounds(node8))
-            nreturn.add(node8);
+        List<GridNode> neighbours = new ArrayList<>();
 
-        return nreturn;
+        for (Point p : points) {
+            if (in_bounds(p)) {
+
+                GridNode thisNode = get_node(p.x, p.y);
+
+                if (thisNode.isWalkable) {
+                    Log.i(TAG, "node, x: " + thisNode.x + " y: " + thisNode.y);
+                    neighbours.add(thisNode);
+                }
+            }
+        }
+
+        return neighbours;
     }
 
 }
