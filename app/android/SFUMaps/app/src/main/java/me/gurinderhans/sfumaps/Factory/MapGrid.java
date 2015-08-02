@@ -1,16 +1,9 @@
 package me.gurinderhans.sfumaps.Factory;
 
-import android.content.Context;
 import android.graphics.PointF;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
+import android.util.Log;
 
 import java.util.ArrayList;
-
-import me.gurinderhans.sfumaps.MercatorProjection;
-import me.gurinderhans.sfumaps.R;
 
 /**
  * Created by ghans on 15-07-29.
@@ -21,8 +14,8 @@ public class MapGrid {
 
     public static final String WALKABLE_PATH_CHAR = ".";
     public static final String NON_WALKABLE_PATH_CHAR = "x";
-    public static final float VERTICAL_EACH_POINT_DIST = 0.272f;
-    public static final float HORIZONTAL_EACH_POINT_DIST = 0.276f;
+
+    public static final float EACH_POINT_DIST = 0.125f;
 
     public final PointF startPoint;
     public final PointF endPoint;
@@ -36,8 +29,10 @@ public class MapGrid {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
 
-        this.mapWidth = 4 * ((int) Math.abs(endPoint.x - startPoint.x));
-        this.mapHeight = 4 * ((int) Math.abs(endPoint.y - startPoint.y));
+        this.mapWidth = 8 * ((int) Math.abs(endPoint.x - startPoint.x));
+        this.mapHeight = 8 * ((int) Math.abs(endPoint.y - startPoint.y));
+
+        Log.i(TAG, "map size: " + mapWidth + " x " + mapHeight);
 
         // create the map grid
         for (int i = 0; i < mapHeight; i++) {
@@ -49,10 +44,10 @@ public class MapGrid {
     }
 
     public void setNonWalkablePath(GridNode node_from, GridNode node_to) {
-        for (int i = node_from.x; i <= node_to.x; i++) {
+        /*for (int i = node_from.x; i <= node_to.x; i++) {
             for (int j = node_from.y; j <= node_to.y; j++)
                 mMapGrid.get(i).get(j).setNodeCharId(NON_WALKABLE_PATH_CHAR);
-        }
+        }*/
     }
 
     public boolean in_bounds(GridNode node) {
@@ -67,7 +62,7 @@ public class MapGrid {
 
         // TODO: make sure x and y are in correct order
         // TODO: path blocker checks here or w/e
-        if (mMapGrid.get(x).get(y).charId.equals(NON_WALKABLE_PATH_CHAR)) {
+        if (!mMapGrid.get(x).get(y).charId.equals(WALKABLE_PATH_CHAR)) {
             return new ArrayList<>(); // return empty if its a path blocker
         }
 
@@ -103,38 +98,4 @@ public class MapGrid {
         return nreturn;
     }
 
-    /**
-     * Prints the map on screen
-     */
-    public void printMap(Context c, GoogleMap map) {
-        for (int i = 0; i < mapHeight; i++) {
-            for (int j = 0; j < mapWidth; j++) {
-                // get point
-                GridNode node = mMapGrid.get(i).get(j);
-
-                int icon_id;
-
-                if (node.charId.equals(NON_WALKABLE_PATH_CHAR)) {
-                    icon_id = R.drawable.grid_cross;
-                    continue;
-                } else if (node.charId.equals("A")) {
-                    icon_id = R.drawable.sfunetsecuredot;
-                } else if (node.charId.equals("B")) {
-                    icon_id = R.drawable.eduroamdot;
-                } else if (node.charId.equals("@")) {
-                    icon_id = R.drawable.path_dot;
-                    continue;
-                } else {
-                    icon_id = R.drawable.map_grid_point;
-//                    return;
-                }
-
-                map.addMarker(new MarkerOptions()
-                                .position(MercatorProjection.fromPointToLatLng(node.node_position))
-                                .icon(BitmapDescriptorFactory.fromResource(icon_id))
-                                .title("Pos: " + node.x + ", " + node.y)
-                );
-            }
-        }
-    }
 }

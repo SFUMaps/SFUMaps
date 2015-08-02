@@ -13,6 +13,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -28,7 +29,7 @@ import me.gurinderhans.sfumaps.Factory.GridNode;
 import me.gurinderhans.sfumaps.Factory.MapGrid;
 import me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity;
 
-public class MainActivity extends FragmentActivity implements OnCameraChangeListener, GoogleMap.OnMarkerClickListener {
+public class MainActivity extends FragmentActivity implements OnCameraChangeListener, GoogleMap.OnMapClickListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -130,6 +131,8 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
         astar();
     }
 
+    MapGrid mapGrid;
+
     public void astar() {
 
         //
@@ -138,17 +141,16 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 
 
         // create grid
-        MapGrid grid = new MapGrid(new PointF(158.65297f, 106.69752f), new PointF(170.47316f, 118.315834f));
-        GridNode frm = new GridNode(0, 0, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
-        GridNode to = new GridNode(42, 42, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
-        grid.mMapGrid.get(frm.x).get(frm.y).setNodeCharId("A");
-        grid.mMapGrid.get(to.x).get(to.y).setNodeCharId("B");
+        MapGrid grid = mapGrid = new MapGrid(new PointF(121f, 100f), new PointF(192f, 183f));
+        GridNode frm = new GridNode(167, 230, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
+        GridNode to = new GridNode(320, 253, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
 
         // blocking areas
-        grid.setNonWalkablePath(new GridNode(2, 5, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(41, 41, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
-        grid.setNonWalkablePath(new GridNode(5, 0, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(30, 3, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
-        grid.setNonWalkablePath(new GridNode(39, 2, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(41, 3, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
-        grid.setNonWalkablePath(new GridNode(13, 43, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(30, 43, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
+//        grid.setNonWalkablePath(new GridNode(231, 171, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(317, 251, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
+//        grid.setNonWalkablePath(new GridNode(12, 0, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(56, 16, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
+//        grid.setNonWalkablePath(new GridNode(57, 3, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(73, 11, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
+//        grid.setNonWalkablePath(new GridNode(29, 2, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(36, 5, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
+//        grid.setNonWalkablePath(new GridNode(31, 2, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint), new GridNode(36, 3, MapGrid.NON_WALKABLE_PATH_CHAR, grid.startPoint));
 
 
         //
@@ -162,7 +164,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
         // add initial node (start node)
         open_list.add(frm.computeCost(frm, to));
 
-        GridNode endNode = new GridNode(-1, -1, "@", grid.startPoint);
+        GridNode endNode = new GridNode(-1, -1, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
 
         while (open_list.size() != 0) {
             Log.i(TAG, "open list size: " + open_list.size());
@@ -184,21 +186,28 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 
             for (GridNode n : grid.neighbours(current_node)) {
 
-                n.parentNode = current_node;
 
                 if (GridNode.searchNode(n, closed_list) > -1)
                     continue;
 
-                float tenative_g_score = current_node.gcost + GridNode.dist(current_node, n);
+                if (!n.charId.equals(MapGrid.WALKABLE_PATH_CHAR)) {
 
-                // TODO: some adjustments required here
-                if (GridNode.searchNode(n, open_list) == -1 || tenative_g_score < n.gcost) {
-                    open_list.add(n.computeCost(frm, to));
-                    int nbr_index = GridNode.searchNode(n, open_list);
-                    GridNode tmp = open_list.get(nbr_index);
-                    tmp.gcost = tenative_g_score;
-                    tmp.fcost = tenative_g_score + GridNode.dist(n, to);
-                    open_list.set(nbr_index, tmp);
+                    float tenative_g_score = current_node.gcost + GridNode.dist(current_node, n);
+
+
+                    // TODO: some adjustments required here
+                    if (GridNode.searchNode(n, open_list) == -1 || tenative_g_score < n.gcost) {
+                        n.parentNode = current_node;
+
+                        if (GridNode.searchNode(n, open_list) == -1)
+                            open_list.add(n.computeCost(frm, to));
+
+                        int nbr_index = GridNode.searchNode(n, open_list);
+                        GridNode tmp = open_list.get(nbr_index);
+                        tmp.gcost = tenative_g_score;
+                        tmp.fcost = tenative_g_score + GridNode.dist(n, to);
+                        open_list.set(nbr_index, tmp);
+                    }
                 }
             }
 
@@ -206,14 +215,14 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 
         PolylineOptions path_line_data = new PolylineOptions().geodesic(true);
 
-        GridNode node = new GridNode(to.y, to.x, "@", grid.startPoint);
+        GridNode node = new GridNode(to.y, to.x, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
         path_line_data.add(MercatorProjection.fromPointToLatLng(node.node_position));
 
         ArrayList<GridNode> cpath = new ArrayList<>();
         while (endNode.parentNode != null) {
             endNode = endNode.parentNode;
             // need to switch x and y here for the indicies, as real life x, y are inverse of matrix x,y
-            GridNode mapNode = new GridNode(endNode.y, endNode.x, "@", grid.startPoint);
+            GridNode mapNode = new GridNode(endNode.y, endNode.x, MapGrid.WALKABLE_PATH_CHAR, grid.startPoint);
             path_line_data.add(MercatorProjection.fromPointToLatLng(mapNode.node_position));
         }
 
@@ -222,7 +231,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
         Polyline path_line = Map.addPolyline(path_line_data);
         path_line.setZIndex(1000); // Or some large number :)
 
-        grid.printMap(this, Map);
+//        grid.printMap(this, Map);
     }
 
     /**
@@ -284,8 +293,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
                 marker.setSnippet(MercatorProjection.fromLatLngToPoint(marker.getPosition()).toString());
             }
         });
-
-        Map.setOnMarkerClickListener(this);
+        Map.setOnMapClickListener(this);
 
         // Polylines are useful for marking paths and routes on the map.
         Polyline polyline = Map.addPolyline(new PolylineOptions().geodesic(true)
@@ -322,8 +330,28 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 
 
     @Override
-    public boolean onMarkerClick(Marker marker) {
+    public void onMapClick(LatLng latLng) {
+        PointF clickedPoint = MercatorProjection.fromLatLngToPoint(latLng);
+        // get markers at the area clicked
+        for (int i = 0; i < mapGrid.mapHeight; i++) {
+            for (int j = 0; j < mapGrid.mapWidth; j++) {
+                GridNode thisNode = mapGrid.mMapGrid.get(i).get(j);
+                if (inRange(thisNode.node_position, clickedPoint, 0.5f)) {
+                    Log.i(TAG, thisNode.node_position.toString());
 
-        return true;
+                    // draw this and couple points around it
+                    Map.addMarker(new MarkerOptions()
+                                    .position(MercatorProjection.fromPointToLatLng(thisNode.node_position))
+                                    .icon(BitmapDescriptorFactory.fromResource(thisNode.charId.equals(MapGrid.WALKABLE_PATH_CHAR) ? R.drawable.map_path : R.drawable.no_path))
+                                    .anchor(0.5f, 0.5f)
+                                    .title("Pos: " + thisNode.y + ", " + thisNode.x)
+                    );
+                }
+            }
+        }
+    }
+
+    public boolean inRange(PointF a, PointF b, float range) {
+        return Math.abs(a.x - b.x) <= range && Math.abs(a.y - b.y) <= range;
     }
 }

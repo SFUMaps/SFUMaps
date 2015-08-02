@@ -25,7 +25,7 @@ public class GridNode {
     // @constructor
     public GridNode(int x, int y, String charId, PointF startPoint) {
 
-        this.node_position = new PointF(startPoint.x + x * MapGrid.HORIZONTAL_EACH_POINT_DIST , startPoint.y + y * MapGrid.VERTICAL_EACH_POINT_DIST);
+        this.node_position = new PointF(startPoint.x + x * MapGrid.EACH_POINT_DIST, startPoint.y + y * MapGrid.EACH_POINT_DIST);
 
         this.charId = charId;
 
