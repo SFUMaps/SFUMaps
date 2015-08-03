@@ -145,10 +145,12 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
         mapGrid.createWalkablePath(new GridNode(170, 232, mapGrid), new GridNode(170, 235, mapGrid));
         mapGrid.createWalkablePath(new GridNode(169, 236, mapGrid), new GridNode(170, 321, mapGrid));
         mapGrid.createWalkablePath(new GridNode(171, 319, mapGrid), new GridNode(255, 322, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(171, 228, mapGrid), new GridNode(255, 231, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(252, 232, mapGrid), new GridNode(255, 255, mapGrid));
+        mapGrid.createWalkablePath(new GridNode(171, 228, mapGrid), new GridNode(255, 230, mapGrid));
+        mapGrid.createWalkablePath(new GridNode(252, 231, mapGrid), new GridNode(255, 255, mapGrid));
         mapGrid.createWalkablePath(new GridNode(252, 255, mapGrid), new GridNode(253, 294, mapGrid));
         mapGrid.createWalkablePath(new GridNode(252, 295, mapGrid), new GridNode(255, 318, mapGrid));
+        mapGrid.createWalkablePath(new GridNode(242, 323, mapGrid), new GridNode(270, 337, mapGrid));
+        mapGrid.createWalkablePath(new GridNode(271, 330, mapGrid), new GridNode(347, 337, mapGrid));
 
         // test points
         frm = new Point(163, 229);
@@ -164,11 +166,12 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
     public void AStar() {
 
         // AStar search
+        long start = System.currentTimeMillis();
         List<GridNode> path = PathFinder.getPath(frm, to, mapGrid);
+        Log.i(TAG, "path search took: " + (System.currentTimeMillis() - start) + "ms");
 
         Log.i(TAG, "path: " + path);
         if (path != null) {
-
             List<LatLng> pathPoints = new ArrayList<>();
             for (GridNode node : path) {
                 pathPoints.add(MercatorProjection.fromPointToLatLng(node.node_position));
@@ -237,7 +240,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
                 for (int x = 0; x < mapGrid.mapGridSizeX; x++) {
                     for (int y = 0; y < mapGrid.mapGridSizeY; y++) {
                         GridNode thisNode = mapGrid.getNode(x, y);
-                        if (MapTools.inRange(thisNode.node_position, pos, 0.05f)) {
+                        if (MapTools.inRange(thisNode.node_position, pos, 0.1f)) {
                             Log.i(TAG, thisNode.toString());
                             to = new Point(thisNode.gridX, thisNode.gridY);
                             // redraw path
