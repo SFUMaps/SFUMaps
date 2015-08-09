@@ -1132,11 +1132,11 @@
 			</g>
 			<g id="Rectangle_27">
 				<g>
-					<path fill="#D9D1CA" d="M994.4,968.1c0-3.1,0-6.2,0.1-9.2c-0.3,0-0.5,0-0.8,0v-0.2l-0.8-0.6v-1.7c0.1,0,0.2,0,0.3,0
+					<path fill="#D9D1CA" d="M997.8,968.1c0-3.1,0-6.2,0.1-9.2c-0.3,0-0.5,0-0.8,0v-0.2l-0.8-0.6v-1.7c0.1,0,0.2,0,0.3,0
 						c0.2-0.5,0.3-1.1,0.4-1.8c0-0.3,0.1-0.7,0.1-1c0-0.3,0-0.7,0-1c0-1.3-0.3-2.3-1-2.6c-0.2,0-0.5,0-0.7-0.1l-0.2-8.6h9.8v-5.5
 						h-13.8v0.8l-0.2,0c-0.4,0-0.7,0-1.1,0c0,0,0,0,0,0c-1.7,0-3.5,0-5.2,0c-2.4,0-4.9,0-7.3,0c0,0,0,0,0,0c-2.4,0-4.7,0-7.1,0v0
 						h-7.9v5.5h6.8l0.2,6.7c-0.4,0-0.7,0-1.1,0c0,2.7-0.7,7.9,1.3,7.5l0.1,3.3c0,0,0,0,0,0l-0.2-0.9h-0.4l-0.8,1.7v1.7l0.4,1.7
-						l0.1-0.2c0,0.8-0.1,1.7-0.1,2.6l-0.4,0.3v1.3h-7.5v6.3h12.2v15.7h-15v6.3h15v1.2h21.3v-2.8h0.4v-23.2h11v-3.1H994.4z"/>
+						l0.1-0.2c0,0.8-0.1,1.7-0.1,2.6l-0.4,0.3v1.3h-7.5v6.3h12.2v15.7h-15v6.3h15v1.2h21.3v-2.8h0.4v-23.2h11v-3.1H997.8z"/>
 				</g>
 			</g>
 			<g id="Rectangle_28">
@@ -1146,9 +1146,9 @@
 			</g>
 			<g id="Rectangle_9">
 				<g>
-					<path fill="#D9D1CA" d="M1027.6,982.7v-8.3h7.1v-6.3h-7.1v-0.4h-1.2v-8.3h3.5v-5.1h2.8v-13.4h-26.8v7.1h1.1
-						c1,2.4,1.9,4.4-1.5,5.5c0.7,0,1.3,0,2,0v0h-4.7v5.5h-0.8v15h2.8l1.2,1.6v5.5h-2v8.7h-12.6v4.7h24.4v2h9.8v-2h1.2v-0.4h2.4
-						c0-0.7,0.3-1.4,2-2h2.3v-2.4h-6.7v-7.1H1027.6z"/>
+					<path fill="#D9D1CA" d="M1027.6,982.7v-8.3h7.1v-6.3h-6.4v-8.7h2.8v-5.1h2.4v-13.4h-27.6v7.1h1.1c1,2.4,1.9,4.4-1.5,5.5
+						c0.7,0,1.3,0,2,0v0h-4.7v5.5h-0.8v15h2.8l1.2,1.6v5.5h-2v8.7h-12.6v4.7h24.4v2h9.8v-2h1.2v-0.4h2.4c0-0.7,0.3-1.4,2-2h2.3v-2.4
+						h-6.7v-7.1H1027.6z"/>
 				</g>
 			</g>
 			<g id="Rectangle_10_copy_2">
@@ -1439,10 +1439,10 @@
 			</g>
 			<g id="Rectangle_20">
 				<g>
-					<path fill="#D9D1CA" d="M953.3,936.7c-2-0.1-4.1-0.1-6.1-0.1v0H939v0.7c-0.3,0.1-0.6,0.1-0.9,0.2c-0.6,0-1.2,0.1-1.9,0.1
+					<path fill="#D9D1CA" d="M956.7,936.7c-2-0.1-4.1-0.1-6.1-0.1v0h-8.3v0.7c-0.3,0.1-0.6,0.1-0.9,0.2c-0.6,0-1.2,0.1-1.9,0.1
 						c0.1,0.2,0.1,0.4,0.2,0.6c-0.4,0.3-0.8,0.6-1.1,1.1c0,0.1,0,0.1,0,0.2c0,0-0.1,0-0.1,0.1c0,0,0,0.1,0,0.1h-3.2v16.9h2
-						c0,0.5,0,1-0.1,1.6h-2v9.1h-4.3v5.9h3.9v11.4h-1.2v3.5h-5.9v5.9h2.8v2h11.4v1.6h9.1V996c2.6,0,5.2,0,7.8,0.1
-						c0.1-7.4,0.1-14.7,0.2-22.1c0.7,0,1.4,0,2.1,0c0-5.1,0.1-10.2,0.1-15.4h1.6v-22C957.5,936.6,955.5,936.7,953.3,936.7z"/>
+						c0,0.5,0,1-0.1,1.6h-2v9.1h-4.3v5.9h3.9v11.4h-1.2v3.5h-5.9v5.9h2.8v2H942v1.6h9.1V996c2.6,0,5.2,0,7.8,0.1
+						c0.1-7.4,0.1-14.7,0.2-22.1c0.7,0,1.4,0,2.1,0c0-5.1,0.1-10.2,0.1-15.4h1.6v-22C960.9,936.6,958.8,936.7,956.7,936.7z"/>
 				</g>
 			</g>
 		</g>
@@ -1534,674 +1534,6 @@
 		<g id="Shape_93">
 			<g>
 				<polygon fill="#F0F0D8" points="1199.6,1096.5 1177.6,1101.6 1168.1,1102.4 1159.8,1103.5 1164.6,1105.9 1200,1098.4 				"/>
-			</g>
-		</g>
-	</g>
-</g>
-<g id="Shrum_Science_Centre">
-	<g id="BG_3_">
-		<rect x="931.9" y="939.8" fill="#EBE1E1" width="27.6" height="16.9"/>
-		<rect x="931.9" y="958.3" fill="#EBE1E1" width="26" height="10.1"/>
-		<rect x="933.9" y="956.2" fill="#EBE1E1" width="23.9" height="2.6"/>
-		<rect x="957.5" y="953.9" fill="#EBE1E1" width="2.3" height="4.8"/>
-		<rect x="936.2" y="937.4" fill="#EBE1E1" width="23.2" height="2.4"/>
-	</g>
-	<g id="Shrum_Science_Centre_Top_Basic">
-		<g id="Shape_1_copy_2_2_">
-			<g>
-				<rect x="932.2" y="939.7" fill="#897272" width="0.1" height="16.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_25_2_">
-			<g>
-				<rect x="932.3" y="939.7" fill="#897272" width="4.1" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_26">
-			<g>
-				<rect x="936.3" y="937.8" fill="#897272" width="0.1" height="2.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_71_2_">
-			<g>
-				<rect x="938.4" y="937.9" fill="#897272" width="0.1" height="0.7"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_70">
-			<g>
-				<polygon fill="#897272" points="937.5,938.8 937.5,938.8 937.6,939.1 937.7,939.1 				"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_68">
-			<g>
-				<polygon fill="#897272" points="937.5,938.8 936.4,939.8 936.4,939.9 937.6,938.8 				"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_69">
-			<g>
-				
-					<rect x="937.6" y="938.8" transform="matrix(0.8547 -0.5191 0.5191 0.8547 -351.0737 623.3019)" fill="#897272" width="0.9" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_27_2_">
-			<g>
-				<rect x="936.3" y="937.8" fill="#897272" width="5.9" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_28_2_">
-			<g>
-				<rect x="942.1" y="937.8" fill="#897272" width="0.1" height="9.9"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_29_2_">
-			<g>
-				<rect x="942.1" y="947.5" fill="#897272" width="0.1" height="8.5"/>
-			</g>
-		</g>
-		<g id="Rectangle_19_2_">
-			<g>
-				<rect x="942" y="937.6" fill="#897272" width="0.2" height="0.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_33_2_">
-			<g>
-				<rect x="932.2" y="946.8" fill="#897272" width="1.2" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_140">
-			<g>
-				<rect x="967.7" y="954.1" fill="#897272" width="0.1" height="4.2"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_146">
-			<g>
-				<rect x="978.3" y="954.1" fill="#897272" width="0.1" height="4.2"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_156">
-			<g>
-				<rect x="981.1" y="954.1" fill="#897272" width="0.1" height="13.9"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_157_2_">
-			<g>
-				<rect x="994.2" y="958.3" fill="#897272" width="0.1" height="9.7"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_158_2_">
-			<g>
-				<rect x="992.8" y="954.1" fill="#897272" width="0.1" height="4.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_159">
-			<g>
-				<rect x="981.2" y="958.3" fill="#897272" width="13.1" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_160_2_">
-			<g>
-				<rect x="981.2" y="967.9" fill="#897272" width="13.1" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_161_2_">
-			<g>
-				<rect x="1000.7" y="939.7" fill="#897272" width="14.9" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_165_2_">
-			<g>
-				<rect x="1018.2" y="945.3" fill="#897272" width="36.6" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_192_2_">
-			<g>
-				<rect x="1023.5" y="940.5" fill="#897272" width="52.2" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_196_2_">
-			<g>
-				<rect x="1044" y="934.6" fill="#897272" width="24.4" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_210_2_">
-			<g>
-				<rect x="1044.1" y="934.6" fill="#897272" width="0.1" height="6"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_217">
-			<g>
-				<rect x="1068.3" y="934.6" fill="#897272" width="0.1" height="6"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_200">
-			<g>
-				<rect x="1054.8" y="945.3" fill="#897272" width="0.1" height="2.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_202">
-			<g>
-				<rect x="1054.8" y="947.5" fill="#897272" width="0.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_203_2_">
-			<g>
-				<rect x="1057" y="947.5" fill="#897272" width="0.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_204_2_">
-			<g>
-				<rect x="1057.7" y="945.3" fill="#897272" width="10.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_223_2_">
-			<g>
-				<rect x="1068.4" y="947.3" fill="#897272" width="7.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_205_2_">
-			<g>
-				<rect x="1055.2" y="947.6" fill="#897272" width="0.1" height="22.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_206_2_">
-			<g>
-				<rect x="1057.1" y="947.6" fill="#897272" width="0.1" height="22.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_221_2_">
-			<g>
-				<rect x="1057.1" y="969.7" fill="#897272" width="11.3" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_222_2_">
-			<g>
-				<rect x="1068.3" y="945.4" fill="#897272" width="0.1" height="24.5"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_201_2_">
-			<g>
-				<rect x="1057.7" y="945.3" fill="#897272" width="0.1" height="2.3"/>
-			</g>
-		</g>
-		<g id="Rectangle_20_2_">
-			<g>
-				<rect x="1055.1" y="947.2" fill="#897272" width="0.3" height="0.3"/>
-			</g>
-		</g>
-		<g id="Rectangle_20_copy">
-			<g>
-				<rect x="1057" y="947.2" fill="#897272" width="0.3" height="0.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_188">
-			<g>
-				<rect x="1018.2" y="968.3" fill="#897272" width="13.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_189_2_">
-			<g>
-				<rect x="1031.8" y="968.3" fill="#897272" width="0.1" height="2.5"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_213">
-			<g>
-				<rect x="1044" y="969.8" fill="#897272" width="0.1" height="1"/>
-			</g>
-			<g>
-				<polygon fill="#00AEEF" points="1044.2,969.8 1044,969.8 1044,970.1 1044,970.1 1044,970.8 1044,970.8 1044,970.8 1044,970.8 
-					1044,970.8 1044,970.8 1044,970.8 1044.2,970.8 1044.2,969.8 				"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_214">
-			<g>
-				<rect x="1044" y="969.8" fill="#897272" width="11.3" height="0.1"/>
-			</g>
-			<g>
-				<path fill="#897272" d="M1046.6,969.8h-2.2v0.1h2l0,0c0.1,0,0.2,0,0.2,0V969.8L1046.6,969.8z M1049.6,969.8h-2.2v0.1h2l0,0
-					c0.1,0,0.2,0,0.2,0V969.8L1049.6,969.8z M1052.6,969.8h-2.2v0.1h2l0,0c0.1,0,0.2,0,0.2,0V969.8L1052.6,969.8z M1055.4,969.8h-2
-					v0.1h2V969.8L1055.4,969.8z"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_187">
-			<g>
-				<rect x="1018.2" y="945.5" fill="#897272" width="0.1" height="22.9"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_190_2_">
-			<g>
-				<rect x="1044" y="945.5" fill="#897272" width="0.1" height="24.4"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_218_2_">
-			<g>
-				<rect x="1032.5" y="947.6" fill="#897272" width="0.1" height="6.9"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_224_2_">
-			<g>
-				<rect x="1026.4" y="959.4" fill="#897272" width="0.1" height="9"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_225">
-			<g>
-				<rect x="1029.9" y="954.4" fill="#897272" width="0.1" height="5.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_226">
-			<g>
-				<rect x="1026.4" y="959.3" fill="#897272" width="3.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_219_2_">
-			<g>
-				<rect x="1032.5" y="947.6" fill="#897272" width="11.5" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_220">
-			<g>
-				<rect x="1018.2" y="954.4" fill="#897272" width="14.4" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_191_2_">
-			<g>
-				<rect x="1031.8" y="970.6" fill="#897272" width="12.4" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_164_2_">
-			<g>
-				<rect x="1014.9" y="943.9" fill="#897272" width="0.1" height="4.8"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_169_2_">
-			<g>
-				<rect x="1006.1" y="940.8" fill="#897272" width="0.1" height="7.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_175_2_">
-			<g>
-				<rect x="1015.5" y="943.9" fill="#897272" width="0.1" height="7"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_185">
-			<g>
-				<rect x="1014.9" y="943.8" fill="#897272" width="0.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_176_2_">
-			<g>
-				<rect x="1006.1" y="951.9" fill="#897272" width="0.1" height="1.8"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_178_2_">
-			<g>
-				<rect x="1015.7" y="958.3" fill="#897272" width="0.1" height="10"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_179_2_">
-			<g>
-				<rect x="1001.7" y="958.4" fill="#897272" width="0.1" height="10"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_186_2_">
-			<g>
-				<rect x="994.2" y="958.4" fill="#897272" width="7.5" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_180_2_">
-			<g>
-				<rect x="1001.7" y="968.2" fill="#897272" width="14.1" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_181">
-			<g>
-				<rect x="1001.7" y="958.4" fill="#897272" width="1.3" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_170_2_">
-			<g>
-				<rect x="1003" y="953.7" fill="#897272" width="0.1" height="4.7"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_171_2_">
-			<g>
-				<rect x="1015.7" y="953.7" fill="#897272" width="0.1" height="4.7"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_172_2_">
-			<g>
-				<rect x="1003" y="953.6" fill="#897272" width="12.8" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_173_2_">
-			<g>
-				<rect x="1003" y="958.4" fill="#897272" width="12.8" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_166">
-			<g>
-				<rect x="1014.9" y="948.7" fill="#897272" width="0.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_167">
-			<g>
-				<rect x="1015.5" y="948.7" fill="#897272" width="0.1" height="3.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_168">
-			<g>
-				<rect x="1006.1" y="951.9" fill="#897272" width="9.4" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_162">
-			<g>
-				<rect x="1000.7" y="940.8" fill="#897272" width="11.3" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_163_2_">
-			<g>
-				
-					<rect x="1013.4" y="940.2" transform="matrix(0.6922 -0.7217 0.7217 0.6922 -368.1891 1021.4421)" fill="#897272" width="0.1" height="4.4"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_141_2_">
-			<g>
-				<rect x="965.4" y="958.3" fill="#897272" width="0.1" height="9.7"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_142">
-			<g>
-				<rect x="975.3" y="958.3" fill="#897272" width="0.1" height="9.7"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_143_2_">
-			<g>
-				<rect x="978.9" y="958.3" fill="#897272" width="0.1" height="9.7"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_144_2_">
-			<g>
-				<rect x="965.4" y="958.3" fill="#897272" width="13.6" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_145">
-			<g>
-				<rect x="965.4" y="967.9" fill="#897272" width="13.6" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_117">
-			<g>
-				<rect x="979" y="941.5" fill="#897272" width="2.2" height="0.2"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_118">
-			<g>
-				<rect x="957.8" y="958.4" fill="#897272" width="0.2" height="9.6"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_121">
-			<g>
-				<rect x="959.3" y="939.6" fill="#897272" width="7.3" height="0.2"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_47_2_">
-			<g>
-				<rect x="935.5" y="946.3" fill="#897272" width="6.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_123_2_">
-			<g>
-				
-					<rect x="933.3" y="946.6" transform="matrix(0.9737 -0.2279 0.2279 0.9737 -191.1654 237.8988)" fill="#897272" width="2.3" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_57">
-			<g>
-				<rect x="933.9" y="955.9" fill="#897272" width="0.1" height="2.6"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_77">
-			<g>
-				<rect x="941.1" y="956.1" fill="#897272" width="0.1" height="2.6"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_58">
-			<g>
-				<rect x="932.3" y="955.9" fill="#897272" width="9.9" height="0.2"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_59_2_">
-			<g>
-				<rect x="936.7" y="958.6" fill="#897272" width="5.4" height="0.2"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_60_2_">
-			<g>
-				<rect x="933.4" y="958.6" fill="#897272" width="2.6" height="0.2"/>
-			</g>
-		</g>
-		<g id="Rectangle_14_2_">
-			<g>
-				<rect x="933.3" y="958.7" fill="#897272" width="0.1" height="0.6"/>
-			</g>
-		</g>
-		<g id="Rectangle_15">
-			<g>
-				<rect x="932.6" y="959.2" fill="#897272" width="0.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Rectangle_16">
-			<g>
-				<rect x="932" y="959.2" fill="#897272" width="1.3" height="0.1"/>
-			</g>
-		</g>
-		<g id="Rectangle_8">
-			<g>
-				<rect x="935.8" y="958.7" fill="#897272" width="0.1" height="0.6"/>
-			</g>
-		</g>
-		<g id="Rectangle_9_2_">
-			<g>
-				<rect x="935.8" y="958.6" fill="#897272" width="1" height="0.1"/>
-			</g>
-		</g>
-		<g id="Rectangle_10">
-			<g>
-				<rect x="936.7" y="958.8" fill="#897272" width="0.1" height="0.7"/>
-			</g>
-		</g>
-		<g id="Rectangle_10_copy">
-			<g>
-				<rect x="935.7" y="958.8" fill="#897272" width="0.1" height="2.7"/>
-			</g>
-		</g>
-		<g id="Rectangle_10_copy_5">
-			<g>
-				<rect x="935.7" y="961.4" fill="#897272" width="4.7" height="0.1"/>
-			</g>
-		</g>
-		<g id="Rectangle_12">
-			<g>
-				<rect x="932.2" y="958.5" fill="#897272" width="0.4" height="0.7"/>
-			</g>
-		</g>
-		<g id="Rectangle_13">
-			<g>
-				<rect x="932.6" y="958.5" fill="#897272" width="1.4" height="0.2"/>
-			</g>
-		</g>
-		<g id="Rectangle_10_copy_4">
-			<g>
-				<rect x="940.4" y="958.8" fill="#897272" width="0.1" height="9.1"/>
-			</g>
-		</g>
-		<g id="Rectangle_11">
-			<g>
-				<rect x="935.8" y="959.4" fill="#897272" width="0.9" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_63">
-			<g>
-				<rect x="944.3" y="958.3" fill="#897272" width="15.5" height="0.2"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_80">
-			<g>
-				<rect x="959.6" y="954" fill="#897272" width="0.2" height="4.4"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_40_2_">
-			<g>
-				<rect x="958.9" y="951.5" fill="#897272" width="0.1" height="2.5"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_62_2_">
-			<g>
-				<polygon fill="#897272" points="959.2,950.4 958.9,951.5 959.1,951.5 959.4,950.5 				"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_61_2_">
-			<g>
-				<rect x="932" y="959.3" fill="#897272" width="0.1" height="8.7"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_64_2_">
-			<g>
-				<rect x="932" y="967.9" fill="#897272" width="10.1" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_65_2_">
-			<g>
-				<rect x="942" y="958.7" fill="#897272" width="0.2" height="9.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_81">
-			<g>
-				<rect x="944.3" y="958.5" fill="#897272" width="0.1" height="9.6"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_82">
-			<g>
-				<rect x="944.4" y="967.9" fill="#897272" width="13.5" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_30_6_">
-			<g>
-				<rect x="944.4" y="937.8" fill="#897272" width="14.8" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_66_6_">
-			<g>
-				<rect x="944.3" y="937.8" fill="#897272" width="0.1" height="20.6"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_79">
-			<g>
-				<rect x="944.4" y="953.9" fill="#897272" width="15.4" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_78">
-			<g>
-				<rect x="959.2" y="937.8" fill="#897272" width="0.2" height="12.6"/>
-			</g>
-		</g>
-		<g id="Rectangle_19_copy">
-			<g>
-				<rect x="944.3" y="937.6" fill="#897272" width="0.2" height="0.3"/>
-			</g>
-		</g>
-		<g id="Rectangle_19_copy_2">
-			<g>
-				<rect x="959.1" y="937.6" fill="#897272" width="0.2" height="0.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_30_4_">
-			<g>
-				<rect x="966.7" y="939.8" fill="#897272" width="12.3" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_66_4_">
-			<g>
-				<rect x="966.6" y="939.8" fill="#897272" width="0.1" height="14.4"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_79_1_">
-			<g>
-				<rect x="966.7" y="954" fill="#897272" width="12.4" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_78_1_">
-			<g>
-				<rect x="978.9" y="939.8" fill="#897272" width="0.1" height="14.3"/>
-			</g>
-		</g>
-		<g id="Rectangle_19_copy_1_">
-			<g>
-				<rect x="966.6" y="939.6" fill="#897272" width="0.2" height="0.3"/>
-			</g>
-		</g>
-		<g id="Rectangle_19_copy_2_1_">
-			<g>
-				<rect x="978.9" y="939.6" fill="#897272" width="0.2" height="0.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_30_2_">
-			<g>
-				<rect x="981.2" y="939.8" fill="#897272" width="12.3" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_66_2_">
-			<g>
-				<rect x="981.1" y="939.8" fill="#897272" width="0.1" height="14.4"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_79_2_">
-			<g>
-				<rect x="981.2" y="954" fill="#897272" width="12.4" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_78_2_">
-			<g>
-				<rect x="993.5" y="950" fill="#897272" width="0.1" height="4.1"/>
-			</g>
-		</g>
-		<g id="Rectangle_19_copy_2_">
-			<g>
-				<rect x="981.1" y="939.6" fill="#897272" width="0.2" height="0.3"/>
-			</g>
-		</g>
-		<g id="Rectangle_19_copy_2_2_">
-			<g>
-				<rect x="993.4" y="939.6" fill="#897272" width="0.2" height="0.3"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_78_6_">
-			<g>
-				<rect x="992" y="941.1" fill="#897272" width="0.1" height="8.9"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_78_8_">
-			<g>
-				<rect x="992" y="949.9" fill="#897272" width="1.6" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_78_10_">
-			<g>
-				<rect x="992" y="941.1" fill="#897272" width="1.6" height="0.1"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_78_12_">
-			<g>
-				<rect x="993.5" y="939.7" fill="#897272" width="0.1" height="1.5"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_174_4_">
-			<g>
-				<rect x="1007.9" y="948" fill="#897272" width="0.1" height="4"/>
-			</g>
-		</g>
-		<g id="Shape_1_copy_174_3_">
-			<g>
-				<rect x="1006.1" y="948" fill="#897272" width="2" height="0.1"/>
 			</g>
 		</g>
 	</g>
@@ -2948,6 +2280,1045 @@
 		<g id="Shape_1_copy_179">
 			<g>
 				<rect x="995.7" y="922.9" fill="#897272" width="0.2" height="1.7"/>
+			</g>
+		</g>
+	</g>
+</g>
+<g id="Shrum_Science_Centre">
+	<g id="BG_3_">
+		<rect x="935.8" y="937.4" fill="#EBE1E1" width="26.8" height="18.9"/>
+		<rect x="937.2" y="956.2" fill="#EBE1E1" width="25.6" height="2.5"/>
+		<rect x="935.6" y="958.7" fill="#EBE1E1" width="25.6" height="9.3"/>
+		<rect x="969.4" y="940.1" fill="#EBE1E1" width="26" height="9"/>
+		<rect x="968" y="948.9" fill="#EBE1E1" width="27" height="9.6"/>
+		<rect x="968" y="958.5" fill="#EBE1E1" width="28.3" height="9.5"/>
+		<rect x="1005.9" y="940.9" fill="#EBE1E1" width="28" height="12.9"/>
+		<rect x="1002.8" y="953.5" fill="#EBE1E1" width="28.3" height="4.9"/>
+		<rect x="1002" y="958.4" fill="#EBE1E1" width="26.4" height="10"/>
+		<rect x="1044.5" y="934.6" fill="#EBE1E1" width="23.6" height="6.5"/>
+		<rect x="1033.9" y="940.9" fill="#EBE1E1" width="34.1" height="6.7"/>
+		<rect x="1044.7" y="948" fill="#EBE1E1" width="23.5" height="19.9"/>
+		<rect x="962.6" y="937.2" fill="#EBE1E1" width="57.8" height="4.9"/>
+		<rect x="1034.6" y="966.5" fill="#EBE1E1" width="41.8" height="8.3"/>
+		<rect x="931.4" y="967.8" fill="#EBE1E1" width="103.3" height="6.6"/>
+		<rect x="934.1" y="974.1" fill="#EBE1E1" width="15.5" height="16"/>
+		<rect x="943.6" y="990.2" fill="#EBE1E1" width="6.1" height="3.6"/>
+		<rect x="979.3" y="974.4" fill="#EBE1E1" width="6.1" height="19.4"/>
+		<rect x="1015.7" y="974.4" fill="#EBE1E1" width="5.9" height="19.4"/>
+		<rect x="1051.2" y="974.7" fill="#EBE1E1" width="7.9" height="16.2"/>
+		<rect x="1034.6" y="988" fill="#EBE1E1" width="39.9" height="7.2"/>
+	</g>
+	<g id="SSC-8000" display="none">
+		<g id="Rectangle_1_3_" display="inline">
+			<g>
+				<path fill="#897272" d="M947.8,939.2v1.6h-7.7v-1.6H947.8 M948,939h-8.1v2h8.1V939L948,939z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_3_" display="inline">
+			<g>
+				<path fill="#897272" d="M960.3,958.8v8.9h-12.4v-8.9H960.3 M960.5,958.6h-12.8v9.3h12.9L960.5,958.6L960.5,958.6z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_9_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M945.5,958.8v8.9h-9.3v-8.9H945.5 M945.7,958.6h-9.8v9.3h9.8V958.6L945.7,958.6z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_10_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M945.6,969.6v14.8h-11v-14.8H945.6 M945.8,969.3h-11.4v15.2h11.4V969.3L945.8,969.3z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_11_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M958.6,969.6v11.2h-10.8v-11.2H958.6 M958.8,969.3h-11.2v11.6h11.2V969.3L958.8,969.3z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_12_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M959,980.9v8.1h-11.2v-8.1H959 M959.2,980.7h-11.6v8.5h11.6V980.7L959.2,980.7z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_13_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M981.3,981v8.1h-7.8V981H981.3 M981.5,980.8h-8.2v8.5h8.2V980.8L981.5,980.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_14_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M981.3,969.8v11h-8.8v-11H981.3 M981.5,969.5h-9.2V981h9.2V969.5L981.5,969.5z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_16_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M991.7,981v8h-8v-8H991.7 M992,980.8h-8.4v8.4h8.4V980.8L992,980.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_3_" display="inline">
+			<g>
+				<path fill="#897272" d="M981.4,958.8v8.9H969v-8.9H981.4 M981.6,958.6h-12.9v9.3h12.9V958.6L981.6,958.6z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_2_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M996.3,958.8v8.9h-13.8v-8.9H996.3 M996.5,958.6h-14.2v9.3h14.2V958.6L996.5,958.6z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_3_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1018.4,958.8v9.1h-14.5v-9.1H1018.4 M1018.6,958.6h-14.9v9.6h14.9V958.6L1018.6,958.6z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_4_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1028.5,958.8v9.1h-8.9v-9.1H1028.5 M1028.7,958.6h-9.3v9.6h9.3V958.6L1028.7,958.6z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_5_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1017.2,981v8h-11.1v-8H1017.2 M1017.4,980.8h-11.5v8.4h11.5V980.8L1017.4,980.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_17_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1027.7,981v8h-8v-8H1027.7 M1027.9,980.8h-8.4v8.4h8.4V980.8L1027.9,980.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_3_3_" display="inline">
+			<g>
+				<path fill="#897272" d="M1030.3,990.5v2.5h-10.5v-2.5H1030.3 M1030.5,990.3h-11v2.9h11V990.3L1030.5,990.3z"/>
+			</g>
+		</g>
+		<g id="Rectangle_3_copy_2_" display="inline">
+			<g>
+				<path fill="#897272" d="M1017.2,990.5v2.5h-33.3v-2.5H1017.2 M1017.4,990.3h-33.7v2.9h33.7V990.3L1017.4,990.3z"/>
+			</g>
+		</g>
+		<g id="Rectangle_3_copy_2_2_" display="inline">
+			<g>
+				<path fill="#897272" d="M986.9,993.2v19h-5.2v-19H986.9 M987.1,993h-5.6v19.4h5.6V993L987.1,993z"/>
+			</g>
+		</g>
+		<g id="Rectangle_3_copy_3_2_" display="inline">
+			<g>
+				<path fill="#897272" d="M981.4,1010.4v1.7h-1.5v-1.7H981.4 M981.6,1010.2h-1.9v2.2h1.9L981.6,1010.2L981.6,1010.2z"/>
+			</g>
+		</g>
+		<g id="Rectangle_4_3_" display="inline">
+			<g>
+				<path fill="#897272" d="M1073.7,991.4v4.6h-37.4v-4.6H1073.7 M1073.9,991.1h-37.8v5.1h37.8V991.1L1073.9,991.1z"/>
+			</g>
+		</g>
+		<g id="Rectangle_4_copy" display="inline">
+			<g>
+				<path fill="#897272" d="M1073.7,969.7v4.4H1045v-4.4H1073.7 M1074,969.5h-29.2v4.8h29.2V969.5L1074,969.5z"/>
+			</g>
+		</g>
+		<g id="Rectangle_6_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1074.8,988v1.6h-4.6V988H1074.8 M1075,987.8h-5v2h5V987.8L1075,987.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_1_" display="inline">
+			<g>
+				<polygon fill="#897272" points="1052.4,984.7 1039.8,984.7 1039.8,984.9 1052.4,984.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_31" display="inline">
+			<g>
+				<polygon fill="#897272" points="1031.7,947.9 1017.9,947.9 1017.9,948.1 1031.7,948.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_32" display="inline">
+			<g>
+				<polygon fill="#897272" points="1041.7,948.2 1034,948.2 1034,948.4 1041.7,948.4 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_49" display="inline">
+			<g>
+				<polygon fill="#897272" points="1006,989 991.9,989 991.9,989.2 1006,989.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_50" display="inline">
+			<g>
+				<polygon fill="#897272" points="973.3,989 959.2,989 959.2,989.2 973.3,989.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_51" display="inline">
+			<g>
+				<polygon fill="#897272" points="981.6,990.3 981.4,990.3 981.4,993.1 981.6,993.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_52" display="inline">
+			<g>
+				<polygon fill="#897272" points="968.4,957.3 962.5,957.3 962.5,957.6 968.4,957.6 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_53" display="inline">
+			<g>
+				<polygon fill="#897272" points="983.9,957.3 981.5,957.3 981.5,957.6 983.9,957.6 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_54" display="inline">
+			<g>
+				<polygon fill="#897272" points="1031.8,958.6 1028.6,958.6 1028.6,958.8 1031.8,958.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_55" display="inline">
+			<g>
+				<polygon fill="#897272" points="1074,967.6 1068.5,967.6 1068.5,967.8 1074,967.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_57" display="inline">
+			<g>
+				<polygon fill="#897272" points="1073.9,971.3 1045,971.3 1045,971.5 1073.9,971.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_56" display="inline">
+			<g>
+				<polygon fill="#897272" points="1074,967.7 1073.7,967.7 1073.7,969.9 1074,969.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_13_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1067.9,935.3v5.5h-23.1v-5.5H1067.9 M1068.1,935.1h-23.5v6h23.5V935.1L1068.1,935.1z"/>
+			</g>
+		</g>
+		<g id="Rectangle_14_3_" display="inline">
+			<g>
+				<path fill="#897272" d="M1068.3,946.5v23H1045v-23H1068.3 M1068.5,946.3h-23.7v23.4h23.7V946.3L1068.5,946.3z"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_45" display="inline">
+			<g>
+				<polygon fill="#897272" points="1041.7,946.1 1031.5,946.1 1031.5,946.4 1041.7,946.4 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_46" display="inline">
+			<g>
+				<polygon fill="#897272" points="1031.7,946.3 1031.5,946.3 1031.5,948.1 1031.7,948.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_47" display="inline">
+			<g>
+				<polygon fill="#897272" points="1041.7,946.3 1041.4,946.3 1041.4,948.4 1041.7,948.4 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_58" display="inline">
+			<g>
+				<polygon fill="#897272" points="1041.7,943.6 1041.4,943.6 1041.4,946.1 1041.7,946.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_59" display="inline">
+			<g>
+				<polygon fill="#897272" points="1036.8,943.6 1036.6,943.6 1036.6,946.1 1036.8,946.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_60" display="inline">
+			<g>
+				<polygon fill="#897272" points="1041.7,943.5 1036.6,943.5 1036.6,943.8 1041.7,943.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_61" display="inline">
+			<g>
+				<polygon fill="#897272" points="1031.8,957.4 1031.6,957.4 1031.6,958.8 1031.8,958.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_62" display="inline">
+			<g>
+				<polygon fill="#897272" points="1045,967.9 1028.6,967.9 1028.6,968.1 1045,968.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_63" display="inline">
+			<g>
+				<polygon fill="#897272" points="1045,974 1028.6,974 1028.6,974.2 1045,974.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_64" display="inline">
+			<g>
+				<polygon fill="#897272" points="1045,967.5 1028.6,967.5 1028.6,967.7 1045,967.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_65" display="inline">
+			<g>
+				<polygon fill="#897272" points="948,940.8 947.8,940.8 947.8,954.6 948,954.6 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_48" display="inline">
+			<g>
+				<polygon fill="#897272" points="1034.3,948.2 1034,948.2 1034,949.2 1034.3,949.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_33" display="inline">
+			<g>
+				<polygon fill="#897272" points="996.5,971.9 992.8,971.9 992.8,972.1 996.5,972.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_36" display="inline">
+			<g>
+				<polygon fill="#897272" points="992.8,980.8 989,980.8 989,981 992.8,981 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_37" display="inline">
+			<g>
+				<polygon fill="#897272" points="992.9,971.9 992.7,971.9 992.7,981 992.9,981 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_38" display="inline">
+			<g>
+				<polygon fill="#897272" points="983.9,969.5 983.7,969.5 983.7,981 983.9,981 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_39" display="inline">
+			<g>
+				<polygon fill="#897272" points="995.1,969.5 983.7,969.5 983.7,969.8 995.1,969.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_40" display="inline">
+			<g>
+				<polygon fill="#897272" points="1003.7,969.5 994.4,969.5 994.4,969.8 1003.7,969.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_41" display="inline">
+			<g>
+				<polygon fill="#897272" points="1003.7,967.5 996.4,967.5 996.4,967.7 1003.7,967.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_42" display="inline">
+			<g>
+				<polygon fill="#897272" points="1003.7,958.6 996.4,958.6 996.4,958.8 1003.7,958.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_43" display="inline">
+			<g>
+				<polygon fill="#897272" points="968.8,958.6 960.5,958.6 960.5,958.8 968.8,958.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_44" display="inline">
+			<g>
+				<polygon fill="#897272" points="968.8,967.4 960.5,967.4 960.5,967.6 968.8,967.6 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_34" display="inline">
+			<g>
+				<polygon fill="#897272" points="996.5,969.5 992.8,969.5 992.8,969.8 996.5,969.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_35" display="inline">
+			<g>
+				<polygon fill="#897272" points="996.5,969.5 996.3,969.5 996.3,972.1 996.5,972.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_21" display="inline">
+			<g>
+				<polygon fill="#897272" points="940.1,940.8 936,940.8 936,941 940.1,941 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_25" display="inline">
+			<g>
+				<polygon fill="#897272" points="937.5,956.3 936,956.3 936,956.5 937.5,956.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_26" display="inline">
+			<g>
+				<polygon fill="#897272" points="937.5,956.3 937.3,956.3 937.3,958.7 937.5,958.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_29" display="inline">
+			<g>
+				<polygon fill="#897272" points="945.7,957.4 945.5,957.4 945.5,958.7 945.7,958.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_30" display="inline">
+			<g>
+				<polygon fill="#897272" points="946.9,957.4 945.5,957.4 945.5,957.6 946.9,957.6 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_10_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M962.3,954.6v2.8H948v-2.8H962.3 M962.5,954.4h-14.7v3.2h14.7V954.4L962.5,954.4z"/>
+			</g>
+		</g>
+		<g id="Rectangle_10_copy" display="inline">
+			<g>
+				<path fill="#897272" d="M981.4,954.6v2.8h-13.2v-2.8H981.4 M981.6,954.4h-13.6v3.2h13.6V954.4L981.6,954.4z"/>
+			</g>
+		</g>
+		<g id="Rectangle_10_copy_2_2_" display="inline">
+			<g>
+				<path fill="#897272" d="M996.9,954.6v2.8h-13.1v-2.8H996.9 M997.2,954.4h-13.6v3.2h13.6L997.2,954.4L997.2,954.4z"/>
+			</g>
+		</g>
+		<g id="Rectangle_11_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1018.1,954.3v3.1h-20.9v-3.1L1018.1,954.3 M1018.3,954.1H997v3.5h21.4V954.1L1018.3,954.1z"/>
+			</g>
+		</g>
+		<g id="Rectangle_11_copy" display="inline">
+			<g>
+				<path fill="#897272" d="M1031.6,954.3v3.1h-11.9v-3.1L1031.6,954.3 M1031.8,954.1h-12.4v3.5h12.4V954.1L1031.8,954.1z"/>
+			</g>
+		</g>
+		<g id="Rectangle_12_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1018.1,948.1v6h-8v-6H1018.1 M1018.3,947.9h-8.4v6.4h8.4V947.9L1018.3,947.9z"/>
+			</g>
+		</g>
+		<g id="Rectangle_12_copy" display="inline">
+			<g>
+				<path fill="#897272" d="M1034,949.3v4.8h-14.4v-4.8H1034 M1034.3,949.1h-14.8v5.2h14.8V949.1L1034.3,949.1z"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_27" display="inline">
+			<g>
+				<polygon fill="#897272" points="946.9,940.8 946.7,940.8 946.7,957.5 946.9,957.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_28" display="inline">
+			<g>
+				<polygon fill="#897272" points="936.2,940.8 936,940.8 936,956.5 936.2,956.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_22" display="inline">
+			<g>
+				<polygon fill="#897272" points="1070.3,989.6 1057.5,989.6 1057.5,989.8 1070.3,989.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_24" display="inline">
+			<g>
+				<polygon fill="#897272" points="1070.3,987.1 1070.1,987.1 1070.1,988.1 1070.3,988.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_23" display="inline">
+			<g>
+				<polygon fill="#897272" points="1070.3,987.1 1059.4,987.1 1059.4,987.3 1070.3,987.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_8" display="inline">
+			<g>
+				<polygon fill="#897272" points="981.5,993 958.6,993 958.6,993.2 981.5,993.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_10" display="inline">
+			<g>
+				<polygon fill="#897272" points="958.8,995.8 947.6,995.8 947.6,996 958.8,996 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_14" display="inline">
+			<g>
+				<polygon fill="#897272" points="945.7,995.8 933.9,995.8 933.9,996 945.7,996 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_15" display="inline">
+			<g>
+				<polygon fill="#897272" points="945.7,990.4 928.3,990.4 928.3,990.6 945.7,990.6 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_16" display="inline">
+			<g>
+				<polygon fill="#897272" points="934,993.1 928.3,993.1 928.3,993.3 934,993.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_17" display="inline">
+			<g>
+				<polygon fill="#897272" points="928.5,990.4 928.2,990.4 928.2,993.3 928.5,993.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_18" display="inline">
+			<g>
+				<polygon fill="#897272" points="934,993.1 933.8,993.1 933.8,996 934,996 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_11" display="inline">
+			<g>
+				<polygon fill="#897272" points="958.8,993 958.6,993 958.6,995.9 958.8,995.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_12" display="inline">
+			<g>
+				<polygon fill="#897272" points="947.8,990.4 947.6,990.4 947.6,996 947.8,996 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_13" display="inline">
+			<g>
+				<polygon fill="#897272" points="945.7,990.4 945.5,990.4 945.5,996 945.7,996 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_9" display="inline">
+			<g>
+				<polygon fill="#897272" points="981.5,990.3 947.6,990.3 947.6,990.5 981.5,990.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_8_copy" display="inline">
+			<g>
+				<path fill="#897272" d="M1039.8,988v1.5h-4.6V988H1039.8 M1040,987.8h-5v1.9h5V987.8L1040,987.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy" display="inline">
+			<g>
+				<polygon fill="#897272" points="1056.1,989.5 1039.8,989.5 1039.8,989.8 1056.1,989.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_2" display="inline">
+			<g>
+				<polygon fill="#897272" points="1056.1,974.2 1055.8,974.2 1055.8,989.7 1056.1,989.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_19" display="inline">
+			<g>
+				<polygon fill="#897272" points="1059.6,974.2 1059.4,974.2 1059.4,987.2 1059.6,987.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_20" display="inline">
+			<g>
+				<polygon fill="#897272" points="1057.8,974.2 1057.5,974.2 1057.5,989.7 1057.8,989.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_3" display="inline">
+			<g>
+				<polygon fill="#897272" points="1040,984.7 1039.8,984.7 1039.8,989.7 1040,989.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_5" display="inline">
+			<g>
+				<polygon fill="#897272" points="1036.2,991.1 1030.5,991.1 1030.5,991.4 1036.2,991.4 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_6" display="inline">
+			<g>
+				<polygon fill="#897272" points="1035.2,989.1 1030.3,989.1 1030.3,989.3 1035.2,989.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_7" display="inline">
+			<g>
+				<polygon fill="#897272" points="1030.5,989 1027.8,989 1027.8,989.2 1030.5,989.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_9_3_" display="inline">
+			<g>
+				<path fill="#897272" d="M945.6,984.6v4.4h-11.7v-4.4H945.6 M945.8,984.3h-12.1v4.8h12.1V984.3L945.8,984.3z"/>
+			</g>
+		</g>
+		<g id="Rectangle_7_copy_4" display="inline">
+			<g>
+				<polygon fill="#897272" points="1052.4,974.2 1052.2,974.2 1052.2,984.9 1052.4,984.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_6_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1017.2,972.1v8.6h-8.8v-8.6H1017.2 M1017.4,971.9h-9.2v9.1h9.2V971.9L1017.4,971.9z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_7_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1028.6,969.7v2.3h-24.7v-2.3H1028.6 M1028.8,969.5h-25.2v2.7h25.2V969.5L1028.8,969.5z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_8_1_" display="inline">
+			<g>
+				<path fill="#897272" d="M1028.6,972.1v8.6h-8.9v-8.6H1028.6 M1028.8,971.9h-9.3v9.1h9.3V971.9L1028.8,971.9z"/>
+			</g>
+		</g>
+	</g>
+	<g id="SSC-9000">
+		<g id="Rectangle_1_2_">
+			<g>
+				<path fill="#897272" d="M945.5,938.3v17.8h-9.4v-17.8H945.5 M945.8,938.1h-9.8v18.3h9.8V938.1L945.8,938.1z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_2_">
+			<g>
+				<polygon fill="#897272" points="945.7,946.6 936,946.6 936,946.8 945.7,946.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_7">
+			<g>
+				<polygon fill="#897272" points="937.8,956.2 937.6,956.2 937.6,958.9 937.8,958.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_13">
+			<g>
+				<polygon fill="#897272" points="931.6,967.8 931.4,967.8 931.4,969.7 931.6,969.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_21">
+			<g>
+				<polygon fill="#897272" points="968.3,967.8 960.8,967.8 960.8,968.1 968.3,968.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_22">
+			<g>
+				<polygon fill="#897272" points="1002,967.8 996.2,967.8 996.2,968.1 1002,968.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_23">
+			<g>
+				<polygon fill="#897272" points="1003.6,973.9 996.2,973.9 996.2,974.1 1003.6,974.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_24">
+			<g>
+				<polygon fill="#897272" points="969.6,948.9 968,948.9 968,949.1 969.6,949.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_26">
+			<g>
+				<polygon fill="#897272" points="968.2,948.9 968,948.9 968,958.6 968.2,958.6 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_27">
+			<g>
+				<polygon fill="#897272" points="968.4,958.4 968,958.4 968,958.6 968.4,958.6 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_28">
+			<g>
+				<polygon fill="#897272" points="969.4,940.1 962.3,940.1 962.3,940.3 969.4,940.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_29">
+			<g>
+				<polygon fill="#897272" points="1016.8,940 1002.5,940 1002.5,940.2 1016.8,940.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_32">
+			<g>
+				<polygon fill="#897272" points="1016.5,944.2 1016.3,944.2 1016.3,949 1016.5,949 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_33">
+			<g>
+				<polygon fill="#897272" points="1017,948.9 1016.8,948.9 1016.8,952.2 1017,952.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_34">
+			<g>
+				<polygon fill="#897272" points="1017,948.9 1016.3,948.9 1016.3,949.1 1017,949.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_35">
+			<g>
+				<polygon fill="#897272" points="1017,952 1007.6,952 1007.6,952.3 1017,952.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_36">
+			<g>
+				<polygon fill="#897272" points="1007.8,941.1 1007.6,941.1 1007.6,952.1 1007.8,952.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_37">
+			<g>
+				<polygon fill="#897272" points="1044.5,941 1024.7,941 1024.7,941.2 1044.5,941.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_39">
+			<g>
+				<polygon fill="#897272" points="1055,945.7 1033.6,945.7 1033.6,945.9 1055,945.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_40">
+			<g>
+				<polygon fill="#897272" points="1055,947.8 1033.7,947.8 1033.7,948 1055,948 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_42">
+			<g>
+				<polygon fill="#897272" points="1035.7,970.6 1032.5,970.6 1032.5,970.8 1035.7,970.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_64">
+			<g>
+				<polygon fill="#897272" points="1032.7,968.3 1028.4,968.3 1028.4,968.5 1032.7,968.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_65">
+			<g>
+				<polygon fill="#897272" points="1032.7,968.3 1032.5,968.3 1032.5,970.8 1032.7,970.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_66">
+			<g>
+				<polygon fill="#897272" points="1032.7,971.7 1032.5,971.7 1032.5,974.1 1032.7,974.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_67">
+			<g>
+				<polygon fill="#897272" points="1032.7,973.9 1031.2,973.9 1031.2,974.1 1032.7,974.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_63">
+			<g>
+				<polygon fill="#897272" points="934.4,973.6 934.2,973.6 934.2,985.4 934.4,985.4 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_43">
+			<g>
+				<polygon fill="#897272" points="1035.6,971.7 1032.5,971.7 1032.5,971.9 1035.6,971.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_44">
+			<g>
+				<polygon fill="#897272" points="1053.7,970.8 1046.4,970.8 1046.4,971 1053.7,971 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_46">
+			<g>
+				<polygon fill="#897272" points="1055.5,974.6 1046.4,974.6 1046.4,974.8 1055.5,974.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_47">
+			<g>
+				<polygon fill="#897272" points="1055.5,971.1 1053.7,971.1 1053.7,971.3 1055.5,971.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_51">
+			<g>
+				<polygon fill="#897272" points="1059.1,971.1 1057.2,971.1 1057.2,971.3 1059.1,971.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_52">
+			<g>
+				<polygon fill="#897272" points="1066.3,970.8 1059.1,970.8 1059.1,971 1066.3,971 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_48">
+			<g>
+				<polygon fill="#897272" points="1053.8,970.8 1053.6,970.8 1053.6,971.3 1053.8,971.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_53">
+			<g>
+				<polygon fill="#897272" points="1059.2,970.8 1059,970.8 1059,971.3 1059.2,971.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_54">
+			<g>
+				<polygon fill="#897272" points="1066.4,970.8 1066.2,970.8 1066.2,971.7 1066.4,971.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_55">
+			<g>
+				<polygon fill="#897272" points="1076.1,971.6 1066.2,971.6 1066.2,971.8 1076.1,971.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_56">
+			<g>
+				<polygon fill="#897272" points="1076.1,974.6 1057.1,974.6 1057.1,974.8 1076.1,974.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_57">
+			<g>
+				<polygon fill="#897272" points="1057.3,974.7 1057.1,974.7 1057.1,990.9 1057.3,990.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_58">
+			<g>
+				<polygon fill="#897272" points="1059.1,974.7 1058.8,974.7 1058.8,990.9 1059.1,990.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_59">
+			<g>
+				<polygon fill="#897272" points="1053.7,974.7 1053.5,974.7 1053.5,990.9 1053.7,990.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_60">
+			<g>
+				<polygon fill="#897272" points="1055.6,974.7 1055.4,974.7 1055.4,990.9 1055.6,990.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_61">
+			<g>
+				<polygon fill="#897272" points="1055.5,990.7 1053.7,990.7 1053.7,990.9 1055.5,990.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_62">
+			<g>
+				<polygon fill="#897272" points="1059,990.7 1057.2,990.7 1057.2,990.9 1059,990.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_24">
+			<g>
+				<path fill="#897272" d="M1053.5,988.2v2.3h-14v-2.3H1053.5 M1053.7,988h-14.4v2.8h14.4V988L1053.7,988z"/>
+			</g>
+		</g>
+		<g id="Rectangle_24_copy">
+			<g>
+				<path fill="#897272" d="M1069.6,988.2v2.3h-10.5v-2.3H1069.6 M1069.8,988h-10.9v2.8h10.9V988L1069.8,988z"/>
+			</g>
+		</g>
+		<g id="Rectangle_24_copy_2">
+			<g>
+				<path fill="#897272" d="M1073.1,992.6v2.3h-14v-2.3H1073.1 M1073.3,992.4h-14.4v2.8h14.4V992.4L1073.3,992.4z"/>
+			</g>
+		</g>
+		<g id="Rectangle_24_copy_3">
+			<g>
+				<path fill="#897272" d="M1053.5,992.5v2.3H1036v-2.3H1053.5 M1053.7,992.3h-18v2.8h18V992.3L1053.7,992.3z"/>
+			</g>
+		</g>
+		<g id="Rectangle_24_copy_4">
+			<g>
+				<path fill="#897272" d="M1039.4,989v1.7h-4.5V989H1039.4 M1039.6,988.8h-4.9v2.1h4.9V988.8L1039.6,988.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_24_copy_5">
+			<g>
+				<path fill="#897272" d="M1074.3,989v1.7h-4.5V989H1074.3 M1074.5,988.8h-4.9v2.1h4.9V988.8L1074.5,988.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_49">
+			<g>
+				<polygon fill="#897272" points="1055.6,971.1 1055.4,971.1 1055.4,974.8 1055.6,974.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_50">
+			<g>
+				<polygon fill="#897272" points="1057.3,971.1 1057.1,971.1 1057.1,974.8 1057.3,974.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_45">
+			<g>
+				<polygon fill="#897272" points="1046.5,970.8 1046.3,970.8 1046.3,973.5 1046.5,973.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_41">
+			<g>
+				<polygon fill="#897272" points="1055,945.7 1054.8,945.7 1054.8,947.8 1055,947.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_19_2_">
+			<g>
+				<path fill="#897272" d="M1055.3,948v20h-10.6v-20H1055.3 M1055.5,947.8h-11v20.4h11V947.8L1055.5,947.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_20_1_">
+			<g>
+				<path fill="#897272" d="M1068,945.9v1.8h-10v-1.8H1068 M1068.2,945.7h-10.4v2.2h10.4V945.7L1068.2,945.7z"/>
+			</g>
+		</g>
+		<g id="Rectangle_21_2_">
+			<g>
+				<path fill="#897272" d="M1068,948v21.8h-10.6V948H1068 M1068.2,947.7h-11V970h11V947.7L1068.2,947.7z"/>
+			</g>
+		</g>
+		<g id="Rectangle_22_2_">
+			<g>
+				<path fill="#897272" d="M1075.9,967.9v2.6h-7.7v-2.6H1075.9 M1076.1,967.7h-8.2v3h8.2V967.7L1076.1,967.7z"/>
+			</g>
+		</g>
+		<g id="Rectangle_23_2_">
+			<g>
+				<path fill="#897272" d="M1044.4,967.9v2.6h-8.8v-2.6H1044.4 M1044.6,967.7h-9.2v3.1h9.2V967.7L1044.6,967.7z"/>
+			</g>
+		</g>
+		<g id="Rectangle_23_copy">
+			<g>
+				<path fill="#897272" d="M1046.3,971.9v2.6h-10.6v-2.6H1046.3 M1046.5,971.7h-11v3.1h11V971.7L1046.5,971.7z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_38">
+			<g>
+				<polygon fill="#897272" points="1074.9,941 1068.1,941 1068.1,941.2 1074.9,941.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_18">
+			<g>
+				<path fill="#897272" d="M1033.7,945.9v7.9h-14v-7.9H1033.7 M1033.9,945.7h-14.5v8.4h14.5V945.7L1033.9,945.7z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_30">
+			<g>
+				<polygon fill="#897272" points="1013.4,941 1002.5,941 1002.5,941.2 1013.4,941.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_31">
+			<g>
+				<polygon fill="#897272" points="1013.4,941 1013.3,941.1 1016.4,944.3 1016.5,944.2 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_16">
+			<g>
+				<polygon fill="#897272" points="970.6,954.3 970.4,954.3 970.4,958.5 970.6,958.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_17">
+			<g>
+				<polygon fill="#897272" points="981,954.3 980.8,954.3 980.8,958.5 981,958.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_18">
+			<g>
+				<polygon fill="#897272" points="983.6,954.3 983.4,954.3 983.4,958.5 983.6,958.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_19">
+			<g>
+				<polygon fill="#897272" points="995,954.3 994.8,954.3 994.8,958.5 995,958.5 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_20">
+			<g>
+				<polygon fill="#897272" points="1003.5,958.4 996.2,958.4 996.2,958.6 1003.5,958.6 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_12">
+			<g>
+				<path fill="#897272" d="M1016.9,954.1v4.4H1003v-4.4H1016.9 M1017.2,953.8h-14.4v4.8h14.4V953.8L1017.2,953.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_13">
+			<g>
+				<path fill="#897272" d="M1028.2,958.7v9.5h-8.9v-9.5H1028.2 M1028.4,958.5h-9.3v10h9.3V958.5L1028.4,958.5z"/>
+			</g>
+		</g>
+		<g id="Rectangle_14_2_">
+			<g>
+				<path fill="#897272" d="M1031.1,954v4.5h-11.7V954H1031.1 M1031.3,953.8h-12.1v4.9h12.1V953.8L1031.3,953.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_15">
+			<g>
+				<path fill="#897272" d="M1021.4,974.1v19.5h-5.5v-19.5H1021.4 M1021.6,973.9h-5.9v19.9h5.9V973.9L1021.6,973.9z"/>
+			</g>
+		</g>
+		<g id="Rectangle_16">
+			<g>
+				<path fill="#897272" d="M943.6,985.5v4.4h-9.5v-4.4H943.6 M943.8,985.3h-10v4.8h10V985.3L943.8,985.3z"/>
+			</g>
+		</g>
+		<g id="Rectangle_17">
+			<g>
+				<path fill="#897272" d="M1068,935.2v5.8h-23.3v-5.8H1068 M1068.2,935h-23.7v6.2h23.7V935L1068.2,935z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_14">
+			<g>
+				<polygon fill="#897272" points="936,967.8 931.5,967.8 931.5,968 936,968 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_8">
+			<g>
+				<polygon fill="#897272" points="944.8,956.2 944.6,956.2 944.6,958.9 944.8,958.9 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_9">
+			<g>
+				<polygon fill="#897272" points="962.8,954.2 962.6,954.2 962.6,958.7 962.8,958.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_10">
+			<g>
+				<polygon fill="#897272" points="947.9,954.2 947.7,954.2 947.7,958.7 947.9,958.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_11">
+			<g>
+				<polygon fill="#897272" points="951,954.2 950.8,954.2 950.8,958.7 951,958.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_12">
+			<g>
+				<polygon fill="#897272" points="962.7,958.5 960.7,958.5 960.7,958.7 962.7,958.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_15">
+			<g>
+				<polygon fill="#897272" points="968.8,973.5 960.5,973.5 960.5,973.8 968.8,973.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_8">
+			<g>
+				<path fill="#897272" d="M981.2,958.6v9.2h-12.8v-9.2H981.2 M981.4,958.4h-13.2v9.7h13.2V958.4L981.4,958.4z"/>
+			</g>
+		</g>
+		<g id="Rectangle_10">
+			<g>
+				<path fill="#897272" d="M996,958.7v9.2h-12.4v-9.2H996 M996.3,958.4h-12.8v9.6h12.8L996.3,958.4L996.3,958.4z"/>
+			</g>
+		</g>
+		<g id="Rectangle_11">
+			<g>
+				<path fill="#897272" d="M1017,958.7v9.6h-14.7v-9.6H1017 M1017.2,958.4H1002v10h15.2V958.4L1017.2,958.4z"/>
+			</g>
+		</g>
+		<g id="Rectangle_9_1_">
+			<g>
+				<path fill="#897272" d="M981.2,940.3v13.8h-11.7v-13.8H981.2 M981.5,940.1h-12.1v14.3h12.1V940.1L981.5,940.1z"/>
+			</g>
+		</g>
+		<g id="Rectangle_9_copy">
+			<g>
+				<path fill="#897272" d="M995.3,940.3v13.8h-11.7v-13.8H995.3 M995.5,940.1h-12.1v14.3h12.1L995.5,940.1L995.5,940.1z"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_2_">
+			<g>
+				<polygon fill="#897272" points="962.4,938.2 947.7,938.2 947.7,938.4 962.4,938.4 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_2">
+			<g>
+				<polygon fill="#897272" points="962.8,954.1 947.7,954.1 947.7,954.3 962.8,954.3 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_3">
+			<g>
+				<polygon fill="#897272" points="947.9,938.4 947.7,938.4 947.7,954.1 947.9,954.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_4">
+			<g>
+				<polygon fill="#897272" points="962.4,938.4 962.2,938.4 962.2,950.8 962.4,950.8 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_5">
+			<g>
+				<polygon fill="#897272" points="962.1,951.7 961.9,951.7 961.9,954.1 962.1,954.1 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_2_copy_6">
+			<g>
+				<polygon fill="#897272" points="962.2,950.7 961.9,951.8 962.1,951.9 962.4,950.7 				"/>
+			</g>
+		</g>
+		<g id="Rectangle_3_2_">
+			<g>
+				<path fill="#897272" d="M945.5,959v8.8H936V959H945.5 M945.7,958.8h-9.9v9.3h9.9V958.8L945.7,958.8z"/>
+			</g>
+		</g>
+		<g id="Rectangle_4_2_">
+			<g>
+				<path fill="#897272" d="M960.7,958.7v9.1h-12.7v-9.1H960.7 M960.9,958.5h-13.2v9.5h13.2V958.5L960.9,958.5z"/>
+			</g>
+		</g>
+		<g id="Rectangle_5">
+			<g>
+				<path fill="#897272" d="M949.5,973.8v19.7h-5.7v-19.7H949.5 M949.7,973.6h-6.1v20.1h6.1V973.6L949.7,973.6z"/>
+			</g>
+		</g>
+		<g id="Rectangle_5_copy">
+			<g>
+				<path fill="#897272" d="M985.3,974.1v19.5h-5.7v-19.5H985.3 M985.5,973.9h-6.1v20h6.1V973.9L985.5,973.9z"/>
+			</g>
+		</g>
+		<g id="Rectangle_7">
+			<g>
+				<path fill="#897272" d="M960.3,969.9v3.7h-28.7v-3.7H960.3 M960.5,969.6h-29.1v4.1h29.1V969.6L960.5,969.6z"/>
+			</g>
+		</g>
+		<g id="Rectangle_6">
+			<g>
+				<path fill="#897272" d="M996,969.9v4h-27.1v-4H996 M996.2,969.7h-27.5v4.4h27.6L996.2,969.7L996.2,969.7z"/>
+			</g>
+		</g>
+		<g id="Rectangle_6_copy">
+			<g>
+				<path fill="#897272" d="M1017,969.9v4h-13.3v-4H1017 M1017.2,969.7h-13.7v4.4h13.7V969.7L1017.2,969.7z"/>
+			</g>
+		</g>
+		<g id="Rectangle_6_copy_2">
+			<g>
+				<path fill="#897272" d="M1031.1,969.9v4h-11.7v-4H1031.1 M1031.3,969.7h-12.2v4.4h12.2V969.7L1031.3,969.7z"/>
 			</g>
 		</g>
 	</g>
