@@ -10,8 +10,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import me.gurinderhans.sfumaps.Factory.MapGrid;
 import me.gurinderhans.sfumaps.MercatorProjection;
@@ -29,15 +31,11 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
     boolean isEditingMap = false;
 
-    Polyline map_draw_path_line;
-
-    public PathMaker(CustomMapFragment mapFragment, GoogleMap map, View editButton, MapGrid grid) {
+    public PathMaker(CustomMapFragment mapFragment, GoogleMap map, View editButton, final View exportButton, MapGrid grid) {
         this.mMap = map;
         this.mMapGrid = grid;
 
         mapFragment.setOnDragListener(this);
-
-        map_draw_path_line = mMap.addPolyline(new PolylineOptions().width(5).color(0xFFc41230).geodesic(true).zIndex(10000));
 
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,9 +43,29 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
                 isEditingMap = !isEditingMap;
 
+                exportButton.setVisibility(isEditingMap ? View.VISIBLE : View.INVISIBLE);
+
                 ((ImageButton) v).setImageResource(isEditingMap ? android.R.drawable.ic_menu_close_clear_cancel : android.R.drawable.ic_menu_edit);
 
                 mMap.getUiSettings().setScrollGesturesEnabled(!isEditingMap);
+            }
+        });
+
+        // export map path
+        exportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    //
+                    JSONObject root = new JSONObject();
+
+
+
+                    root.put("gridpoints", new JSONObject());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -63,22 +81,25 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
         LatLng latlng = mMap.getProjection().fromScreenLocation(screenPoint);
         PointF mapPoint = MercatorProjection.fromLatLngToPoint(latlng);
 
+        Point closestPoint = getClosestPoint(mapPoint, mMapGrid);
+        mMapGrid.mMapGrid.get(closestPoint.x).get(closestPoint.y).isWalkable = true;
+
         // get dist of each point and figure out index of closest point
         mMap.addMarker(new MarkerOptions()
-                .position(MercatorProjection.fromPointToLatLng(getClosestPoint(mapPoint, mMapGrid)))
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_path))
+                .position(MercatorProjection.fromPointToLatLng(mMapGrid.getNode(closestPoint).node_position))
+                .icon(BitmapDescriptorFactory.fromResource(mMapGrid.getNode(closestPoint).isWalkable ? R.drawable.map_path : R.drawable.no_path))
                 .anchor(0.5f, 0.5f));
 
 
     }
 
-    public static PointF getClosestPoint(PointF point, MapGrid grid) {
+    public static Point getClosestPoint(PointF point, MapGrid grid) {
 
         // convert dist to grid index and return the position of the node at that index
-        int xDiff = (int) ((point.x - grid.getNode(0, 0).node_position.x) / MapGrid.EACH_POINT_DIST);
-        int yDiff = (int) ((point.y - grid.getNode(0, 0).node_position.y) / MapGrid.EACH_POINT_DIST);
+        int gridX = (int) ((point.x - grid.getNode(0, 0).node_position.x) / MapGrid.EACH_POINT_DIST);
+        int gridY = (int) ((point.y - grid.getNode(0, 0).node_position.y) / MapGrid.EACH_POINT_DIST);
 
-        return grid.getNode(xDiff, yDiff).node_position;
+        return new Point(gridX, gridY);
     }
 
 }

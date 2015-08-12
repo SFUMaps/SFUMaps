@@ -133,7 +133,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
             if (Map != null) {
 
                 // set up path maker
-                new PathMaker(customMapFragment, Map, findViewById(R.id.edit_map_path), mapGrid);
+                new PathMaker(customMapFragment, Map, findViewById(R.id.edit_map_path), findViewById(R.id.export_map_path), mapGrid);
 
                 // set up map UI
                 setUpMap();
