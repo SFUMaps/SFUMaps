@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Picture;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.drawable.PictureDrawable;
 import android.util.Log;

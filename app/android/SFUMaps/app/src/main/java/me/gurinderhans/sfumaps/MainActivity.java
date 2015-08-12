@@ -11,13 +11,11 @@ import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
@@ -27,6 +25,8 @@ import java.util.List;
 import me.gurinderhans.sfumaps.Factory.GridNode;
 import me.gurinderhans.sfumaps.Factory.MapGrid;
 import me.gurinderhans.sfumaps.Factory.PathFinder;
+import me.gurinderhans.sfumaps.PathMaker.CustomMapFragment;
+import me.gurinderhans.sfumaps.PathMaker.PathMaker;
 import me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
@@ -70,69 +70,8 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
             }
         });
 
-        setUpMapIfNeeded();
         createMapGrid();
-
-
-        // random locations
-        /*MapTools.addTextAndIconMarker(this,
-                Map,
-                new PointF(107f, 150f),
-                MapTools.createPureTextIcon(this, "Naheeno Park", null),
-                0f,
-                null,
-                MapTools.MapLabelIconAlign.TOP);
-
-
-        MapTools.addTextAndIconMarker(this,
-                Map,
-                new PointF(121.805f, 104.698f),
-                MapTools.createPureTextIcon(this, "W.A.C Bennett Library", null),
-                0f,
-                null,
-                MapTools.MapLabelIconAlign.RIGHT);
-
-        MapTools.addTextAndIconMarker(this,
-                Map,
-                new PointF(121.625f, 112.704f),
-                MapTools.createPureTextIcon(this, "Food Court", null),
-                0f,
-                null,
-                MapTools.MapLabelIconAlign.LEFT);
-
-        MapTools.addTextAndIconMarker(this,
-                Map,
-                new PointF(98.211f, 120.623f),
-                MapTools.createPureTextIcon(this, "Terry Fox Field", null),
-                0f,
-                null,
-                MapTools.MapLabelIconAlign.TOP);
-
-
-        // add road markers
-        MapTools.addTextMarker(this,
-                Map,
-                new PointF(90.98202f, 139.12495f),
-                MapTools.createPureTextIcon(this, "Gaglardi Way", null),
-                -28f);
-
-        MapTools.addTextMarker(this,
-                Map,
-                new PointF(35.420155f, 110.39347f),
-                MapTools.createPureTextIcon(this, "University Dr W", null),
-                -38f);
-
-        MapTools.addTextMarker(this,
-                Map,
-                new PointF(198.84691f, 108.44006f),
-                MapTools.createPureTextIcon(this, "University High Street", null),
-                0f);
-
-        MapTools.addTextMarker(this,
-                Map,
-                new PointF(214.28412f, 81.674225f),
-                MapTools.createPureTextIcon(this, "University Crescent", null),
-                5f);*/
+        setUpMapIfNeeded();
 
     }
 
@@ -140,7 +79,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
         mapGrid = new MapGrid(new PointF(121f, 100f), new PointF(192f, 183f));
 
-        // add walkable areas
+        /*// add walkable areas
         mapGrid.createWalkablePath(new GridNode(160, 228, mapGrid), new GridNode(170, 231, mapGrid));
         mapGrid.createWalkablePath(new GridNode(170, 232, mapGrid), new GridNode(170, 235, mapGrid));
         mapGrid.createWalkablePath(new GridNode(169, 236, mapGrid), new GridNode(170, 321, mapGrid));
@@ -158,7 +97,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
         path_line = Map.addPolyline(new PolylineOptions().width(15).color(0xFF4285F4).geodesic(true).zIndex(10000));
 
-        AStar();
+        AStar();*/
     }
 
     Polyline path_line;
@@ -186,12 +125,19 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (Map == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            Map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            // Check if we were successful in obtaining the map.
-            if (Map != null)
+            CustomMapFragment customMapFragment = ((CustomMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map));
+
+            Map = customMapFragment.getMap();
+
+            if (Map != null) {
+
+                // set up path maker
+                new PathMaker(customMapFragment, Map, findViewById(R.id.edit_map_path), mapGrid);
+
+                // set up map UI
                 setUpMap();
+            }
         }
     }
 
@@ -282,7 +228,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
                             .position(MercatorProjection.fromPointToLatLng(thisNode.node_position))
                             .icon(BitmapDescriptorFactory.fromResource(thisNode.isWalkable ? R.drawable.map_path : R.drawable.no_path))
                             .anchor(0.5f, 0.5f)
-                            .title("Pos: " + thisNode.gridX + ", " + thisNode.gridY));
+                            .title("Pos: " + thisNode.node_position.x + ", " + thisNode.node_position.y));
                 }
             }
         }

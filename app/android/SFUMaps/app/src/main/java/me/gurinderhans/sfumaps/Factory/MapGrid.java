@@ -14,7 +14,7 @@ public class MapGrid {
 
     public static final String TAG = MapGrid.class.getSimpleName();
 
-    public static final float EACH_POINT_DIST = 0.125f;
+    public static final float EACH_POINT_DIST = 1/8f;
 
     public final PointF startPoint;
     public final PointF endPoint;
