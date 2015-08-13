@@ -5,6 +5,7 @@ import android.graphics.PointF;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -16,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import me.gurinderhans.sfumaps.Factory.MapGrid;
+import me.gurinderhans.sfumaps.MapTools;
 import me.gurinderhans.sfumaps.MercatorProjection;
 import me.gurinderhans.sfumaps.R;
 
@@ -26,12 +28,14 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
     public static final String TAG = PathMaker.class.getSimpleName();
 
+    public static final String WALKABLE_KEY = "walkable";
+
     public final GoogleMap mMap;
     public final MapGrid mMapGrid;
 
     boolean isEditingMap = false;
 
-    public PathMaker(CustomMapFragment mapFragment, GoogleMap map, View editButton, final View exportButton, MapGrid grid) {
+    public PathMaker(CustomMapFragment mapFragment, GoogleMap map, View editButton, final View exportButton, final MapGrid grid) {
         this.mMap = map;
         this.mMapGrid = grid;
 
@@ -59,9 +63,18 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
                     //
                     JSONObject root = new JSONObject();
 
+                    root.put(WALKABLE_KEY, new JSONArray());
 
+                    for (int x = 0; x < mMapGrid.mapGridSizeX; x++) {
+                        for (int y = 0; y < mMapGrid.mapGridSizeY; y++) {
+                            if (mMapGrid.getNode(x, y).isWalkable)
+                                root.getJSONArray(WALKABLE_KEY).put(x + "," + y);
+                        }
+                    }
 
-                    root.put("gridpoints", new JSONObject());
+                    // create file
+                    MapTools.createFile("map_grid.json", root.toString());
+                    Toast.makeText(v.getContext(), "Done", Toast.LENGTH_SHORT).show();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -95,11 +108,11 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
     public static Point getClosestPoint(PointF point, MapGrid grid) {
 
-        // convert dist to grid index and return the position of the node at that index
-        int gridX = (int) ((point.x - grid.getNode(0, 0).node_position.x) / MapGrid.EACH_POINT_DIST);
-        int gridY = (int) ((point.y - grid.getNode(0, 0).node_position.y) / MapGrid.EACH_POINT_DIST);
+        PointF gridNode = grid.getNode(0, 0).node_position;
 
-        return new Point(gridX, gridY);
+        // convert dist to grid index and return the position of the node at that index
+
+        return new Point((int) ((point.x - gridNode.x) / MapGrid.EACH_POINT_DIST), (int) ((point.y - gridNode.y) / MapGrid.EACH_POINT_DIST));
     }
 
 }
