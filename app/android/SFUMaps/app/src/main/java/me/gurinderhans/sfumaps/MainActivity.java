@@ -77,7 +77,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
     public void createMapGrid() {
 
-        mapGrid = new MapGrid(new PointF(121f, 100f), new PointF(192f, 183f));
+        mapGrid = new MapGrid(MainActivity.this, new PointF(121f, 100f), new PointF(192f, 183f));
 
         /*// add walkable areas
         mapGrid.createWalkablePath(new GridNode(160, 228, mapGrid), new GridNode(170, 231, mapGrid));
