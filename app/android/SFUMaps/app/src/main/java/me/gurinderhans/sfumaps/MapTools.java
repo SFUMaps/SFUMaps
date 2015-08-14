@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Picture;
 import android.graphics.PointF;
 import android.graphics.drawable.PictureDrawable;
+import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
 
@@ -16,12 +17,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
 import com.larvalabs.svgandroid.SVGBuilder;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -358,6 +362,45 @@ public class MapTools {
     // enum for placing label icon on which side
     public enum MapLabelIconAlign {
         TOP, LEFT, RIGHT
+    }
+
+    public static void createFile(String filename, String fileData) {
+        File file = new File(Environment.getExternalStorageDirectory() + File.separator + filename);
+
+        try {
+            OutputStream fo = new FileOutputStream(file);
+            fo.write(fileData.getBytes());
+            fo.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String loadFile(Context context, String filename) {
+        BufferedReader reader = null;
+        StringBuilder buffer = new StringBuilder();
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(context.getAssets().open(filename)));
+
+            String mLine;
+            while ((mLine = reader.readLine()) != null) {
+                buffer.append(mLine);
+            }
+        } catch (IOException e) {
+            //log the exception
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    //log the exception
+                }
+            }
+        }
+
+        return buffer.toString();
     }
 
 }
