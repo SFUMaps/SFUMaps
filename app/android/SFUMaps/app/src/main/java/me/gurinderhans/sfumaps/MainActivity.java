@@ -79,19 +79,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
         mapGrid = new MapGrid(MainActivity.this, new PointF(121f, 100f), new PointF(192f, 183f));
 
-        /*// add walkable areas
-        mapGrid.createWalkablePath(new GridNode(160, 228, mapGrid), new GridNode(170, 231, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(170, 232, mapGrid), new GridNode(170, 235, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(169, 236, mapGrid), new GridNode(170, 321, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(171, 319, mapGrid), new GridNode(255, 322, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(171, 228, mapGrid), new GridNode(255, 230, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(252, 231, mapGrid), new GridNode(255, 255, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(252, 255, mapGrid), new GridNode(253, 294, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(252, 295, mapGrid), new GridNode(255, 318, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(242, 323, mapGrid), new GridNode(270, 337, mapGrid));
-        mapGrid.createWalkablePath(new GridNode(271, 330, mapGrid), new GridNode(347, 337, mapGrid));
-
-        // test points
+        /*// test points
         frm = new Point(163, 229);
         to = new Point(254, 321);
 
@@ -201,8 +189,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
         Map.setOnMapClickListener(this);
 
         TileProvider provider = new SVGTileProvider(MapTools.getMapTiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
-        Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
-
+        Map.addTileOverlay(new TileOverlayOptions().tileProvider(provider).zIndex(10));
     }
 
     @Override

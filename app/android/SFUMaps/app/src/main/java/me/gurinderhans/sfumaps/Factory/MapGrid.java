@@ -33,6 +33,7 @@ public class MapGrid {
     public ArrayList<ArrayList<GridNode>> mMapGrid = new ArrayList<>();
 
     public MapGrid(Context ctx, PointF startPoint, PointF endPoint) {
+
         this.startPoint = startPoint;
         this.endPoint = endPoint;
 
@@ -50,7 +51,7 @@ public class MapGrid {
             JSONObject gridJsonData = new JSONObject(MapTools.loadFile(ctx, "map_grid.json"));
             // get walkable points
             JSONArray walkablePointsArray = gridJsonData.getJSONArray(PathMaker.WALKABLE_KEY);
-            
+
             for (int i = 0; i < walkablePointsArray.length(); i++) {
 
                 // split string to separate x,y coords
