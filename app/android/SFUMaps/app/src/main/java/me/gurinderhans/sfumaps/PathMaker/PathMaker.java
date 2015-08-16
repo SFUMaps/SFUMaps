@@ -12,7 +12,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
-import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -167,9 +167,11 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 				initialPoint = new Point((int) ev.getX(), (int) ev.getY());
 				isOnClick = true;
 				mSelectedArea = mMap.addGroundOverlay(new GroundOverlayOptions()
-								.positionFromBounds(new LatLngBounds(mMap.getProjection().fromScreenLocation(initialPoint), mMap.getProjection().fromScreenLocation(initialPoint)))
+//								.positionFromBounds(new LatLngBounds(mMap.getProjection().fromScreenLocation(initialPoint), mMap.getProjection().fromScreenLocation(initialPoint)))
 								.image(BitmapDescriptorFactory.fromResource(R.drawable.box_rect_outline))
 								.zIndex(10000)
+								.anchor(0, 0)
+								.position(mMap.getProjection().fromScreenLocation(initialPoint), 100)
 								.transparency(0.25f)
 				);
 				break;
@@ -187,14 +189,18 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:
-				if (boxMode) {
-
-				}
 
 				try {
-					PointF pointF = mGrid.getNode(gridPointIndices).projCoords;
-					mSelectedArea.setPositionFromBounds(
-							new LatLngBounds(MercatorProjection.fromPointToLatLng(pointF), mMap.getProjection().fromScreenLocation(initialPoint)));
+//					PointF pointF = mGrid.getNode(gridPointIndices).projCoords;
+//					LatLng latLng1 = MercatorProjection.fromPointToLatLng(pointF);
+//					LatLng latLng2 = mMap.getProjection().fromScreenLocation(initialPoint);
+//					mSelectedArea.setDimensions((float) MapTools.distance(latLng1.latitude, latLng2.latitude, latLng1.longitude, latLng1.longitude, 0, 0));
+					PointF dims = getXYDist(initialPoint, gridPointIndices);
+					if (dims != null)
+						mSelectedArea.setDimensions(dims.x, dims.y);
+
+//					mSelectedArea.setPositionFromBounds(
+//							new LatLngBounds(MercatorProjection.fromPointToLatLng(pointF), mMap.getProjection().fromScreenLocation(initialPoint)));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -235,38 +241,29 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 		return new Point((int) ((mapPoint.x - gridFirstPoint.x) / MapGrid.EACH_POINT_DIST), (int) ((mapPoint.y - gridFirstPoint.y) / MapGrid.EACH_POINT_DIST));
 	}
 
-	/**
-	 * Given two points of a rect it computes the Top Left and Bottom Right points of that rect
-	 *
-	 * @param topLeft     - the assume top left point of the rectangle
-	 * @param bottomRight - assumed bottom right point of the rectangle
-	 * @return
-	 */
-	private Pair<Point, Point> getFixedBoxBounds(Point topLeft, Point bottomRight) {
+	private PointF getXYDist(Point a, Point b) {
 
-		// check for point validity
-		if (topLeft.equals(-1, -1) || bottomRight.equals(-1, -1))
-			return null;
+		PointF aMapPoint = MercatorProjection.fromLatLngToPoint(mMap.getProjection().fromScreenLocation(a));
 
-		int xDiff = bottomRight.x - topLeft.x;
-		int yDiff = bottomRight.y - topLeft.y;
+		PointF sdfd = mGrid.getNode(b).projCoords;
 
-		if (xDiff > 0 && yDiff > 0)
-			return Pair.create(topLeft, bottomRight);
+		float xDist = 0f;
 
-		if (xDiff < 0 && yDiff < 0)
-			return Pair.create(bottomRight, topLeft);
+		// get x dist
+		PointF pointF = new PointF(sdfd.x, aMapPoint.y);
 
-		if (xDiff < 0 || yDiff < 0) {
+		LatLng latLng = MercatorProjection.fromPointToLatLng(aMapPoint);
+		LatLng two = MercatorProjection.fromPointToLatLng(pointF);
+		xDist = (float) MapTools.distance(latLng.latitude, two.latitude, latLng.longitude, two.longitude, 0, 0);
 
-			Point tl = new Point(topLeft.x + xDiff, topLeft.y);
-			Point br = new Point(bottomRight.x - xDiff, bottomRight.y);
 
-			return (xDiff < 0) ? Pair.create(tl, br) : Pair.create(br, tl);
-		}
+		float yDist = 0f;
+		PointF pointF1 = new PointF(aMapPoint.x, sdfd.y);
+		LatLng three = MercatorProjection.fromPointToLatLng(pointF1);
+		yDist = (float) MapTools.distance(latLng.latitude, three.latitude, latLng.longitude, three.longitude, 0, 0);
 
-		// last case will be if the rectangle is one dimensional
-		return Pair.create(topLeft, bottomRight);
+		// get y dist
+		return new PointF(xDist, yDist);
 	}
 
 }
