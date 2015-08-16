@@ -106,7 +106,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 		if (path != null) {
 			List<LatLng> pathPoints = new ArrayList<>();
 			for (GridNode node : path) {
-				pathPoints.add(MercatorProjection.fromPointToLatLng(node.node_position));
+				pathPoints.add(MercatorProjection.fromPointToLatLng(node.projCoords));
 			}
 			path_line.setPoints(pathPoints);
 		}
@@ -126,7 +126,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 			if (Map != null) {
 
 				// set up path maker
-				new PathMaker(customMapFragment, Map, findViewById(R.id.edit_map_path), findViewById(R.id.export_map_path), mapGrid);
+				new PathMaker(customMapFragment, Map, findViewById(R.id.edit_map_path), findViewById(R.id.export_map_path), findViewById(R.id.create_box_rect), mapGrid);
 
 				// set up map UI
 				setUpMap();
@@ -171,7 +171,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 				/*for (int x = 0; x < mapGrid.mapGridSizeX; x++) {
 					for (int y = 0; y < mapGrid.mapGridSizeY; y++) {
 						GridNode thisNode = mapGrid.getNode(x, y);
-						if (MapTools.inRange(thisNode.node_position, pos, 0.1f)) {
+						if (MapTools.inRange(thisNode.projCoords, pos, 0.1f)) {
 							Log.i(TAG, thisNode.toString());
 							to = new Point(thisNode.gridX, thisNode.gridY);
 							// redraw path
@@ -180,6 +180,14 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 						}
 					}
 				}*/
+			}
+		});
+
+		Map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+			@Override
+			public boolean onMarkerClick(Marker marker) {
+				marker.showInfoWindow();
+				return true;
 			}
 		});
 
@@ -233,12 +241,12 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 		for (int x = 0; x < mapGrid.mapGridSizeX; x++) {
 			for (int y = 0; y < mapGrid.mapGridSizeY; y++) {
 				GridNode thisNode = mapGrid.getNode(x, y);
-				if (MapTools.inRange(thisNode.node_position, clickedPoint, 0.5f)) {
+				if (MapTools.inRange(thisNode.projCoords, clickedPoint, 0.5f)) {
 					Map.addMarker(new MarkerOptions()
-							.position(MercatorProjection.fromPointToLatLng(thisNode.node_position))
+							.position(MercatorProjection.fromPointToLatLng(thisNode.projCoords))
 							.icon(BitmapDescriptorFactory.fromResource(thisNode.isWalkable ? R.drawable.map_path : R.drawable.no_path))
 							.anchor(0.5f, 0.5f)
-							.title("Pos: " + thisNode.node_position.x + ", " + thisNode.node_position.y));
+							.title("Pos: " + thisNode.projCoords.x + ", " + thisNode.projCoords.y));
 				}
 			}
 		}
