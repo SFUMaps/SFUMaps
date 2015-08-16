@@ -31,6 +31,6 @@ public class SplashScreenActivity extends Activity {
                 startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
                 finish(); // remove activity from stack
             }
-        }, secondsDelayed * 1000);
+        }, secondsDelayed * 500);
     }
 }
