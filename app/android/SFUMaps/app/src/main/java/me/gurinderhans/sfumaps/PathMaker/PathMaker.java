@@ -16,6 +16,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.gurinderhans.sfumaps.Factory.MapGrid;
 import me.gurinderhans.sfumaps.MapTools;
 import me.gurinderhans.sfumaps.MercatorProjection;
@@ -35,6 +38,9 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 	public final GoogleMap mMap;
 	public final MapGrid mGrid;
 
+	// tracks all the "green" or "blue" markers placed on the grid so that the red markers don't override these
+	public static List<Point> walkableMarkerIndices = new ArrayList<>();
+
 	boolean isEditingMap = false;
 
 	JSONObject gridRoot = new JSONObject();
@@ -45,6 +51,11 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 	                 final View exportButton, final View boxButton, final MapGrid grid) {
 		this.mMap = map;
 		this.mGrid = grid;
+
+
+		// read json file
+		MapTools.loadFile()
+
 
 		// create the json tree structure
 		try {
@@ -78,7 +89,6 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 		exportButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
 				try {
 					for (int x = 0; x < mGrid.mapGridSizeX; x++)
 						for (int y = 0; y < mGrid.mapGridSizeY; y++)
@@ -100,17 +110,19 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 			public void onClick(View v) {
 				Pair<Point, Point> boxPoints = getFixedBoxBounds(boxStartPoint, boxEndPoint);
 				if (boxPoints != null) {
-					Point tl = boxPoints.first;
-					Point br = boxPoints.second;
+					Point topLeft = boxPoints.first;
+					Point bottomRight = boxPoints.second;
 
 					// draw the box outline
-					for (int i = tl.x; i <= br.x; i++)
-						for (int j = tl.y; j <= br.y; j++)
-							if (i == tl.x || i == br.x || j == tl.y || j == br.y)
+					for (int i = topLeft.x; i <= bottomRight.x; i++)
+						for (int j = topLeft.y; j <= bottomRight.y; j++)
+							if (i == topLeft.x || i == bottomRight.x || j == topLeft.y || j == bottomRight.y) {
 								mMap.addMarker(new MarkerOptions()
 										.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(i, j).projCoords))
 										.icon(BitmapDescriptorFactory.fromResource(R.drawable.box_rect_outline))
 										.anchor(0.5f, 0.5f));
+								walkableMarkerIndices.add(new Point(i, j));
+							}
 
 					try {
 						gridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(POINT_RECTS)
@@ -168,6 +180,8 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 							.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(gridPointIndices).projCoords))
 							.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_path))
 							.anchor(0.5f, 0.5f));
+
+					walkableMarkerIndices.add(gridPointIndices);
 				}
 				break;
 			default:
