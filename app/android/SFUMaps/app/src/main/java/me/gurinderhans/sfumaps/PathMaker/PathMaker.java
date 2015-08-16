@@ -10,7 +10,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +45,8 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
 	boolean isEditingMap = false;
 
+	boolean boxMode = false;
+
 	JSONObject gridRoot = new JSONObject();
 
 	Point boxStartPoint = new Point(-1, -1), boxEndPoint = new Point(-1, -1);
@@ -54,7 +58,7 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
 
 		// read json file
-		MapTools.loadFile()
+//		MapTools.loadFile()
 
 
 		// create the json tree structure
@@ -108,7 +112,10 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 		boxButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Pair<Point, Point> boxPoints = getFixedBoxBounds(boxStartPoint, boxEndPoint);
+
+				boxMode = !boxMode;
+
+				/*Pair<Point, Point> boxPoints = getFixedBoxBounds(boxStartPoint, boxEndPoint);
 				if (boxPoints != null) {
 					Point topLeft = boxPoints.first;
 					Point bottomRight = boxPoints.second;
@@ -131,7 +138,7 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
-				}
+				}*/
 			}
 		});
 	}
@@ -141,9 +148,12 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 	 * onDrag manage click vs drag to plot the corresponding marker on the grid
 	 */
 
-	private float mDownX, mDownY;
+//	private float mDownX, mDownY;
+	private Point initialPoint;
 	private static final float SCROLL_THRESHOLD = 10;
 	private boolean isOnClick;
+
+	GroundOverlay mSelectedArea;
 
 	@Override
 	public void onDrag(MotionEvent ev) {
@@ -154,9 +164,14 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
 		switch (ev.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
-				mDownX = ev.getX();
-				mDownY = ev.getY();
+				initialPoint = new Point((int) ev.getX(), (int) ev.getY());
 				isOnClick = true;
+				mSelectedArea = mMap.addGroundOverlay(new GroundOverlayOptions()
+								.positionFromBounds(new LatLngBounds(mMap.getProjection().fromScreenLocation(initialPoint), mMap.getProjection().fromScreenLocation(initialPoint)))
+								.image(BitmapDescriptorFactory.fromResource(R.drawable.box_rect_outline))
+								.zIndex(10000)
+								.transparency(0.25f)
+				);
 				break;
 			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP:
@@ -165,14 +180,27 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 					boxStartPoint = boxEndPoint;
 					boxEndPoint = gridPointIndices;
 					// add the green point indicating this is a box point
-					mMap.addMarker(new MarkerOptions()
+					/*mMap.addMarker(new MarkerOptions()
 							.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(gridPointIndices).projCoords))
 							.icon(BitmapDescriptorFactory.fromResource(R.drawable.box_rect_outline))
-							.anchor(0.5f, 0.5f));
+							.anchor(0.5f, 0.5f));*/
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:
-				if (Math.abs(mDownX - ev.getX()) > SCROLL_THRESHOLD || Math.abs(mDownY - ev.getY()) > SCROLL_THRESHOLD) {
+				if (boxMode) {
+
+				}
+
+				try {
+					PointF pointF = mGrid.getNode(gridPointIndices).projCoords;
+					mSelectedArea.setPositionFromBounds(
+							new LatLngBounds(MercatorProjection.fromPointToLatLng(pointF), mMap.getProjection().fromScreenLocation(initialPoint)));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+
+				/*if (Math.abs(mDownX - ev.getX()) > SCROLL_THRESHOLD || Math.abs(mDownY - ev.getY()) > SCROLL_THRESHOLD) {
 					isOnClick = false;
 					// add the default blue point indicating this is an individual point
 					mGrid.getNode(gridPointIndices).setWalkable(true);
@@ -182,7 +210,7 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 							.anchor(0.5f, 0.5f));
 
 					walkableMarkerIndices.add(gridPointIndices);
-				}
+				}*/
 				break;
 			default:
 				break;
