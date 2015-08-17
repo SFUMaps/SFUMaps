@@ -126,11 +126,11 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 			if (Map != null) {
 
 				// set up path maker
-				new PathMaker(customMapFragment, Map,
+				new PathMaker(customMapFragment, Map, mapGrid,
 						findViewById(R.id.edit_map_path),
 						findViewById(R.id.export_map_path),
 						findViewById(R.id.create_box_rect),
-						findViewById(R.id.delete_box_rect), mapGrid);
+						findViewById(R.id.delete_box_rect));
 
 				// set up map UI
 				setUpMap();
@@ -190,7 +190,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 		Map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 			@Override
 			public boolean onMarkerClick(Marker marker) {
-				marker.showInfoWindow();
+//				marker.showInfoWindow();
 				return true;
 			}
 		});
