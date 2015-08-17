@@ -126,7 +126,11 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 			if (Map != null) {
 
 				// set up path maker
-				new PathMaker(customMapFragment, Map, findViewById(R.id.edit_map_path), findViewById(R.id.export_map_path), findViewById(R.id.create_box_rect), mapGrid);
+				new PathMaker(customMapFragment, Map,
+						findViewById(R.id.edit_map_path),
+						findViewById(R.id.export_map_path),
+						findViewById(R.id.create_box_rect),
+						findViewById(R.id.delete_box_rect), mapGrid);
 
 				// set up map UI
 				setUpMap();
@@ -242,12 +246,11 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 			for (int y = 0; y < mapGrid.mapGridSizeY; y++) {
 				GridNode thisNode = mapGrid.getNode(x, y);
 				if (MapTools.inRange(thisNode.projCoords, clickedPoint, 0.5f)) {
-					if (!PathMaker.walkableMarkerIndices.contains(new Point(x, y)))
-						Map.addMarker(new MarkerOptions()
-								.position(MercatorProjection.fromPointToLatLng(thisNode.projCoords))
-								.icon(BitmapDescriptorFactory.fromResource(thisNode.isWalkable ? R.drawable.map_path : R.drawable.no_path))
-								.anchor(0.5f, 0.5f)
-								.title("Pos: " + thisNode.projCoords.x + ", " + thisNode.projCoords.y));
+					Map.addMarker(new MarkerOptions()
+							.position(MercatorProjection.fromPointToLatLng(thisNode.projCoords))
+							.icon(BitmapDescriptorFactory.fromResource(thisNode.isWalkable ? R.drawable.map_path : R.drawable.no_path))
+							.anchor(0.5f, 0.5f)
+							.title("Pos: " + thisNode.projCoords.x + ", " + thisNode.projCoords.y));
 				}
 			}
 		}
