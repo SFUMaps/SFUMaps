@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -51,6 +52,7 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
 	// this is only used for holding onto ground overlays until removed from map, (NOT List itself)
 	private List<GroundOverlay> boxRectList = new ArrayList<>();
+	private List<Marker> individualMarkers = new ArrayList<>();
 
 	public PathMaker(CustomMapFragment mapFragment, GoogleMap map, final MapGrid grid, final View editButton,
 	                 final View exportButton, final View boxButton, final View deleteButton) {
@@ -127,15 +129,9 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 			@Override
 			public void onClick(View v) {
 				try {
-					for (int x = 0; x < mGrid.mapGridSizeX; x++)
-						for (int y = 0; y < mGrid.mapGridSizeY; y++)
-							if (mGrid.getNode(x, y).isWalkable)
-								jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(INDIVIDUAL_POINTS).put(x + "," + y);
-
 					// create file
 					MapTools.createFile("map_grid.json", jsonGridRoot.toString(4));
 					Toast.makeText(v.getContext(), "Grid exported!", Toast.LENGTH_SHORT).show();
-
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -210,7 +206,7 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 						// box was created, so store its ground overlay
 						boxRectList.add(mTmpSelectedArea);
 
-						Log.i(TAG, "boxRectList size: " + boxRectList.size() + ", json box array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(BOX_RECTS).length());
+//						Log.i(TAG, "boxRectList size: " + boxRectList.size() + ", json box array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(BOX_RECTS).length());
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
@@ -244,6 +240,7 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 					// TODO: 15-08-16 delete blue points
 
 					try {
+						// remove box rectangle
 						for (int i = 0; i < boxRectList.size(); i++) {
 							if (boxRectList.get(i).getBounds().contains(mGoogleMap.getProjection().fromScreenLocation(new Point((int) ev.getX(), (int) ev.getY())))) {
 								boxRectList.get(i).remove();
@@ -252,20 +249,48 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 								break;
 							}
 						}
-						Log.i(TAG, "boxRectList size: " + boxRectList.size() + ", json box array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(BOX_RECTS).length());
+//						Log.i(TAG, "boxRectList size: " + boxRectList.size() + ", json box array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(BOX_RECTS).length());
+
+						// remove blue dots
+						for (int i = 0; i < individualMarkers.size(); i++) {
+							if (individualMarkers.get(i).getPosition().equals(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords))) {
+								individualMarkers.get(i).remove();
+								individualMarkers.remove(i);
+								jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(INDIVIDUAL_POINTS).remove(i);
+							}
+						}
+						Log.i(TAG, "list size: " + individualMarkers.size() + ", array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(INDIVIDUAL_POINTS).length());
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
 
 				} else {
 					// add map path marker
-					mGoogleMap.addMarker(new MarkerOptions()
-							.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords))
-							.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_path))
-							.anchor(0.5f, 0.5f));
 
-					// set to walkable point
-					mGrid.getNode(currentDragPointIndices).setWalkable(true);
+					boolean alreadyContains = false;
+					for (Marker marker : individualMarkers) {
+						if (marker.getPosition().equals(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords)))
+							alreadyContains = true;
+					}
+
+					if (!alreadyContains) {
+
+						individualMarkers.add(mGoogleMap.addMarker(new MarkerOptions()
+								.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords))
+								.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_path))
+								.anchor(0.5f, 0.5f)));
+
+						// set to walkable point
+						mGrid.getNode(currentDragPointIndices).setWalkable(true);
+
+						// add to json tree
+						try {
+							jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(INDIVIDUAL_POINTS).put(currentDragPointIndices.x + "," + currentDragPointIndices.y);
+							Log.i(TAG, "list size: " + individualMarkers.size() + ", array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(INDIVIDUAL_POINTS).length());
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
 				}
 				break;
 			default:
