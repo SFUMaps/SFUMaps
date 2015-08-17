@@ -50,6 +50,8 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 	boolean createBoxMode = false;
 	boolean deletePathMode = false;
 
+	boolean mapEdited = false;
+
 	// this is only used for holding onto ground overlays until removed from map, (NOT List itself)
 	private List<GroundOverlay> boxRectList = new ArrayList<>();
 	private List<Marker> individualMarkers = new ArrayList<>();
@@ -91,7 +93,9 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 				try {
 					JSONObject walkableNode = jsonGridRoot.getJSONObject(WALKABLE_KEY);
 					if (isEditingMap && walkableNode.getJSONArray(BOX_RECTS).length() == 0
-							&& walkableNode.getJSONArray(INDIVIDUAL_POINTS).length() == 0) { // if their is previously something drawn on screen, then we won't override it
+							&& walkableNode.getJSONArray(INDIVIDUAL_POINTS).length() == 0 && !mapEdited) { // if their is previously something drawn on screen, then we won't override it
+
+						mapEdited = true;
 
 						// load the json file, and load the edit gizmos
 
@@ -115,6 +119,18 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 											.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(pointA).projCoords), sdf.x, sdf.y)
 											.image(BitmapDescriptorFactory.fromResource(R.drawable.box_rect_outline))
 											.transparency(0.2f))
+							);
+						}
+
+						// export individual points
+						JSONArray points = walkableNode.getJSONArray(INDIVIDUAL_POINTS);
+						for (int i = 0; i < points.length(); i++) {
+							String[] pointString = points.getString(i).split(",");
+							individualMarkers.add(
+									mGoogleMap.addMarker(new MarkerOptions()
+											.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(new Point(Integer.parseInt(pointString[0]), Integer.parseInt(pointString[1]))).projCoords))
+											.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_path))
+											.anchor(0.5f, 0.5f))
 							);
 						}
 					}
