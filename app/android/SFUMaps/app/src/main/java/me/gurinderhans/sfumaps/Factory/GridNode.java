@@ -10,7 +10,7 @@ public class GridNode {
     public static final String TAG = GridNode.class.getSimpleName();
 
     // map world position
-    public PointF node_position;
+    public PointF projCoords;
 
     public boolean isWalkable = false;
 
@@ -28,7 +28,7 @@ public class GridNode {
     public GridNode(int x, int y, MapGrid mapGrid) {
         this.gridX = x;
         this.gridY = y;
-        this.node_position = new PointF(mapGrid.startPoint.x + x * MapGrid.EACH_POINT_DIST, mapGrid.startPoint.y + y * MapGrid.EACH_POINT_DIST);
+        this.projCoords = new PointF(mapGrid.startPoint.x + x * MapGrid.EACH_POINT_DIST, mapGrid.startPoint.y + y * MapGrid.EACH_POINT_DIST);
     }
 
     public float getFCost() {
