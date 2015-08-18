@@ -7,36 +7,40 @@ import android.graphics.PointF;
  */
 public class GridNode {
 
-    public static final String TAG = GridNode.class.getSimpleName();
+	public static final String TAG = GridNode.class.getSimpleName();
 
-    // map world position
-    public PointF projCoords;
+	// map world position
+	public final PointF projCoords;
 
-    public boolean isWalkable = false;
+	private boolean isWalkable = false;
 
-    // array indices
-    public final int gridX;
-    public final int gridY;
+	// array indices
+	public final int gridX;
+	public final int gridY;
 
-    // node costs
-    public float gCost = -1f;
-    public float hCost = -1f;
+	// node costs
+	public float gCost = -1f;
+	public float hCost = -1f;
 
-    public GridNode parentNode = null;
+	public GridNode parentNode = null;
 
-    // @constructor
-    public GridNode(int x, int y, MapGrid mapGrid) {
-        this.gridX = x;
-        this.gridY = y;
-        this.projCoords = new PointF(mapGrid.startPoint.x + x * MapGrid.EACH_POINT_DIST, mapGrid.startPoint.y + y * MapGrid.EACH_POINT_DIST);
-    }
+	// @constructor
+	public GridNode(int x, int y, MapGrid mapGrid) {
+		this.gridX = x;
+		this.gridY = y;
+		this.projCoords = new PointF(mapGrid.startPoint.x + x * MapGrid.EACH_POINT_DIST, mapGrid.startPoint.y + y * MapGrid.EACH_POINT_DIST);
+	}
 
-    public float getFCost() {
-        return gCost + hCost;
-    }
+	public float getFCost() {
+		return gCost + hCost;
+	}
 
-    public void setWalkable(boolean walkable) {
-        this.isWalkable = walkable;
-    }
+	public boolean isWalkable() {
+		return isWalkable;
+	}
+
+	public void setWalkable(boolean walkable) {
+		this.isWalkable = walkable;
+	}
 
 }

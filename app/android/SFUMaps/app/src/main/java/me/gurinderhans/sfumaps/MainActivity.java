@@ -248,7 +248,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 				if (MapTools.inRange(thisNode.projCoords, clickedPoint, 0.5f)) {
 					Map.addMarker(new MarkerOptions()
 							.position(MercatorProjection.fromPointToLatLng(thisNode.projCoords))
-							.icon(BitmapDescriptorFactory.fromResource(thisNode.isWalkable ? R.drawable.map_path : R.drawable.no_path))
+							.icon(BitmapDescriptorFactory.fromResource(thisNode.isWalkable() ? R.drawable.map_path : R.drawable.no_path))
 							.anchor(0.5f, 0.5f)
 							.title("Pos: " + thisNode.projCoords.x + ", " + thisNode.projCoords.y));
 				}
