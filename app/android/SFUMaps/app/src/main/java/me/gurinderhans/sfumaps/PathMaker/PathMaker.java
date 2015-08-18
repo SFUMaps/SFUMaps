@@ -46,7 +46,7 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 	public MapGrid mGrid;
 
 	// TODO: 15-08-16 improve application mode management
-	boolean isEditingMap = false;
+	public static boolean isEditingMap = false;
 	boolean createBoxMode = false;
 	boolean deletePathMode = false;
 

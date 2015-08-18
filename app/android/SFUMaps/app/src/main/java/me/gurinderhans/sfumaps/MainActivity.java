@@ -3,7 +3,6 @@ package me.gurinderhans.sfumaps;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Picture;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,20 +18,18 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import me.gurinderhans.sfumaps.Factory.GridNode;
 import me.gurinderhans.sfumaps.Factory.MapGrid;
-import me.gurinderhans.sfumaps.Factory.PathFinder;
 import me.gurinderhans.sfumaps.PathMaker.CustomMapFragment;
 import me.gurinderhans.sfumaps.PathMaker.PathMaker;
+import me.gurinderhans.sfumaps.PathSearch.PathSearch;
 import me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
@@ -44,8 +42,10 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
 	private GoogleMap Map;
 
-	MapGrid mapGrid;
-	Point frm, to;
+	MapGrid MapGrid;
+	PathSearch mPathSearch;
+
+	boolean searchMode = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,41 +75,27 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 			}
 		});
 
-		createMapGrid();
+		findViewById(R.id.search_init_button).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				searchMode = !searchMode;
+
+				((Button) v).setText(searchMode ? "Clear" : "Search");
+
+				if (!searchMode)
+					mPathSearch.clearPath();
+			}
+		});
+
+
+		// starting and ending points are hardcoded for now, but it can work
+		MapGrid = new MapGrid(MainActivity.this, new PointF(121f, 100f), new PointF(192f, 183f));
+
 		setUpMapIfNeeded();
 
-	}
+		// handles paths search
+		mPathSearch = new PathSearch(Map, MapGrid);
 
-	public void createMapGrid() {
-
-		mapGrid = new MapGrid(MainActivity.this, new PointF(121f, 100f), new PointF(192f, 183f));
-
-        /*// test points
-        frm = new Point(163, 229);
-        to = new Point(254, 321);
-
-        path_line = Map.addPolyline(new PolylineOptions().width(15).color(0xFF4285F4).geodesic(true).zIndex(10000));
-
-        AStar();*/
-	}
-
-	Polyline path_line;
-
-	public void AStar() {
-
-		// AStar search
-		long start = System.currentTimeMillis();
-		List<GridNode> path = PathFinder.getPath(frm, to, mapGrid);
-		Log.i(TAG, "path search took: " + (System.currentTimeMillis() - start) + "ms");
-
-		Log.i(TAG, "path: " + path);
-		if (path != null) {
-			List<LatLng> pathPoints = new ArrayList<>();
-			for (GridNode node : path) {
-				pathPoints.add(MercatorProjection.fromPointToLatLng(node.projCoords));
-			}
-			path_line.setPoints(pathPoints);
-		}
 	}
 
 	/**
@@ -126,7 +112,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 			if (Map != null) {
 
 				// set up path maker
-				new PathMaker(customMapFragment, Map, mapGrid,
+				new PathMaker(customMapFragment, Map, MapGrid,
 						findViewById(R.id.edit_map_path),
 						findViewById(R.id.export_map_path),
 						findViewById(R.id.create_box_rect),
@@ -167,30 +153,16 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
 			@Override
 			public void onMarkerDragEnd(Marker marker) {
-
-				PointF pos = MercatorProjection.fromLatLngToPoint(marker.getPosition());
-
-				marker.setSnippet(pos.toString());
-
-				/*for (int x = 0; x < mapGrid.mapGridSizeX; x++) {
-					for (int y = 0; y < mapGrid.mapGridSizeY; y++) {
-						GridNode thisNode = mapGrid.getNode(x, y);
-						if (MapTools.inRange(thisNode.projCoords, pos, 0.1f)) {
-							Log.i(TAG, thisNode.toString());
-							to = new Point(thisNode.gridX, thisNode.gridY);
-							// redraw path
-							AStar();
-							break;
-						}
-					}
-				}*/
+				marker.setSnippet(
+						MercatorProjection.fromLatLngToPoint(marker.getPosition()).toString());
 			}
 		});
 
 		Map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 			@Override
 			public boolean onMarkerClick(Marker marker) {
-//				marker.showInfoWindow();
+				if (!PathMaker.isEditingMap && !searchMode)
+					marker.showInfoWindow();
 				return true;
 			}
 		});
@@ -203,7 +175,6 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 		// overlay tile provider to switch floor level stuff
 		TileProvider overlayProvider = new SVGTileProvider(getOverlayTiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
 		Map.addTileOverlay(new TileOverlayOptions().tileProvider(overlayProvider).zIndex(11));
-
 	}
 
 	// FIXME: temp method
@@ -240,20 +211,26 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
 	@Override
 	public void onMapClick(LatLng latLng) {
-		PointF clickedPoint = MercatorProjection.fromLatLngToPoint(latLng);
-		// get markers at the area clicked
-		for (int x = 0; x < mapGrid.mapGridSizeX; x++) {
-			for (int y = 0; y < mapGrid.mapGridSizeY; y++) {
-				GridNode thisNode = mapGrid.getNode(x, y);
-				if (MapTools.inRange(thisNode.projCoords, clickedPoint, 0.5f)) {
-					Map.addMarker(new MarkerOptions()
-							.position(MercatorProjection.fromPointToLatLng(thisNode.projCoords))
-							.icon(BitmapDescriptorFactory.fromResource(thisNode.isWalkable() ? R.drawable.map_path : R.drawable.no_path))
-							.anchor(0.5f, 0.5f)
-							.title("Pos: " + thisNode.projCoords.x + ", " + thisNode.projCoords.y));
+
+		if (searchMode)
+			mPathSearch.recordPoint(latLng);
+		else {
+			PointF clickedPoint = MercatorProjection.fromLatLngToPoint(latLng);
+			// get markers at the area clicked
+			for (int x = 0; x < MapGrid.mapGridSizeX; x++) {
+				for (int y = 0; y < MapGrid.mapGridSizeY; y++) {
+					GridNode thisNode = MapGrid.getNode(x, y);
+					if (MapTools.inRange(thisNode.projCoords, clickedPoint, 0.5f)) {
+						Map.addMarker(new MarkerOptions()
+								.position(MercatorProjection.fromPointToLatLng(thisNode.projCoords))
+								.icon(BitmapDescriptorFactory.fromResource(thisNode.isWalkable() ? R.drawable.map_path : R.drawable.no_path))
+								.anchor(0.5f, 0.5f)
+								.title("Pos: " + thisNode.projCoords.x + ", " + thisNode.projCoords.y));
+					}
 				}
 			}
 		}
+
 	}
 
 }

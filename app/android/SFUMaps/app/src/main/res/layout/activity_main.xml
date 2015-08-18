@@ -75,6 +75,18 @@
             android:visibility="invisible"/>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/search_init_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginRight="15dp"
+        android:text="Search"/>
+
     <!--<TextView
         android:id="@+id/mapZoomLevelDisplay"
         android:layout_width="wrap_content"
