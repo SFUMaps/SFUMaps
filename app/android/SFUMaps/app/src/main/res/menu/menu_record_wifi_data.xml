@@ -1,18 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity">
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="me.gurinderhans.sfumaps.devtools.wifirecorder.Controller.RecordWifiDataActivity">
 
     <item
         android:id="@+id/record"
         android:icon="@drawable/ic_play_arrow_white_24dp"
         android:title="@string/menu_action_record_play"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/list_tables"
         android:icon="@drawable/ic_sort_white_24dp"
         android:title="@string/menu_action_list_tables"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom"/>
 
 </menu>

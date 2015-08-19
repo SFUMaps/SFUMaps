@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <ImageButton
+        android:id="@+id/edit_map_path"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="33dp"
+        android:background="@drawable/sfunetsecuredot"
+        android:src="@android:drawable/ic_menu_edit"/>
+
+    <ImageButton
+        android:id="@+id/export_map_path"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/sfunetsecuredot"
+        android:src="@android:drawable/ic_menu_send"
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/create_box_rect"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/sfunetsecuredot"
+        android:text="BOX"
+        android:textColor="#fff"
+        android:visibility="invisible"/>
+
+    <ImageButton
+        android:id="@+id/delete_box_rect"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/sfunetsecuredot"
+        android:src="@android:drawable/ic_input_delete"
+        android:textColor="#fff"
+        android:visibility="invisible"/>
+
+</LinearLayout>

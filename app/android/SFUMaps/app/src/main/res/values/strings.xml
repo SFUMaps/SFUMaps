@@ -35,4 +35,6 @@
 
     <color name="transparent_status_bar_color">#4D000000</color>
 
+    <color name="fab_ripple_color">#4DFFFFFF</color>
+
 </resources>

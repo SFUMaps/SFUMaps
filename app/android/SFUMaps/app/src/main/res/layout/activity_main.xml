@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -6,13 +7,13 @@
 
     <fragment
         android:id="@+id/map"
-        android:name="me.gurinderhans.sfumaps.PathMaker.CustomMapFragment"
+        android:name="me.gurinderhans.sfumaps.devtools.pathmaker.CustomMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity"/>
 
     <ImageButton
-        android:id="@+id/backend_panel"
+        android:id="@+id/wifi_data_observer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -23,79 +24,24 @@
         android:background="@null"
         android:src="@drawable/ic_adb_black_24dp"/>
 
-    <LinearLayout
+    <include
+        android:id="@+id/pathmaker_actions"
+        layout="@layout/pathmaker_action_buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:orientation="vertical">
+        android:layout_marginTop="40dp"/>
 
-        <ImageButton
-            android:id="@+id/edit_map_path"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="33dp"
-            android:background="@drawable/sfunetsecuredot"
-            android:src="@android:drawable/ic_menu_edit"/>
-
-        <ImageButton
-            android:id="@+id/export_map_path"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/sfunetsecuredot"
-            android:src="@android:drawable/ic_menu_send"
-            android:visibility="invisible"/>
-
-        <Button
-            android:id="@+id/create_box_rect"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/sfunetsecuredot"
-            android:text="BOX"
-            android:textColor="#fff"
-            android:visibility="invisible"/>
-
-        <ImageButton
-            android:id="@+id/delete_box_rect"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/sfunetsecuredot"
-            android:src="@android:drawable/ic_input_delete"
-            android:textColor="#fff"
-            android:visibility="invisible"/>
-    </LinearLayout>
-
-    <Button
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/search_init_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="15dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginRight="15dp"
-        android:text="Search"/>
-
-    <!--<TextView
-        android:id="@+id/mapZoomLevelDisplay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="33dp" />-->
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_search_white_24dp"
+        app:backgroundTint="@color/main_activity_color_primary"
+        app:borderWidth="0dp"
+        app:rippleColor="@color/fab_ripple_color"/>
 
 </RelativeLayout>
