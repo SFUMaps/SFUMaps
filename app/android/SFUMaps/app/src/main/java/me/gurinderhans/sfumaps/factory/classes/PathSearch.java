@@ -2,6 +2,7 @@ package me.gurinderhans.sfumaps.factory.classes;
 
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -29,12 +30,15 @@ public class PathSearch {
 	final MapGrid mGrid;
 	final Polyline mPathPolyline;
 
-	// Location from
+	// location points
 	public Point mapPointFrom;
-	// Location to
 	public Point mapPointTo;
+
 	Marker markerFrom;
 	Marker markerTo;
+
+	GridNode nodeFrom;
+	GridNode nodeTo;
 
 	public PathSearch(GoogleMap googleMap, MapGrid mapGrid) {
 		this.mGoogleMap = googleMap;
@@ -113,14 +117,13 @@ public class PathSearch {
 		Point tappedNodePoint = getGridIndices(tappedPoint);
 		if (mapPointFrom == null) {
 			mapPointFrom = tappedNodePoint;
+			nodeFrom = mGrid.getNode(tappedNodePoint);
 			markerFrom = mGoogleMap.addMarker(new MarkerOptions()
-					.position(MercatorProjection.fromPointToLatLng(
-							mGrid.getNode(tappedNodePoint).projCoords))
+					.position(MercatorProjection.fromPointToLatLng(nodeFrom.projCoords))
 					.icon(BitmapDescriptorFactory.fromResource(R.drawable.a)));
 		} else {
 			mapPointTo = tappedNodePoint;
-			GridNode nodeFrom = mGrid.getNode(tappedNodePoint);
-			GridNode nodeTo = mGrid.getNode(tappedNodePoint);
+			nodeTo = mGrid.getNode(tappedNodePoint);
 
 			if (markerTo != null)
 				markerTo.remove();
@@ -135,6 +138,9 @@ public class PathSearch {
 					new Point(nodeTo.gridX, nodeTo.gridY));
 
 			if (path != null) {
+
+				Log.i(TAG, "path size: " + path.size());
+
 				List<LatLng> pathPoints = new ArrayList<>();
 
 				for (GridNode node : path)
