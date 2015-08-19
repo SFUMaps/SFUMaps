@@ -1,8 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="me.gurinderhans.sfumaps.wifirecorder.Controller.RecordWifiDataActivity">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="me.gurinderhans.sfumaps.devtools.wifirecorder.Controller.RecordWifiDataActivity">
 
     <EditText
         android:id="@+id/database_table_name"
@@ -18,13 +18,13 @@
         android:singleLine="true"
         android:textColor="#ffffff"
         android:textColorHint="#eeeeee"
-        android:textCursorDrawable="@null" />
+        android:textCursorDrawable="@null"/>
 
     <ListView
         android:id="@+id/scanned_APs"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/database_table_name"
-        android:divider="@null" />
+        android:divider="@null"/>
 
 </RelativeLayout>
