@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.indigo-pink.min.css">
     <script src="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="js/underscore-min.js"></script>
   </head>
   <body>
     <div id="map"></div>
@@ -36,11 +37,11 @@
         <div class="mdl-card__supporting-text">
           <form action="#" id="place_save_form">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="text" name="place_title" id="place-title" />
+              <input class="mdl-textfield__input" type="text" name="title" id="place-title" />
               <label class="mdl-textfield__label" for="place-title">Name</label>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <textarea class="mdl-textfield__input" type="text" name="place_desc" rows= "3" id="place-desc" ></textarea>
+              <textarea class="mdl-textfield__input" type="text" name="description" rows= "3" id="place-desc" ></textarea>
               <label class="mdl-textfield__label" for="place-desc">Description</label>
             </div>
           </form>

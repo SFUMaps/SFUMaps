@@ -84,9 +84,17 @@ var MapTools = (function() {
           map: _Map,
           icon: iconPath,
           title: title,
+          draggable:true
       });
 
-      marker.addListener('click', function(e) {
+      marker.info = new google.maps.InfoWindow({
+        content: title
+      });
+
+      marker.addListener('drag', function () {
+        onMarkerDrag(this);
+      });
+      marker.addListener('click', function () {
         onMarkerClick(this);
       });
 
@@ -104,6 +112,9 @@ var MapTools = (function() {
       }
 
       return seperated
-    }
+    },
   }
 }());
+
+TILE_SIZE = 256;
+MAP_ID = "SFU";

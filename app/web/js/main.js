@@ -1,20 +1,105 @@
-// globals and constants
-var TILE_SIZE = 256,
-    MAP_ID = "SFU";
+//
+// MARK: Place Class
+//
 
-var _Map;
-var _MapProj;
+var Place = function () {};
 
-// member variables
-var allPlaces = [];
-var allPlacesMarkers = [];
+// setters
 
-var current_place_data = {
-  location: {},
-  map_zoom: -1,
-  place_type: ""
+Place.prototype.setTitle = function (title) {
+  this.title = title;
+  return this;
+}
+
+Place.prototype.setDescription = function (description) {
+  this.description = description;
+  return this;
 };
-var currentPlaceMarker = {};
+
+Place.prototype.setLocation = function (location) {
+  this.location = location;
+  return this;
+};
+
+Place.prototype.setType = function (type) {
+  this.type = type;
+  return this;
+};
+
+Place.prototype.setZoom = function (zoom) {
+  this.zoom = zoom;
+  return this;
+};
+
+Place.prototype.setMarker = function (marker) {
+  this.marker = marker;
+  return this;
+};
+
+Place.fromJson = function (place) {
+  return new Place()
+      .setTitle(place.title)
+      .setDescription(place.description)
+      .setLocation(place.location)
+      .setZoom(place.zoom)
+      .setType(place.type);
+};
+
+
+// getters
+
+Place.prototype.getTitle = function () {
+  return this.title;
+};
+
+Place.prototype.getDescription = function () {
+  return this.description;
+};
+
+Place.prototype.getLocation = function () {
+  return this.location;
+};
+
+Place.prototype.getType = function () {
+  return this.type;
+};
+
+Place.prototype.getZoom = function () {
+  return this.zoom;
+};
+
+Place.prototype.getMarker = function () {
+  return this.marker;
+};
+
+Place.prototype.toJson = function () {
+  return {
+    'title' : this.title,
+    'description' : this.description,
+    'location' : this.location,
+    'type' : this.type,
+    'zoom' : this.zoom
+  };
+};
+
+Place.placesToJson = function (places) {
+  var jsonPlaces = []
+  _.each(places, function (place) {
+    jsonPlaces.push(place.toJson());
+  })
+  return jsonPlaces
+}
+
+Place.allPlaces = [];
+
+Place.tmpPlace = new Place();
+
+
+
+//
+// MARK: (Application / UI) Logic
+//
+
 
 function initMap() {
   _Map = new google.maps.Map(document.getElementById('map'), {
@@ -70,59 +155,53 @@ function initMap() {
   _Map.overlayMapTypes.push(overlay);
 
   // fetch map data
-  $.post('/', JSON.stringify({'fetch_data': ''}), function(r) {
-    loadPlaces(r);
-  });
+  $.post('/', JSON.stringify({'fetch_data': ''}), loadPlaces);
 
 
   //
   // MARK: add event listeners
   //
 
-  // 1. Map click listener
+  // 1. Map event listeners
   _Map.addListener('click', function(e) {
-    current_place_data['location'] = _MapProj.fromLatLngToPoint(e.latLng);
-    openplace_typeSelectorMenu(e.pixel);
-  });
 
-  // 2. Place selector menu item click
-  $("#place-selector-places li").on('click', function() {
+    var tmpIsInList = _.first(_.filter(Place.allPlaces, function (place) {
+      return place.getMarker() === Place.tmpPlace.getMarker()
+    })) === undefined;
 
-    /* logic */
+    // remove old marker if there was one
+    if (Place.tmpPlace.getMarker() !== undefined && tmpIsInList)
+      Place.tmpPlace.getMarker().setMap(null);
 
-    current_place_data['place_type'] = $(this).text();
-    current_place_data['map_zoom'] = _Map.getZoom();
+    // set to new empty place
+    Place.tmpPlace = new Place();
 
-    /* UI */
+    // set place location
+    Place.tmpPlace.setLocation(_MapProj.fromLatLngToPoint(e.latLng));
 
-    // show the place save form
-    $(".add_place_form_wrapper").animate({
-      top: "3%",
-    }, 250);
-
-    // update location text
-    $(".lat-lng").text(
-      current_place_data['location'].x + ", " + current_place_data['location'].y + ", " + current_place_data['map_zoom'] + "z"
-    );
-    // update place type
-    $(".place-type").text(
-      current_place_data['place_type']
-    );
-
-    // reset form
-    $("#place_save_form").trigger('reset');
-
-    if (Object.keys(currentPlaceMarker).length !== 0)
-      currentPlaceMarker.setMap(null);
-
-    currentPlaceMarker = MapTools.addMarker(
-      _MapProj.fromPointToLatLng(current_place_data['location']),
-      $("#place-title").val(),
-      ""
+    // set new marker
+    Place.tmpPlace.setMarker(
+      MapTools.addMarker(
+        _MapProj.fromPointToLatLng(Place.tmpPlace.getLocation()),
+        Place.tmpPlace.getTitle(),
+        ""
+      )
     )
 
-    // focus on first form element
-    $("#place-title").focus();
+    openplace_typeSelectorMenu(e.pixel);
+  });
+  _Map.addListener('zoom_changed', zoomChanged);
+
+  // 2. Place selector menu item click
+  $("#place-selector-places li").click(function() {
+
+    Place.tmpPlace.setType($(this).text());
+    Place.tmpPlace.setZoom(_Map.getZoom());
+
+    // show the place save form
+    $(".add_place_form_wrapper").animate({top: "3%"}, 250, function () {
+      formDisplay(Place.tmpPlace);
+    });
   });
 
   // 3. Add place form submit listener
@@ -132,10 +211,7 @@ function initMap() {
       top: "-100%",
     }, 250);
 
-    saveNewPlaceForm( $("#place_save_form") );
-
-    // clear `current_place_data`
-    current_place_data = {}
+    saveNewPlaceForm( $("#place_save_form"), Place.tmpPlace );
   });
 
   // 4. Cancel place save button listener
@@ -155,6 +231,8 @@ function initMap() {
 
 }
 
+function zoomChanged() {}
+
 function openplace_typeSelectorMenu(screenPoint) {
   // position the place selector menu
   $(".place_selector_menu_wrapper").css({
@@ -165,87 +243,110 @@ function openplace_typeSelectorMenu(screenPoint) {
   document.getElementById("place-selector-menu").click();
 }
 
+function loadPlaces(data) {
+  // console.log(places);
+  _.each(data['places'], function(placeJson) {
+
+    var newPlace = Place.fromJson(placeJson);
+
+    // add to map
+    newPlace.setMarker(
+      MapTools.addMarker(
+        _MapProj.fromPointToLatLng(newPlace.getLocation()),
+        newPlace.getTitle(),
+        ""
+      )
+    )
+
+    // add to list
+    Place.allPlaces.push(newPlace);
+  });
+}
+
+function onMarkerClick(clickedMarker) {
+
+  // show info window
+  // clickedMarker.info.open(_Map, clickedMarker);
+
+  // find in list
+  var foundPlace = _.first(
+    _.filter(Place.allPlaces, function(place) {
+      return place.getMarker() === clickedMarker
+    })
+  );
+
+  var tmpIsInList = _.first(_.filter(Place.allPlaces, function (place) {
+    return place.getMarker() === Place.tmpPlace.getMarker()
+  })) === undefined
+
+  // remove old marker if there was one
+  if (Place.tmpPlace.getMarker() !== undefined && tmpIsInList)
+    Place.tmpPlace.getMarker().setMap(null);
+
+  Place.tmpPlace = foundPlace
+
+  // show the place save form
+  $(".add_place_form_wrapper").animate({top: "3%"}, 250, function () {
+    formDisplay(foundPlace);
+  });
+}
+
+function onMarkerDrag(draggedMarker) {
+  console.log(draggedMarker);
+  // find marker in list and update location
+}
+
+function formDisplay(place) {
+
+  // set place location
+  $(".lat-lng").text(
+    place.getLocation().x + ", "
+    + place.getLocation().y + ", "
+    + place.getZoom() + "z"
+  );
+
+  // set place type
+  $(".place-type").text(place.getType());
+
+  // reset form
+  $("#place_save_form").trigger('reset');
+
+  // focus on first form element
+  $("#place-title").focus();
+
+  if (place.getTitle()) {
+    $("#place-title").val(place.getTitle());
+    $("#place-title").parent(".mdl-textfield").addClass("is-upgraded is-dirty");
+  }
+  if (place.getDescription()) {
+    $("#place-desc").val(place.getDescription());
+    $("#place-desc").parent(".mdl-textfield").addClass("is-upgraded is-dirty");
+  }
+}
+
+
 function saveNewPlaceForm(form) {
   var data = {};
   form.serializeArray().map(function(x){data[x.name] = x.value;});
 
-  var formData = $.extend({}, data, current_place_data);
-  console.log(allPlaces.length);
+  Place.tmpPlace.setTitle(data['title']);
+  Place.tmpPlace.setDescription(data['description']);
 
-  // add / update `allPlaces`
-  var placeExists = false;
-  for (var i = 0; i < allPlaces.length; i++) {
-    if (allPlaces[i].location == formData.location) {
-      // update
-      allPlaces[i] = formData;
-      placeExists = true
-    }
-  }
-  if (!placeExists)
-    allPlaces.push(formData);
+  // add / update `Place.allPlaces`
+  var idx;
+  _.find(Place.allPlaces, function(thisPlace, placeIndex){
+     if (thisPlace.getMarker() == Place.tmpPlace.getMarker()) {
+        idx = placeIndex;
+        return true;
+     };
+  });
 
-  console.log(allPlaces);
+  if (idx === undefined)
+    Place.allPlaces.push(Place.tmpPlace);
+  else
+    Place.allPlaces[idx] = Place.tmpPlace
 
-  $.post('/', JSON.stringify(formData), function(r) {
+  $.post('/', JSON.stringify({places:Place.placesToJson(Place.allPlaces)}), function(r) {
     console.log("saved: ",r.success);
   });
-}
-
-// TODO: display makers according to zoom level
-// load the makers onto map
-function loadPlaces(data) {
-  data['places'].forEach(function(val, i) {
-    // add to array
-    allPlaces.push(val);
-
-    // display on map
-    allPlacesMarkers.push(MapTools.addMarker(
-      _MapProj.fromPointToLatLng(new google.maps.Point(val.location.x, val.location.y)),
-      val.place_title,
-      ""
-    ));
-  });
-}
-
-
-//
-function onMarkerClick(marker) {
-  // find this marker in our list and and edit in display form
-  for (var i = 0; i < allPlacesMarkers.length; i++) {
-    if (allPlacesMarkers[i].position === marker.position) {
-      // set form data for maker and show form
-      currentPlaceMarker = allPlacesMarkers[i]
-
-      setPlaceSaveForm(allPlaces[i])
-
-      break;
-    }
-  }
-}
-
-
-function setPlaceSaveForm(formData) {
-
-  current_place_data = {
-    location: formData.location,
-    map_zoom: formData.map_zoom,
-    place_type: formData.place_type
-  }
-
-  // add data to textfield and let it know it has data
-  $("#place-title").val(formData.place_title);
-  $("#place-title").parent(".mdl-textfield").addClass("is-upgraded is-dirty");
-
-  $("#place-desc").val(formData.place_desc);
-  $("#place-desc").parent(".mdl-textfield").addClass("is-upgraded is-dirty");
-
-  $(".lat-lng").text(
-    formData.location.x + ", " + formData.location.y + ", " + formData.map_zoom + "z"
-  );
-  $(".place-type").text(formData.place_type);
-
-  // show the place save form
-  $(".add_place_form_wrapper").animate({
-    top: "3%",
-  }, 250);
 }

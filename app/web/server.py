@@ -21,17 +21,17 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 with open("export.json") as json_file:
                     returnData = json.load(json_file)
             else:
-                savedJsonData = {}
-                # load saved data
-                with open("export.json") as json_file:
-                    savedJsonData = json.load(json_file)
-
-                # add new data
-                savedJsonData['places'].append(retrievedData)
+                # savedJsonData = {}
+                # # load saved data
+                # with open("export.json") as json_file:
+                #     savedJsonData = json.load(json_file)
+                #
+                # # add new data
+                # savedJsonData['places'].append(retrievedData)
 
                 # save new data
                 with open('export.json', 'w') as json_file:
-                    json_file.write(json.dumps(savedJsonData))
+                    json_file.write(json.dumps(retrievedData))
 
                 returnData = {'success': True}
 
