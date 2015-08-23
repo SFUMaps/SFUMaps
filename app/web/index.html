@@ -1,41 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="mapsApp">
   <head>
+    <title>Maps</title>
+    <!-- Custom Stylesheets -->
     <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
     <link href="/stylesheets/print.css" media="print" rel="stylesheet" type="text/css" />
     <!--[if IE]>
         <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
     <![endif]-->
+
+    <!-- Google Material Design Lite Stylesheets -->
     <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.indigo-pink.min.css">
     <script src="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <script src="js/underscore-min.js"></script>
+
+    <!-- JS Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlCJ0d_a7EQq7PGP6zRbWrzCdM6ufF_gU"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
+    <script src="/js/underscore-min.js"></script>
+    <script src="/js/maptools.js"></script>
+    <script src="/js/main.js"></script>
   </head>
   <body>
-    <div id="map"></div>
-
-    <!-- places selector menu -->
-    <div class="place_selector_menu_wrapper">
-      <button id="place-selector-menu"></button>
-      <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-          id="place-selector-places"
-          for="place-selector-menu">
-        <li class="mdl-menu__item">Room</li>
-        <li class="mdl-menu__item">Lecture Hall / Auditorium</li>
-        <li class="mdl-menu__item">Building</li>
-        <li class="mdl-menu__item">Walkway</li>
-        <li class="mdl-menu__item">Road</li>
-      </ul>
+    <div id="map-wrapper" ng-controller="MapController">
+      <div id="map"></div>
+      <!-- places selector menu -->
+      <div class="place_selector_menu_wrapper">
+        <button id="place-selector-menu"></button>
+        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+            id="place-selector-places"
+            for="place-selector-menu">
+          <li class="mdl-menu__item"
+              ng-click="onPlaceTypeSelected()"
+              ng-repeat="place in placeTypes">
+              {{place}}
+          </li>
+        </ul>
+      </div>
     </div>
 
-    <!--  -->
-    <div class="add_place_form_wrapper">
+
+    <div class="add_place_form_wrapper" ng-controller="PlaceFormController as form">
       <div class="place-save-form-card mdl-card mdl-shadow--2dp">
         <div class="mdl-card__title mdl-card--expand">
           <h2 class="mdl-card__title-text">Add Image</h2>
         </div>
         <div class="mdl-card__supporting-text">
-          <form action="#" id="place_save_form">
+          <form id="place_save_form">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
               <input class="mdl-textfield__input" type="text" name="title" id="place-title" />
               <label class="mdl-textfield__label" for="place-title">Name</label>
@@ -48,11 +60,11 @@
           <div class="additional-info">
             <div>
               <i class="material-icons">radio_button_checked</i>
-              <span class="lat-lng">unknown</span>
+              <span class="lat-lng">{{location}}</span>
             </div>
             <div>
               <i class="material-icons">class</i>
-              <span class="place-type">unknown</span>
+              <span class="place-type">{{placeType}}</span>
             </div>
           </div>
         </div>
@@ -66,13 +78,5 @@
         </div>
       </div>
     </div>
-
-    <!--  -->
-    <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlCJ0d_a7EQq7PGP6zRbWrzCdM6ufF_gU&callback=initMap">
-    </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="/js/maptools.js"></script>
-    <script src="/js/main.js"></script>
   </body>
 </html>

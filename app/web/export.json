@@ -1,1 +1,1 @@
-{"places": [{"location": {"y": 111.375, "x": 134.5}, "type": "Building", "description": "AQasdasdasd", "zoom": 3, "title": "AQ"}, {"location": {"y": 120.875, "x": 132}, "type": "Building", "description": "", "zoom": 3, "title": "ABC"}, {"location": {"y": 117.875, "x": 136.875}, "type": "Walkway", "description": "vxcvx", "zoom": 3, "title": "vxcvx"}, {"location": {"y": 118.625, "x": 129.5}, "type": "Building", "description": "sdfsdfsfsdfdsf", "zoom": 3, "title": "sdfsdf"}]}
+{"places": [{"type": "Room", "location": {"y": 111, "x": 134.375}, "zoom": 3}]}

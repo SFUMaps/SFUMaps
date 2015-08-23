@@ -74,11 +74,11 @@ Place.prototype.getMarker = function () {
 
 Place.prototype.toJson = function () {
   return {
-    'title' : this.title,
-    'description' : this.description,
-    'location' : this.location,
-    'type' : this.type,
-    'zoom' : this.zoom
+    'title'         : this.title,
+    'description'   : this.description,
+    'location'      : this.location,
+    'type'          : this.type,
+    'zoom'          : this.zoom
   };
 };
 
@@ -90,19 +90,38 @@ Place.placesToJson = function (places) {
   return jsonPlaces
 }
 
-Place.allPlaces = [];
-
-Place.tmpPlace = new Place();
-
-
 
 //
 // MARK: (Application / UI) Logic
 //
 
+angular.module('mapsApp', [])
+.factory('DataService', function($rootScope){
+  var service = {};
+  service.location = "unknown";
+  service.placeType = "unknown";
 
-function initMap() {
-  _Map = new google.maps.Map(document.getElementById('map'), {
+  service.updateLocation = function (location) {
+    this.location = location;
+    $rootScope.$broadcast("valuesUpdated");
+  }
+
+  service.updatePlaceType = function (placeType) {
+    this.placeType = placeType;
+    $rootScope.$broadcast("valuesUpdated");
+  }
+
+  return service;
+})
+.controller('PlaceFormController', function ($scope, DataService) {
+  $scope.$on('valuesUpdated', function() {
+    $scope.location = DataService.location;
+    $scope.placeType = DataService.placeType;
+  });
+})
+.controller('MapController', function ($scope, DataService) {
+
+  $scope._Map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 0, lng: 0},
     zoom: 3,
     streetViewControl: false,
@@ -110,12 +129,23 @@ function initMap() {
       mapTypeIds: [MAP_ID]
     }
   });
-  _MapProj = new MercatorProjection();
+
+  //
+  $scope._MapProj = new MercatorProjection();
+
+  $scope.placeTypes = ["Room", "Lecture Hall / Auditorium", "Building", "Walkway", "Road"]
+  // all map places holding array
+  $scope.allPlaces = []
+  // temporary marker placed when new place is created
+  $scope.grabbedMarker;
+  // if context menu is showing or not
+  $scope.contextMenuOpen = false;
+
 
   // add base map
   var baseMap = new google.maps.ImageMapType({
     getTileUrl: function(coord, zoom) {
-      var normalizedCoord = _MapProj.getNormalizedCoord(coord, zoom);
+      var normalizedCoord = $scope._MapProj.getNormalizedCoord(coord, zoom);
       if (!normalizedCoord) return null;
       return "assets/maptiles/basemap/"
             + zoom
@@ -131,13 +161,13 @@ function initMap() {
     minZoom: 1,
     name: MAP_ID,
   });
-  _Map.mapTypes.set(MAP_ID, baseMap);
-  _Map.setMapTypeId(MAP_ID);
+  $scope._Map.mapTypes.set(MAP_ID, baseMap);
+  $scope._Map.setMapTypeId(MAP_ID);
 
   // add overlay for the buildings
-  var overlay = new google.maps.ImageMapType({
+  var buildingsOverlay = new google.maps.ImageMapType({
     getTileUrl: function(coord, zoom) {
-      var normalizedCoord = _MapProj.getNormalizedCoord(coord, zoom);
+      var normalizedCoord = $scope._MapProj.getNormalizedCoord(coord, zoom);
       if (!normalizedCoord) return null;
       return "assets/maptiles/overlay/"
             + zoom
@@ -152,201 +182,100 @@ function initMap() {
     minZoom: 1,
     name: MAP_ID,
   });
-  _Map.overlayMapTypes.push(overlay);
+  $scope._Map.overlayMapTypes.push(buildingsOverlay);
 
-  // fetch map data
-  $.post('/', JSON.stringify({'fetch_data': ''}), loadPlaces);
-
-
-  //
-  // MARK: add event listeners
-  //
-
-  // 1. Map event listeners
-  _Map.addListener('click', function(e) {
-
-    var tmpIsInList = _.first(_.filter(Place.allPlaces, function (place) {
-      return place.getMarker() === Place.tmpPlace.getMarker()
-    })) === undefined;
-
-    // remove old marker if there was one
-    if (Place.tmpPlace.getMarker() !== undefined && tmpIsInList)
-      Place.tmpPlace.getMarker().setMap(null);
-
-    // set to new empty place
-    Place.tmpPlace = new Place();
-
-    // set place location
-    Place.tmpPlace.setLocation(_MapProj.fromLatLngToPoint(e.latLng));
-
-    // set new marker
-    Place.tmpPlace.setMarker(
-      MapTools.addMarker(
-        _MapProj.fromPointToLatLng(Place.tmpPlace.getLocation()),
-        Place.tmpPlace.getTitle(),
-        ""
-      )
-    )
-
-    openplace_typeSelectorMenu(e.pixel);
-  });
-  _Map.addListener('zoom_changed', zoomChanged);
-
-  // 2. Place selector menu item click
-  $("#place-selector-places li").click(function() {
-
-    Place.tmpPlace.setType($(this).text());
-    Place.tmpPlace.setZoom(_Map.getZoom());
-
-    // show the place save form
-    $(".add_place_form_wrapper").animate({top: "3%"}, 250, function () {
-      formDisplay(Place.tmpPlace);
+  $scope.toggleMapUI = function () {
+    $scope._Map.setOptions({
+      draggable: $scope.contextMenuOpen,
+      zoomControl: $scope.contextMenuOpen,
+      scrollwheel: $scope.contextMenuOpen,
+      disableDoubleClickZoom: !$scope.contextMenuOpen,
+      disableDefaultUI: !$scope.contextMenuOpen
     });
+  }
+
+  $scope.onPlaceTypeSelected = function (e) {
+    var mapPoint = $scope._MapProj.fromLatLngToPoint($scope.grabbedMarker.getPosition())
+    DataService.updateLocation(mapPoint.x + ", "+mapPoint.y +", "+ $scope._Map.getZoom()+"z")
+    DataService.updatePlaceType(this.place);
+
+    // show form
+    $(".add_place_form_wrapper").animate({top: "3%"}, 250);
+
+    $scope.toggleMapUI()
+    $scope.contextMenuOpen = false;
+  }
+
+  function addPlaceToMap (place) {
+    // @link{Place} is a JS class
+    place.setMarker(createMarker({
+      position  : $scope._MapProj.fromPointToLatLng(place.getLocation()),
+      title     : place.getTitle(),
+      icon      : "",
+      draggable : true,
+    }))
+    $scope.allPlaces.push(place);
+  }
+
+  function createMarker (markerInfo) {
+    return new google.maps.Marker({
+        position : markerInfo.position,
+        map : $scope._Map,
+        icon: markerInfo.icon,
+        title: markerInfo.title,
+        draggable : markerInfo.draggable
+    });
+  }
+
+  function openContextMenu (e) {
+    // position the place selector menu
+    $(".place_selector_menu_wrapper").css({
+      'top'   : e.pixel.y + 'px',
+      'left'  : e.pixel.x + 'px',
+    });
+    // simulate click on connected button to open the menu
+    document.getElementById("place-selector-menu").click();
+  }
+
+  function onMapClick(e) {
+    if (!$scope.contextMenuOpen) {
+      openContextMenu(e);
+
+      // set @value{$scope.grabbedMarker}
+      if ($scope.grabbedMarker !== undefined) {
+        $scope.grabbedMarker.setPosition(e.latLng)
+      } else {
+        $scope.grabbedMarker = createMarker({
+          position  : e.latLng,
+          title     : "",
+          icon      : "",
+          draggable : true,
+        })
+      }
+
+      // menu is showing now, disable map zoom & drag
+      $scope.toggleMapUI()
+
+      $scope.contextMenuOpen = true;
+    }
+  }
+
+  //
+  // MARK: Map Event Listeners
+  //
+
+  $scope._Map.addListener('click', onMapClick);
+
+  $scope._Map.addListener('zoom_changed', function () {
+    console.log("zoom: " + $scope._Map.getZoom());
   });
 
-  // 3. Add place form submit listener
-  $("#save-place").mouseup(function() {
-    // hide the place save form
-    $(".add_place_form_wrapper").animate({
-      top: "-100%",
-    }, 250);
 
-    saveNewPlaceForm( $("#place_save_form"), Place.tmpPlace );
-  });
 
-  // 4. Cancel place save button listener
-  $("#cancel-save-place").mouseup(function() {
-    // hide the place save form
-    $(".add_place_form_wrapper").animate({
-      top: "-100%",
-    }, 250);
-
-    // remove current placed marker
-    if (Object.keys(currentPlaceMarker).length !== 0)
-      currentPlaceMarker.setMap(null);
-
-    // clear `current_place_data`
-    current_place_data = {}
-  });
-
-}
-
-function zoomChanged() {}
-
-function openplace_typeSelectorMenu(screenPoint) {
-  // position the place selector menu
-  $(".place_selector_menu_wrapper").css({
-    'top'   : screenPoint.y + 'px',
-    'left'  : screenPoint.x + 'px',
-  });
-  // simulate click on connected button to open the menu
-  document.getElementById("place-selector-menu").click();
-}
-
-function loadPlaces(data) {
-  // console.log(places);
-  _.each(data['places'], function(placeJson) {
-
-    var newPlace = Place.fromJson(placeJson);
-
-    // add to map
-    newPlace.setMarker(
-      MapTools.addMarker(
-        _MapProj.fromPointToLatLng(newPlace.getLocation()),
-        newPlace.getTitle(),
-        ""
-      )
-    )
-
-    // add to list
-    Place.allPlaces.push(newPlace);
-  });
-}
-
-function onMarkerClick(clickedMarker) {
-
-  // show info window
-  // clickedMarker.info.open(_Map, clickedMarker);
-
-  // find in list
-  var foundPlace = _.first(
-    _.filter(Place.allPlaces, function(place) {
-      return place.getMarker() === clickedMarker
+  // fetch initial map data
+  $.post('/', JSON.stringify({'fetch_data': ''}), function (data) {
+    _.each(data['places'], function (placeJson) {
+      addPlaceToMap(Place.fromJson(placeJson))
     })
-  );
-
-  var tmpIsInList = _.first(_.filter(Place.allPlaces, function (place) {
-    return place.getMarker() === Place.tmpPlace.getMarker()
-  })) === undefined
-
-  // remove old marker if there was one
-  if (Place.tmpPlace.getMarker() !== undefined && tmpIsInList)
-    Place.tmpPlace.getMarker().setMap(null);
-
-  Place.tmpPlace = foundPlace
-
-  // show the place save form
-  $(".add_place_form_wrapper").animate({top: "3%"}, 250, function () {
-    formDisplay(foundPlace);
   });
-}
-
-function onMarkerDrag(draggedMarker) {
-  console.log(draggedMarker);
-  // find marker in list and update location
-}
-
-function formDisplay(place) {
-
-  // set place location
-  $(".lat-lng").text(
-    place.getLocation().x + ", "
-    + place.getLocation().y + ", "
-    + place.getZoom() + "z"
-  );
-
-  // set place type
-  $(".place-type").text(place.getType());
-
-  // reset form
-  $("#place_save_form").trigger('reset');
-
-  // focus on first form element
-  $("#place-title").focus();
-
-  if (place.getTitle()) {
-    $("#place-title").val(place.getTitle());
-    $("#place-title").parent(".mdl-textfield").addClass("is-upgraded is-dirty");
-  }
-  if (place.getDescription()) {
-    $("#place-desc").val(place.getDescription());
-    $("#place-desc").parent(".mdl-textfield").addClass("is-upgraded is-dirty");
-  }
-}
-
-
-function saveNewPlaceForm(form) {
-  var data = {};
-  form.serializeArray().map(function(x){data[x.name] = x.value;});
-
-  Place.tmpPlace.setTitle(data['title']);
-  Place.tmpPlace.setDescription(data['description']);
-
-  // add / update `Place.allPlaces`
-  var idx;
-  _.find(Place.allPlaces, function(thisPlace, placeIndex){
-     if (thisPlace.getMarker() == Place.tmpPlace.getMarker()) {
-        idx = placeIndex;
-        return true;
-     };
-  });
-
-  if (idx === undefined)
-    Place.allPlaces.push(Place.tmpPlace);
-  else
-    Place.allPlaces[idx] = Place.tmpPlace
-
-  $.post('/', JSON.stringify({places:Place.placesToJson(Place.allPlaces)}), function(r) {
-    console.log("saved: ",r.success);
-  });
-}
+});

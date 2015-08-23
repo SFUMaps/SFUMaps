@@ -76,12 +76,12 @@ MercatorProjection.prototype.getNormalizedCoord = function(coord, zoom) {
 var MapTools = (function() {
 
   return {
-    addMarker: function(pos, title, iconPath){
+    addMarker: function(map, pos, title, iconPath){
       iconPath = iconPath || ""
       title = title || ""
       var marker = new google.maps.Marker({
           position: pos,
-          map: _Map,
+          map: map,
           icon: iconPath,
           title: title,
           draggable:true
