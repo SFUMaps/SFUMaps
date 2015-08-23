@@ -74,19 +74,23 @@ MercatorProjection.prototype.getNormalizedCoord = function(coord, zoom) {
 // MARK: Custom Map Tools (module)
 
 var MapTools = (function() {
-  // variables here
-  // var sum = 5;
 
   return {
-    addMarker: function(pos, iconPath, title){
+    addMarker: function(pos, title, iconPath){
       iconPath = iconPath || ""
       title = title || ""
-      return marker = new google.maps.Marker({
+      var marker = new google.maps.Marker({
           position: pos,
           map: _Map,
           icon: iconPath,
           title: title,
       });
+
+      marker.addListener('click', function(e) {
+        onMarkerClick(this);
+      });
+
+      return marker;
     },
 
     seperateByKeys: function(data, keys, keyIndex){
