@@ -116,6 +116,12 @@ angular.module('mapsApp', [])
     allPlaces[index] = place;
   }
 
+  sharedData.removePlace = function (index) {
+    if (index > -1) {
+      allPlaces.splice(index, 1);
+    }
+  }
+
   sharedData.addNewPlace = function (place) {
     this.newPlace = place;
     $rootScope.$broadcast("newPlaceUpdated");
@@ -200,7 +206,33 @@ angular.module('mapsApp', [])
 
 
     // finally send data to server
-    console.log(JSON.stringify(Place.placesToJson(SharedData.getAllPlaces())));
+    $.post('/', JSON.stringify({places: Place.placesToJson(SharedData.getAllPlaces())}), function (r) {
+      console.log(r.success);
+    })
+  }
+
+  $scope.removePlace = function () {
+    // clear the new place marker and if exists in SharedData.allPlaces, remove from there too, then send data to server
+    var foundIndex = -1;
+    _.find(SharedData.getAllPlaces(), function(thisPlace, i){
+       if ($scope.place.getMarker().getPosition() == thisPlace.getMarker().getPosition()) {
+          foundIndex = i;
+          return true;
+       }
+    });
+
+    SharedData.removePlace(foundIndex)
+
+    $scope.place.getMarker().setMap(null);
+    $scope.place = null;
+    // hide form
+    $(".add_place_form_wrapper").animate({top: "-100%"}, 250);
+    $("#place_save_form").trigger('reset');
+
+    // finally send data to server
+    $.post('/', JSON.stringify({places: Place.placesToJson(SharedData.getAllPlaces())}), function (r) {
+      console.log(r.success);
+    })
   }
 
 })
