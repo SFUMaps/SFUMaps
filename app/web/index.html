@@ -48,28 +48,28 @@
         </div>
         <div class="mdl-card__supporting-text">
           <form id="place_save_form">
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <input class="mdl-textfield__input" type="text" name="title" id="place-title" />
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{place.getTitle() != null ? 'is-upgraded is-dirty' : ''}}">
+              <input class="mdl-textfield__input" type="text" name="title" id="place-title" ng-value="place.getTitle()" />
               <label class="mdl-textfield__label" for="place-title">Name</label>
             </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              <textarea class="mdl-textfield__input" type="text" name="description" rows= "3" id="place-desc" ></textarea>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{place.getDescription() != null ? 'is-upgraded is-dirty' : ''}}">
+              <textarea class="mdl-textfield__input" type="text" name="description" rows= "3" id="place-desc" >{{place.getDescription()}}</textarea>
               <label class="mdl-textfield__label" for="place-desc">Description</label>
             </div>
           </form>
           <div class="additional-info">
             <div>
               <i class="material-icons">radio_button_checked</i>
-              <span class="lat-lng">{{location}}</span>
+              <span class="lat-lng">{{place.getLocationString()}}</span>
             </div>
             <div>
               <i class="material-icons">class</i>
-              <span class="place-type">{{placeType}}</span>
+              <span class="place-type">{{place.getType()}}</span>
             </div>
           </div>
         </div>
         <div class="mdl-card__actions mdl-card--border">
-          <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="save-place">
+          <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="save-place" ng-click="saveNewPlace()">
             Save
           </a>
           <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="cancel-save-place">
