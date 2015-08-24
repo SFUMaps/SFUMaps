@@ -1,0 +1,44 @@
+.place_selector_menu_wrapper {
+  position: absolute;
+  top: 0; left: 0;
+
+  #place-selector-menu {
+    display: none;
+  }
+}
+
+// place save form
+.add_place_form_wrapper {
+  position: absolute;
+  top: -100%;
+  left: 6%;
+
+  .place-save-form-card.mdl-card {
+    width: 320px;
+    height: 500px;
+
+    .mdl-card__title {
+      color: #fff;
+      background:
+        url('../images/upload_icon.png') center right 15% no-repeat #46B6AC;
+      background-size: 35%;
+    }
+
+    form#place_save_form {
+      #place-desc {
+        resize: none;
+      }
+    }
+
+    div.additional-info {
+      & > div:first-child {
+        margin-bottom: 8px;
+      }
+
+      i {
+        vertical-align: middle;
+        margin-bottom: 2.5px;
+      }
+    }
+  }
+}
