@@ -1,74 +1,79 @@
 // MARK: Mercator Projection (class object)
 
-/** @constructor */
-function MercatorProjection() {
-  this.pixelOrigin_ = new google.maps.Point(TILE_SIZE / 2,
+var TILE_SIZE = 256;
+var MAP_ID = "SFU";
+
+var MercatorProjection = (function() {
+  var pixelOrigin_ = new google.maps.Point(TILE_SIZE / 2,
       TILE_SIZE / 2);
-  this.pixelsPerLonDegree_ = TILE_SIZE / 360;
-  this.pixelsPerLonRadian_ = TILE_SIZE / (2 * Math.PI);
-}
+  var pixelsPerLonDegree_ = TILE_SIZE / 360;
+  var pixelsPerLonRadian_ = TILE_SIZE / (2 * Math.PI);
 
-MercatorProjection.prototype.fromLatLngToPoint = function(latLng, opt_point) {
-  var me = this;
-  var point = opt_point || new google.maps.Point(0, 0);
-  var origin = me.pixelOrigin_;
-  point.x = origin.x + latLng.lng() * me.pixelsPerLonDegree_;
-  // Truncating to 0.9999 effectively limits latitude to 89.189. This is
-  // about a third of a tile past the edge of the world tile.
-  var siny = this.bound(Math.sin(this.degreesToRadians(latLng.lat())), -0.9999,
-      0.9999);
-  point.y = origin.y + 0.5 * Math.log((1 + siny) / (1 - siny)) * -me.pixelsPerLonRadian_;
-  return point;
-};
+  var bound = function(value, opt_min, opt_max) {
+    if (opt_min != null) value = Math.max(value, opt_min);
+    if (opt_max != null) value = Math.min(value, opt_max);
+    return value;
+  }
 
-MercatorProjection.prototype.fromPointToLatLng = function(point) {
-  var me = this;
-  var origin = me.pixelOrigin_;
-  var lng = (point.x - origin.x) / me.pixelsPerLonDegree_;
-  var latRadians = (point.y - origin.y) / -me.pixelsPerLonRadian_;
-  var lat = this.radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) -
-      Math.PI / 2);
-  return new google.maps.LatLng(lat, lng);
-};
+  var degreesToRadians = function(deg) {
+    return deg * (Math.PI / 180);
+  }
 
-MercatorProjection.prototype.bound = function(value, opt_min, opt_max) {
-  if (opt_min != null) value = Math.max(value, opt_min);
-  if (opt_max != null) value = Math.min(value, opt_max);
-  return value;
-}
+  var radiansToDegrees = function(rad) {
+    return rad / (Math.PI / 180);
+  }
 
-MercatorProjection.prototype.degreesToRadians = function(deg) {
-  return deg * (Math.PI / 180);
-}
+  var getNormalizedCoord = function(coord, zoom) {
+      var y = coord.y;
+      var x = coord.x;
 
-MercatorProjection.prototype.radiansToDegrees = function(rad) {
-  return rad / (Math.PI / 180);
-}
+      // tile range in one direction range is dependent on zoom level
+      // 0 = 1 tile, 1 = 2 tiles, 2 = 4 tiles, 3 = 8 tiles, etc
+      var tileRange = 1 << zoom;
 
-MercatorProjection.prototype.getNormalizedCoord = function(coord, zoom) {
-    var y = coord.y;
-    var x = coord.x;
+      /**
+      * If we don't want to repeat in any direction
+      * simply return null.
+      */
+      // don't repeat across y-axis (vertically)
+      if (y < 0 || y >= tileRange) return null
+      // repeat across x-axis (horizontally)
+      if (x < 0 || x >= tileRange) {
+        x = (x % tileRange + tileRange) % tileRange
+      }
 
-    // tile range in one direction range is dependent on zoom level
-    // 0 = 1 tile, 1 = 2 tiles, 2 = 4 tiles, 3 = 8 tiles, etc
-    var tileRange = 1 << zoom;
+      return {
+        x: x,
+        y: y
+      };
+  }
 
-    /**
-    * If we don't want to repeat in any direction
-    * simply return null.
-    */
-    // don't repeat across y-axis (vertically)
-    if (y < 0 || y >= tileRange) return null
-    // repeat across x-axis (horizontally)
-    if (x < 0 || x >= tileRange) {
-      x = (x % tileRange + tileRange) % tileRange
-    }
+  var fromLatLngToPoint = function (latLng) {
+    var point = new google.maps.Point(0, 0);
+    var origin = pixelOrigin_;
+    point.x = origin.x + latLng.lng() * pixelsPerLonDegree_;
+    // Truncating to 0.9999 effectively limits latitude to 89.189. This is
+    // about a third of a tile past the edge of the world tile.
+    var siny = bound(Math.sin(degreesToRadians(latLng.lat())), -0.9999,
+        0.9999);
+    point.y = origin.y + 0.5 * Math.log((1 + siny) / (1 - siny)) * -pixelsPerLonRadian_;
+    return point;
+  }
 
-    return {
-      x: x,
-      y: y
-    };
-}
+  var fromPointToLatLng = function (point) {
+    var origin = pixelOrigin_;
+    var lng = (point.x - origin.x) / pixelsPerLonDegree_;
+    var latRadians = (point.y - origin.y) / -pixelsPerLonRadian_;
+    var lat = radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) -
+        Math.PI / 2);
+    return new google.maps.LatLng(lat, lng);
+  }
+  return {
+      fromLatLngToPoint   : fromLatLngToPoint,
+      fromPointToLatLng   : fromPointToLatLng,
+      getNormalizedCoord  : getNormalizedCoord,
+  }
+})();
 
 
 // MARK: Custom Map Tools (module)
@@ -115,6 +120,3 @@ var MapTools = (function() {
     },
   }
 }());
-
-TILE_SIZE = 256;
-MAP_ID = "SFU";

@@ -48,28 +48,28 @@
         </div>
         <div class="mdl-card__supporting-text">
           <form id="place_save_form">
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{place.getTitle() != null ? 'is-upgraded is-dirty' : ''}}">
-              <input class="mdl-textfield__input" type="text" name="title" id="place-title" ng-value="place.getTitle()" />
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{placeTitle != null ? 'is-upgraded is-dirty' : ''}}">
+              <input class="mdl-textfield__input" type="text" name="title" id="place-title" ng-value="placeTitle" ng-model="placeTitle" />
               <label class="mdl-textfield__label" for="place-title">Name</label>
             </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{place.getDescription() != null ? 'is-upgraded is-dirty' : ''}}">
-              <textarea class="mdl-textfield__input" type="text" name="description" rows= "3" id="place-desc" >{{place.getDescription()}}</textarea>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{placeDescription != null ? 'is-upgraded is-dirty' : ''}}">
+              <textarea class="mdl-textfield__input" type="text" name="description" rows= "3" id="place-desc" ng-model="placeDescription">{{placeDescription}}</textarea>
               <label class="mdl-textfield__label" for="place-desc">Description</label>
             </div>
           </form>
           <div class="additional-info">
             <div>
               <i class="material-icons">radio_button_checked</i>
-              <span class="lat-lng">{{place.getLocationString()}}</span>
+              <span class="lat-lng">{{placeLocationString}}</span>
             </div>
             <div>
               <i class="material-icons">class</i>
-              <span class="place-type">{{place.getType()}}</span>
+              <span class="place-type">{{placeType}}</span>
             </div>
           </div>
         </div>
         <div class="mdl-card__actions mdl-card--border">
-          <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="save-place" ng-click="saveNewPlace()">
+          <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="save-place" ng-click="savePlace()">
             Save
           </a>
           <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="cancel-save-place">
