@@ -223,6 +223,8 @@ angular.module('mapsApp', [])
 
     SharedData.removePlace(foundIndex)
 
+    SharedData.setIsEditingPlace(false);
+
     $scope.place.getMarker().setMap(null);
     $scope.place = null;
     // hide form
