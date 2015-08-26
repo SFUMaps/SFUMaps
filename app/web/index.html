@@ -25,19 +25,6 @@
   <body>
     <div id="map-wrapper" ng-controller="MapController">
       <div id="map"></div>
-      <!-- places selector menu -->
-      <div class="place_selector_menu_wrapper">
-        <button id="place-selector-menu"></button>
-        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-            id="place-selector-places"
-            for="place-selector-menu">
-          <li class="mdl-menu__item"
-              ng-click="onPlaceTypeSelected()"
-              ng-repeat="place in placeTypes">
-              {{place}}
-          </li>
-        </ul>
-      </div>
     </div>
 
 
@@ -58,13 +45,29 @@
             </div>
           </form>
           <div class="additional-info">
-            <div>
+            <div class="lat-lng">
               <i class="material-icons">radio_button_checked</i>
-              <span class="lat-lng">{{place.getLocationString()}}</span>
+              <span>{{tmpPlace.getPositionString() || 'Unknown'}}</span>
             </div>
-            <div>
+            <div class="zoom-values">
+              <i class="material-icons">zoom_in</i>
+              <ul>
+                  <li class="added">2</li>
+                  <li>5</li>
+                </ul>
+            </div>
+            <div class="place-type">
               <i class="material-icons">class</i>
-              <span class="place-type">{{placeType}}</span>
+              <button id="place-selector-menu" class="mdl-button selector-menu-button">{{tmpPlace.getType() || 'Choose Type'}}</button>
+              <ul class="mdl-menu mdl-menu--top-left mdl-js-menu mdl-js-ripple-effect"
+                  id="place-selector-places"
+                  for="place-selector-menu">
+                <li class="mdl-menu__item"
+                    ng-click="onPlaceTypeSelected(place)"
+                    ng-repeat="place in placeTypes">
+                    {{place}}
+                </li>
+              </ul>
             </div>
           </div>
         </div>
