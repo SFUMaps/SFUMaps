@@ -8,7 +8,7 @@
 }
 
 // place save form
-.add_place_form_wrapper {
+#add_place_form_wrapper {
   position: absolute;
   top: 3%;
   left: 6%;
@@ -61,10 +61,12 @@
           width: 20px;
           text-align: center;
           cursor: pointer;
+          transition: all 1s;
 
           &.added {
             color: white;
             background: rgb(66,133,244);
+            margin: 0 4px 0px 0px;
           }
         }
       }

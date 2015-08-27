@@ -63,8 +63,8 @@ Place.prototype.getPositionString = function() {
   return pos.lat().toFixed(5) + ", " + pos.lng().toFixed(5);
 };
 
-Place.prototype.getZoom = function () {
-  return this.zoom;
+Place.prototype.getZooms = function () {
+  return this.zooms;
 };
 
 Place.prototype.getMarker = function () {
@@ -103,16 +103,28 @@ angular.module('mapsApp', [])
 
   sharedData.setTmpPlace = function (place) {
     this.tmpPlace = place;
-    $rootScope.$broadcast("tmpPlaceUpdated", this.tmpPlace);
+    $rootScope.$broadcast('tmpPlaceUpdated', this.tmpPlace);
   }
 
   sharedData.setIsEditingPlace = function (isEditingPlace) {
     this.addingNewPlace = isEditingPlace;
-    $rootScope.$broadcast("updateIsEditingPlace");
+    $rootScope.$broadcast('updateIsEditingPlace');
   }
 
   sharedData.updatePlaceLocation = function (marker) {
-    $rootScope.$broadcast("placeLocationUpdated", marker);
+    $rootScope.$broadcast('placeLocationUpdated', marker);
+  }
+
+  sharedData.updateCurrentMapZoom = function (zoom) {
+    // check if it's already in list, if yes return null else map zoom
+    var returnZoom = null;
+    if (this.tmpPlace !== undefined) {
+      if (!(this.tmpPlace.getZooms().indexOf(zoom) > -1)) {
+        returnZoom = zoom;
+      }
+    }
+    this.currentZoom = returnZoom;
+    $rootScope.$broadcast('mapZoomChanged', this.currentZoom);
   }
 
   // getters
@@ -137,28 +149,41 @@ angular.module('mapsApp', [])
 
   $scope.$on('tmpPlaceUpdated', function(ev, place) {
     _.defer(function(){$scope.$apply();});
-    
-    // update place model
+    // update views
     $scope.tmpPlace = place
   });
 
   $scope.$on('placeLocationUpdated', function (ev, marker) {
+    // update place model with new location
     SharedData.setTmpPlace(
       SharedData.getTmpPlace()
         .setPosition(marker.latLng))
+  });
+
+  $scope.$on('mapZoomChanged', function (ev, zoom) {
+    _.defer(function(){$scope.$apply();});
+    $scope.currentZoom = zoom;
   })
+
+  $scope.onPlaceTypeSelected = function (place) {
+    SharedData.setTmpPlace(
+      SharedData.getTmpPlace()
+        .setType(place))
+  }
+
+  $scope.addNewZoom = function (zoom) {
+    // 'hide' the unselected zoom
+    $scope.currentZoom = null;
+    SharedData.setTmpPlace(
+      SharedData.getTmpPlace()
+        .addZoom(zoom))
+  }
 
   $scope.savePlace = function () {
     SharedData.setIsEditingPlace(false)
   }
 
   $scope.removePlace = function () {
-  }
-
-  $scope.onPlaceTypeSelected = function (place) {
-    SharedData.setTmpPlace(
-      SharedData.getTmpPlace()
-        .setType(place))
   }
 
 })
@@ -266,6 +291,10 @@ angular.module('mapsApp', [])
 
       SharedData.setIsEditingPlace(true)
     }
+  });
+
+  $scope.map.addListener('zoom_changed', function () {
+    SharedData.updateCurrentMapZoom($scope.map.getZoom())
   });
 
 
