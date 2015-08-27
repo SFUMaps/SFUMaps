@@ -110,8 +110,8 @@ angular.module('mapsApp', [])
   $scope.$on('tmpPlaceUpdated', function(ev, place) {
     _.defer(function(){$scope.$apply();});
     $scope.tmpPlace = place;
-    $scope.placeTitle = place.getTitle();
-    $scope.placeDescription = place.getDescription();
+    $scope.placeTitle = $scope.placeTitle || place.getTitle();
+    $scope.placeDescription = $scope.placeDescription || place.getDescription();
   });
 
   $scope.$on('placeLocationUpdated', function (ev, marker) {
