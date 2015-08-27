@@ -151,10 +151,26 @@ angular.module('mapsApp', [])
     });
 
     SharedData.grabbedMarker = null;
-    SharedData.setIsEditingPlace(false)
+    SharedData.setIsEditingPlace(false);
+    $("#add_place_form_wrapper").animate({top: "-100%"}, 250);
   }
 
   $scope.removePlace = function () {
+    $scope.tmpPlace.destroy({
+      success: function(object) {},
+      error: function(myObject, error) {}
+    });
+    $scope.tmpPlace.marker.setMap(null);
+    resetForm();
+    $("#add_place_form_wrapper").animate({top: "-100%"}, 250);
+  }
+
+
+  function resetForm () {
+    document.getElementById("place-title").value = '';
+    document.getElementById("place-description").value = '';
+    $scope.tmpPlace = null;
+    SharedData.updateViews();
   }
 
 })
@@ -311,12 +327,15 @@ angular.module('mapsApp', [])
 
   function onMarkerClick(marker) {
 
-    
+    // find place with this marker and set to tmpPlace
+    SharedData.tmpPlace = _.first(
+      _.filter(SharedData.getAllPlaces(), function (place) {
+        return place.marker.getPosition() == marker.latLng
+      })
+    );
+    SharedData.updateViews();
 
-    // SharedData.setIsEditingPlace(true);
-    // SharedData.setTmpPlace(placeToEdit.setZoom($scope.map.getZoom()));
-
-    // show form
+    $("#add_place_form_wrapper").animate({top: "3%"}, 250);
   }
 
   function onMarkerDragEnd(marker) {
@@ -329,10 +348,10 @@ angular.module('mapsApp', [])
       );
     };
 
-    SharedData.updatePlaceLocation(marker)
+    SharedData.updatePlaceLocation(marker);
     SharedData.setIsEditingPlace(true);
     
-    // TODO: show form
+    $("#add_place_form_wrapper").animate({top: "3%"}, 250);
   }
 
 });
