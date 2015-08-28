@@ -144,7 +144,10 @@ angular.module('mapsApp', [])
   }
 
   $scope.removeZoom = function (zoom) {
-    console.log(zoom);
+    var placeZoomIndex = $scope.focusedMapPlace.get(PlaceKeys.ZOOM).indexOf(zoom);
+    if (placeZoomIndex > -1) {
+      $scope.focusedMapPlace.get(PlaceKeys.ZOOM).splice(placeZoomIndex, 1);
+    }
   }
 
   $scope.savePlace = function() {
@@ -152,8 +155,12 @@ angular.module('mapsApp', [])
     if (SharedData.getPlaceAtPosition(placeToSave.marker.getPosition()).length == 0) {
       SharedData.addPlace(placeToSave);
     }
+
+    placeToSave.marker.setDraggable(false);
     placeToSave.mapPlace.save();
     resetForm();
+
+    SharedData.setEditingMap(false);
   }
 
   function resetForm () {
@@ -276,12 +283,13 @@ angular.module('mapsApp', [])
 
 
   function markerClick(marker) {
-    if (SharedData.tmpMapMarker) {
-      SharedData.tmpMapMarker.setMap(null);
-      SharedData.tmpMapMarker = null;
-    }
+    if (!SharedData.isEditingMap()) {
+      var clickedPlace = SharedData.getPlaceAtPosition(marker.latLng);
+      clickedPlace.marker.setDraggable(true);
 
-    SharedData.setFocusedMapPlace(SharedData.getPlaceAtPosition(marker.latLng));
+      SharedData.setFocusedMapPlace(clickedPlace);
+      SharedData.setEditingMap(true);
+    }
   }
 
   function markerDragEnd(marker) {
@@ -300,7 +308,6 @@ angular.module('mapsApp', [])
         map : $scope.map,
         icon: markerInfo.icon,
         title: markerInfo.title,
-        draggable : markerInfo.draggable
     });
 
     if (cb_markerClick != null) {
