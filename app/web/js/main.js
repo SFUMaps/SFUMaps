@@ -110,6 +110,14 @@ angular.module('mapsApp', [])
     }));
     return arrayPlace || this.focusedMapPlace;
   }
+  sharedData.getPlaceAtPositionIndex = function (placePosition) {
+    var idx = -1;
+    _.find(places, function(place, index){ 
+       if(place.marker.getPosition() == placePosition){ idx = index; return true;}; 
+    });
+
+    return idx;
+  }
 
   return sharedData;
 })
@@ -161,6 +169,22 @@ angular.module('mapsApp', [])
     resetForm();
 
     SharedData.setEditingMap(false);
+
+    // hide form
+    document.getElementById("add_place_form_wrapper").style.top = "-100%";
+  }
+
+  $scope.removePlace = function () {
+    var placeToRemove = SharedData.getFocusedMapPlace();
+    placeToRemove.mapPlace.destroy();
+
+    var placeIndex = SharedData.getPlaceAtPositionIndex(placeToRemove.marker.getPosition());
+    if (placeIndex != -1) { // remove from array
+      SharedData.removePlace(placeIndex);
+    }
+
+    placeToRemove.marker.setMap(null);
+    resetForm();
   }
 
   function resetForm () {
@@ -252,6 +276,9 @@ angular.module('mapsApp', [])
         new CustomPlace(mapPlace, SharedData.tmpMapMarker));
 
       SharedData.setEditingMap(true);
+
+      // show form
+      document.getElementById("add_place_form_wrapper").style.top = "3%";
     }
   });
 
@@ -289,6 +316,9 @@ angular.module('mapsApp', [])
 
       SharedData.setFocusedMapPlace(clickedPlace);
       SharedData.setEditingMap(true);
+
+      // show form
+      document.getElementById("add_place_form_wrapper").style.top = "3%";
     }
   }
 

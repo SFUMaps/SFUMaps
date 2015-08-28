@@ -10,8 +10,9 @@
 // place save form
 #add_place_form_wrapper {
   position: absolute;
-  top: 3%;
+  top: -100%;
   left: 6%;
+  transition: top 0.2s;
 
   .place-save-form-card.mdl-card {
     width: 320px;
