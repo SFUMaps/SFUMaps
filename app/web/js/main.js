@@ -185,6 +185,11 @@ angular.module('mapsApp', [])
 
     placeToRemove.marker.setMap(null);
     resetForm();
+
+    SharedData.setEditingMap(false);
+
+    // hide form
+    document.getElementById("add_place_form_wrapper").style.top = "-100%";
   }
 
   function resetForm () {
@@ -286,7 +291,6 @@ angular.module('mapsApp', [])
 
   // parse query the places for current zoom
   var placesQuery = new Parse.Query(MapPlace);
-  placesQuery.containedIn(PlaceKeys.ZOOM, [$scope.map.getZoom()]) // get current zoom markers
   placesQuery.find({
     success: function(results) {
       for (var i = 0; i < results.length; i++) {
