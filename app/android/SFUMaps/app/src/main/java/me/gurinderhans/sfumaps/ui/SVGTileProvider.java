@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by ghans on 15-06-07.
+ * Adapted from https://github.com/google/iosched/blob/master/android/src/main/java/com/google/samples/apps/iosched/ui/SVGTileProvider.java
  */
 public class SVGTileProvider implements TileProvider {
 
