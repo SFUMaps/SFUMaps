@@ -26,17 +26,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
         //SFU AQ location
         
-        //var camera = GMSCameraPosition.cameraWithLatitude(49.279014, longitude: -122.916528, zoom: 18.0)
-        var mapView = GMSMapView(frame: self.view.bounds)
-        //var mapView = GMSMapView.mapWithFrame(CGRectZero, camera:camera)
+        var camera = GMSCameraPosition.cameraWithLatitude(49.279014, longitude: -122.916528, zoom: 18.0)
+//      var mapView = GMSMapView(frame: self.view.bounds)
+            var mapView = GMSMapView.mapWithFrame(CGRectZero, camera:camera)
         self.view = mapView
-        var southWest = CLLocationCoordinate2DMake(49.272216,-122.933793)
-        var northEast = CLLocationCoordinate2DMake(49.281288,-122.902336)
-        var bounds = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
-        var camera = mapView.cameraForBounds(bounds, insets:UIEdgeInsetsZero)
-        mapView.camera = camera;
-        
-        GMSCameraUpdate.fitBounds(bounds)
+//        var southWest = CLLocationCoordinate2DMake(49.272216,-122.933793)
+//        var northEast = CLLocationCoordinate2DMake(49.281288,-122.902336)
+//        var bounds = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
+//        var camera = mapView.cameraForBounds(bounds, insets:UIEdgeInsetsZero)
+//        mapView.camera = camera;
+//        
+//        GMSCameraUpdate.fitBounds(bounds)
         
 
         
@@ -57,42 +57,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         //mapView.setMinZoom(15, maxZoom: 21)
         
         
+        var southWest = CLLocationCoordinate2DMake(49.272216,-122.933793);
+        var northEast = CLLocationCoordinate2DMake(49.281288,-122.902336);
+        var overlayBounds = GMSCoordinateBounds(coordinate: northEast, coordinate: southWest)
+        
+        // Image from http://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg
+        var icon = UIImage(named: "file-page1.png")
+        
+        var overlay = GMSGroundOverlay(bounds: overlayBounds, icon: icon)
+        overlay.bearing = 0
+        overlay.map = mapView
         
 
-        
-    
-        
-    
-        
-//        var southWest = CLLocationCoordinate2DMake(49.273319,-122.934577);
-//        var northEast = CLLocationCoordinate2DMake(49.280993,-122.901603);
-//        var overlayBounds = GMSCoordinateBounds(coordinate: southWest, coordinate: northEast)
-//        
-//        // Image from sfu site
-//        var icon = UIImage(named: "image.png")
-//        
-//        
-//        var overlay = GMSGroundOverlay(bounds: overlayBounds, icon: icon)
-//        overlay.bearing = 0
-//        overlay.zIndex = 21
-//        overlay.map = mapView
-//    
-        
-        
-//        //Sets a tile layer at a certain zoom level and location
-//        var urls = { (x: UInt, y: UInt, zoom: UInt) -> NSURL in var url = "/Users/rajanoronha1/Desktop/Dev/SFUMaps/app/iOS/SFUMaps/SFUMaps/Images.xcassets/Image\(0)_\(15)_\(0)_\(0).png"
-//            return NSURL(string: url)!
-//            
-//        }
-//        
-//            //Create GMSTileLayer
-//            var layer = GMSURLTileLayer(URLConstructor: urls)
-//            
-//            //Display on the map at a specific zIndex
-//            layer.zIndex = 100
-//            layer.map = mapView
-        
-        
     }
     
     
