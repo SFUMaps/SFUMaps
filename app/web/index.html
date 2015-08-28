@@ -36,30 +36,37 @@
         </div>
         <div class="mdl-card__supporting-text">
           <form id="place_save_form">
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{placeTitle != null ? 'is-upgraded is-dirty' : ''}}">
-              <input class="mdl-textfield__input" type="text" name="title" id="place-title" ng-value="placeTitle" ng-model="placeTitle" />
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{focusedMapPlace.placeTitle != null ? 'is-upgraded is-dirty' : ''}}">
+              <input class="mdl-textfield__input" type="text" name="title" id="place-title" ng-model="focusedMapPlace.placeTitle" />
               <label class="mdl-textfield__label" for="place-title">Name</label>
             </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{placeDescription != null ? 'is-upgraded is-dirty' : ''}}">
-              <textarea class="mdl-textfield__input" type="text" name="description" rows= "3" id="place-desc" ng-model="placeDescription">{{placeDescription}}</textarea>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{focusedMapPlace.placeDescription != null ? 'is-upgraded is-dirty' : ''}}">
+              <textarea class="mdl-textfield__input"
+                        type="text"
+                        name="description"
+                        rows= "3"
+                        id="place-desc"
+                        ng-model="focusedMapPlace.placeDescription">
+                {{focusedMapPlace.placeDescription}}
+              </textarea>
               <label class="mdl-textfield__label" for="place-desc">Description</label>
             </div>
           </form>
           <div class="additional-info">
             <div class="lat-lng">
               <i class="material-icons">radio_button_checked</i>
-              <span>{{tmpPlace.getPositionString() || 'Unknown'}}</span>
+              <span>{{focusedMapPlace.get('placePosition').lat.toFixed(6) + ", " + focusedMapPlace.get('placePosition').lng.toFixed(6)}}</span>
             </div>
             <div class="zoom-values">
               <i class="material-icons">zoom_in</i>
               <ul>
-                  <li class="added" ng-repeat="zoom in tmpPlace.getZooms()">{{zoom}}</li>
+                  <li class="added" ng-repeat="zoom in focusedMapPlace.get('placeZoom')" ng-click="removeZoom(zoom)">{{zoom}}</li>
                   <li ng-click="addNewZoom(currentZoom)">{{currentZoom}}</li>
                 </ul>
             </div>
             <div class="place-type">
               <i class="material-icons">class</i>
-              <button id="place-selector-menu" class="mdl-button selector-menu-button">{{tmpPlace.getType() || 'Choose Type'}}</button>
+              <button id="place-selector-menu" class="mdl-button selector-menu-button">{{focusedMapPlace.get('placeType') || 'Choose Type'}}</button>
               <ul class="mdl-menu mdl-menu--top-left mdl-js-menu mdl-js-ripple-effect"
                   id="place-selector-places"
                   for="place-selector-menu">

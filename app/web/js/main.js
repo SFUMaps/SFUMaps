@@ -13,28 +13,12 @@ var PlaceKeys = {
 var CustomPlace = function (mapPlace, marker) {
   this.mapPlace = mapPlace;
   this.marker = marker;
+
+  this.getPositionString = function () {
+    var location = this.mapPlace.get(PlaceKeys.POSITION);
+    return location.lat.toFixed(6) + ", " + location.lng.toFixed(6);
+  }
 }
-
-CustomPlace.prototype.getPositionString = function() {
-  var location = this.mapPlace.get(PlaceKeys.POSITION);
-  return location.lat.toFixed(6) + ", " + location.lng.toFixed(6);
-};
-
-CustomPlace.prototype.getZooms = function() {
-  return this.mapPlace.get(PlaceKeys.ZOOM);
-};
-
-CustomPlace.prototype.getType = function() {
-  return this.mapPlace.get(PlaceKeys.TYPE);
-};
-
-CustomPlace.prototype.getTitle = function() {
-  return this.mapPlace.get(PlaceKeys.TITLE);
-};
-
-CustomPlace.prototype.getDescription = function() {
-  return this.mapPlace.get(PlaceKeys.DESCRIPTION);
-};
 
 
 //
@@ -42,63 +26,89 @@ CustomPlace.prototype.getDescription = function() {
 //
 
 angular.module('mapsApp', [])
-.factory('SharedData', function($rootScope){
-
+.run(function($rootScope) {
   Parse.initialize("onN8KLiec9xRevRxwcc1ojQfYPYvtnDOf4w22x1R", "DoByqX8VDewBp4TrOguly3k967jLcZdiPevAskvy");
+})
+.factory('MapPlace', function () {
+  var mapplace = Parse.Object.extend('MapPlace', {
+    // Instance methods
+  }, {
+    // Class methods
+  });
+
+  // Title property
+  Object.defineProperty(mapplace.prototype, PlaceKeys.TITLE, {
+    get: function() {
+      return this.get(PlaceKeys.TITLE);
+    },
+    set: function(value) {
+      this.set(PlaceKeys.TITLE, value);
+    }
+  });
+  // Description property
+  Object.defineProperty(mapplace.prototype, PlaceKeys.DESCRIPTION, {
+    get: function() {
+      return this.get(PlaceKeys.DESCRIPTION);
+    },
+    set: function(value) {
+      this.set(PlaceKeys.DESCRIPTION, value);
+    }
+  });
+
+  return mapplace;
+})
+.factory('SharedData', function($rootScope){
 
   var sharedData = {}; // SharedData object
 
-  var allPlaces = []; // privvate `allPlaces` Array()
+  sharedData.tmpMapMarker = null;
 
-  sharedData.grabbedMarker = null; // current marker held in user's hand
-
-  sharedData.mapPlace = Parse.Object.extend("MapPlace"); // parse object
-
-  // setters
-
-  sharedData.addPlace = function (place) {
-    allPlaces.push(place);
-  }
-
-  sharedData.removePlace = function (index) {
-    if (index > -1) {
-      allPlaces.splice(index, 1);
+  // current map zoom
+  sharedData.setCurrentZoom = function (zoom) {
+    if (this.focusedMapPlace) {
+      $rootScope.$broadcast('updateCurrentZoom', zoom);
     }
   }
 
+  // manages editing map status
+  sharedData.setEditingMap = function (editing) {
+    this.editingMap = editing;
+    $rootScope.$broadcast('updateEditingMap');
+  }
+  sharedData.isEditingMap = function () {
+    return this.editingMap;
+  }
+
+  // current editing map place
+  sharedData.setFocusedMapPlace = function (place) {
+    this.focusedMapPlace = place;
+    $rootScope.$broadcast('focusedMapPlaceUpdated', this.focusedMapPlace);
+  }
   sharedData.updateViews = function () {
-    $rootScope.$broadcast('tmpPlaceUpdated', this.tmpPlace);
+    $rootScope.$broadcast('focusedMapPlaceUpdated', this.focusedMapPlace);
+  }
+  sharedData.getFocusedMapPlace = function () {
+    return this.focusedMapPlace;
   }
 
-  sharedData.setIsEditingPlace = function (isEditingPlace) {
-    this.addingNewPlace = isEditingPlace;
-    $rootScope.$broadcast('updateIsEditingPlace');
+  // saved places
+  var places = [];
+  sharedData.addPlace = function (place) {
+    places.push(place);
   }
-
-  sharedData.updatePlaceLocation = function (marker) {
-    $rootScope.$broadcast('placeLocationUpdated', marker);
-  }
-
-  sharedData.updateCurrentMapZoom = function (zoom) {
-    // check if it's already in list, if yes {return null} else {return mapzoom}
-    var returnZoom = null;
-    if (this.tmpPlace !== undefined) {
-      if (!(this.tmpPlace.getZooms().indexOf(zoom) > -1)) {
-        returnZoom = zoom;
-      }
+  sharedData.removePlace = function (placeIndex) {
+    if (placeIndex > -1) {
+      places.splice(placeIndex, 1);
     }
-    this.currentZoom = returnZoom;
-    $rootScope.$broadcast('mapZoomChanged', this.currentZoom);
   }
-
-  // getters
-
-  sharedData.isEditingPlace = function () {
-    return this.addingNewPlace;
+  sharedData.getPlaces = function () {
+    return places;
   }
-
-  sharedData.getAllPlaces = function () {
-    return allPlaces;
+  sharedData.getPlaceAtPosition = function (placePosition) {
+    var arrayPlace = _.first(_.filter(places, function (cmp_place) {
+      return placePosition === cmp_place.marker.getPosition()
+    }));
+    return arrayPlace || this.focusedMapPlace;
   }
 
   return sharedData;
@@ -107,74 +117,54 @@ angular.module('mapsApp', [])
 
   $scope.placeTypes = ["Room", "Lecture Hall / Auditorium", "Building", "Walkway", "Road"]
 
-  $scope.$on('tmpPlaceUpdated', function(ev, place) {
+  $scope.$on('focusedMapPlaceUpdated', function(ev, customPlace) {
     _.defer(function(){$scope.$apply();});
-    $scope.tmpPlace = place;
-    $scope.placeTitle = $scope.placeTitle || place.getTitle();
-    $scope.placeDescription = $scope.placeDescription || place.getDescription();
+
+    $scope.focusedMapPlace = customPlace == null ? null : customPlace.mapPlace;
   });
 
-  $scope.$on('placeLocationUpdated', function (ev, marker) {
-    SharedData.tmpPlace.mapPlace.set(PlaceKeys.POSITION, {
-      lat: marker.latLng.lat(),
-      lng: marker.latLng.lng()
-    });
-    SharedData.updateViews();
-  });
-
-  $scope.$on('mapZoomChanged', function (ev, zoom) {
+  $scope.$on('updateCurrentZoom', function (ev, zoom) {
     _.defer(function(){$scope.$apply();});
-    $scope.currentZoom = zoom;
+
+    // check if in zooms list then don't allow adding again
+    if ($scope.focusedMapPlace.get(PlaceKeys.ZOOM).indexOf(zoom) > -1) {
+      $scope.currentZoom = null;
+    } else {
+      $scope.currentZoom = zoom;
+    }
   });
 
-  $scope.onPlaceTypeSelected = function (placeType) {
-    SharedData.tmpPlace.mapPlace.set(PlaceKeys.TYPE, placeType);
-    SharedData.updateViews();
-  };
+  $scope.onPlaceTypeSelected = function (place) {
+    $scope.focusedMapPlace.set(PlaceKeys.TYPE, place);
+  }
 
   $scope.addNewZoom = function (zoom) {
-    $scope.currentZoom = null;
-    SharedData.tmpPlace.mapPlace.add(PlaceKeys.ZOOM, zoom);
-    SharedData.updateViews();
-  };
-
-  $scope.savePlace = function () {
-    // create new place or update an older one
-
-    var placeObj = SharedData.tmpPlace.mapPlace;
-
-    placeObj.set(PlaceKeys.TITLE, $scope.placeTitle);
-    placeObj.set(PlaceKeys.DESCRIPTION, $scope.placeDescription);
-
-    placeObj.save().then(function(object) {
-      console.log("saved place" + object);
-    });
-
-    SharedData.grabbedMarker = null;
-    SharedData.setIsEditingPlace(false);
-    $("#add_place_form_wrapper").animate({top: "-100%"}, 250);
+    $scope.focusedMapPlace.add(PlaceKeys.ZOOM, zoom);
+    $scope.currentZoom = null
   }
 
-  $scope.removePlace = function () {
-    $scope.tmpPlace.destroy({
-      success: function(object) {},
-      error: function(myObject, error) {}
-    });
-    $scope.tmpPlace.marker.setMap(null);
+  $scope.removeZoom = function (zoom) {
+    console.log(zoom);
+  }
+
+  $scope.savePlace = function() {
+    var placeToSave = SharedData.getFocusedMapPlace();
+    if (SharedData.getPlaceAtPosition(placeToSave.marker.getPosition()).length == 0) {
+      SharedData.addPlace(placeToSave);
+    }
+    placeToSave.mapPlace.save();
     resetForm();
-    $("#add_place_form_wrapper").animate({top: "-100%"}, 250);
   }
-
 
   function resetForm () {
-    document.getElementById("place-title").value = '';
-    document.getElementById("place-description").value = '';
-    $scope.tmpPlace = null;
+    document.getElementById("place-title").value = "";
+    document.getElementById("place-desc").value = "";
+    SharedData.setFocusedMapPlace(null);
     SharedData.updateViews();
   }
 
 })
-.controller('MapController', function ($scope, SharedData) {
+.controller('MapController', function ($scope, SharedData, MapPlace) {
 
   $scope.map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 0, lng: 0},
@@ -190,7 +180,7 @@ angular.module('mapsApp', [])
     getTileUrl: function (coord, zoom) {
       var normalizedCoord = MercatorProjection.getNormalizedCoord(coord, zoom);
       if (!normalizedCoord) return null;
-      return "assets/maptiles/basemap/" + zoom
+      return "http://gurinderhans.me/sfumaps-web/assets/maptiles/basemap/" + zoom
             + "/" + normalizedCoord.x
             + "/" + normalizedCoord.y
             + ".png";
@@ -208,7 +198,7 @@ angular.module('mapsApp', [])
     getTileUrl: function (coord, zoom) {
       var normalizedCoord = MercatorProjection.getNormalizedCoord(coord, zoom);
       if (!normalizedCoord) return null;
-      return "assets/maptiles/overlay/" + zoom
+      return "http://gurinderhans.me/sfumaps-web/assets/maptiles/overlay/" + zoom
             + "/" + normalizedCoord.x
             + "/" + normalizedCoord.y
             + ".png";
@@ -219,21 +209,91 @@ angular.module('mapsApp', [])
     name: MAP_ID,
   }));
 
-  $scope.$on('updateIsEditingPlace', function() {
-
+  $scope.$on('updateEditingMap', function() {
     // toggle map UI
     $scope.map.setOptions({
-      zoomControl: !SharedData.isEditingPlace(),
-      disableDoubleClickZoom: SharedData.isEditingPlace(),
-      disableDefaultUI: SharedData.isEditingPlace(),
+      zoomControl: !SharedData.isEditingMap(),
+      disableDoubleClickZoom: SharedData.isEditingMap(),
+      disableDefaultUI: SharedData.isEditingMap(),
     });
   });
 
 
   //
-  // MARK: helper functions
+  // MARK: Map Event Listeners
   //
 
+  $scope.map.addListener('click', function (e) {
+    if (!SharedData.isEditingMap()) {
+      SharedData.tmpMapMarker = createMarker({
+        position  : e.latLng,
+        title     : "",
+        icon      : "",
+        draggable : true,
+      }, markerClick, markerDragEnd);
+
+      var mapPlace = new MapPlace(); // parse object
+      mapPlace.set(PlaceKeys.ZOOM, [$scope.map.getZoom()]);
+
+      var markerPos = SharedData.tmpMapMarker.getPosition()
+      mapPlace.set(PlaceKeys.POSITION, {
+        lat: markerPos.lat(),
+        lng: markerPos.lng()
+      });
+
+      SharedData.setFocusedMapPlace(
+        new CustomPlace(mapPlace, SharedData.tmpMapMarker));
+
+      SharedData.setEditingMap(true);
+    }
+  });
+
+  $scope.map.addListener('zoom_changed', function () {
+    SharedData.setCurrentZoom($scope.map.getZoom());
+  });
+
+
+  // parse query the places for current zoom
+  var placesQuery = new Parse.Query(MapPlace);
+  placesQuery.containedIn(PlaceKeys.ZOOM, [$scope.map.getZoom()]) // get current zoom markers
+  placesQuery.find({
+    success: function(results) {
+      for (var i = 0; i < results.length; i++) {
+        var object = results[i];
+        
+        var placePosition = object.get(PlaceKeys.POSITION);
+        SharedData.addPlace(new CustomPlace(object, createMarker({
+                  position : new google.maps.LatLng(placePosition.lat, placePosition.lng),
+                  title : object.get(PlaceKeys.TITLE),
+                  draggable : true,
+                }, markerClick, markerDragEnd)));
+      }
+    },
+    error: function(error) {
+      console.log(error)
+    }
+  });
+
+
+  function markerClick(marker) {
+    if (SharedData.tmpMapMarker) {
+      SharedData.tmpMapMarker.setMap(null);
+      SharedData.tmpMapMarker = null;
+    }
+
+    SharedData.setFocusedMapPlace(SharedData.getPlaceAtPosition(marker.latLng));
+  }
+
+  function markerDragEnd(marker) {
+    SharedData.getFocusedMapPlace().mapPlace.set(PlaceKeys.POSITION,
+    {
+      lat: marker.latLng.lat(),
+      lng: marker.latLng.lng(),
+    })
+    SharedData.updateViews();
+  }
+
+  // create marker
   function createMarker (markerInfo, cb_markerClick, cb_markerDragEnd) {
     var newMarker = new google.maps.Marker({
         position : markerInfo.position,
@@ -252,106 +312,6 @@ angular.module('mapsApp', [])
     }
 
     return newMarker;
-  }
-
-  //
-  // MARK: Map Event Listeners
-  //
-
-  $scope.map.addListener('click', function (e) {
-    if (!SharedData.isEditingPlace()) {
-
-      SharedData.grabbedMarker = createMarker({
-          position  : e.latLng,
-          title     : "",
-          icon      : "",
-          draggable : true,
-        }, onMarkerClick, onMarkerDragEnd)
-
-
-      var parsePlace = new SharedData.mapPlace()
-
-      var markerPos = SharedData.grabbedMarker.getPosition();
-      parsePlace.set(PlaceKeys.POSITION, {
-        lat: markerPos.lat(),
-        lng: markerPos.lng()
-      })
-
-      parsePlace.set(PlaceKeys.ZOOM, [$scope.map.getZoom()])
-      
-      SharedData.tmpPlace = new CustomPlace(parsePlace, SharedData.grabbedMarker);
-      SharedData.updateViews();
-
-      SharedData.setIsEditingPlace(true);
-    }
-  });
-
-  $scope.map.addListener('zoom_changed', function () {
-    SharedData.updateCurrentMapZoom($scope.map.getZoom())
-  });
-
-
-  // fetch initial map data
-  // $.post('/', JSON.stringify({'fetch_data': ''}), function (data) {
-  //   _.each(data['places'], function (placeJson) {
-  //     var newPlace = Place.fromJson(placeJson, createMarker({
-  //         position  : MercatorProjection.fromPointToLatLng(placeJson.location),
-  //         title     : placeJson.title,
-  //         icon      : "",
-  //         draggable : true,
-  //       }, onMarkerClick, onMarkerDragEnd)
-  //     )
-  //     SharedData.addPlace(newPlace)
-  //   })
-  // });
-
-  var placesQuery = new Parse.Query(SharedData.mapPlace);
-  placesQuery.containedIn(PlaceKeys.ZOOM, [$scope.map.getZoom()]) // get current zoom markers
-  placesQuery.find({
-    success: function(results) {
-      for (var i = 0; i < results.length; i++) {
-        var object = results[i];
-        
-        var placePosition = object.get(PlaceKeys.POSITION);
-        SharedData.addPlace(new CustomPlace(object, createMarker({
-                  position : new google.maps.LatLng(placePosition.lat, placePosition.lng),
-                  title : object.get(PlaceKeys.TITLE),
-                  draggable : true,
-                }, onMarkerClick, onMarkerDragEnd)));
-      }
-    },
-    error: function(error) {
-      console.log(error)
-    }
-  });
-
-  function onMarkerClick(marker) {
-
-    // find place with this marker and set to tmpPlace
-    SharedData.tmpPlace = _.first(
-      _.filter(SharedData.getAllPlaces(), function (place) {
-        return place.marker.getPosition() == marker.latLng
-      })
-    );
-    SharedData.updateViews();
-
-    $("#add_place_form_wrapper").animate({top: "3%"}, 250);
-  }
-
-  function onMarkerDragEnd(marker) {
-    // find place with this marker and set to tmpPlace
-    if (SharedData.tmpPlace == null) {
-      SharedData.tmpPlace = _.first(
-        _.filter(SharedData.getAllPlaces(), function (place) {
-          return place.marker.getPosition() == marker.latLng
-        })
-      );
-    };
-
-    SharedData.updatePlaceLocation(marker);
-    SharedData.setIsEditingPlace(true);
-    
-    $("#add_place_form_wrapper").animate({top: "3%"}, 250);
   }
 
 });
