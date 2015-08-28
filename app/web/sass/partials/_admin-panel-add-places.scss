@@ -8,10 +8,11 @@
 }
 
 // place save form
-.add_place_form_wrapper {
+#add_place_form_wrapper {
   position: absolute;
   top: -100%;
   left: 6%;
+  transition: top 0.2s;
 
   .place-save-form-card.mdl-card {
     width: 320px;
@@ -31,13 +32,44 @@
     }
 
     div.additional-info {
-      & > div:first-child {
-        margin-bottom: 8px;
+      & > div:not(:last-child) {
+        margin-bottom: 10px;
       }
 
-      i {
-        vertical-align: middle;
-        margin-bottom: 2.5px;
+      div {
+        i, span { vertical-align: middle; }
+      }
+
+      .selector-menu-button {
+        color: #757575;
+        font-weight: 400;
+        font-family: "Helvetica","Arial",sans-serif;
+        font-size: 14px;
+        text-transform: capitalize;
+        margin: 0;
+        padding: 0;
+        height: 20px;
+        width: 85%;
+        text-align: left;
+        line-height: 0;
+        background: none !important;
+      }
+
+      .zoom-values {
+        * {display: inline-block;}
+        li{
+          background: #eee;
+          width: 20px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 1s;
+
+          &.added {
+            color: white;
+            background: rgb(66,133,244);
+            margin: 0 4px 0px 0px;
+          }
+        }
       }
     }
   }

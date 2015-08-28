@@ -18,6 +18,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlCJ0d_a7EQq7PGP6zRbWrzCdM6ufF_gU"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
+    <script src="//www.parsecdn.com/js/parse-1.5.0.min.js"></script>
     <script src="/js/underscore-min.js"></script>
     <script src="/js/maptools.js"></script>
     <script src="/js/main.js"></script>
@@ -25,46 +26,56 @@
   <body>
     <div id="map-wrapper" ng-controller="MapController">
       <div id="map"></div>
-      <!-- places selector menu -->
-      <div class="place_selector_menu_wrapper">
-        <button id="place-selector-menu"></button>
-        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-            id="place-selector-places"
-            for="place-selector-menu">
-          <li class="mdl-menu__item"
-              ng-click="onPlaceTypeSelected()"
-              ng-repeat="place in placeTypes">
-              {{place}}
-          </li>
-        </ul>
-      </div>
     </div>
 
 
-    <div class="add_place_form_wrapper" ng-controller="PlaceFormController as form">
+    <div id="add_place_form_wrapper" ng-controller="PlaceFormController as form">
       <div class="place-save-form-card mdl-card mdl-shadow--2dp">
         <div class="mdl-card__title mdl-card--expand">
           <h2 class="mdl-card__title-text">Add Image</h2>
         </div>
         <div class="mdl-card__supporting-text">
           <form id="place_save_form">
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{placeTitle != null ? 'is-upgraded is-dirty' : ''}}">
-              <input class="mdl-textfield__input" type="text" name="title" id="place-title" ng-value="placeTitle" ng-model="placeTitle" />
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{focusedMapPlace.placeTitle != null ? 'is-upgraded is-dirty' : ''}}">
+              <input class="mdl-textfield__input" type="text" name="title" id="place-title" ng-model="focusedMapPlace.placeTitle" />
               <label class="mdl-textfield__label" for="place-title">Name</label>
             </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{placeDescription != null ? 'is-upgraded is-dirty' : ''}}">
-              <textarea class="mdl-textfield__input" type="text" name="description" rows= "3" id="place-desc" ng-model="placeDescription">{{placeDescription}}</textarea>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label {{focusedMapPlace.placeDescription != null ? 'is-upgraded is-dirty' : ''}}">
+              <textarea class="mdl-textfield__input"
+                        type="text"
+                        name="description"
+                        rows= "3"
+                        id="place-desc"
+                        ng-model="focusedMapPlace.placeDescription">
+                {{focusedMapPlace.placeDescription}}
+              </textarea>
               <label class="mdl-textfield__label" for="place-desc">Description</label>
             </div>
           </form>
           <div class="additional-info">
-            <div>
+            <div class="lat-lng">
               <i class="material-icons">radio_button_checked</i>
-              <span class="lat-lng">{{place.getLocationString()}}</span>
+              <span>{{focusedMapPlace.get('placePosition').lat.toFixed(6) + ", " + focusedMapPlace.get('placePosition').lng.toFixed(6)}}</span>
             </div>
-            <div>
+            <div class="zoom-values">
+              <i class="material-icons">zoom_in</i>
+              <ul>
+                  <li class="added" ng-repeat="zoom in focusedMapPlace.get('placeZoom')" ng-click="removeZoom(zoom)">{{zoom}}</li>
+                  <li ng-click="addNewZoom(currentZoom)">{{currentZoom}}</li>
+                </ul>
+            </div>
+            <div class="place-type">
               <i class="material-icons">class</i>
-              <span class="place-type">{{placeType}}</span>
+              <button id="place-selector-menu" class="mdl-button selector-menu-button">{{focusedMapPlace.get('placeType') || 'Choose Type'}}</button>
+              <ul class="mdl-menu mdl-menu--top-left mdl-js-menu mdl-js-ripple-effect"
+                  id="place-selector-places"
+                  for="place-selector-menu">
+                <li class="mdl-menu__item"
+                    ng-click="onPlaceTypeSelected(place)"
+                    ng-repeat="place in placeTypes">
+                    {{place}}
+                </li>
+              </ul>
             </div>
           </div>
         </div>
