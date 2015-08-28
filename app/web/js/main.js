@@ -258,9 +258,6 @@ angular.module('mapsApp', [])
     if (!SharedData.isEditingMap()) {
       SharedData.tmpMapMarker = createMarker({
         position  : e.latLng,
-        title     : "",
-        icon      : "",
-        draggable : true,
       }, markerClick, markerDragEnd);
 
       var mapPlace = new MapPlace(); // parse object
@@ -298,8 +295,6 @@ angular.module('mapsApp', [])
         var placePosition = object.get(PlaceKeys.POSITION);
         SharedData.addPlace(new CustomPlace(object, createMarker({
                   position : new google.maps.LatLng(placePosition.lat, placePosition.lng),
-                  title : object.get(PlaceKeys.TITLE),
-                  draggable : true,
                 }, markerClick, markerDragEnd)));
       }
     },
@@ -337,7 +332,6 @@ angular.module('mapsApp', [])
         position : markerInfo.position,
         map : $scope.map,
         icon: markerInfo.icon,
-        title: markerInfo.title,
     });
 
     if (cb_markerClick != null) {
