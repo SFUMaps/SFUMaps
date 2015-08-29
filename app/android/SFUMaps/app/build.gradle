@@ -26,4 +26,5 @@ dependencies {
     compile 'com.github.japgolly.android:svg-android:2.0.6'
     compile 'com.google.maps.android:android-maps-utils:0.4'
     compile 'com.android.support:design:23.0.0'
+    compile 'com.jakewharton:disklrucache:2.0.2'
 }

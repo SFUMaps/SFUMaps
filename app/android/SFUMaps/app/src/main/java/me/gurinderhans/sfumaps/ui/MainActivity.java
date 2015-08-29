@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
+import com.jakewharton.disklrucache.DiskLruCache;
 import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.IOException;
@@ -47,6 +48,8 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 	PathSearch mPathSearch;
 	boolean searchMode = false;
 	private GoogleMap Map;
+
+	private DiskLruCache mTileCache;
 
 	// FIXME: temp method
 	public static ArrayList<Pair<String, Picture>> getOverlayTiles(Context c) {
@@ -109,6 +112,8 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 			}
 		});
 
+		// cache for map tiles
+		mTileCache = MapTools.openDiskCache(this);
 
 		// starting and ending points are hardcoded for now, but it can work
 		MapGrid = new MapGrid(MainActivity.this, new PointF(121f, 100f), new PointF(192f, 183f));
@@ -193,12 +198,17 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
 		Map.setOnMapClickListener(this);
 
-		TileProvider basemapTileProvider = new SVGTileProvider(MapTools.getBaseMapTiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
-		Map.addTileOverlay(new TileOverlayOptions().tileProvider(basemapTileProvider).zIndex(10));
+
+		// base map overlay
+		Map.addTileOverlay(new TileOverlayOptions().tileProvider(
+				new SVGTileProvider(MapTools.getBaseMapTiles(this), getResources().getDisplayMetrics().densityDpi / 160f)
+		).zIndex(10));
+
 
 		// overlay tile provider to switch floor level stuff
-		TileProvider overlayProvider = new SVGTileProvider(getOverlayTiles(this), getResources().getDisplayMetrics().densityDpi / 160f);
-		Map.addTileOverlay(new TileOverlayOptions().tileProvider(overlayProvider).zIndex(11));
+		Map.addTileOverlay(new TileOverlayOptions().tileProvider(getTileProvider(
+				new SVGTileProvider(getOverlayTiles(this), getResources().getDisplayMetrics().densityDpi / 160f)
+		)).zIndex(11));
 	}
 
 	@Override
@@ -243,6 +253,12 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 		if (!devMode)
 			findViewById(R.id.pathmaker_actions).setVisibility(View.GONE);
 
+	}
+
+	public TileProvider getTileProvider(SVGTileProvider svgTileProvider) {
+		return mTileCache == null
+				? svgTileProvider
+				: new CachedTileProvider(Integer.toString(1), svgTileProvider, mTileCache);
 	}
 
 }

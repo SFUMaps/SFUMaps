@@ -15,6 +15,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
+import com.jakewharton.disklrucache.DiskLruCache;
 import com.larvalabs.svgandroid.SVGBuilder;
 
 import java.io.BufferedReader;
@@ -32,10 +33,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
-import me.gurinderhans.sfumaps.ui.MainActivity;
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.ui.SVGTileProvider;
 import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
+import me.gurinderhans.sfumaps.ui.MainActivity;
+import me.gurinderhans.sfumaps.ui.SVGTileProvider;
 
 /**
  * Created by ghans on 2/9/15.
@@ -424,6 +425,36 @@ public class MapTools {
 	// enum for placing label icon on which side
 	public enum MapLabelIconAlign {
 		TOP, LEFT, RIGHT
+	}
+
+
+	//
+	// MARK: Map cache
+	//
+
+	private static final int MAX_DISK_CACHE_BYTES = 1024 * 1024 * 2; // 2MB
+
+	public static DiskLruCache openDiskCache(Context c) {
+		File cacheDir = new File(c.getCacheDir(), "tiles");
+		try {
+			return DiskLruCache.open(cacheDir, 1, 3, MAX_DISK_CACHE_BYTES);
+		} catch (IOException e) {
+			Log.e(TAG, "Couldn't open disk cache.");
+
+		}
+		return null;
+	}
+	public static void clearDiskCache(Context c) {
+		DiskLruCache cache = openDiskCache(c);
+		if (cache != null) {
+			try {
+				Log.d(TAG, "Clearing map tile disk cache");
+				cache.delete();
+				cache.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
 	}
 
 }
