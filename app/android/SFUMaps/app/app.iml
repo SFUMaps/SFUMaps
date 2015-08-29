@@ -123,16 +123,18 @@
     <orderEntry type="library" exported="" name="design-23.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-nearby-7.8.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-ads-7.8.0" level="project" />
+    <orderEntry type="library" exported="" name="parse-android-1.10.1" level="project" />
     <orderEntry type="library" exported="" name="android-maps-utils-0.4" level="project" />
     <orderEntry type="library" exported="" name="play-services-panorama-7.8.0" level="project" />
     <orderEntry type="library" exported="" name="mediarouter-v7-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="svg-android-2.0.6" level="project" />
+    <orderEntry type="library" exported="" name="bolts-android-1.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-safetynet-7.8.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-analytics-7.8.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-7.8.0" level="project" />
     <orderEntry type="library" exported="" name="disklrucache-2.0.2" level="project" />
-    <orderEntry type="library" exported="" name="play-services-appinvite-7.8.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-plus-7.8.0" level="project" />
+    <orderEntry type="library" exported="" name="play-services-appinvite-7.8.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-7.8.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-appindexing-7.8.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-fitness-7.8.0" level="project" />

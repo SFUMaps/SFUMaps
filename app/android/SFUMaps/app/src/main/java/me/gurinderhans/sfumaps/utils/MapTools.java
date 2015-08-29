@@ -17,6 +17,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.larvalabs.svgandroid.SVGBuilder;
+import com.parse.FindCallback;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,6 +31,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -266,7 +270,7 @@ public class MapTools {
 		//
 		return map.addMarker(new MarkerOptions()
 				.position(MercatorProjection.fromPointToLatLng(screenLocation))
-				.icon(BitmapDescriptorFactory.fromBitmap(textIcon))
+//				.icon(BitmapDescriptorFactory.fromBitmap(textIcon))
 				.rotation(markerRotation)
 				.flat(true).draggable(true)
 				.title("Position")
@@ -444,6 +448,7 @@ public class MapTools {
 		}
 		return null;
 	}
+
 	public static void clearDiskCache(Context c) {
 		DiskLruCache cache = openDiskCache(c);
 		if (cache != null) {
@@ -457,4 +462,15 @@ public class MapTools {
 		}
 	}
 
+	//
+	// MARK: Parse
+	//
+
+	public static void getZoomMarkers(int zoom, FindCallback<ParseObject> callback) {
+		Log.i(TAG, "querying for zoom: " + zoom);
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.KEY_PLACE);
+		Integer[] zooms = {zoom};
+		query.whereContainedIn(Keys.KEY_PLACE_ZOOM, Arrays.asList(zooms));
+		query.findInBackground(callback);
+	}
 }
