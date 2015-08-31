@@ -96,12 +96,11 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 				// show these markers
 				JSONObject location = object.getJSONObject(Keys.KEY_PLACE_POSITION);
 				try {
-					double lat = location.getDouble("lat");
-					double lng = location.getDouble("lng");
+					float x = (float) location.getDouble("x");
+					float y = (float) location.getDouble("y");
 					mMapMarkersCurrentZoom.add(
 							MapTools.addTextMarker(getApplicationContext(), Map,
-									MercatorProjection.fromLatLngToPoint(new LatLng(lat, lng)), null, 0)
-					);
+									new PointF(x, y), null, 0));
 				} catch (Exception exception) {
 					// unable to parse location for this place, no marker for this place then
 					exception.printStackTrace();
@@ -203,12 +202,12 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 		Map.getUiSettings().setMapToolbarEnabled(false);
 
 		// just put the user navigation marker in the center as we don't yet know user's location
-		LatLng mapCenter = MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
-		Map.addMarker(new MarkerOptions()
-				.position(mapCenter)
-				.title("Position")
-				.snippet(MercatorProjection.fromLatLngToPoint(mapCenter).toString())
-				.draggable(true));
+//		LatLng mapCenter = new LatLng(0, 0);//MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
+//		Map.addMarker(new MarkerOptions()
+//				.position(mapCenter)
+//				.title("Position")
+//				.snippet(MercatorProjection.fromLatLngToPoint(mapCenter).toString())
+//				.draggable(true));
 
 		Map.setOnMarkerDragListener(new OnMarkerDragListener() {
 			@Override
@@ -309,6 +308,4 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 			MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
 		}
 	}
-
-
 }
