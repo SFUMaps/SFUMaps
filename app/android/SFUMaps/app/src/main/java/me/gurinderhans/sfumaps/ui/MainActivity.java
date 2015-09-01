@@ -303,9 +303,15 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
 
-		if (mMapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
+		// on zoom change, set this zomo markers
+		if (mMapCurrentZoom != (int) cameraPosition.zoom) {
 			mMapCurrentZoom = (int) cameraPosition.zoom;
 			MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
 		}
+
+		// limit map max zoom
+		float maxZoom = 10f;
+		if (cameraPosition.zoom > maxZoom)
+			Map.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
 	}
 }
