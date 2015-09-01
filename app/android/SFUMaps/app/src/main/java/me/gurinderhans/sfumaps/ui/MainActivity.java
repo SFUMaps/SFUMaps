@@ -15,6 +15,7 @@ import android.view.View;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -22,14 +23,21 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.larvalabs.svgandroid.SVGBuilder;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.devtools.pathmaker.CustomMapFragment;
 import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
 import me.gurinderhans.sfumaps.devtools.wifirecorder.Controller.RecordWifiDataActivity;
+import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
 import me.gurinderhans.sfumaps.factory.classes.GridNode;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
@@ -41,7 +49,7 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
 import static com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import static com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 
-public class MainActivity extends FragmentActivity implements OnMapClickListener {
+public class MainActivity extends FragmentActivity implements OnMapClickListener, GoogleMap.OnCameraChangeListener {
 
 	public static final String TAG = MainActivity.class.getSimpleName();
 	MapGrid MapGrid;
@@ -50,6 +58,9 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 	private GoogleMap Map;
 
 	private DiskLruCache mTileCache;
+	private int mMapCurrentZoom;
+
+	public List<Marker> mMapMarkersCurrentZoom = new ArrayList<>();
 
 	// FIXME: temp method
 	public static ArrayList<Pair<String, Picture>> getOverlayTiles(Context c) {
@@ -71,6 +82,32 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
 		return null;
 	}
+
+	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
+		@Override
+		public void done(List<ParseObject> objects, ParseException e) {
+			// hide prev zoom markers
+			for (Marker marker : mMapMarkersCurrentZoom)
+				marker.remove();
+
+			mMapMarkersCurrentZoom = new ArrayList<>();
+
+			for (ParseObject object : objects) {
+				// show these markers
+				JSONObject location = object.getJSONObject(Keys.KEY_PLACE_POSITION);
+				try {
+					float x = (float) location.getDouble("x");
+					float y = (float) location.getDouble("y");
+					mMapMarkersCurrentZoom.add(
+							MapTools.addTextMarker(getApplicationContext(), Map,
+									new PointF(x, y), null, 0));
+				} catch (Exception exception) {
+					// unable to parse location for this place, no marker for this place then
+					exception.printStackTrace();
+				}
+			}
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -125,11 +162,12 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 
 		handleDevAndDebugMode(AppConfig.DEBUG_MODE, AppConfig.DEV_MODE);
 
+		mMapCurrentZoom = (int) Map.getCameraPosition().zoom;
+
+		// temp
+		MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
 	}
 
-	/**
-	 * If (Map == null) then get the map fragment and initialize it.
-	 */
 	private void setUpMapIfNeeded() {
 		// Do a null check to confirm that we have not already instantiated the map.
 		if (Map == null) {
@@ -164,12 +202,12 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 		Map.getUiSettings().setMapToolbarEnabled(false);
 
 		// just put the user navigation marker in the center as we don't yet know user's location
-		LatLng mapCenter = new LatLng(0, 0);//MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
-		Map.addMarker(new MarkerOptions()
-				.position(mapCenter)
-				.title("Position")
-				.snippet(MercatorProjection.fromLatLngToPoint(mapCenter).toString())
-				.draggable(true));
+//		LatLng mapCenter = new LatLng(0, 0);//MercatorProjection.fromPointToLatLng(new PointF(AppConfig.TILE_SIZE, AppConfig.TILE_SIZE));
+//		Map.addMarker(new MarkerOptions()
+//				.position(mapCenter)
+//				.title("Position")
+//				.snippet(MercatorProjection.fromLatLngToPoint(mapCenter).toString())
+//				.draggable(true));
 
 		Map.setOnMarkerDragListener(new OnMarkerDragListener() {
 			@Override
@@ -197,6 +235,7 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 		});
 
 		Map.setOnMapClickListener(this);
+		Map.setOnCameraChangeListener(this);
 
 
 		// base map overlay
@@ -261,4 +300,12 @@ public class MainActivity extends FragmentActivity implements OnMapClickListener
 				: new CachedTileProvider(Integer.toString(1), svgTileProvider, mTileCache);
 	}
 
+	@Override
+	public void onCameraChange(CameraPosition cameraPosition) {
+
+		if (mMapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
+			mMapCurrentZoom = (int) cameraPosition.zoom;
+			MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
+		}
+	}
 }

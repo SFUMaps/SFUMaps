@@ -30,6 +30,14 @@ public final class Keys {
 	public static final String KEY_HIERARCHY_PARENT_ID = "parent";
 	public static final String KEY_HIERARCHY_VALUE = "value";
 
+	//
+	public static final String KEY_PLACE = "MapPlace";
+	public static final String KEY_PLACE_TITLE = "placeTitle";
+	public static final String KEY_PLACE_DESCRIPTION = "placeDescription";
+	public static final String KEY_PLACE_TYPE = "placeType";
+	public static final String KEY_PLACE_POSITION = "placePosition";
+	public static final String KEY_PLACE_ZOOM = "placeZoom";
+
 
 	// empty constructor
 	private Keys() {

@@ -1,6 +1,4 @@
-//
-// MARK: Place Class
-//
+
 
 var PlaceKeys = {
   TITLE         : "placeTitle",
@@ -10,6 +8,15 @@ var PlaceKeys = {
   ZOOM          : "placeZoom",
 }
 
+
+// The scaling of the map image is different on Android vs. Web.
+// the x,y diff between points is the following
+var X_DIFF = 12.04965
+var Y_DIFF = 23.511235
+
+
+
+// Parse `MapPlace` class wrapper to hold the marker along Parse object
 var CustomPlace = function (mapPlace, marker) {
   this.mapPlace = mapPlace;
   this.marker = marker;
@@ -115,8 +122,8 @@ angular.module('mapsApp', [])
   sharedData.setFocusedMapPlacePosition = function (markerPos) {
     var mapPoint = MercatorProjection.fromLatLngToPoint(markerPos)
     this.getFocusedMapPlace().mapPlace.set(PlaceKeys.POSITION, {
-      x: mapPoint.x,
-      y: mapPoint.y,
+      x: mapPoint.x + X_DIFF,
+      y: mapPoint.y + Y_DIFF,
     })
   }
 
@@ -453,7 +460,7 @@ angular.module('mapsApp', [])
         var placePosition = object.get(PlaceKeys.POSITION);
         SharedData.addPlace(new CustomPlace(object, createMarker({
                   position : MercatorProjection.fromPointToLatLng(
-                    new google.maps.Point(placePosition.x, placePosition.y)),
+                    new google.maps.Point(placePosition.x - X_DIFF, placePosition.y - Y_DIFF)),
                 }, markerClick, markerDragEnd)));
       }
     },
@@ -530,7 +537,9 @@ angular.module('mapsApp', [])
 
 
   // createMarker({
-  //   position: MercatorProjection.fromPointToLatLng(new google.maps.Point(120, 130))
+  //   position: new google.maps.LatLng(0,0)
   // })
+
+  // console.log(MercatorProjection.fromLatLngToPoint(new google.maps.LatLng(0,0)))
 
 });
