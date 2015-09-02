@@ -26,13 +26,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import me.gurinderhans.sfumaps.utils.AppConfig;
-import me.gurinderhans.sfumaps.factory.DataBaseManager;
-import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
 import me.gurinderhans.sfumaps.devtools.wifirecorder.View.WifiAPListViewAdapter;
+import me.gurinderhans.sfumaps.factory.DataBaseManager;
+import me.gurinderhans.sfumaps.factory.DrawRecordedPaths;
 import me.gurinderhans.sfumaps.factory.classes.WiFiAccessPoint;
+import me.gurinderhans.sfumaps.utils.AppConfig;
 
 public class RecordWifiDataActivity extends AppCompatActivity {
 
@@ -312,7 +312,7 @@ public class RecordWifiDataActivity extends AppCompatActivity {
 			inspectingTableData = dbManager.getTableData(inspectingTable);
 
 			// clean data
-			MapTools.removeDups(inspectingTableData);
+			DrawRecordedPaths.removeDups(inspectingTableData);
 
 			// remove unnecessary networks
 			for (Iterator<HashMap<String, Object>> it = inspectingTableData.iterator(); it.hasNext(); ) {

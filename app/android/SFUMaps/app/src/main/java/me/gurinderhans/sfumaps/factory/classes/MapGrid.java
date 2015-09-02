@@ -12,8 +12,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
+import me.gurinderhans.sfumaps.utils.MapTools;
 
 /**
  * Created by ghans on 15-07-29.

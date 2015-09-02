@@ -8,7 +8,7 @@
         android:id="@+id/database_table_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/recorder_activity_color"
+        android:background="@color/app_color_primary"
         android:hint="@string/table_text_input_hint"
         android:inputType="textNoSuggestions"
         android:paddingBottom="10dp"

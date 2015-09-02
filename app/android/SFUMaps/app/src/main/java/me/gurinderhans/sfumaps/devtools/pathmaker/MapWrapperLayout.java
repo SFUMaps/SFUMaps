@@ -29,6 +29,6 @@ public class MapWrapperLayout extends FrameLayout {
 	}
 
 	public interface OnDragListener {
-		public void onDrag(MotionEvent motionEvent);
+		void onDrag(MotionEvent motionEvent);
 	}
 }

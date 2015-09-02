@@ -53,7 +53,7 @@
             android:layout_width="75dp"
             android:layout_height="50dp"
             android:layout_gravity="end"
-            android:background="@color/recorder_activity_color_dark"
+            android:background="@color/app_color_primary_dark"
             android:gravity="center"
             android:text="Level"
             android:textColor="#fff"

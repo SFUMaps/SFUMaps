@@ -9,6 +9,6 @@
 
     <stroke
         android:width="2dp"
-        android:color="@color/recorder_activity_color_dark"/>
+        android:color="@color/app_color_primary_dark"/>
 
 </shape>

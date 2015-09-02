@@ -67,7 +67,7 @@ public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
 		if (accessPoint.isOnTop != null && accessPoint.isOnTop) {
 			accessPointHolder.rssi.setBackgroundColor(context.getResources().getColor(R.color.selected_access_point));
 		} else {
-			accessPointHolder.rssi.setBackgroundColor(context.getResources().getColor(R.color.recorder_activity_color_dark));
+			accessPointHolder.rssi.setBackgroundColor(context.getResources().getColor(R.color.app_color_primary_dark));
 		}
 
 		// return the completed view to render on screen
