@@ -11,7 +11,7 @@
         android:layout_marginEnd="5dp"
         android:layout_marginStart="5dp"
         android:layout_marginTop="33dp"
-        android:background="@drawable/sfunetsecuredot"
+        android:background="@color/app_color_primary_dark"
         android:src="@android:drawable/ic_menu_edit"/>
 
     <ImageButton
@@ -21,9 +21,9 @@
         android:layout_marginEnd="5dp"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
-        android:background="@drawable/sfunetsecuredot"
+        android:background="@color/app_color_primary_dark"
         android:src="@android:drawable/ic_menu_send"
-        android:visibility="invisible"/>
+        android:visibility="visible"/>
 
     <Button
         android:id="@+id/create_box_rect"
@@ -32,10 +32,10 @@
         android:layout_marginEnd="5dp"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
-        android:background="@drawable/sfunetsecuredot"
+        android:background="@color/app_color_primary_dark"
         android:text="BOX"
         android:textColor="#fff"
-        android:visibility="invisible"/>
+        android:visibility="visible"/>
 
     <ImageButton
         android:id="@+id/delete_box_rect"
@@ -44,9 +44,9 @@
         android:layout_marginEnd="5dp"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
-        android:background="@drawable/sfunetsecuredot"
+        android:background="@color/app_color_primary_dark"
         android:src="@android:drawable/ic_input_delete"
         android:textColor="#fff"
-        android:visibility="invisible"/>
+        android:visibility="visible"/>
 
 </LinearLayout>

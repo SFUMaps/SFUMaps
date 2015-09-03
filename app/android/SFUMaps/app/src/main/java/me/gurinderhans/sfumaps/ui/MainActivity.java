@@ -1,5 +1,6 @@
 package me.gurinderhans.sfumaps.ui;
 
+import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -15,7 +16,7 @@ import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.devtools.pathmaker.CustomMapFragment;
+import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.utils.MapTools;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
@@ -25,6 +26,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 	public static final String TAG = MainActivity.class.getSimpleName();
 
 	private GoogleMap Map;
+	private MapGrid mGrid;
 	private DiskLruCache mTileCache;
 
 	@Override
@@ -50,6 +52,11 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 
 		// setup Map
 		setUpMapIfNeeded();
+
+		// map grid
+		mGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
+
+		// admin panel
 
 	}
 

@@ -155,8 +155,7 @@ public class MapTools {
 
 			ArrayList<Pair<String, Picture>> returnTileFiles = new ArrayList<>();
 
-			// FIXME: performance heavy code, especially during app start
-
+			// FIXME: loading .svg file can create performance issues during app startup
 			// TODO: make sure the file at index 0 is the one with lowest zoom
 			Picture currentFile = new SVGBuilder()
 					.readFromInputStream(new FileInputStream(
@@ -187,13 +186,15 @@ public class MapTools {
 		return null;
 	}
 
-	// FIXME: temp method
 	public static ArrayList<Pair<String, Picture>> getOverlayTiles(Context c) {
 		try {
+			String basePath = TileManager.TILES_PATH + File.separator + "overlay";
+
 			ArrayList<Pair<String, Picture>> tileFiles = new ArrayList<>();
 
+			// FIXME: loading .svg file can create performance issues during app startup
 			Picture currentFile = new SVGBuilder().readFromInputStream(
-					c.getAssets().open("sfumap-overlay.svg")).build().getPicture();
+					c.getAssets().open(basePath + File.separator + "sfumap-overlay.svg")).build().getPicture();
 
 			for (int i = 0; i < 15; i++)
 				tileFiles.add(Pair.create(i + "", currentFile));

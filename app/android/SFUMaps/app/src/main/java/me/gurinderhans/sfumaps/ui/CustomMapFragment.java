@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.devtools.pathmaker;
+package me.gurinderhans.sfumaps.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

@@ -6,28 +6,9 @@
 
     <fragment
         android:id="@+id/map"
-        android:name="me.gurinderhans.sfumaps.devtools.pathmaker.CustomMapFragment"
+        android:name="me.gurinderhans.sfumaps.ui.CustomMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity"/>
-
-    <ImageButton
-        android:id="@+id/wifi_data_observer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="33dp"
-        android:background="@null"
-        android:src="@drawable/ic_adb_black_24dp"/>
-
-    <include
-        android:id="@+id/pathmaker_actions"
-        layout="@layout/pathmaker_action_buttons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"/>
 
 </RelativeLayout>

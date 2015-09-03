@@ -26,6 +26,8 @@ import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
+import me.gurinderhans.sfumaps.ui.CustomMapFragment;
+import me.gurinderhans.sfumaps.ui.MapWrapperLayout;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
@@ -36,9 +38,12 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
 
+	// data keys
 	public static final String WALKABLE_KEY = "walkable";
 	public static final String INDIVIDUAL_POINTS = "points";
 	public static final String BOX_RECTS = "rects";
+
+	//
 	public static boolean isEditingMap = false; // TODO: 15-08-16 improve application mode management
 
 	public final GoogleMap mGoogleMap;
@@ -48,10 +53,25 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
 	boolean createBoxMode = false;
 	boolean deletePathMode = false;
+
 	boolean mapEdited = false;
 	boolean boxCreated;
 
 	Point mTmpBoxDragStartGridIndices;
+
+	// Admin panel states
+	private static int CREATING_BOX = 0;
+	private static int DELETING_PATH = 1;
+
+	int mState = -1;
+
+	private void setState(int state) {
+		this.mState = state;
+	}
+
+	public int getState() {
+		return mState;
+	}
 
 	@Nullable
 	GroundOverlay mTmpSelectedArea;

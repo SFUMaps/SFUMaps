@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.devtools.pathmaker;
+package me.gurinderhans.sfumaps.ui;
 
 import android.content.Context;
 import android.view.MotionEvent;
