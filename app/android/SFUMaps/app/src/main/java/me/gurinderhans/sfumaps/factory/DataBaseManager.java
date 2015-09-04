@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
+import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.factory.classes.WiFiAccessPoint;
 import me.gurinderhans.sfumaps.app.AppConfig;
 

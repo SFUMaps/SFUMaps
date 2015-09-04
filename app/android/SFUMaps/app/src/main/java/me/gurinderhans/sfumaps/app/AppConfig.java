@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import java.util.HashSet;
 import java.util.Set;
 
-import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
-
 /**
  * Created by ghans on 15-04-11.
  */
