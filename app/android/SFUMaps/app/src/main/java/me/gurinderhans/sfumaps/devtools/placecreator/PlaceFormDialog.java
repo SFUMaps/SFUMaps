@@ -25,10 +25,12 @@ import com.parse.SaveCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
 
 /**
  * Created by ghans on 15-09-03.
@@ -44,7 +46,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 	private String mSelectedPlaceType = "";
 	private final GoogleMap mMap;
 
-	public PlaceFormDialog(Activity activity, GoogleMap map, PointF point) {
+	public PlaceFormDialog(Activity activity, GoogleMap map, PointF point, ParseObject oldPlace) {
 		super(activity);
 
 		mClickedPoint = point;
@@ -83,7 +85,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 	void savePlace() {
 		// place title
-		mMapPlace.put("placeTitle", mPlaceTitleEditText.getText().toString());
+		mMapPlace.put(Keys.KEY_PLACE_TITLE, mPlaceTitleEditText.getText().toString());
 
 		// place location
 		try {
@@ -91,14 +93,14 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 			location.put("x", mClickedPoint.x);
 			location.put("y", mClickedPoint.y);
 
-			mMapPlace.put("placePosition", location);
+			mMapPlace.put(Keys.KEY_PLACE_POSITION, location);
 		} catch (JSONException e) {
 			// TODO: catch exception here!!
 			e.printStackTrace();
 		}
 
 		// place type
-		mMapPlace.put("placeType", mSelectedPlaceType);
+		mMapPlace.put(Keys.KEY_PLACE_POSITION, mSelectedPlaceType);
 
 		List<Integer> zooms = new ArrayList<>();
 
@@ -120,7 +122,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		if (((CheckBox) findViewById(R.id.zoom_8)).isChecked())
 			zooms.add(8);
 
-		mMapPlace.addAll("placeZoom", zooms);
+		mMapPlace.addAll(Keys.KEY_PLACE_ZOOM, zooms);
 
 
 		// push place to parse servers

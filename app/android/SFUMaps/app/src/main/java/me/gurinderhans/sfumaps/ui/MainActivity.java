@@ -10,29 +10,68 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.PlaceFormDialog;
+import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.utils.MapTools;
+import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
 
-public class MainActivity extends FragmentActivity implements OnCameraChangeListener, OnMapLongClickListener {
+public class MainActivity extends FragmentActivity
+		implements OnCameraChangeListener, OnMapLongClickListener, OnMarkerClickListener {
 
 	public static final String TAG = MainActivity.class.getSimpleName();
 
 	private GoogleMap Map;
 	private MapGrid mGrid;
 	private DiskLruCache mTileCache;
+
+	public List<Marker> mMapMarkersCurrentZoom = new ArrayList<>();
+	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
+		@Override
+		public void done(List<ParseObject> objects, ParseException e) {
+			// hide prev zoom markers
+			for (Marker marker : mMapMarkersCurrentZoom)
+				marker.remove();
+
+			mMapMarkersCurrentZoom = new ArrayList<>();
+
+			for (ParseObject object : objects) {
+				// show these markers
+				JSONObject location = object.getJSONObject(Keys.KEY_PLACE_POSITION);
+				try {
+					float x = (float) location.getDouble("x");
+					float y = (float) location.getDouble("y");
+					mMapMarkersCurrentZoom.add(
+							MarkerCreator.addTextMarker(getApplicationContext(), Map,
+									new PointF(x, y), null, 0));
+				} catch (Exception exception) {
+					// unable to parse location for this place, no marker for this place then
+					exception.printStackTrace();
+				}
+			}
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +129,10 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 		Map.getUiSettings().setMapToolbarEnabled(false);
 
 		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
+
 		Map.setOnCameraChangeListener(this);
 		Map.setOnMapLongClickListener(this);
+		Map.setOnMarkerClickListener(this);
 
 		// base map overlay
 		Map.addTileOverlay(new TileOverlayOptions()
@@ -129,6 +170,9 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 		setUpMapIfNeeded();
 	}
 
+
+	private int mMapCurrentZoom;
+
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
 
@@ -136,6 +180,12 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 		float maxZoom = 8f;
 		if (cameraPosition.zoom > maxZoom)
 			Map.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
+
+		// 2. load this zoom markers
+		if (mMapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
+			mMapCurrentZoom = (int) cameraPosition.zoom;
+			MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
+		}
 	}
 
 	Marker tmpAddPlaceMarker;
@@ -146,6 +196,12 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 		PointF point = MercatorProjection.fromLatLngToPoint(latLng);
 
 		// show dialog asking place info
-		new PlaceFormDialog(this, Map, point).show();
+		new PlaceFormDialog(this, Map, point, null).show();
+	}
+
+	@Override
+	public boolean onMarkerClick(Marker marker) {
+
+		return true;
 	}
 }
