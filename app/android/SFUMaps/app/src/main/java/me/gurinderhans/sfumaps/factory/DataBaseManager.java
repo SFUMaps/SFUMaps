@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
 import me.gurinderhans.sfumaps.factory.classes.WiFiAccessPoint;
-import me.gurinderhans.sfumaps.utils.AppConfig;
+import me.gurinderhans.sfumaps.app.AppConfig;
 
 /**
  * Created by ghans on 1/24/15.

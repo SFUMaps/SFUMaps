@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
-import me.gurinderhans.sfumaps.utils.AppConfig;
+import me.gurinderhans.sfumaps.app.AppConfig;
 
 /**
  * Created by ghans on 1/26/15.

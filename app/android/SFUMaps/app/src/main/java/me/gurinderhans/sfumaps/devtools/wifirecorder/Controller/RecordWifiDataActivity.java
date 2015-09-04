@@ -32,7 +32,7 @@ import me.gurinderhans.sfumaps.devtools.wifirecorder.View.WifiAPListViewAdapter;
 import me.gurinderhans.sfumaps.factory.DataBaseManager;
 import me.gurinderhans.sfumaps.factory.DrawRecordedPaths;
 import me.gurinderhans.sfumaps.factory.classes.WiFiAccessPoint;
-import me.gurinderhans.sfumaps.utils.AppConfig;
+import me.gurinderhans.sfumaps.app.AppConfig;
 
 public class RecordWifiDataActivity extends AppCompatActivity {
 

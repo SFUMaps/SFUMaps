@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps;
+package me.gurinderhans.sfumaps.app;
 
 import android.app.Application;
 

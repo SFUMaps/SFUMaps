@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.utils;
+package me.gurinderhans.sfumaps.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
