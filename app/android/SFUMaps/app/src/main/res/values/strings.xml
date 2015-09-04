@@ -38,4 +38,16 @@
     <string name="menu_action_list_tables">List</string>
     <string name="menu_action_cancel">Cancel</string>
 
+
+    <!---->
+    <!-- New Place Form Dialog -->
+    <!---->
+
+    <string-array name="place_types">
+        <item>Room</item>
+        <item>Lecture Hall / Auditorium</item>
+        <item>Building</item>
+        <item>Walkway</item>
+        <item>Road</item>
+    </string-array>
 </resources>

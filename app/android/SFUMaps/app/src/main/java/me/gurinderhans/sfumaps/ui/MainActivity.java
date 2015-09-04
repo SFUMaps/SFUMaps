@@ -9,20 +9,24 @@ import android.view.View;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
+import me.gurinderhans.sfumaps.devtools.placecreator.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.utils.MapTools;
+import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
 
-public class MainActivity extends FragmentActivity implements OnCameraChangeListener {
+public class MainActivity extends FragmentActivity implements OnCameraChangeListener, OnMapLongClickListener {
 
 	public static final String TAG = MainActivity.class.getSimpleName();
 
@@ -87,6 +91,7 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 
 		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 		Map.setOnCameraChangeListener(this);
+		Map.setOnMapLongClickListener(this);
 
 		// base map overlay
 		Map.addTileOverlay(new TileOverlayOptions()
@@ -131,5 +136,17 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 		float maxZoom = 8f;
 		if (cameraPosition.zoom > maxZoom)
 			Map.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
+	}
+
+	Marker tmpAddPlaceMarker;
+
+	@Override
+	public void onMapLongClick(LatLng latLng) {
+		// convert to map point
+		PointF point = MercatorProjection.fromLatLngToPoint(latLng);
+
+		// show dialog asking place info
+		PlaceFormDialog cdd = new PlaceFormDialog(MainActivity.this);
+		cdd.show();
 	}
 }
