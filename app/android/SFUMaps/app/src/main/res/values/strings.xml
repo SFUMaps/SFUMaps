@@ -43,6 +43,8 @@
     <!-- New Place Form Dialog -->
     <!---->
 
+    <color name="dialog_background">#F1F1F1</color>
+
     <string-array name="place_types">
         <item>Room</item>
         <item>Lecture Hall / Auditorium</item>

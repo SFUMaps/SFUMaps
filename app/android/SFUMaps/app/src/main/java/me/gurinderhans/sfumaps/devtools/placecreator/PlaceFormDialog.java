@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps.devtools.placecreator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.PointF;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +14,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,7 +40,7 @@ import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
 /**
  * Created by ghans on 15-09-03.
  */
-public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSelectedListener {
+public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSelectedListener, OnSeekBarChangeListener {
 
 	protected static final String TAG = PlaceFormDialog.class.getSimpleName();
 
@@ -47,6 +50,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 	private EditText mPlaceTitleEditText;
 	private Spinner mSpinner;
+	private TextView markerRotateValueView;
 
 	private final PointF mClickedPoint;
 	private String mSelectedPlaceType = "";
@@ -59,10 +63,8 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		mClickedPoint = point;
 		mMap = map;
 
-		if (oldPlace != null) {
+		if (oldPlace != null)
 			mMapPlace = oldPlace;
-//			loadPlace();
-		}
 	}
 
 	@Override
@@ -70,6 +72,8 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		super.onCreate(savedInstanceState);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setBackgroundDrawable(new ColorDrawable(0)); // set dialog background to transparent
+
 		setContentView(R.layout.admin_create_place_form_dialog);
 
 		// click listeners for form action buttons
@@ -77,6 +81,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		findViewById(R.id.btn_remove_place).setOnClickListener(this);
 
 		mPlaceTitleEditText = (EditText) findViewById(R.id.text_place_title);
+		markerRotateValueView = (TextView) findViewById(R.id.marker_rotate_value);
 
 		// setup list selector
 		mSpinner = (Spinner) findViewById(R.id.select_place_type);
@@ -88,6 +93,8 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		// Apply the adapter to the spinner
 		mSpinner.setAdapter(adapter);
 		mSpinner.setOnItemSelectedListener(this);
+
+		((SeekBar) findViewById(R.id.marker_rotator)).setOnSeekBarChangeListener(this);
 
 
 		// load place into views
@@ -183,6 +190,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 		mMapPlace.put(Keys.KEY_PLACE_ZOOM, zooms);
 
+		// add tmp marker
 
 		// push place to parse servers
 		mMapPlace.saveInBackground(new SaveCallback() {
@@ -227,4 +235,40 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 	public void onNothingSelected(AdapterView<?> parent) {
 	}
 
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+		markerRotateValueView.setText(progress + "°");
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		// hide stuff
+		findViewById(R.id.text_place_title).setVisibility(View.INVISIBLE);
+		findViewById(R.id.view_place_coords).setVisibility(View.INVISIBLE);
+		findViewById(R.id.select_place_type).setVisibility(View.INVISIBLE);
+		findViewById(R.id.zooms_selects).setVisibility(View.INVISIBLE);
+		findViewById(R.id.form_actions).setVisibility(View.INVISIBLE);
+		findViewById(R.id.add_image).setVisibility(View.INVISIBLE);
+
+		// remove white background
+		findViewById(R.id.form_place_dialog_wrapper).setBackgroundColor(mActivity.getResources().getColor(android.R.color.transparent));
+
+		getWindow().setDimAmount(0f);
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		// show stuff
+		findViewById(R.id.text_place_title).setVisibility(View.VISIBLE);
+		findViewById(R.id.view_place_coords).setVisibility(View.VISIBLE);
+		findViewById(R.id.select_place_type).setVisibility(View.VISIBLE);
+		findViewById(R.id.zooms_selects).setVisibility(View.VISIBLE);
+		findViewById(R.id.form_actions).setVisibility(View.VISIBLE);
+		findViewById(R.id.add_image).setVisibility(View.VISIBLE);
+
+		// remove white background
+		findViewById(R.id.form_place_dialog_wrapper).setBackgroundColor(mActivity.getResources().getColor(R.color.dialog_background));
+
+		getWindow().setDimAmount(0.55f);
+	}
 }

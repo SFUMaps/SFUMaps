@@ -187,11 +187,11 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 			@Override
 			public void onClick(View v) {
 				createBoxMode = !createBoxMode;
-				v.setBackgroundResource(createBoxMode ? R.drawable.box_rect_outline : R.drawable.sfunetsecuredot);
+				v.setBackgroundResource(createBoxMode ? R.drawable.box_rect_outline : R.drawable.dark_red_color);
 
 				if (createBoxMode) {
 					deletePathMode = false;
-					deleteButton.setBackgroundResource(R.drawable.sfunetsecuredot);
+					deleteButton.setBackgroundResource(R.drawable.dark_red_color);
 				}
 			}
 		});
@@ -200,11 +200,11 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 			@Override
 			public void onClick(View v) {
 				deletePathMode = !deletePathMode;
-				v.setBackgroundResource(deletePathMode ? R.drawable.box_rect_outline : R.drawable.sfunetsecuredot);
+				v.setBackgroundResource(deletePathMode ? R.drawable.box_rect_outline : R.drawable.dark_red_color);
 
 				if (deletePathMode) {
 					createBoxMode = false;
-					boxButton.setBackgroundResource(R.drawable.sfunetsecuredot);
+					boxButton.setBackgroundResource(R.drawable.dark_red_color);
 				}
 			}
 		});
