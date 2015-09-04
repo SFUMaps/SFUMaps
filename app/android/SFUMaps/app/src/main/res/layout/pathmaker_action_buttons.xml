@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout android:id="@+id/edit_map_grid_controls"
+              xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical">
@@ -23,7 +24,7 @@
         android:layout_marginTop="5dp"
         android:background="@color/app_color_primary_dark"
         android:src="@android:drawable/ic_menu_send"
-        android:visibility="visible"/>
+        android:visibility="invisible"/>
 
     <Button
         android:id="@+id/create_box_rect"
@@ -35,10 +36,10 @@
         android:background="@color/app_color_primary_dark"
         android:text="BOX"
         android:textColor="#fff"
-        android:visibility="visible"/>
+        android:visibility="invisible"/>
 
     <ImageButton
-        android:id="@+id/delete_box_rect"
+        android:id="@+id/delete_path"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginEnd="5dp"
@@ -47,6 +48,6 @@
         android:background="@color/app_color_primary_dark"
         android:src="@android:drawable/ic_input_delete"
         android:textColor="#fff"
-        android:visibility="visible"/>
+        android:visibility="invisible"/>
 
 </LinearLayout>

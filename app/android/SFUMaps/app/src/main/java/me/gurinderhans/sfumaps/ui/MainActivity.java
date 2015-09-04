@@ -16,6 +16,7 @@ import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.utils.MapTools;
 
@@ -50,21 +51,25 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		// setup Map
-		setUpMapIfNeeded();
-
 		// map grid
 		mGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
 
-		// admin panel
-
+		// setup Map
+		setUpMapIfNeeded();
 	}
 
 	private void setUpMapIfNeeded() {
 		// Do a null check to confirm that we have not already instantiated the map.
 		if (Map == null) {
-			Map = ((CustomMapFragment) getSupportFragmentManager()
-					.findFragmentById(R.id.map)).getMap();
+			CustomMapFragment fragment = (CustomMapFragment) getSupportFragmentManager()
+					.findFragmentById(R.id.map);
+
+			Map = fragment.getMap();
+
+			// create admin panel if AppConfig allows
+			// TODO: configure admin panel in AppConfig
+			PathMaker.initPathMaker(Map, mGrid, fragment,
+					findViewById(R.id.edit_map_grid_controls));
 
 			// set up map UI
 			if (Map != null)
