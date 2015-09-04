@@ -51,9 +51,9 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 
 	private Activity mActivity;
-	ParseObject mMapPlace = new ParseObject(Keys.KEY_PLACE);
 
-	private Marker mTmpNewPlaceMarker;
+	// place being created / edited in this dialog
+	Pair<ParseObject, Marker> mTmpPlace;
 
 	private EditText mPlaceTitleEditText;
 	private Spinner mSpinner;
@@ -62,24 +62,25 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 	private final PointF mClickedPoint;
 	private String mSelectedPlaceType = "";
-	private final GoogleMap mMap;
 
-	public PlaceFormDialog(Activity activity, GoogleMap map, PointF point, Pair<ParseObject, Marker> oldPlace) {
+	public PlaceFormDialog(Activity activity, GoogleMap map, PointF point, Pair<ParseObject, Marker> oldPlaceOpt) {
 		super(activity);
 
 		mActivity = activity;
 		mClickedPoint = point;
-		mMap = map;
 
 
-		if (oldPlace != null) {
-			mMapPlace = oldPlace.first;
-			mTmpNewPlaceMarker = oldPlace.second;
+		if (oldPlaceOpt == null) {
+			mTmpPlace = Pair.create(
+					new ParseObject(Keys.KEY_PLACE),
+					map.addMarker(new MarkerOptions()
+							.position(MercatorProjection.fromPointToLatLng(point)))
+			);
 		} else {
-			mTmpNewPlaceMarker = map.addMarker(new MarkerOptions()
-					.position(MercatorProjection.fromPointToLatLng(point)));
+			mTmpPlace = oldPlaceOpt;
 		}
 
+		//
 		setOnCancelListener(this);
 	}
 
@@ -119,18 +120,21 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 	void loadPlace() {
 
-		mPlaceTitleEditText.setText(mMapPlace.getString(Keys.KEY_PLACE_TITLE));
+		mPlaceTitleEditText.setText(mTmpPlace.first.getString(Keys.KEY_PLACE_TITLE));
 		((TextView) findViewById(R.id.view_place_coords)).setText(mClickedPoint.x + ", " + mClickedPoint.y);
 
 		// get position of place type
-		int selectIndex = Arrays.asList(mActivity.getResources().getStringArray(R.array.place_types)).indexOf(mMapPlace.get(Keys.KEY_PLACE_TYPE));
+		int selectIndex = Arrays.asList(mActivity.getResources().getStringArray(R.array.place_types)).indexOf(mTmpPlace.first.get(Keys.KEY_PLACE_TYPE));
 		Log.i(TAG, "selectIndex: " + selectIndex);
 		mSpinner.setSelection(selectIndex);
+
+		// load rotation
+		mMarkerRotator.setProgress(mTmpPlace.first.getInt(Keys.KEY_PLACE_MARKER_ROTATION));
 
 		// load checkboxes
 		try {
 
-			JSONArray zooms = mMapPlace.getJSONArray(Keys.KEY_PLACE_ZOOM);
+			JSONArray zooms = mTmpPlace.first.getJSONArray(Keys.KEY_PLACE_ZOOM);
 
 			if (zooms == null) return;
 
@@ -167,7 +171,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 	void savePlace() {
 		// place title
-		mMapPlace.put(Keys.KEY_PLACE_TITLE, mPlaceTitleEditText.getText().toString());
+		mTmpPlace.first.put(Keys.KEY_PLACE_TITLE, mPlaceTitleEditText.getText().toString());
 
 		// place location
 		try {
@@ -175,14 +179,14 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 			location.put("x", mClickedPoint.x);
 			location.put("y", mClickedPoint.y);
 
-			mMapPlace.put(Keys.KEY_PLACE_POSITION, location);
+			mTmpPlace.first.put(Keys.KEY_PLACE_POSITION, location);
 		} catch (JSONException e) {
 			// TODO: catch exception here!!
 			e.printStackTrace();
 		}
 
 		// place type
-		mMapPlace.put(Keys.KEY_PLACE_TYPE, mSelectedPlaceType);
+		mTmpPlace.first.put(Keys.KEY_PLACE_TYPE, mSelectedPlaceType);
 
 		List<Integer> zooms = new ArrayList<>();
 
@@ -204,14 +208,14 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		if (((CheckBox) findViewById(R.id.zoom_8)).isChecked())
 			zooms.add(8);
 
-		mMapPlace.put(Keys.KEY_PLACE_ZOOM, zooms);
+		mTmpPlace.first.put(Keys.KEY_PLACE_ZOOM, zooms);
 
 		// place marker rotation
-		mMapPlace.put(Keys.KEY_PLACE_MARKER_ROTATION, mMarkerRotator.getProgress());
+		mTmpPlace.first.put(Keys.KEY_PLACE_MARKER_ROTATION, mMarkerRotator.getProgress());
 
 
 		// push place to parse servers
-		mMapPlace.saveInBackground(new SaveCallback() {
+		mTmpPlace.first.saveInBackground(new SaveCallback() {
 			@Override
 			public void done(ParseException e) {
 				if (e != null)
@@ -230,7 +234,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 				break;
 			case R.id.btn_remove_place:
 				// remove place
-				mMapPlace.deleteInBackground(new DeleteCallback() {
+				mTmpPlace.first.deleteInBackground(new DeleteCallback() {
 					@Override
 					public void done(ParseException e) {
 						Toast.makeText(getContext(), "Place deleted.", Toast.LENGTH_LONG).show();
@@ -256,7 +260,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		markerRotateValueView.setText(progress + "°");
-		mTmpNewPlaceMarker.setRotation(progress);
+		mTmpPlace.second.setRotation(progress);
 	}
 
 	@Override
@@ -293,9 +297,9 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 	@Override
 	public void onCancel(DialogInterface dialog) {
-		if (mTmpNewPlaceMarker != null) {
-			mTmpNewPlaceMarker.remove();
-			mTmpNewPlaceMarker = null;
+		if (mTmpPlace != null) {
+			mTmpPlace.second.remove();
+			mTmpPlace = null;
 
 		}
 	}
