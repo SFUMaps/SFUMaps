@@ -2,7 +2,6 @@ package me.gurinderhans.sfumaps.devtools.placecreator;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.graphics.PointF;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -45,16 +44,17 @@ import me.gurinderhans.sfumaps.utils.MercatorProjection;
 /**
  * Created by ghans on 15-09-03.
  */
-public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSelectedListener, OnSeekBarChangeListener, DialogInterface.OnCancelListener {
+public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSelectedListener, OnSeekBarChangeListener {
 
 	protected static final String TAG = PlaceFormDialog.class.getSimpleName();
 
-
+	// activity of dialog origin
 	private Activity mActivity;
 
 	// place being created / edited in this dialog
 	Pair<ParseObject, Marker> mTmpPlace;
 
+	// global views
 	private EditText mPlaceTitleEditText;
 	private Spinner mSpinner;
 	private TextView markerRotateValueView;
@@ -80,8 +80,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 			mTmpPlace = oldPlaceOpt;
 		}
 
-		//
-		setOnCancelListener(this);
+		setCancelable(false);
 	}
 
 	@Override
@@ -240,6 +239,10 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 						Toast.makeText(getContext(), "Place deleted.", Toast.LENGTH_LONG).show();
 					}
 				});
+
+				mTmpPlace.second.remove();
+
+				mTmpPlace = null;
 				break;
 			default:
 				break;
@@ -295,12 +298,4 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		getWindow().setDimAmount(0.55f);
 	}
 
-	@Override
-	public void onCancel(DialogInterface dialog) {
-		if (mTmpPlace != null) {
-			mTmpPlace.second.remove();
-			mTmpPlace = null;
-
-		}
-	}
 }

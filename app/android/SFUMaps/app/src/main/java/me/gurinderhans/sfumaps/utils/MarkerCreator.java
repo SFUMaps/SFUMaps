@@ -26,9 +26,9 @@ public class MarkerCreator {
 		//
 		return map.addMarker(new MarkerOptions()
 				.position(MercatorProjection.fromPointToLatLng(screenLocation))
-//				.icon(BitmapDescriptorFactory.fromBitmap(textIcon))
+				.icon(BitmapDescriptorFactory.fromBitmap(textIcon))
 				.rotation(markerRotation)
-				.flat(true).draggable(true)
+				.flat(true)
 				.title("Position")
 				.snippet(screenLocation.toString()));
 	}

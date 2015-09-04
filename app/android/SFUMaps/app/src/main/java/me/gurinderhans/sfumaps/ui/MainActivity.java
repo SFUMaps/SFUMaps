@@ -47,15 +47,16 @@ public class MainActivity extends FragmentActivity
 	private MapGrid mGrid;
 	private DiskLruCache mTileCache;
 
-	public List<Pair<ParseObject, Marker>> mMapMarkersCurrentZoom = new ArrayList<>();
+	public List<Pair<ParseObject, Marker>> mMapCurrentZoomMarkers = new ArrayList<>();
+
 	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
 			// hide prev zoom markers
-			for (Pair<ParseObject, Marker> el : mMapMarkersCurrentZoom)
+			for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers)
 				el.second.remove();
 
-			mMapMarkersCurrentZoom = new ArrayList<>();
+			mMapCurrentZoomMarkers = new ArrayList<>();
 
 			for (ParseObject object : objects) {
 				// show these markers
@@ -63,11 +64,22 @@ public class MainActivity extends FragmentActivity
 				try {
 					float x = (float) location.getDouble("x");
 					float y = (float) location.getDouble("y");
-					mMapMarkersCurrentZoom.add(
+					mMapCurrentZoomMarkers.add(
 							Pair.create(
 									object,
-									MarkerCreator.addTextMarker(getApplicationContext(), Map,
-											new PointF(x, y), null, object.getInt(Keys.KEY_PLACE_MARKER_ROTATION))));
+									MarkerCreator.addTextMarker(
+											getApplicationContext(),
+											Map,
+											new PointF(x, y),
+											MarkerCreator.createPureTextIcon(
+													getApplicationContext(),
+													object.getString(Keys.KEY_PLACE_TITLE),
+													Pair.create(0, object.getInt(Keys.KEY_PLACE_MARKER_ROTATION))
+											),
+											object.getInt(Keys.KEY_PLACE_MARKER_ROTATION)
+									)
+							)
+					);
 
 				} catch (Exception exception) {
 					// unable to parse location for this place, no marker for this place then
@@ -197,16 +209,19 @@ public class MainActivity extends FragmentActivity
 		// convert to map point
 		PointF point = MercatorProjection.fromLatLngToPoint(latLng);
 
-		// show dialog asking place info
+		// show dialog asking place info // TODO: 15-09-04 configure showing in admin panel
 		new PlaceFormDialog(this, Map, point, null).show();
 	}
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
+
+		// TODO: 15-09-04 configure showing admin panel in AppConfig
+
 		Pair<ParseObject, Marker> foundPair = null;
 
 		// find this marker in list
-		for (Pair<ParseObject, Marker> el : mMapMarkersCurrentZoom) {
+		for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers) {
 			if (el.second.getPosition().equals(marker.getPosition())) {
 				foundPair = el;
 				break;
