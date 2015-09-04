@@ -1,40 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!---->
+    <!-- App -->
+    <!---->
+
     <string name="app_name">SFUMaps</string>
+    <color name="app_color_primary">#c41230</color>
+    <color name="app_color_primary_dark">#a31129</color>
+
+
+    <!---->
+    <!-- Main activity -->
+    <!---->
+
     <string name="title_activity_main">Map</string>
+    <color name="transparent_status_bar_color">#80000000</color>
+
+
+    <!---->
+    <!-- Recorder activity -->
+    <!---->
+
     <string name="title_activity_record_wifi_data">RecordWifiDataActivity</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-
-    <!-- Recorder strings-->
-
-    <!-- activity strings -->
     <string name="recorder_activity_title">Recorder</string>
 
-    <color name="recorder_activity_color">#3F51B5</color>
-    <color name="recorder_activity_color_dark">#303F9F</color>
     <color name="selected_access_point">#F44336</color>
-
     <string name="table_text_input_hint">Table Name</string>
 
     <!-- menu strings -->
     <string name="menu_action_record_play">Play</string>
     <string name="menu_action_record_pause">Pause</string>
 
+    <!-- Popup menu strings -->
     <string name="choose_data_table">Pick a table</string>
     <string name="menu_action_list_tables">List</string>
     <string name="menu_action_cancel">Cancel</string>
 
 
-    <color name="map_text_color">#666</color>
+    <!---->
+    <!-- New Place Form Dialog -->
+    <!---->
 
-    <color name="main_activity_color_primary">#c41230</color>
-    <color name="main_activity_color_primary_dark">#a31129</color>
+    <color name="dialog_background">#F1F1F1</color>
+    <color name="transparent_dialog_marker_rotator_background">#4DF1F1F1</color>
 
-    <color name="transparent_status_bar_color">#4D000000</color>
-
-    <color name="fab_ripple_color">#4DFFFFFF</color>
-
+    <string-array name="place_types">
+        <item>Room</item>
+        <item>Lecture Hall / Auditorium</item>
+        <item>Building</item>
+        <item>Walkway</item>
+        <item>Road</item>
+    </string-array>
 </resources>

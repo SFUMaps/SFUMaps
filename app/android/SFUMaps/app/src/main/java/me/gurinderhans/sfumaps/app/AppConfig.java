@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.utils;
+package me.gurinderhans.sfumaps.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -19,11 +19,10 @@ public class AppConfig {
 	public static final String TAG = AppConfig.class.getSimpleName();
 	public static final float TILE_SIZE = 256f;
 	public static final String DATABASE_TABLE_PREFIX = "apsdata";
-	public static final String TILE_PATH = "maptiles";
 
 	// TODO: 15-08-18 better app mode management
 	// handles which dev tools get enabled
-	public static final boolean DEBUG_MODE = false;
+	public static final boolean DEBUG_MODE = true;
 	public static final boolean DEV_MODE = true;
 
 

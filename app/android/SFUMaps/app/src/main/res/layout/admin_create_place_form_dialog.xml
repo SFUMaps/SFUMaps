@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/form_place_dialog_wrapper"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="311dp"
+    android:layout_height="fill_parent"
+    android:background="@color/dialog_background"
+    android:orientation="vertical">
+
+    <!-- http://www.getmdl.io/assets/demos/welcome_card.jpg -->
+    <!-- This will be used later to add place image, for now a cool image to enjoy -->
+    <ImageView
+        android:id="@+id/add_image"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/create_place_card"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <EditText
+            android:id="@+id/text_place_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Place Name"/>
+
+        <TextView
+            android:id="@+id/view_place_coords"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="34.45, 32.67"/>
+
+        <Spinner
+            android:id="@+id/select_place_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:id="@+id/zooms_selects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/zoom_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2"/>
+
+            <CheckBox
+                android:id="@+id/zoom_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3"/>
+
+            <CheckBox
+                android:id="@+id/zoom_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4"/>
+
+            <CheckBox
+                android:id="@+id/zoom_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5"/>
+
+            <CheckBox
+                android:id="@+id/zoom_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6"/>
+
+            <CheckBox
+                android:id="@+id/zoom_7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="7"/>
+
+            <CheckBox
+                android:id="@+id/zoom_8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8+"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:background="@color/transparent_dialog_marker_rotator_background">
+            <LinearLayout
+                android:id="@+id/marker_rotator_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Marker Rotation: "/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/marker_rotate_value"
+                    android:text="0°"/>
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/marker_rotator"
+                android:layout_width="match_parent"
+                android:max="360"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/form_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Future future TODO: replace buttons with left and right gestures -->
+            <Button
+                android:id="@+id/btn_save_place"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save"/>
+
+            <Button
+                android:id="@+id/btn_remove_place"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

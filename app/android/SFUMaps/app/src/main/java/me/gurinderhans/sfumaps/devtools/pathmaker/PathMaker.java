@@ -24,10 +24,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.gurinderhans.sfumaps.utils.MapTools;
-import me.gurinderhans.sfumaps.utils.MercatorProjection;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
+import me.gurinderhans.sfumaps.ui.CustomMapFragment;
+import me.gurinderhans.sfumaps.ui.MapWrapperLayout;
+import me.gurinderhans.sfumaps.utils.MapTools;
+import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 /**
  * Created by ghans on 15-08-10.
@@ -36,42 +38,70 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
 
+	// data keys
 	public static final String WALKABLE_KEY = "walkable";
 	public static final String INDIVIDUAL_POINTS = "points";
 	public static final String BOX_RECTS = "rects";
-	// TODO: 15-08-16 improve application mode management
-	public static boolean isEditingMap = false;
+
+	//
+	public static boolean isEditingMap = false; // TODO: 15-08-16 improve application mode management
+
 	public final GoogleMap mGoogleMap;
 	public MapGrid mGrid;
+
 	JSONObject jsonGridRoot = new JSONObject();
+
 	boolean createBoxMode = false;
 	boolean deletePathMode = false;
 
 	boolean mapEdited = false;
+	boolean boxCreated;
+
 	Point mTmpBoxDragStartGridIndices;
+
+	// Admin Panel States
+	private static int STATE_NONE = -1;
+	private static int STATE_EDITING_MAP = 0;
+	private static int STATE_CREATING_BOX = 1;
+	private static int STATE_DELETING_PATH = 2;
+	private static int STATE_EXPORT_MAP_PATH = 3;
+
+	int mState = STATE_NONE; // initially the map editor is in `NONE` state
+
 	@Nullable
 	GroundOverlay mTmpSelectedArea;
-	boolean boxCreated;
 	// this is only used for holding onto ground overlays until removed from map, (NOT List itself)
 	private List<GroundOverlay> boxRectList = new ArrayList<>();
 	private List<Marker> individualMarkers = new ArrayList<>();
-	public PathMaker(CustomMapFragment mapFragment, GoogleMap map, final MapGrid grid, final View editButton,
-	                 final View exportButton, final View boxButton, final View deleteButton) {
+
+	private static PathMaker mInstance = null;
+
+	public PathMaker(GoogleMap map, MapGrid grid, CustomMapFragment mapFragment, View actionsControl) throws PathMakerException {
+
 		this.mGoogleMap = map;
 		this.mGrid = grid;
 
-		// create the json tree structure
+		// create the initial json tree structure
 		try {
 			jsonGridRoot.put(WALKABLE_KEY, new JSONObject());
 			jsonGridRoot.getJSONObject(WALKABLE_KEY).put(INDIVIDUAL_POINTS, new JSONArray());
 			jsonGridRoot.getJSONObject(WALKABLE_KEY).put(BOX_RECTS, new JSONArray());
 		} catch (JSONException e) {
-			e.printStackTrace();
+			throw new PathMakerException("Unable to create JSON structure");
 		}
 
-		/* set input listeners on views */
-
+		// listen for drag events on map
 		mapFragment.setOnDragListener(this);
+
+		// action button views
+		final View editButton = actionsControl.findViewById(R.id.edit_map_path);
+		final View exportButton = actionsControl.findViewById(R.id.export_map_path);
+		final View boxButton = actionsControl.findViewById(R.id.create_box_rect);
+		final View deleteButton = actionsControl.findViewById(R.id.delete_path);
+
+
+		// set input listeners on views
+
 
 		editButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -157,11 +187,11 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 			@Override
 			public void onClick(View v) {
 				createBoxMode = !createBoxMode;
-				v.setBackgroundResource(createBoxMode ? R.drawable.box_rect_outline : R.drawable.sfunetsecuredot);
+				v.setBackgroundResource(createBoxMode ? R.drawable.box_rect_outline : R.drawable.dark_red_color);
 
 				if (createBoxMode) {
 					deletePathMode = false;
-					deleteButton.setBackgroundResource(R.drawable.sfunetsecuredot);
+					deleteButton.setBackgroundResource(R.drawable.dark_red_color);
 				}
 			}
 		});
@@ -170,14 +200,25 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 			@Override
 			public void onClick(View v) {
 				deletePathMode = !deletePathMode;
-				v.setBackgroundResource(deletePathMode ? R.drawable.box_rect_outline : R.drawable.sfunetsecuredot);
+				v.setBackgroundResource(deletePathMode ? R.drawable.box_rect_outline : R.drawable.dark_red_color);
 
 				if (deletePathMode) {
 					createBoxMode = false;
-					boxButton.setBackgroundResource(R.drawable.sfunetsecuredot);
+					boxButton.setBackgroundResource(R.drawable.dark_red_color);
 				}
 			}
 		});
+	}
+
+	public static void initPathMaker(GoogleMap map, MapGrid grid, CustomMapFragment mapFragment, View rootView) {
+
+		if (mInstance == null) {
+			try {
+				mInstance = new PathMaker(map, grid, mapFragment, rootView);
+			} catch (PathMakerException e) {
+				Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+			}
+		}
 	}
 
 	@Override
@@ -307,7 +348,6 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 		}
 	}
 
-
 	/**
 	 * Given the screen coordinate it computes the closes grid node to the screen point
 	 *
@@ -344,12 +384,42 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 		LatLng middleCornerPoint = MercatorProjection.fromPointToLatLng(dragCurrent);
 
 		// horizontal distance
-		float hDist = MapTools.LatLngDistance(dragStartCoordinates.latitude, dragStartCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+		float hDist = LatLngDistance(dragStartCoordinates.latitude, dragStartCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
 
 		// vertical distance
-		float vDist = MapTools.LatLngDistance(dragCurrentCoordinates.latitude, dragCurrentCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+		float vDist = LatLngDistance(dragCurrentCoordinates.latitude, dragCurrentCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
 
 		return new PointF(hDist, vDist);
+	}
+
+	/**
+	 * @return - distance in meters
+	 */
+	public static float LatLngDistance(double lat1, double lng1, double lat2, double lng2) {
+		double earthRadius = 6371000; //meters
+		double dLat = Math.toRadians(lat2 - lat1);
+		double dLng = Math.toRadians(lng2 - lng1);
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+				Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+						Math.sin(dLng / 2) * Math.sin(dLng / 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		return (float) (earthRadius * c);
+	}
+
+	private void setState(int state) {
+		this.mState = state;
+	}
+
+	private int getState() {
+		return mState;
+	}
+
+
+	/* Custom Exception class */
+	class PathMakerException extends Exception {
+		public PathMakerException(String message) {
+			super(message);
+		}
 	}
 
 }

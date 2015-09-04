@@ -36,11 +36,11 @@ public class CachedTileProvider implements TileProvider {
 
 	/**
 	 * TileProvider that wraps another TileProvider and caches all Tiles in a DiskLruCache.
-	 * <p/>
+	 * <p>
 	 * <p>A {@link DiskLruCache} can be reused across multiple instances.
 	 * The keyTag is used to annotate entries for this TileProvider, it is recommended to use a unique
 	 * String for each instance to prevent collisions.
-	 * <p/>
+	 * <p>
 	 * <p>NOTE: The supplied {@link DiskLruCache} requires space for
 	 * 3 entries per cached object.
 	 *
@@ -52,6 +52,54 @@ public class CachedTileProvider implements TileProvider {
 		mKeyTag = keyTag;
 		mTileProvider = tileProvider;
 		mCache = cache;
+	}
+
+	private static String generateKey(int x, int y, int zoom, String tag) {
+		return String.format(KEY_FORMAT, x, y, zoom, tag);
+	}
+
+	private static void writeByteArrayToStream(byte[] data, OutputStream stream) throws IOException {
+		try {
+			stream.write(data);
+		} finally {
+			stream.close();
+		}
+	}
+
+	private static void writeIntToStream(int data, OutputStream stream) throws IOException {
+		DataOutputStream dos = new DataOutputStream(stream);
+		try {
+			dos.writeInt(data);
+		} finally {
+			try {
+				dos.close();
+			} finally {
+				stream.close();
+			}
+		}
+	}
+
+	private static byte[] readStreamAsByteArray(InputStream inputStream) throws IOException {
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		int read = 0;
+		byte[] data = new byte[1024];
+		try {
+			while ((read = inputStream.read(data, 0, data.length)) != -1) {
+				buffer.write(data, 0, read);
+			}
+		} finally {
+			inputStream.close();
+		}
+		return buffer.toByteArray();
+	}
+
+	private static int readStreamAsInt(InputStream inputStream) throws IOException {
+		DataInputStream buffer = new DataInputStream(inputStream);
+		try {
+			return buffer.readInt();
+		} finally {
+			inputStream.close();
+		}
 	}
 
 	/**
@@ -125,56 +173,6 @@ public class CachedTileProvider implements TileProvider {
 			// Tile could not be cached
 		}
 		return false;
-	}
-
-
-	private static String generateKey(int x, int y, int zoom, String tag) {
-		return String.format(KEY_FORMAT, x, y, zoom, tag);
-	}
-
-	private static void writeByteArrayToStream(byte[] data, OutputStream stream) throws IOException {
-		try {
-			stream.write(data);
-		} finally {
-			stream.close();
-		}
-	}
-
-	private static void writeIntToStream(int data, OutputStream stream) throws IOException {
-		DataOutputStream dos = new DataOutputStream(stream);
-		try {
-			dos.writeInt(data);
-		} finally {
-			try {
-				dos.close();
-			} finally {
-				stream.close();
-			}
-		}
-	}
-
-	private static byte[] readStreamAsByteArray(InputStream inputStream) throws IOException {
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		int read = 0;
-		byte[] data = new byte[1024];
-		try {
-			while ((read = inputStream.read(data, 0, data.length)) != -1) {
-				buffer.write(data, 0, read);
-			}
-		} finally {
-			inputStream.close();
-		}
-		return buffer.toByteArray();
-	}
-
-
-	private static int readStreamAsInt(InputStream inputStream) throws IOException {
-		DataInputStream buffer = new DataInputStream(inputStream);
-		try {
-			return buffer.readInt();
-		} finally {
-			inputStream.close();
-		}
 	}
 
 }

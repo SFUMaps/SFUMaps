@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.devtools.pathmaker;
+package me.gurinderhans.sfumaps.ui;
 
 import android.content.Context;
 import android.view.MotionEvent;
@@ -29,6 +29,6 @@ public class MapWrapperLayout extends FrameLayout {
 	}
 
 	public interface OnDragListener {
-		public void onDrag(MotionEvent motionEvent);
+		void onDrag(MotionEvent motionEvent);
 	}
 }

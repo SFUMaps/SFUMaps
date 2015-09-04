@@ -4,6 +4,8 @@ import android.graphics.PointF;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import me.gurinderhans.sfumaps.app.AppConfig;
+
 /**
  * Created by ghans on 15-04-11.
  */
