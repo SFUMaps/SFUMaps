@@ -15,7 +15,7 @@
     <!---->
 
     <string name="title_activity_main">Map</string>
-    <color name="transparent_status_bar_color">#4D000000</color>
+    <color name="transparent_status_bar_color">#80000000</color>
 
 
     <!---->
@@ -44,6 +44,7 @@
     <!---->
 
     <color name="dialog_background">#F1F1F1</color>
+    <color name="transparent_dialog_marker_rotator_background">#4DF1F1F1</color>
 
     <string-array name="place_types">
         <item>Room</item>

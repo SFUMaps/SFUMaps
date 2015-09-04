@@ -2,10 +2,12 @@ package me.gurinderhans.sfumaps.devtools.placecreator;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.PointF;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -21,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.DeleteCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -36,35 +40,47 @@ import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
+import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 /**
  * Created by ghans on 15-09-03.
  */
-public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSelectedListener, OnSeekBarChangeListener {
+public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSelectedListener, OnSeekBarChangeListener, DialogInterface.OnCancelListener {
 
 	protected static final String TAG = PlaceFormDialog.class.getSimpleName();
 
 
 	private Activity mActivity;
-	ParseObject mMapPlace = new ParseObject("MapPlace");
+	ParseObject mMapPlace = new ParseObject(Keys.KEY_PLACE);
+
+	private Marker mTmpNewPlaceMarker;
 
 	private EditText mPlaceTitleEditText;
 	private Spinner mSpinner;
 	private TextView markerRotateValueView;
+	private SeekBar mMarkerRotator;
 
 	private final PointF mClickedPoint;
 	private String mSelectedPlaceType = "";
 	private final GoogleMap mMap;
 
-	public PlaceFormDialog(Activity activity, GoogleMap map, PointF point, ParseObject oldPlace) {
+	public PlaceFormDialog(Activity activity, GoogleMap map, PointF point, Pair<ParseObject, Marker> oldPlace) {
 		super(activity);
 
 		mActivity = activity;
 		mClickedPoint = point;
 		mMap = map;
 
-		if (oldPlace != null)
-			mMapPlace = oldPlace;
+
+		if (oldPlace != null) {
+			mMapPlace = oldPlace.first;
+			mTmpNewPlaceMarker = oldPlace.second;
+		} else {
+			mTmpNewPlaceMarker = map.addMarker(new MarkerOptions()
+					.position(MercatorProjection.fromPointToLatLng(point)));
+		}
+
+		setOnCancelListener(this);
 	}
 
 	@Override
@@ -94,8 +110,8 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		mSpinner.setAdapter(adapter);
 		mSpinner.setOnItemSelectedListener(this);
 
-		((SeekBar) findViewById(R.id.marker_rotator)).setOnSeekBarChangeListener(this);
-
+		mMarkerRotator = ((SeekBar) findViewById(R.id.marker_rotator));
+		mMarkerRotator.setOnSeekBarChangeListener(this);
 
 		// load place into views
 		loadPlace();
@@ -190,7 +206,9 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 		mMapPlace.put(Keys.KEY_PLACE_ZOOM, zooms);
 
-		// add tmp marker
+		// place marker rotation
+		mMapPlace.put(Keys.KEY_PLACE_MARKER_ROTATION, mMarkerRotator.getProgress());
+
 
 		// push place to parse servers
 		mMapPlace.saveInBackground(new SaveCallback() {
@@ -238,6 +256,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		markerRotateValueView.setText(progress + "°");
+		mTmpNewPlaceMarker.setRotation(progress);
 	}
 
 	@Override
@@ -270,5 +289,14 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		findViewById(R.id.form_place_dialog_wrapper).setBackgroundColor(mActivity.getResources().getColor(R.color.dialog_background));
 
 		getWindow().setDimAmount(0.55f);
+	}
+
+	@Override
+	public void onCancel(DialogInterface dialog) {
+		if (mTmpNewPlaceMarker != null) {
+			mTmpNewPlaceMarker.remove();
+			mTmpNewPlaceMarker = null;
+
+		}
 	}
 }

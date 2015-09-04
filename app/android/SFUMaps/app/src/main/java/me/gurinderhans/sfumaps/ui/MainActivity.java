@@ -67,7 +67,7 @@ public class MainActivity extends FragmentActivity
 							Pair.create(
 									object,
 									MarkerCreator.addTextMarker(getApplicationContext(), Map,
-											new PointF(x, y), null, 0)));
+											new PointF(x, y), null, object.getInt(Keys.KEY_PLACE_MARKER_ROTATION))));
 
 				} catch (Exception exception) {
 					// unable to parse location for this place, no marker for this place then
@@ -192,8 +192,6 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 
-	Marker tmpAddPlaceMarker;
-
 	@Override
 	public void onMapLongClick(LatLng latLng) {
 		// convert to map point
@@ -216,7 +214,7 @@ public class MainActivity extends FragmentActivity
 		}
 
 		if (foundPair != null)
-			new PlaceFormDialog(MainActivity.this, Map, MercatorProjection.fromLatLngToPoint(marker.getPosition()), foundPair.first).show();
+			new PlaceFormDialog(MainActivity.this, Map, MercatorProjection.fromLatLngToPoint(marker.getPosition()), foundPair).show();
 
 		return true;
 	}
