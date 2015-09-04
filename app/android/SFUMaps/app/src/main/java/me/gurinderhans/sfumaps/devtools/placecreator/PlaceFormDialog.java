@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -22,11 +23,12 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.Key;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
@@ -39,9 +41,13 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 	protected static final String TAG = PlaceFormDialog.class.getSimpleName();
 
+
+	private Activity mActivity;
 	ParseObject mMapPlace = new ParseObject("MapPlace");
 
 	private EditText mPlaceTitleEditText;
+	private Spinner mSpinner;
+
 	private final PointF mClickedPoint;
 	private String mSelectedPlaceType = "";
 	private final GoogleMap mMap;
@@ -49,8 +55,14 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 	public PlaceFormDialog(Activity activity, GoogleMap map, PointF point, ParseObject oldPlace) {
 		super(activity);
 
+		mActivity = activity;
 		mClickedPoint = point;
 		mMap = map;
+
+		if (oldPlace != null) {
+			mMapPlace = oldPlace;
+//			loadPlace();
+		}
 	}
 
 	@Override
@@ -66,21 +78,68 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 		mPlaceTitleEditText = (EditText) findViewById(R.id.text_place_title);
 
-		// set location
-		((TextView) findViewById(R.id.view_place_coords)).setText(mClickedPoint.x + ", " + mClickedPoint.y);
-
-
 		// setup list selector
-		Spinner spinner = (Spinner) findViewById(R.id.select_place_type);
+		mSpinner = (Spinner) findViewById(R.id.select_place_type);
 		// Create an ArrayAdapter using the string array and a default spinner layout
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
 				R.array.place_types, android.R.layout.simple_spinner_item);
 		// Specify the layout to use when the list of choices appears
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		// Apply the adapter to the spinner
-		spinner.setAdapter(adapter);
-		spinner.setOnItemSelectedListener(this);
+		mSpinner.setAdapter(adapter);
+		mSpinner.setOnItemSelectedListener(this);
 
+
+		// load place into views
+		loadPlace();
+	}
+
+	void loadPlace() {
+
+		mPlaceTitleEditText.setText(mMapPlace.getString(Keys.KEY_PLACE_TITLE));
+		((TextView) findViewById(R.id.view_place_coords)).setText(mClickedPoint.x + ", " + mClickedPoint.y);
+
+		// get position of place type
+		int selectIndex = Arrays.asList(mActivity.getResources().getStringArray(R.array.place_types)).indexOf(mMapPlace.get(Keys.KEY_PLACE_TYPE));
+		Log.i(TAG, "selectIndex: " + selectIndex);
+		mSpinner.setSelection(selectIndex);
+
+		// load checkboxes
+		try {
+
+			JSONArray zooms = mMapPlace.getJSONArray(Keys.KEY_PLACE_ZOOM);
+
+			if (zooms == null) return;
+
+			for (int i = 0; i < zooms.length(); i++) {
+				switch (zooms.getInt(i)) {
+					case 2:
+						((CheckBox) findViewById(R.id.zoom_2)).setChecked(true);
+						break;
+					case 3:
+						((CheckBox) findViewById(R.id.zoom_3)).setChecked(true);
+						break;
+					case 4:
+						((CheckBox) findViewById(R.id.zoom_4)).setChecked(true);
+						break;
+					case 5:
+						((CheckBox) findViewById(R.id.zoom_5)).setChecked(true);
+						break;
+					case 6:
+						((CheckBox) findViewById(R.id.zoom_6)).setChecked(true);
+						break;
+					case 7:
+						((CheckBox) findViewById(R.id.zoom_7)).setChecked(true);
+						break;
+					case 8:
+						((CheckBox) findViewById(R.id.zoom_8)).setChecked(true);
+						break;
+				}
+			}
+		} catch (JSONException e) {
+			// TODO: 15-09-04 handle exception here ?
+			e.printStackTrace();
+		}
 	}
 
 	void savePlace() {
@@ -100,7 +159,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		}
 
 		// place type
-		mMapPlace.put(Keys.KEY_PLACE_POSITION, mSelectedPlaceType);
+		mMapPlace.put(Keys.KEY_PLACE_TYPE, mSelectedPlaceType);
 
 		List<Integer> zooms = new ArrayList<>();
 
@@ -122,7 +181,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		if (((CheckBox) findViewById(R.id.zoom_8)).isChecked())
 			zooms.add(8);
 
-		mMapPlace.addAll(Keys.KEY_PLACE_ZOOM, zooms);
+		mMapPlace.put(Keys.KEY_PLACE_ZOOM, zooms);
 
 
 		// push place to parse servers

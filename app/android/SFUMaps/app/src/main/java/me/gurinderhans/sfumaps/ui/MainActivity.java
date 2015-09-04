@@ -4,6 +4,7 @@ import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Pair;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -46,13 +47,13 @@ public class MainActivity extends FragmentActivity
 	private MapGrid mGrid;
 	private DiskLruCache mTileCache;
 
-	public List<Marker> mMapMarkersCurrentZoom = new ArrayList<>();
+	public List<Pair<ParseObject, Marker>> mMapMarkersCurrentZoom = new ArrayList<>();
 	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
 			// hide prev zoom markers
-			for (Marker marker : mMapMarkersCurrentZoom)
-				marker.remove();
+			for (Pair<ParseObject, Marker> el : mMapMarkersCurrentZoom)
+				el.second.remove();
 
 			mMapMarkersCurrentZoom = new ArrayList<>();
 
@@ -63,8 +64,11 @@ public class MainActivity extends FragmentActivity
 					float x = (float) location.getDouble("x");
 					float y = (float) location.getDouble("y");
 					mMapMarkersCurrentZoom.add(
-							MarkerCreator.addTextMarker(getApplicationContext(), Map,
-									new PointF(x, y), null, 0));
+							Pair.create(
+									object,
+									MarkerCreator.addTextMarker(getApplicationContext(), Map,
+											new PointF(x, y), null, 0)));
+
 				} catch (Exception exception) {
 					// unable to parse location for this place, no marker for this place then
 					exception.printStackTrace();
@@ -201,6 +205,18 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
+		Pair<ParseObject, Marker> foundPair = null;
+
+		// find this marker in list
+		for (Pair<ParseObject, Marker> el : mMapMarkersCurrentZoom) {
+			if (el.second.getPosition().equals(marker.getPosition())) {
+				foundPair = el;
+				break;
+			}
+		}
+
+		if (foundPair != null)
+			new PlaceFormDialog(MainActivity.this, Map, MercatorProjection.fromLatLngToPoint(marker.getPosition()), foundPair.first).show();
 
 		return true;
 	}
