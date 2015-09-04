@@ -146,7 +146,6 @@ public class MainActivity extends FragmentActivity implements OnCameraChangeList
 		PointF point = MercatorProjection.fromLatLngToPoint(latLng);
 
 		// show dialog asking place info
-		PlaceFormDialog cdd = new PlaceFormDialog(MainActivity.this);
-		cdd.show();
+		new PlaceFormDialog(this, Map, point).show();
 	}
 }
