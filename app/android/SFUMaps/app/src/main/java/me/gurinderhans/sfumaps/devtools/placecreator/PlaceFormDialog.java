@@ -162,6 +162,9 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	}
 
 	void savePlace() {
+		if (mPlaceTitleEditText.getText().toString().isEmpty())
+			return;
+
 		// place title
 		mTmpPlace.first.put(Keys.KEY_PLACE_TITLE, mPlaceTitleEditText.getText().toString());
 
