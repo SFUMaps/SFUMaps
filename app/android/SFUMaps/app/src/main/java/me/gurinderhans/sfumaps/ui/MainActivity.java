@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.AppConfig;
 import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.PlaceFormDialog;
@@ -116,6 +117,10 @@ public class MainActivity extends FragmentActivity
 
 		// setup Map
 		setUpMapIfNeeded();
+
+		// show dev controls if app is in dev mode
+		if (AppConfig.DEV_MODE)
+			findViewById(R.id.main_dev_layout).setVisibility(View.VISIBLE);
 	}
 
 	private void setUpMapIfNeeded() {
@@ -126,10 +131,10 @@ public class MainActivity extends FragmentActivity
 
 			Map = fragment.getMap();
 
-			// create admin panel if AppConfig allows
-			// TODO: configure admin panel in AppConfig
-			PathMaker.initPathMaker(Map, mGrid, fragment,
-					findViewById(R.id.edit_map_grid_controls));
+			// create admin panel
+			if (AppConfig.DEV_MODE)
+				PathMaker.initPathMaker(Map, mGrid, fragment,
+						findViewById(R.id.edit_map_grid_controls));
 
 			// set up map UI
 			if (Map != null)
@@ -198,13 +203,12 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onMapLongClick(LatLng latLng) {
-		// convert to map point
-		PointF point = MercatorProjection.fromLatLngToPoint(latLng);
-
-		// show dialog asking place info // TODO: 15-09-04 configure showing in admin panel
-		mPlaceFormDialog = new PlaceFormDialog(this, Map, point, null);
-		mPlaceFormDialog.setOnDismissListener(this);
-		mPlaceFormDialog.show();
+		if (AppConfig.DEV_MODE) {
+			// show dialog asking place info
+			mPlaceFormDialog = new PlaceFormDialog(this, Map, MercatorProjection.fromLatLngToPoint(latLng), null);
+			mPlaceFormDialog.setOnDismissListener(this);
+			mPlaceFormDialog.show();
+		}
 	}
 
 	@Override
@@ -212,20 +216,22 @@ public class MainActivity extends FragmentActivity
 
 		// TODO: 15-09-04 configure showing admin panel in AppConfig
 
-		Pair<ParseObject, Marker> foundPair = null;
+		Pair<ParseObject, Marker> clickedPlace = null;
 
 		// find this marker in list
-		for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers) {
+		for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers)
 			if (el.second.getPosition().equals(marker.getPosition())) {
-				foundPair = el;
+				clickedPlace = el;
 				break;
 			}
-		}
 
-		if (foundPair != null) {
-			mPlaceFormDialog = new PlaceFormDialog(MainActivity.this, Map, MercatorProjection.fromLatLngToPoint(marker.getPosition()), foundPair);
-			mPlaceFormDialog.setOnDismissListener(this);
-			mPlaceFormDialog.show();
+		if (clickedPlace != null) {
+
+			if (AppConfig.DEV_MODE) {
+				mPlaceFormDialog = new PlaceFormDialog(MainActivity.this, Map, MercatorProjection.fromLatLngToPoint(marker.getPosition()), clickedPlace);
+				mPlaceFormDialog.setOnDismissListener(this);
+				mPlaceFormDialog.show();
+			}
 		}
 
 		return true;

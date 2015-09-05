@@ -11,17 +11,17 @@ import java.util.Set;
  */
 public class AppConfig {
 
+	protected static final String TAG = AppConfig.class.getSimpleName();
+
 	/**
 	 * :: constants ::
 	 */
-	public static final String TAG = AppConfig.class.getSimpleName();
+
 	public static final float TILE_SIZE = 256f;
 	public static final String DATABASE_TABLE_PREFIX = "apsdata";
 
-	// TODO: 15-08-18 better app mode management
-	// handles which dev tools get enabled
-	public static final boolean DEBUG_MODE = true;
-	public static final boolean DEV_MODE = true;
+	// FIXME: 15-09-04 This method is not safe here
+	public static final boolean DEV_MODE = false;
 
 
 	/**
@@ -61,7 +61,6 @@ public class AppConfig {
 		ssidSet.add("SFUNET-SECURE");
 		ssidSet.add("SFUNET");
 		ssidSet.add("eduroam");
-		ssidSet.add("TELUS0469");
 
 		prefs.edit().putStringSet(Keys.KEY_CONFIG_SSID_SET, ssidSet).apply();
 

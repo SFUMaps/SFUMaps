@@ -11,19 +11,27 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity"/>
 
-    <include
-        layout="@layout/pathmaker_action_buttons"
+    <LinearLayout
+        android:id="@+id/main_dev_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"/>
+        android:orientation="vertical"
+        android:visibility="gone">
 
-    <TextView
-        android:id="@+id/map_current_zoom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="15dp"
-        android:layout_marginTop="20dp"
-        android:text="n/a"
-        android:textSize="18sp"/>
+        <TextView
+            android:id="@+id/map_current_zoom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:padding="15dp"
+            android:text="n/a"
+            android:textSize="18sp"/>
+
+        <include
+            layout="@layout/pathmaker_action_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -17,27 +17,13 @@ import com.larvalabs.svgandroid.SVGBuilder;
 import com.parse.ParseObject;
 
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.AppConfig;
 import me.gurinderhans.sfumaps.app.Keys;
 
 /**
  * Created by ghans on 15-09-01.
  */
 public class MarkerCreator {
-
-	public static Marker createPlaceMarker(Context c, GoogleMap map, ParseObject place) {
-
-		// extract location
-
-		MarkerOptions markerOptions = new MarkerOptions()
-				.flat(true)
-				.position(MercatorProjection.fromPointToLatLng(new PointF(
-						(float) place.getDouble(Keys.KEY_PLACE_POSITION_X),
-						(float) place.getDouble(Keys.KEY_PLACE_POSITION_Y)
-				)))
-				.rotation(place.getInt(Keys.KEY_PLACE_MARKER_ROTATION));
-
-		return null;
-	}
 
 	public static Marker addTextAndIconMarker(Context c, GoogleMap map,
 	                                          MapLabelIconAlign imageIconAlignment, ParseObject place) {
@@ -88,7 +74,7 @@ public class MarkerCreator {
 						.icon(BitmapDescriptorFactory.fromBitmap(markerIcon))
 						.anchor(labelAnchor.first, labelAnchor.second)
 						.rotation(rotation)
-						.draggable(true)
+						.draggable(AppConfig.DEV_MODE)
 		);
 	}
 
