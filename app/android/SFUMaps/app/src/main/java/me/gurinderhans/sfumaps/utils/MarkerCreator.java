@@ -23,8 +23,8 @@ import me.gurinderhans.sfumaps.factory.classes.MapPlace;
  */
 public class MarkerCreator {
 
-	public static Bitmap createPlaceIcon(Context c, MapPlace place, MapLabelIconAlign imageIconAlignment) {
-		Bitmap textIcon = createTextIcon(c, place.getTitle(), Pair.create(0, 0));
+	public static Bitmap createPlaceIcon(Context c, MapPlace place, MapLabelIconAlign iconAlignment) {
+		Bitmap textIcon = createTextIcon(c, place.getTitle(), null);
 
 		// get passed in icon or use the default one
 		int iconId = R.drawable.location_marker;
@@ -34,7 +34,7 @@ public class MarkerCreator {
 
 		// combine text and image
 		if (textIcon != null)
-			markerIcon = combineLabelBitmaps(markerIcon, textIcon, imageIconAlignment);
+			markerIcon = combineLabelBitmaps(markerIcon, textIcon, iconAlignment);
 
 		return markerIcon;
 	}
@@ -95,28 +95,37 @@ public class MarkerCreator {
 		return generator.makeIcon(text);
 	}
 
-	private static Bitmap combineLabelBitmaps(Bitmap a, Bitmap b, MapLabelIconAlign alignment) {
+	private static Bitmap combineLabelBitmaps(Bitmap icon, Bitmap text, MapLabelIconAlign alignment) {
 
 		if (alignment == MapLabelIconAlign.TOP) {
-			Bitmap bmp = Bitmap.createBitmap(b.getWidth(), a.getHeight() + b.getHeight(), Bitmap.Config.ARGB_8888);
+			Bitmap bmp = Bitmap.createBitmap(text.getWidth(), icon.getHeight() + text.getHeight(), Bitmap.Config.ARGB_8888);
 			Canvas canvas = new Canvas(bmp);
-			canvas.drawBitmap(a, b.getWidth() / 2f - (a.getWidth() / 2), 0f, null);
-			canvas.drawBitmap(b, 0, a.getHeight(), null);
+			canvas.drawBitmap(icon, text.getWidth() / 2f - (icon.getWidth() / 2), 0f, null);
+			canvas.drawBitmap(text, 0, icon.getHeight(), null);
+			return bmp;
+		} else if (alignment == MapLabelIconAlign.BOTTOM) {
+
+			Bitmap bmp = Bitmap.createBitmap(text.getWidth(), icon.getHeight() + text.getHeight(), Bitmap.Config.ARGB_8888);
+			Canvas canvas = new Canvas(bmp);
+			canvas.drawBitmap(text, 0, 0, null);
+
+			// +5 to add extra space so the icon isn't merged into the text
+			canvas.drawBitmap(icon, text.getWidth() / 2f - (icon.getWidth() / 2), icon.getHeight() + 5, null);
 			return bmp;
 		}
 
-		int width = a.getWidth() + b.getWidth() + 5; // extra padding of 5
-		int height = (alignment == MapLabelIconAlign.LEFT) ? a.getHeight() : b.getHeight();
+		int width = icon.getWidth() + text.getWidth() + 5; // extra padding of 5
+		int height = (alignment == MapLabelIconAlign.LEFT) ? icon.getHeight() : text.getHeight();
 
 		Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(bmp);
 
 		if (alignment == MapLabelIconAlign.LEFT) {
-			canvas.drawBitmap(a, 0f, 0f, null);
-			canvas.drawBitmap(b, a.getWidth() + 5, -6f, null);
+			canvas.drawBitmap(icon, 0f, 0f, null);
+			canvas.drawBitmap(text, icon.getWidth() + 5, -6f, null);
 		} else if (alignment == MapLabelIconAlign.RIGHT) {
-			canvas.drawBitmap(b, 0f, 0f, null);
-			canvas.drawBitmap(a, b.getWidth() + 5, 6f, null);
+			canvas.drawBitmap(text, 0f, 0f, null);
+			canvas.drawBitmap(icon, text.getWidth() + 5, 6f, null);
 		}
 
 
@@ -133,6 +142,6 @@ public class MarkerCreator {
 
 	// enum for placing label icon on which side
 	public enum MapLabelIconAlign {
-		TOP, LEFT, RIGHT
+		TOP, LEFT, RIGHT, BOTTOM
 	}
 }

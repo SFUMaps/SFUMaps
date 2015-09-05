@@ -180,8 +180,7 @@ public class MainActivity extends FragmentActivity
 	}
 
 
-	private int mMapCurrentZoom;
-
+	private int mapCurrentZoom; // used for detecing when map zoom changes
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
@@ -195,9 +194,9 @@ public class MainActivity extends FragmentActivity
 			Map.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
 
 		// 2. load this zoom markers
-		if (mMapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
-			mMapCurrentZoom = (int) cameraPosition.zoom;
-			MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
+		if (mapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
+			mapCurrentZoom = (int) cameraPosition.zoom;
+			MapTools.getZoomMarkers(mapCurrentZoom, onZoomChangedCallback);
 			syncMarkers();
 		}
 	}
@@ -286,7 +285,7 @@ public class MainActivity extends FragmentActivity
 	private void syncMarkers() {
 		for (MapPlace el : mAllMapPlaces)
 			for (int zoom : el.getZooms()) {
-				if (zoom == mMapCurrentZoom) {
+				if (zoom == mapCurrentZoom) {
 					el.getPlaceMarker().setVisible(true);
 					break;
 				} else {
