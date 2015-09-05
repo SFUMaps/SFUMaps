@@ -15,6 +15,8 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
+
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace;
 
 /**
@@ -50,6 +52,15 @@ public class MapPlace extends ParseObject {
 
 	public void setType(String type) {
 		put(ParseMapPlace.TYPE, type);
+	}
+
+	public MapLabelIconAlign getIconAlignment() {
+		String alignmentString = getString(ParseMapPlace.ICON_ALIGNMENT);
+		return MapLabelIconAlign.fromString(alignmentString);
+	}
+
+	public void setIconAlignment(MapLabelIconAlign alignment) {
+		put(ParseMapPlace.ICON_ALIGNMENT, alignment.getText());
 	}
 
 	public List<Integer> getZooms() {

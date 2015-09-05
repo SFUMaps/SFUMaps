@@ -12,7 +12,7 @@
     <ImageView
         android:id="@+id/add_image"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="140dp"
         android:scaleType="centerCrop"
         android:src="@drawable/create_place_card"/>
 
@@ -91,10 +91,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:padding="10dp"
-            android:orientation="vertical"
+            android:background="@color/transparent_dialog_marker_rotator_background"
             android:gravity="center_vertical"
-            android:background="@color/transparent_dialog_marker_rotator_background">
+            android:orientation="vertical"
+            android:padding="10dp">
+
             <LinearLayout
                 android:id="@+id/marker_rotator_label"
                 android:layout_width="wrap_content"
@@ -107,18 +108,24 @@
                     android:text="Marker Rotation: "/>
 
                 <TextView
+                    android:id="@+id/marker_rotate_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/marker_rotate_value"
                     android:text="0°"/>
             </LinearLayout>
 
             <SeekBar
                 android:id="@+id/marker_rotator"
                 android:layout_width="match_parent"
-                android:max="360"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:max="360"/>
         </LinearLayout>
+
+        <Spinner
+            android:id="@+id/select_icon_alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"/>
 
         <LinearLayout
             android:id="@+id/form_actions"
