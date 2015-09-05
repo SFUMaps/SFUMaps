@@ -255,6 +255,10 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onMarkerDragEnd(Marker marker) {
 
+		// FIXME: 15-09-05 Only a minor issue, but when you drag a place, the getPlaceIndex isn't
+		// able to find it anymore, plus it stays visible on the map at all times, even when the map zoom,
+		// is not for the marker (only happens in dev mode as that's the only place where markers are draggable
+
 		// find the clicked marker
 		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (draggedPlaceIndex != -1) {

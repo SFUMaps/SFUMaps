@@ -232,6 +232,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		findViewById(R.id.zooms_selects).setVisibility(View.INVISIBLE);
 		findViewById(R.id.form_actions).setVisibility(View.INVISIBLE);
 		findViewById(R.id.add_image).setVisibility(View.INVISIBLE);
+		findViewById(R.id.select_icon_alignment).setVisibility(View.INVISIBLE);
 
 		// remove white background
 		findViewById(R.id.form_place_dialog_wrapper).setBackgroundColor(mActivity.getResources().getColor(android.R.color.transparent));
@@ -248,6 +249,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		findViewById(R.id.zooms_selects).setVisibility(View.VISIBLE);
 		findViewById(R.id.form_actions).setVisibility(View.VISIBLE);
 		findViewById(R.id.add_image).setVisibility(View.VISIBLE);
+		findViewById(R.id.select_icon_alignment).setVisibility(View.VISIBLE);
 
 		// remove white background
 		findViewById(R.id.form_place_dialog_wrapper).setBackgroundColor(mActivity.getResources().getColor(R.color.dialog_background));
