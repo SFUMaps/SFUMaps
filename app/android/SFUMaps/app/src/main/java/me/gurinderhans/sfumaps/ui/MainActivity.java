@@ -8,12 +8,14 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Pair;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -23,6 +25,7 @@ import com.jakewharton.disklrucache.DiskLruCache;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +42,12 @@ import me.gurinderhans.sfumaps.utils.MercatorProjection;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
 
 public class MainActivity extends FragmentActivity
-		implements OnCameraChangeListener, OnMapLongClickListener, OnMarkerClickListener, OnDismissListener {
+		implements
+		OnCameraChangeListener,
+		OnMapLongClickListener,
+		OnMarkerClickListener,
+		OnDismissListener,
+		OnMarkerDragListener {
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
@@ -53,6 +61,8 @@ public class MainActivity extends FragmentActivity
 	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
+
+			// NOTE: currently we are fetching data from parse servers
 
 			// hide prev zoom markers
 			for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers) {
@@ -68,23 +78,13 @@ public class MainActivity extends FragmentActivity
 						(float) object.getDouble(Keys.KEY_PLACE_POSITION_X),
 						(float) object.getDouble(Keys.KEY_PLACE_POSITION_Y));
 
-
-				mMapCurrentZoomMarkers.add(
-						Pair.create(
-								object,
-								MarkerCreator.addTextMarker(
-										getApplicationContext(),
-										Map,
-										location,
-										MarkerCreator.createPureTextIcon(
-												getApplicationContext(),
-												object.getString(Keys.KEY_PLACE_TITLE),
-												Pair.create(0, object.getInt(Keys.KEY_PLACE_MARKER_ROTATION))
-										),
-										object.getInt(Keys.KEY_PLACE_MARKER_ROTATION)
-								)
-						)
-				);
+				mMapCurrentZoomMarkers.add(Pair.create(object,
+						MarkerCreator.addTextAndIconMarker(
+								getApplicationContext(),
+								Map,
+								MarkerCreator.MapLabelIconAlign.TOP,
+								object
+						)));
 			}
 		}
 	};
@@ -149,6 +149,7 @@ public class MainActivity extends FragmentActivity
 		Map.setOnCameraChangeListener(this);
 		Map.setOnMapLongClickListener(this);
 		Map.setOnMarkerClickListener(this);
+		Map.setOnMarkerDragListener(this);
 
 		// base map overlay
 		Map.addTileOverlay(new TileOverlayOptions()
@@ -241,7 +242,43 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onDismiss(DialogInterface dialog) {
-		// get stuff from dialog and bla bla
+		// refresh markers
 		MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
+	}
+
+
+	/* marker drag */
+	@Override
+	public void onMarkerDragStart(Marker marker) {
+	}
+
+	@Override
+	public void onMarkerDrag(Marker marker) {
+	}
+
+	@Override
+	public void onMarkerDragEnd(Marker marker) {
+		/* find the marker that was drag and update its location */
+		Pair<ParseObject, Marker> foundPair = null;
+
+		// find this marker in list
+		for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers) {
+			if (el.second.getPosition().equals(marker.getPosition())) {
+				foundPair = el;
+				break;
+			}
+		}
+
+		if (foundPair != null) { // marker found
+			PointF location = MercatorProjection.fromLatLngToPoint(marker.getPosition());
+			foundPair.first.put(Keys.KEY_PLACE_POSITION_X, location.x);
+			foundPair.first.put(Keys.KEY_PLACE_POSITION_Y, location.y);
+			foundPair.first.saveInBackground(new SaveCallback() {
+				@Override
+				public void done(ParseException e) {
+					Toast.makeText(getApplicationContext(), "Location Updated!", Toast.LENGTH_SHORT).show();
+				}
+			});
+		}
 	}
 }
