@@ -36,6 +36,7 @@ public final class Keys {
 		public static final String CLASS = "MapPlace";
 		public static final String TITLE = "placeTitle";
 		public static final String TYPE = "placeType";
+		public static final String ICON_ALIGNMENT = "placeIconAlignment";
 		public static final String POSITION_X = "positionX";
 		public static final String POSITION_Y = "positionY";
 		public static final String ZOOM = "placeZoom";

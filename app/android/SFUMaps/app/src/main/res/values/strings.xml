@@ -53,4 +53,11 @@
         <item>Walkway</item>
         <item>Road</item>
     </string-array>
+
+    <string-array name="icon_alignments">
+        <item>Top</item>
+        <item>Left</item>
+        <item>Right</item>
+        <item>Bottom</item>
+    </string-array>
 </resources>
