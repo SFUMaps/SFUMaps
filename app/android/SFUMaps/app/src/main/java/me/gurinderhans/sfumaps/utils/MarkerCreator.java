@@ -14,25 +14,72 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
 import com.larvalabs.svgandroid.SVGBuilder;
+import com.parse.ParseObject;
 
+import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.AppConfig;
+import me.gurinderhans.sfumaps.app.Keys;
 
 /**
  * Created by ghans on 15-09-01.
  */
 public class MarkerCreator {
 
-	public static Marker addTextMarker(Context c, GoogleMap map, PointF screenLocation, Bitmap textIcon, float markerRotation) {
-		//
+	public static Marker addTextAndIconMarker(Context c, GoogleMap map,
+	                                          MapLabelIconAlign imageIconAlignment, ParseObject place) {
+
+		PointF screenLocation = new PointF(
+				(float) place.getDouble(Keys.KEY_PLACE_POSITION_X),
+				(float) place.getDouble(Keys.KEY_PLACE_POSITION_Y)
+		);
+
+		Bitmap textIcon = createPureTextIcon(c, place.getString(Keys.KEY_PLACE_TITLE), Pair.create(0, 0));
+
+		float rotation = (float) place.getInt(Keys.KEY_PLACE_MARKER_ROTATION);
+
+
+		// get passed in icon or use the default one
+		int iconId = R.drawable.location_marker;
+
+		Bitmap markerIcon = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
+				.build().getPicture());
+
+		// combine text and image
+		markerIcon = combineLabelBitmaps(markerIcon, textIcon, imageIconAlignment);
+
+		Pair<Float, Float> labelAnchor;
+
+		switch (imageIconAlignment) {
+			case LEFT:
+				labelAnchor = new Pair<>(0f, 1f);
+				break;
+
+			case RIGHT:
+				labelAnchor = new Pair<>(1f, 1f);
+				break;
+
+			case TOP:
+				labelAnchor = new Pair<>(0.5f, 0.5f);
+				break;
+
+			default:
+				labelAnchor = new Pair<>(0f, 0f);
+				break;
+
+		}
+
+		// add icon image on actual point
 		return map.addMarker(new MarkerOptions()
-				.position(MercatorProjection.fromPointToLatLng(screenLocation))
-				.icon(BitmapDescriptorFactory.fromBitmap(textIcon))
-				.rotation(markerRotation)
-				.flat(true)
-				.title("Position")
-				.snippet(screenLocation.toString()));
+						.position(MercatorProjection.fromPointToLatLng(screenLocation))
+						.icon(BitmapDescriptorFactory.fromBitmap(markerIcon))
+						.anchor(labelAnchor.first, labelAnchor.second)
+						.rotation(rotation)
+						.draggable(BuildConfig.DEBUG)
+		);
 	}
 
+	/* helper functions */
 	public static Bitmap combineLabelBitmaps(Bitmap a, Bitmap b, MapLabelIconAlign alignment) {
 
 		if (alignment == MapLabelIconAlign.TOP) {
@@ -83,41 +130,6 @@ public class MarkerCreator {
 		Canvas canvas = new Canvas(bitmap);
 		canvas.drawPicture(pd.getPicture());
 		return bitmap;
-	}
-
-	public static Marker addTextAndIconMarker(Context c, GoogleMap map, PointF screenLocation,
-	                                          Bitmap textIcon, float rotation, Integer imageIconId,
-	                                          MapLabelIconAlign imageIconAlignment) {
-
-
-		// get passed in icon or use the default one
-		int iconId = (imageIconId == null) ? R.drawable.location_marker : imageIconId;
-
-		Bitmap markerIcon = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
-				.build().getPicture());
-
-		// combine text and image
-		markerIcon = combineLabelBitmaps(markerIcon, textIcon, imageIconAlignment);
-
-		Pair<Float, Float> labelAnchor = new Pair<>(0f, 0f);
-
-		if (imageIconAlignment == MapLabelIconAlign.LEFT)
-			labelAnchor = new Pair<>(0f, 1f);
-
-		else if (imageIconAlignment == MapLabelIconAlign.RIGHT)
-			labelAnchor = new Pair<>(1f, 1f);
-
-		else if (imageIconAlignment == MapLabelIconAlign.TOP)
-			labelAnchor = new Pair<>(0.5f, 0.5f);
-
-
-		// add icon image on actual point
-		return map.addMarker(new MarkerOptions()
-						.position(MercatorProjection.fromPointToLatLng(screenLocation))
-						.icon(BitmapDescriptorFactory.fromBitmap(markerIcon))
-						.anchor(labelAnchor.first, labelAnchor.second)
-						.rotation(rotation)
-		);
 	}
 
 	// enum for placing label icon on which side

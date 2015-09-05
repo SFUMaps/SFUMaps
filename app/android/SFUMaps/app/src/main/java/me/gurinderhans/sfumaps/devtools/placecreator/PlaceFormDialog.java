@@ -2,6 +2,7 @@ package me.gurinderhans.sfumaps.devtools.placecreator;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -10,8 +11,6 @@ import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -31,20 +30,19 @@ import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
+import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 /**
  * Created by ghans on 15-09-03.
  */
-public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSelectedListener, OnSeekBarChangeListener {
+public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBarChangeListener {
 
 	protected static final String TAG = PlaceFormDialog.class.getSimpleName();
 
@@ -52,7 +50,8 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 	private Activity mActivity;
 
 	// place being created / edited in this dialog
-	Pair<ParseObject, Marker> mTmpPlace;
+	private Pair<ParseObject, Marker> mTmpPlace;
+	private final PointF mClickedPoint;
 
 	// global views
 	private EditText mPlaceTitleEditText;
@@ -60,8 +59,6 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 	private TextView markerRotateValueView;
 	private SeekBar mMarkerRotator;
 
-	private final PointF mClickedPoint;
-	private String mSelectedPlaceType = "";
 
 	public PlaceFormDialog(Activity activity, GoogleMap map, PointF point, Pair<ParseObject, Marker> oldPlaceOpt) {
 		super(activity);
@@ -88,7 +85,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		super.onCreate(savedInstanceState);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setBackgroundDrawable(new ColorDrawable(0)); // set dialog background to transparent
+		getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
 		setContentView(R.layout.admin_create_place_form_dialog);
 
@@ -101,14 +98,10 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 
 		// setup list selector
 		mSpinner = (Spinner) findViewById(R.id.select_place_type);
-		// Create an ArrayAdapter using the string array and a default spinner layout
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
 				R.array.place_types, android.R.layout.simple_spinner_item);
-		// Specify the layout to use when the list of choices appears
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		// Apply the adapter to the spinner
 		mSpinner.setAdapter(adapter);
-		mSpinner.setOnItemSelectedListener(this);
 
 		mMarkerRotator = ((SeekBar) findViewById(R.id.marker_rotator));
 		mMarkerRotator.setOnSeekBarChangeListener(this);
@@ -173,19 +166,11 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 		mTmpPlace.first.put(Keys.KEY_PLACE_TITLE, mPlaceTitleEditText.getText().toString());
 
 		// place location
-		try {
-			JSONObject location = new JSONObject();
-			location.put("x", mClickedPoint.x);
-			location.put("y", mClickedPoint.y);
-
-			mTmpPlace.first.put(Keys.KEY_PLACE_POSITION, location);
-		} catch (JSONException e) {
-			// TODO: catch exception here!!
-			e.printStackTrace();
-		}
+		mTmpPlace.first.put(Keys.KEY_PLACE_POSITION_X, mClickedPoint.x);
+		mTmpPlace.first.put(Keys.KEY_PLACE_POSITION_Y, mClickedPoint.y);
 
 		// place type
-		mTmpPlace.first.put(Keys.KEY_PLACE_TYPE, mSelectedPlaceType);
+		mTmpPlace.first.put(Keys.KEY_PLACE_TYPE, mSpinner.getSelectedItem().toString());
 
 		List<Integer> zooms = new ArrayList<>();
 
@@ -220,7 +205,6 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 				if (e != null)
 					e.printStackTrace();
 				Toast.makeText(getContext(), "Place saved.", Toast.LENGTH_LONG).show();
-
 			}
 		});
 	}
@@ -240,24 +224,14 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnItemSe
 					}
 				});
 
-				mTmpPlace.second.remove();
-
-				mTmpPlace = null;
 				break;
 			default:
 				break;
 		}
+
+		mTmpPlace.second.remove();
+
 		dismiss();
-	}
-
-	@Override
-	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-		// retrieve the selected item
-		mSelectedPlaceType = parent.getItemAtPosition(position).toString();
-	}
-
-	@Override
-	public void onNothingSelected(AdapterView<?> parent) {
 	}
 
 	@Override

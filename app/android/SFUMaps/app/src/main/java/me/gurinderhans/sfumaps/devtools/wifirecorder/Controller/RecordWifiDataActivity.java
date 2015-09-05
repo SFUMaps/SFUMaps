@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
+import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.devtools.wifirecorder.View.WifiAPListViewAdapter;
 import me.gurinderhans.sfumaps.factory.DataBaseManager;
 import me.gurinderhans.sfumaps.factory.DrawRecordedPaths;

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
+import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.ui.MainActivity;
 import me.gurinderhans.sfumaps.ui.SVGTileProvider;
 
@@ -179,7 +179,7 @@ public class MapTools {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.d(MainActivity.TAG, "Could not create BaseMap Tile Provider.");
+			Log.d(TAG, "Could not create BaseMap Tile Provider.");
 		}
 
 		return null;

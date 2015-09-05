@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
+import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.app.AppConfig;
 
 /**

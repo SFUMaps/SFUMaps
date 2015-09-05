@@ -6,25 +6,19 @@ import android.content.SharedPreferences;
 import java.util.HashSet;
 import java.util.Set;
 
-import me.gurinderhans.sfumaps.devtools.wifirecorder.Keys;
-
 /**
  * Created by ghans on 15-04-11.
  */
 public class AppConfig {
 
+	protected static final String TAG = AppConfig.class.getSimpleName();
+
 	/**
 	 * :: constants ::
 	 */
-	public static final String TAG = AppConfig.class.getSimpleName();
+
 	public static final float TILE_SIZE = 256f;
 	public static final String DATABASE_TABLE_PREFIX = "apsdata";
-
-	// TODO: 15-08-18 better app mode management
-	// handles which dev tools get enabled
-	public static final boolean DEBUG_MODE = true;
-	public static final boolean DEV_MODE = true;
-
 
 	/**
 	 * :: config variables ::
@@ -63,9 +57,11 @@ public class AppConfig {
 		ssidSet.add("SFUNET-SECURE");
 		ssidSet.add("SFUNET");
 		ssidSet.add("eduroam");
-		ssidSet.add("TELUS0469");
 
 		prefs.edit().putStringSet(Keys.KEY_CONFIG_SSID_SET, ssidSet).apply();
 
 	}
+
+
+	// TODO: 15-09-04 On First time app start up download all parse data and pin to local datastore
 }

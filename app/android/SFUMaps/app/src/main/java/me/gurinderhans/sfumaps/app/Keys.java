@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.devtools.wifirecorder;
+package me.gurinderhans.sfumaps.app;
 
 /**
  * Created by ghans on 2/9/15.
@@ -30,18 +30,14 @@ public final class Keys {
 	public static final String KEY_HIERARCHY_PARENT_ID = "parent";
 	public static final String KEY_HIERARCHY_VALUE = "value";
 
-	//
+	// Map Place keys
 	public static final String KEY_PLACE = "MapPlace";
 	public static final String KEY_PLACE_TITLE = "placeTitle";
 	public static final String KEY_PLACE_DESCRIPTION = "placeDescription";
 	public static final String KEY_PLACE_TYPE = "placeType";
-	public static final String KEY_PLACE_POSITION = "placePosition";
+	public static final String KEY_PLACE_POSITION_X = "positionX";
+	public static final String KEY_PLACE_POSITION_Y = "positionY";
 	public static final String KEY_PLACE_ZOOM = "placeZoom";
 	public static final String KEY_PLACE_MARKER_ROTATION = "placeMarkerRotation";
 
-
-	// empty constructor
-	private Keys() {
-	    /* To make sure this class cannot be instantiated */
-	}
 }
