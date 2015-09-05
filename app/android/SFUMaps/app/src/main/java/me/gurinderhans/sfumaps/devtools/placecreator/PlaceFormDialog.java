@@ -192,9 +192,12 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 			zooms.add(6);
 		if (((CheckBox) findViewById(R.id.zoom_7)).isChecked())
 			zooms.add(7);
-		if (((CheckBox) findViewById(R.id.zoom_8)).isChecked())
+		if (((CheckBox) findViewById(R.id.zoom_8)).isChecked()) {
 			zooms.add(8);
-
+			// just so markers don't disappear right after once you reach the max map zoom and it animates back ups
+			zooms.add(9);
+			zooms.add(10);
+		}
 		mTmpPlace.first.put(Keys.KEY_PLACE_ZOOM, zooms);
 
 		// place marker rotation

@@ -18,7 +18,6 @@ import com.parse.ParseObject;
 
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.app.AppConfig;
 import me.gurinderhans.sfumaps.app.Keys;
 
 /**
@@ -76,6 +75,7 @@ public class MarkerCreator {
 						.anchor(labelAnchor.first, labelAnchor.second)
 						.rotation(rotation)
 						.draggable(BuildConfig.DEBUG)
+						.visible(false)
 		);
 	}
 

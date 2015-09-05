@@ -6,6 +6,7 @@ import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
@@ -27,6 +28,9 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,36 +67,29 @@ public class MainActivity extends FragmentActivity
 	private MapGrid mGrid;
 	private DiskLruCache mTileCache;
 	private PlaceFormDialog mPlaceFormDialog;
+
 	private List<Pair<ParseObject, Marker>> mMapCurrentZoomMarkers = new ArrayList<>();
 
 	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
 
-			// NOTE: currently we are fetching data from parse servers
-
-			// hide prev zoom markers
-			for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers) {
-				// TODO: 15-09-04 remove if its not in next zoom
-				el.second.remove();
-			}
-
-			mMapCurrentZoomMarkers = new ArrayList<>();
-
 			for (ParseObject object : objects) {
-				// show these markers
-				PointF location = new PointF(
+				if (!placeDownloaded(new PointF(
 						(float) object.getDouble(Keys.KEY_PLACE_POSITION_X),
-						(float) object.getDouble(Keys.KEY_PLACE_POSITION_Y));
-
-				mMapCurrentZoomMarkers.add(Pair.create(object,
-						MarkerCreator.addTextAndIconMarker(
-								getApplicationContext(),
-								Map,
-								MarkerCreator.MapLabelIconAlign.TOP,
-								object
-						)));
+						(float) object.getDouble(Keys.KEY_PLACE_POSITION_Y)
+				))) {
+					mMapCurrentZoomMarkers.add(Pair.create(object,
+							MarkerCreator.addTextAndIconMarker(
+									getApplicationContext(),
+									Map,
+									MarkerCreator.MapLabelIconAlign.TOP,
+									object
+							)));
+				}
 			}
+
+			syncMarkers();
 		}
 	};
 
@@ -203,6 +200,26 @@ public class MainActivity extends FragmentActivity
 		if (mMapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
 			mMapCurrentZoom = (int) cameraPosition.zoom;
 			MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
+			syncMarkers();
+		}
+	}
+
+	private void syncMarkers() {
+		for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers) {
+			JSONArray placeZooms = el.first.getJSONArray(Keys.KEY_PLACE_ZOOM);
+
+			for (int i = 0; i < placeZooms.length(); i++) {
+				try {
+					if (placeZooms.getInt(i) == mMapCurrentZoom) {
+						el.second.setVisible(true);
+						break;
+					} else {
+						el.second.setVisible(false);
+					}
+				} catch (JSONException ex) {
+					ex.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -293,5 +310,27 @@ public class MainActivity extends FragmentActivity
 				}
 			});
 		}
+	}
+
+	/**
+	 * Checks if the place that we just downloaded is already stored locally in mMapCurrentZoomMarkers
+	 *
+	 * @param placePos - downloaded place position
+	 * @return - true if its already downloaded
+	 */
+	boolean placeDownloaded(PointF placePos) {
+		for (Pair<ParseObject, Marker> placeMarker : mMapCurrentZoomMarkers) {
+			// compare by location
+			PointF thisPlacePos = new PointF(
+					(float) placeMarker.first.getDouble(Keys.KEY_PLACE_POSITION_X),
+					(float) placeMarker.first.getDouble(Keys.KEY_PLACE_POSITION_Y)
+			);
+
+			if (placePos.equals(thisPlacePos)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
