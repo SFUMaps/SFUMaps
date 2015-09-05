@@ -6,7 +6,6 @@ import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
@@ -68,24 +67,35 @@ public class MainActivity extends FragmentActivity
 	private DiskLruCache mTileCache;
 	private PlaceFormDialog mPlaceFormDialog;
 
-	private List<Pair<ParseObject, Marker>> mMapCurrentZoomMarkers = new ArrayList<>();
+	private List<Pair<ParseObject, Marker>> mAllMapPlaces = new ArrayList<>();
 
 	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
-		public void done(List<ParseObject> objects, ParseException e) {
+		public void done(List<ParseObject> places, ParseException e) {
 
-			for (ParseObject object : objects) {
-				if (!placeDownloaded(new PointF(
-						(float) object.getDouble(Keys.KEY_PLACE_POSITION_X),
-						(float) object.getDouble(Keys.KEY_PLACE_POSITION_Y)
-				))) {
-					mMapCurrentZoomMarkers.add(Pair.create(object,
+			for (ParseObject newPlace : places) {
+				int placeIndex = getPlaceIndex(newPlace);
+
+				if (placeIndex == -1) { // place is new!
+					mAllMapPlaces.add(Pair.create(newPlace,
 							MarkerCreator.addTextAndIconMarker(
 									getApplicationContext(),
 									Map,
 									MarkerCreator.MapLabelIconAlign.TOP,
-									object
+									newPlace
 							)));
+				}
+
+				if (BuildConfig.DEBUG && placeIndex >= 0) { // update place
+					Marker placeMarker = mAllMapPlaces.get(placeIndex).second;
+					placeMarker.remove();
+					placeMarker = MarkerCreator.addTextAndIconMarker(
+							getApplicationContext(),
+							Map,
+							MarkerCreator.MapLabelIconAlign.TOP,
+							newPlace
+					);
+					mAllMapPlaces.set(placeIndex, Pair.create(newPlace, placeMarker));
 				}
 			}
 
@@ -204,24 +214,6 @@ public class MainActivity extends FragmentActivity
 		}
 	}
 
-	private void syncMarkers() {
-		for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers) {
-			JSONArray placeZooms = el.first.getJSONArray(Keys.KEY_PLACE_ZOOM);
-
-			for (int i = 0; i < placeZooms.length(); i++) {
-				try {
-					if (placeZooms.getInt(i) == mMapCurrentZoom) {
-						el.second.setVisible(true);
-						break;
-					} else {
-						el.second.setVisible(false);
-					}
-				} catch (JSONException ex) {
-					ex.printStackTrace();
-				}
-			}
-		}
-	}
 
 	@Override
 	public void onMapLongClick(LatLng latLng) {
@@ -239,7 +231,7 @@ public class MainActivity extends FragmentActivity
 		Pair<ParseObject, Marker> clickedPlace = null;
 
 		// find this marker in list
-		for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers)
+		for (Pair<ParseObject, Marker> el : mAllMapPlaces)
 			if (el.second.getPosition().equals(marker.getPosition())) {
 				clickedPlace = el;
 				break;
@@ -292,7 +284,7 @@ public class MainActivity extends FragmentActivity
 		Pair<ParseObject, Marker> foundPair = null;
 
 		// find this marker in list
-		for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers) {
+		for (Pair<ParseObject, Marker> el : mAllMapPlaces) {
 			if (el.second.getPosition().equals(marker.getPosition())) {
 				foundPair = el;
 				break;
@@ -313,24 +305,48 @@ public class MainActivity extends FragmentActivity
 	}
 
 	/**
-	 * Checks if the place that we just downloaded is already stored locally in mMapCurrentZoomMarkers
+	 * Checks if the place that we just downloaded is already stored locally in mAllMapPlaces
 	 *
-	 * @param placePos - downloaded place position
+	 * @param place - downloaded place
 	 * @return - true if its already downloaded
 	 */
-	boolean placeDownloaded(PointF placePos) {
-		for (Pair<ParseObject, Marker> placeMarker : mMapCurrentZoomMarkers) {
+	int getPlaceIndex(ParseObject place) {
+		PointF placePos = new PointF(
+				(float) place.getDouble(Keys.KEY_PLACE_POSITION_X),
+				(float) place.getDouble(Keys.KEY_PLACE_POSITION_Y)
+		);
+
+		for (int i = 0; i < mAllMapPlaces.size(); i++) {
 			// compare by location
 			PointF thisPlacePos = new PointF(
-					(float) placeMarker.first.getDouble(Keys.KEY_PLACE_POSITION_X),
-					(float) placeMarker.first.getDouble(Keys.KEY_PLACE_POSITION_Y)
+					(float) mAllMapPlaces.get(i).first.getDouble(Keys.KEY_PLACE_POSITION_X),
+					(float) mAllMapPlaces.get(i).first.getDouble(Keys.KEY_PLACE_POSITION_Y)
 			);
 
 			if (placePos.equals(thisPlacePos)) {
-				return true;
+				return i;
 			}
 		}
 
-		return false;
+		return -1;
+	}
+
+	private void syncMarkers() {
+		for (Pair<ParseObject, Marker> el : mAllMapPlaces) {
+			JSONArray placeZooms = el.first.getJSONArray(Keys.KEY_PLACE_ZOOM);
+
+			for (int i = 0; i < placeZooms.length(); i++) {
+				try {
+					if (placeZooms.getInt(i) == mMapCurrentZoom) {
+						el.second.setVisible(true);
+						break;
+					} else {
+						el.second.setVisible(false);
+					}
+				} catch (JSONException ex) {
+					ex.printStackTrace();
+				}
+			}
+		}
 	}
 }
