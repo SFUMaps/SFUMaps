@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Picture;
-import android.graphics.PointF;
 import android.graphics.drawable.PictureDrawable;
 import android.util.Pair;
 
@@ -14,29 +13,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
 import com.larvalabs.svgandroid.SVGBuilder;
-import com.parse.ParseObject;
 
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.app.Keys;
+import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 
 /**
  * Created by ghans on 15-09-01.
  */
 public class MarkerCreator {
 
-	public static Marker addTextAndIconMarker(Context c, GoogleMap map,
-	                                          MapLabelIconAlign imageIconAlignment, ParseObject place) {
-
-		PointF screenLocation = new PointF(
-				(float) place.getDouble(Keys.KEY_PLACE_POSITION_X),
-				(float) place.getDouble(Keys.KEY_PLACE_POSITION_Y)
-		);
-
-		Bitmap textIcon = createPureTextIcon(c, place.getString(Keys.KEY_PLACE_TITLE), Pair.create(0, 0));
-
-		float rotation = (float) place.getInt(Keys.KEY_PLACE_MARKER_ROTATION);
-
+	public static Bitmap createPlaceIcon(Context c, MapPlace place, MapLabelIconAlign imageIconAlignment) {
+		Bitmap textIcon = createTextIcon(c, place.getTitle(), Pair.create(0, 0));
 
 		// get passed in icon or use the default one
 		int iconId = R.drawable.location_marker;
@@ -45,8 +33,15 @@ public class MarkerCreator {
 				.build().getPicture());
 
 		// combine text and image
-		markerIcon = combineLabelBitmaps(markerIcon, textIcon, imageIconAlignment);
+		if (textIcon != null)
+			markerIcon = combineLabelBitmaps(markerIcon, textIcon, imageIconAlignment);
 
+		return markerIcon;
+	}
+
+	public static Marker createPlaceMarker(Context c, GoogleMap map, MapPlace place) {
+
+		MapLabelIconAlign imageIconAlignment = MapLabelIconAlign.TOP;
 		Pair<Float, Float> labelAnchor;
 
 		switch (imageIconAlignment) {
@@ -70,17 +65,37 @@ public class MarkerCreator {
 
 		// add icon image on actual point
 		return map.addMarker(new MarkerOptions()
-						.position(MercatorProjection.fromPointToLatLng(screenLocation))
-						.icon(BitmapDescriptorFactory.fromBitmap(markerIcon))
+						.position(MercatorProjection.fromPointToLatLng(place.getPosition()))
+						.icon(BitmapDescriptorFactory.fromBitmap(createPlaceIcon(c, place, imageIconAlignment)))
 						.anchor(labelAnchor.first, labelAnchor.second)
-						.rotation(rotation)
+						.rotation(place.getMarkerRotation())
 						.draggable(BuildConfig.DEBUG)
-						.visible(false)
+						.visible(BuildConfig.DEBUG)
 		);
 	}
 
-	/* helper functions */
-	public static Bitmap combineLabelBitmaps(Bitmap a, Bitmap b, MapLabelIconAlign alignment) {
+
+	/* Helper functions */
+
+	private static Bitmap createTextIcon(Context c, String text, Pair<Integer, Integer> rotation) {
+
+		if (text == null || text.isEmpty())
+			return null;
+
+		IconGenerator generator = new IconGenerator(c);
+		generator.setBackground(null);
+		generator.setTextAppearance(R.style.MapTextRawStyle);
+		generator.setContentPadding(0, 0, 0, 0);
+
+		if (rotation != null) {
+			generator.setRotation(rotation.first);
+			generator.setContentRotation(rotation.second);
+		}
+
+		return generator.makeIcon(text);
+	}
+
+	private static Bitmap combineLabelBitmaps(Bitmap a, Bitmap b, MapLabelIconAlign alignment) {
 
 		if (alignment == MapLabelIconAlign.TOP) {
 			Bitmap bmp = Bitmap.createBitmap(b.getWidth(), a.getHeight() + b.getHeight(), Bitmap.Config.ARGB_8888);
@@ -108,23 +123,7 @@ public class MarkerCreator {
 		return bmp;
 	}
 
-	public static Bitmap createPureTextIcon(Context c, String text,
-	                                        Pair<Integer, Integer> rotation) {
-
-		IconGenerator generator = new IconGenerator(c);
-		generator.setBackground(null);
-		generator.setTextAppearance(R.style.MapTextRawStyle);
-		generator.setContentPadding(0, 0, 0, 0);
-
-		if (rotation != null) {
-			generator.setRotation(rotation.first);
-			generator.setContentRotation(rotation.second);
-		}
-
-		return generator.makeIcon(text);
-	}
-
-	public static Bitmap pictureDrawableToBitmap(Picture picture) {
+	private static Bitmap pictureDrawableToBitmap(Picture picture) {
 		PictureDrawable pd = new PictureDrawable(picture);
 		Bitmap bitmap = Bitmap.createBitmap(pd.getIntrinsicWidth(), pd.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(bitmap);

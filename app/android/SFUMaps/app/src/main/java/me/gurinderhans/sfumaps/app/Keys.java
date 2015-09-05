@@ -30,14 +30,16 @@ public final class Keys {
 	public static final String KEY_HIERARCHY_PARENT_ID = "parent";
 	public static final String KEY_HIERARCHY_VALUE = "value";
 
-	// Map Place keys
-	public static final String KEY_PLACE = "MapPlace";
-	public static final String KEY_PLACE_TITLE = "placeTitle";
-	public static final String KEY_PLACE_DESCRIPTION = "placeDescription";
-	public static final String KEY_PLACE_TYPE = "placeType";
-	public static final String KEY_PLACE_POSITION_X = "positionX";
-	public static final String KEY_PLACE_POSITION_Y = "positionY";
-	public static final String KEY_PLACE_ZOOM = "placeZoom";
-	public static final String KEY_PLACE_MARKER_ROTATION = "placeMarkerRotation";
+
+	public static class ParseMapPlace {
+		/* Map MapPlace (ParseObject) keys */
+		public static final String CLASS = "MapPlace";
+		public static final String TITLE = "placeTitle";
+		public static final String TYPE = "placeType";
+		public static final String POSITION_X = "positionX";
+		public static final String POSITION_Y = "positionY";
+		public static final String ZOOM = "placeZoom";
+		public static final String MARKER_ROTATION = "placeMarkerRotation";
+	}
 
 }

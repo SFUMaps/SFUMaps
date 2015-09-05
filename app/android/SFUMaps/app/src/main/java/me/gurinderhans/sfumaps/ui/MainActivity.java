@@ -1,15 +1,12 @@
 package me.gurinderhans.sfumaps.ui;
 
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
-import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,18 +25,15 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
+import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
@@ -51,7 +45,6 @@ public class MainActivity extends FragmentActivity
 		OnCameraChangeListener,
 		OnMapLongClickListener,
 		OnMarkerClickListener,
-		OnDismissListener,
 		OnMarkerDragListener {
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
@@ -67,35 +60,29 @@ public class MainActivity extends FragmentActivity
 	private DiskLruCache mTileCache;
 	private PlaceFormDialog mPlaceFormDialog;
 
-	private List<Pair<ParseObject, Marker>> mAllMapPlaces = new ArrayList<>();
+
+	// static so that PlaceForm dialog can directly access this list and modify it
+	public static List<MapPlace> mAllMapPlaces = new ArrayList<>();
 
 	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
-		public void done(List<ParseObject> places, ParseException e) {
+		public void done(List<ParseObject> results, ParseException e) {
 
-			for (ParseObject newPlace : places) {
-				int placeIndex = getPlaceIndex(newPlace);
+			for (ParseObject result : results) {
+
+				MapPlace place = (MapPlace) result;
+
+				int placeIndex = getPlaceIndex(
+						MercatorProjection.fromPointToLatLng(place.getPosition())
+				);
 
 				if (placeIndex == -1) { // place is new!
-					mAllMapPlaces.add(Pair.create(newPlace,
-							MarkerCreator.addTextAndIconMarker(
-									getApplicationContext(),
-									Map,
-									MarkerCreator.MapLabelIconAlign.TOP,
-									newPlace
-							)));
-				}
 
-				if (BuildConfig.DEBUG && placeIndex >= 0) { // update place
-					Marker placeMarker = mAllMapPlaces.get(placeIndex).second;
-					placeMarker.remove();
-					placeMarker = MarkerCreator.addTextAndIconMarker(
-							getApplicationContext(),
-							Map,
-							MarkerCreator.MapLabelIconAlign.TOP,
-							newPlace
+					place.tieWithMarker(
+							MarkerCreator.createPlaceMarker(getApplicationContext(), Map, place)
 					);
-					mAllMapPlaces.set(placeIndex, Pair.create(newPlace, placeMarker));
+
+					mAllMapPlaces.add(place);
 				}
 			}
 
@@ -124,29 +111,30 @@ public class MainActivity extends FragmentActivity
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		// map grid
 		mGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
 
-		// setup Map
 		setUpMapIfNeeded();
 
+
+		/* Dev Controls */
+
 		// show dev controls if app is in dev mode
-		if (BuildConfig.DEBUG)
-			findViewById(R.id.main_dev_layout).setVisibility(View.VISIBLE);
+		if (BuildConfig.DEBUG) {
+			// show views
+			findViewById(R.id.dev_overlay).setVisibility(View.VISIBLE);
+
+			// create admin panel
+			PathMaker.initPathMaker(Map, mGrid, getSupportFragmentManager(),
+					findViewById(R.id.edit_map_grid_controls));
+		}
 	}
 
 	private void setUpMapIfNeeded() {
 		// Do a null check to confirm that we have not already instantiated the map.
 		if (Map == null) {
-			CustomMapFragment fragment = (CustomMapFragment) getSupportFragmentManager()
-					.findFragmentById(R.id.map);
 
-			Map = fragment.getMap();
-
-			// create admin panel
-			if (BuildConfig.DEBUG)
-				PathMaker.initPathMaker(Map, mGrid, fragment,
-						findViewById(R.id.edit_map_grid_controls));
+			Map = ((CustomMapFragment) getSupportFragmentManager()
+					.findFragmentById(R.id.map)).getMap();
 
 			// set up map UI
 			if (Map != null)
@@ -218,9 +206,21 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onMapLongClick(LatLng latLng) {
 		if (BuildConfig.DEBUG) {
+
+			// create new place
+			MapPlace newPlace = new MapPlace();
+			newPlace.setPosition(MercatorProjection.fromLatLngToPoint(latLng));
+			newPlace.tieWithMarker(MarkerCreator.createPlaceMarker(getApplicationContext(), Map, newPlace));
+			mAllMapPlaces.add(newPlace);
+
 			// show dialog asking place info
-			mPlaceFormDialog = new PlaceFormDialog(this, Map, MercatorProjection.fromLatLngToPoint(latLng), null);
-			mPlaceFormDialog.setOnDismissListener(this);
+			mPlaceFormDialog = new PlaceFormDialog(
+					this,
+					Map,
+					getPlaceIndex(
+							MercatorProjection.fromPointToLatLng(newPlace.getPosition())
+					)
+			);
 			mPlaceFormDialog.show();
 		}
 	}
@@ -228,25 +228,71 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public boolean onMarkerClick(Marker marker) {
 
-		Pair<ParseObject, Marker> clickedPlace = null;
-
-		// find this marker in list
-		for (Pair<ParseObject, Marker> el : mAllMapPlaces)
-			if (el.second.getPosition().equals(marker.getPosition())) {
-				clickedPlace = el;
-				break;
-			}
-
-		if (clickedPlace != null) {
+		// find the clicked marker
+		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
+		if (clickedPlaceIndex != -1) {
 
 			if (BuildConfig.DEBUG) {
-				mPlaceFormDialog = new PlaceFormDialog(MainActivity.this, Map, MercatorProjection.fromLatLngToPoint(marker.getPosition()), clickedPlace);
-				mPlaceFormDialog.setOnDismissListener(this);
+				mPlaceFormDialog = new PlaceFormDialog(
+						this,
+						Map,
+						clickedPlaceIndex
+				);
 				mPlaceFormDialog.show();
 			}
 		}
 
 		return true;
+	}
+
+	@Override
+	public void onMarkerDragStart(Marker marker) {
+	}
+
+	@Override
+	public void onMarkerDrag(Marker marker) {
+	}
+
+	@Override
+	public void onMarkerDragEnd(Marker marker) {
+
+		// find the clicked marker
+		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
+		if (draggedPlaceIndex != -1) {
+			mAllMapPlaces.get(draggedPlaceIndex).setPosition(
+					MercatorProjection.fromLatLngToPoint(marker.getPosition())
+			);
+
+			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
+				@Override
+				public void done(ParseException e) {
+					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
+				}
+			});
+		}
+	}
+
+
+	/* Custom helper methods */
+
+	private int getPlaceIndex(LatLng placePos) {
+		for (int i = 0; i < mAllMapPlaces.size(); i++)
+			if (mAllMapPlaces.get(i).getPlaceMarker().getPosition().equals(placePos))
+				return i;
+
+		return -1;
+	}
+
+	private void syncMarkers() {
+		for (MapPlace el : mAllMapPlaces)
+			for (int zoom : el.getZooms()) {
+				if (zoom == mMapCurrentZoom) {
+					el.getPlaceMarker().setVisible(true);
+					break;
+				} else {
+					el.getPlaceMarker().setVisible(false);
+				}
+			}
 	}
 
 	/**
@@ -260,93 +306,5 @@ public class MainActivity extends FragmentActivity
 		return mTileCache == null
 				? svgTileProvider
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
-	}
-
-	@Override
-	public void onDismiss(DialogInterface dialog) {
-		// refresh markers
-		MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
-	}
-
-
-	/* marker drag */
-	@Override
-	public void onMarkerDragStart(Marker marker) {
-	}
-
-	@Override
-	public void onMarkerDrag(Marker marker) {
-	}
-
-	@Override
-	public void onMarkerDragEnd(Marker marker) {
-		/* find the marker that was drag and update its location */
-		Pair<ParseObject, Marker> foundPair = null;
-
-		// find this marker in list
-		for (Pair<ParseObject, Marker> el : mAllMapPlaces) {
-			if (el.second.getPosition().equals(marker.getPosition())) {
-				foundPair = el;
-				break;
-			}
-		}
-
-		if (foundPair != null) { // marker found
-			PointF location = MercatorProjection.fromLatLngToPoint(marker.getPosition());
-			foundPair.first.put(Keys.KEY_PLACE_POSITION_X, location.x);
-			foundPair.first.put(Keys.KEY_PLACE_POSITION_Y, location.y);
-			foundPair.first.saveInBackground(new SaveCallback() {
-				@Override
-				public void done(ParseException e) {
-					Toast.makeText(getApplicationContext(), "Location Updated!", Toast.LENGTH_SHORT).show();
-				}
-			});
-		}
-	}
-
-	/**
-	 * Checks if the place that we just downloaded is already stored locally in mAllMapPlaces
-	 *
-	 * @param place - downloaded place
-	 * @return - true if its already downloaded
-	 */
-	int getPlaceIndex(ParseObject place) {
-		PointF placePos = new PointF(
-				(float) place.getDouble(Keys.KEY_PLACE_POSITION_X),
-				(float) place.getDouble(Keys.KEY_PLACE_POSITION_Y)
-		);
-
-		for (int i = 0; i < mAllMapPlaces.size(); i++) {
-			// compare by location
-			PointF thisPlacePos = new PointF(
-					(float) mAllMapPlaces.get(i).first.getDouble(Keys.KEY_PLACE_POSITION_X),
-					(float) mAllMapPlaces.get(i).first.getDouble(Keys.KEY_PLACE_POSITION_Y)
-			);
-
-			if (placePos.equals(thisPlacePos)) {
-				return i;
-			}
-		}
-
-		return -1;
-	}
-
-	private void syncMarkers() {
-		for (Pair<ParseObject, Marker> el : mAllMapPlaces) {
-			JSONArray placeZooms = el.first.getJSONArray(Keys.KEY_PLACE_ZOOM);
-
-			for (int i = 0; i < placeZooms.length(); i++) {
-				try {
-					if (placeZooms.getInt(i) == mMapCurrentZoom) {
-						el.second.setVisible(true);
-						break;
-					} else {
-						el.second.setVisible(false);
-					}
-				} catch (JSONException ex) {
-					ex.printStackTrace();
-				}
-			}
-		}
 	}
 }

@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import me.gurinderhans.sfumaps.app.Keys;
-import me.gurinderhans.sfumaps.ui.MainActivity;
 import me.gurinderhans.sfumaps.ui.SVGTileProvider;
 
 /**
@@ -44,9 +43,9 @@ public class MapTools {
 	//
 
 	public static void getZoomMarkers(int zoom, FindCallback<ParseObject> callback) {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.KEY_PLACE);
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.ParseMapPlace.CLASS);
 		Integer[] zooms = {zoom};
-		query.whereContainedIn(Keys.KEY_PLACE_ZOOM, Arrays.asList(zooms));
+		query.whereContainedIn(Keys.ParseMapPlace.ZOOM, Arrays.asList(zooms));
 		query.findInBackground(callback);
 	}
 
