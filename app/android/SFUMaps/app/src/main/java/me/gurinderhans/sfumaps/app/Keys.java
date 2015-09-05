@@ -35,7 +35,8 @@ public final class Keys {
 	public static final String KEY_PLACE_TITLE = "placeTitle";
 	public static final String KEY_PLACE_DESCRIPTION = "placeDescription";
 	public static final String KEY_PLACE_TYPE = "placeType";
-	public static final String KEY_PLACE_POSITION = "placePosition";
+	public static final String KEY_PLACE_POSITION_X = "positionX";
+	public static final String KEY_PLACE_POSITION_Y = "positionY";
 	public static final String KEY_PLACE_ZOOM = "placeZoom";
 	public static final String KEY_PLACE_MARKER_ROTATION = "placeMarkerRotation";
 

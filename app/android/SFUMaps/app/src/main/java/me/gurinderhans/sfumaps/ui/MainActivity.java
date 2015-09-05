@@ -24,8 +24,6 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,31 +64,27 @@ public class MainActivity extends FragmentActivity
 
 			for (ParseObject object : objects) {
 				// show these markers
-				JSONObject location = object.getJSONObject(Keys.KEY_PLACE_POSITION);
-				try {
-					float x = (float) location.getDouble("x");
-					float y = (float) location.getDouble("y");
-					mMapCurrentZoomMarkers.add(
-							Pair.create(
-									object,
-									MarkerCreator.addTextMarker(
-											getApplicationContext(),
-											Map,
-											new PointF(x, y),
-											MarkerCreator.createPureTextIcon(
-													getApplicationContext(),
-													object.getString(Keys.KEY_PLACE_TITLE),
-													Pair.create(0, object.getInt(Keys.KEY_PLACE_MARKER_ROTATION))
-											),
-											object.getInt(Keys.KEY_PLACE_MARKER_ROTATION)
-									)
-							)
-					);
+				PointF location = new PointF(
+						(float) object.getDouble(Keys.KEY_PLACE_POSITION_X),
+						(float) object.getDouble(Keys.KEY_PLACE_POSITION_Y));
 
-				} catch (Exception exception) {
-					// unable to parse location for this place, no marker for this place then
-					exception.printStackTrace();
-				}
+
+				mMapCurrentZoomMarkers.add(
+						Pair.create(
+								object,
+								MarkerCreator.addTextMarker(
+										getApplicationContext(),
+										Map,
+										location,
+										MarkerCreator.createPureTextIcon(
+												getApplicationContext(),
+												object.getString(Keys.KEY_PLACE_TITLE),
+												Pair.create(0, object.getInt(Keys.KEY_PLACE_MARKER_ROTATION))
+										),
+										object.getInt(Keys.KEY_PLACE_MARKER_ROTATION)
+								)
+						)
+				);
 			}
 		}
 	};

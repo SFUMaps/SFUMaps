@@ -30,7 +30,6 @@ import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -167,16 +166,8 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		mTmpPlace.first.put(Keys.KEY_PLACE_TITLE, mPlaceTitleEditText.getText().toString());
 
 		// place location
-		try {
-			JSONObject location = new JSONObject();
-			location.put("x", mClickedPoint.x);
-			location.put("y", mClickedPoint.y);
-
-			mTmpPlace.first.put(Keys.KEY_PLACE_POSITION, location);
-		} catch (JSONException e) {
-			// TODO: catch exception here!!
-			e.printStackTrace();
-		}
+		mTmpPlace.first.put(Keys.KEY_PLACE_POSITION_X, mClickedPoint.x);
+		mTmpPlace.first.put(Keys.KEY_PLACE_POSITION_Y, mClickedPoint.y);
 
 		// place type
 		mTmpPlace.first.put(Keys.KEY_PLACE_TYPE, mSpinner.getSelectedItem().toString());
