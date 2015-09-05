@@ -31,8 +31,8 @@ import com.parse.SaveCallback;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.app.AppConfig;
 import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.PlaceFormDialog;
@@ -52,6 +52,11 @@ public class MainActivity extends FragmentActivity
 		OnMarkerDragListener {
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
+
+	/* !! NOTE !!
+	 * `BuildConfig.DEBUG` is our "dev mode". Since only the developer can generate app-debug.apk
+	 * this should make it secure for someone who tries to mod the apk to turn this on or something.
+	 */
 
 	// member variables
 	private GoogleMap Map;
@@ -119,7 +124,7 @@ public class MainActivity extends FragmentActivity
 		setUpMapIfNeeded();
 
 		// show dev controls if app is in dev mode
-		if (AppConfig.DEV_MODE)
+		if (BuildConfig.DEBUG)
 			findViewById(R.id.main_dev_layout).setVisibility(View.VISIBLE);
 	}
 
@@ -132,7 +137,7 @@ public class MainActivity extends FragmentActivity
 			Map = fragment.getMap();
 
 			// create admin panel
-			if (AppConfig.DEV_MODE)
+			if (BuildConfig.DEBUG)
 				PathMaker.initPathMaker(Map, mGrid, fragment,
 						findViewById(R.id.edit_map_grid_controls));
 
@@ -203,7 +208,7 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onMapLongClick(LatLng latLng) {
-		if (AppConfig.DEV_MODE) {
+		if (BuildConfig.DEBUG) {
 			// show dialog asking place info
 			mPlaceFormDialog = new PlaceFormDialog(this, Map, MercatorProjection.fromLatLngToPoint(latLng), null);
 			mPlaceFormDialog.setOnDismissListener(this);
@@ -213,8 +218,6 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
-
-		// TODO: 15-09-04 configure showing admin panel in AppConfig
 
 		Pair<ParseObject, Marker> clickedPlace = null;
 
@@ -227,7 +230,7 @@ public class MainActivity extends FragmentActivity
 
 		if (clickedPlace != null) {
 
-			if (AppConfig.DEV_MODE) {
+			if (BuildConfig.DEBUG) {
 				mPlaceFormDialog = new PlaceFormDialog(MainActivity.this, Map, MercatorProjection.fromLatLngToPoint(marker.getPosition()), clickedPlace);
 				mPlaceFormDialog.setOnDismissListener(this);
 				mPlaceFormDialog.show();

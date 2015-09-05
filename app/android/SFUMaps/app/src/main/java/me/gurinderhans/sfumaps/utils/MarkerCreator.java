@@ -16,6 +16,7 @@ import com.google.maps.android.ui.IconGenerator;
 import com.larvalabs.svgandroid.SVGBuilder;
 import com.parse.ParseObject;
 
+import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.app.AppConfig;
 import me.gurinderhans.sfumaps.app.Keys;
@@ -74,7 +75,7 @@ public class MarkerCreator {
 						.icon(BitmapDescriptorFactory.fromBitmap(markerIcon))
 						.anchor(labelAnchor.first, labelAnchor.second)
 						.rotation(rotation)
-						.draggable(AppConfig.DEV_MODE)
+						.draggable(BuildConfig.DEBUG)
 		);
 	}
 

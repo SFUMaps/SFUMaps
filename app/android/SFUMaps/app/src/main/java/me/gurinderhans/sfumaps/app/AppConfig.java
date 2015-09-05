@@ -20,10 +20,6 @@ public class AppConfig {
 	public static final float TILE_SIZE = 256f;
 	public static final String DATABASE_TABLE_PREFIX = "apsdata";
 
-	// FIXME: 15-09-04 This method is not safe here
-	public static final boolean DEV_MODE = false;
-
-
 	/**
 	 * :: config variables ::
 	 */
