@@ -66,4 +66,7 @@ public class AppConfig {
 		prefs.edit().putStringSet(Keys.KEY_CONFIG_SSID_SET, ssidSet).apply();
 
 	}
+
+
+	// TODO: 15-09-04 On First time app start up download all parse data and pin to local datastore
 }

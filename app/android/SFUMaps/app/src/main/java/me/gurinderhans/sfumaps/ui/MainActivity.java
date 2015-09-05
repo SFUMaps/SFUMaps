@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Pair;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -179,6 +180,9 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
+
+		// Temp: set map zoom on textview
+		((TextView) findViewById(R.id.map_current_zoom)).setText(cameraPosition.zoom + "");
 
 		// 1. limit map max zoom
 		float maxZoom = 8f;
