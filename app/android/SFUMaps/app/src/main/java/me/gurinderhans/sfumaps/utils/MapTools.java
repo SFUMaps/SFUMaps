@@ -179,7 +179,7 @@ public class MapTools {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.d(MainActivity.TAG, "Could not create BaseMap Tile Provider.");
+			Log.d(TAG, "Could not create BaseMap Tile Provider.");
 		}
 
 		return null;

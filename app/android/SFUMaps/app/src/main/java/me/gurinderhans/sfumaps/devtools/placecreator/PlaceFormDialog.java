@@ -51,7 +51,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	private Activity mActivity;
 
 	// place being created / edited in this dialog
-	Pair<ParseObject, Marker> mTmpPlace;
+	private Pair<ParseObject, Marker> mTmpPlace;
 	private final PointF mClickedPoint;
 
 	// global views
@@ -233,13 +233,13 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 					}
 				});
 
-				mTmpPlace.second.remove();
-
-				mTmpPlace = null;
 				break;
 			default:
 				break;
 		}
+
+		mTmpPlace.second.remove();
+
 		dismiss();
 	}
 

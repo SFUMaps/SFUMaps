@@ -1,5 +1,7 @@
 package me.gurinderhans.sfumaps.ui;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,9 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.PlaceFormDialog;
-import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
@@ -39,22 +41,26 @@ import me.gurinderhans.sfumaps.utils.MercatorProjection;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
 
 public class MainActivity extends FragmentActivity
-		implements OnCameraChangeListener, OnMapLongClickListener, OnMarkerClickListener {
+		implements OnCameraChangeListener, OnMapLongClickListener, OnMarkerClickListener, OnDismissListener {
 
-	public static final String TAG = MainActivity.class.getSimpleName();
+	protected static final String TAG = MainActivity.class.getSimpleName();
 
+	// member variables
 	private GoogleMap Map;
 	private MapGrid mGrid;
 	private DiskLruCache mTileCache;
-
-	public List<Pair<ParseObject, Marker>> mMapCurrentZoomMarkers = new ArrayList<>();
+	private PlaceFormDialog mPlaceFormDialog;
+	private List<Pair<ParseObject, Marker>> mMapCurrentZoomMarkers = new ArrayList<>();
 
 	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
+
 			// hide prev zoom markers
-			for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers)
+			for (Pair<ParseObject, Marker> el : mMapCurrentZoomMarkers) {
+				// TODO: 15-09-04 remove if its not in next zoom
 				el.second.remove();
+			}
 
 			mMapCurrentZoomMarkers = new ArrayList<>();
 
@@ -166,20 +172,6 @@ public class MainActivity extends FragmentActivity
 	}
 
 
-	/**
-	 * Helper method to choose tile provider
-	 *
-	 * @param layer           - layer number for overlay tile provider to keep cache tiles for each overlay separate
-	 * @param svgTileProvider - an instance of SVGTileProvider.class
-	 * @return - IF cache supported, CachedTileProvider object ELSE the given SVGTileProvider object
-	 */
-	public TileProvider getTileProvider(int layer, SVGTileProvider svgTileProvider) {
-		return mTileCache == null
-				? svgTileProvider
-				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
-	}
-
-
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -188,6 +180,7 @@ public class MainActivity extends FragmentActivity
 
 
 	private int mMapCurrentZoom;
+
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
@@ -210,7 +203,9 @@ public class MainActivity extends FragmentActivity
 		PointF point = MercatorProjection.fromLatLngToPoint(latLng);
 
 		// show dialog asking place info // TODO: 15-09-04 configure showing in admin panel
-		new PlaceFormDialog(this, Map, point, null).show();
+		mPlaceFormDialog = new PlaceFormDialog(this, Map, point, null);
+		mPlaceFormDialog.setOnDismissListener(this);
+		mPlaceFormDialog.show();
 	}
 
 	@Override
@@ -228,9 +223,31 @@ public class MainActivity extends FragmentActivity
 			}
 		}
 
-		if (foundPair != null)
-			new PlaceFormDialog(MainActivity.this, Map, MercatorProjection.fromLatLngToPoint(marker.getPosition()), foundPair).show();
+		if (foundPair != null) {
+			mPlaceFormDialog = new PlaceFormDialog(MainActivity.this, Map, MercatorProjection.fromLatLngToPoint(marker.getPosition()), foundPair);
+			mPlaceFormDialog.setOnDismissListener(this);
+			mPlaceFormDialog.show();
+		}
 
 		return true;
+	}
+
+	/**
+	 * Helper method to choose tile provider
+	 *
+	 * @param layer           - layer number for overlay tile provider to keep cache tiles for each overlay separate
+	 * @param svgTileProvider - an instance of SVGTileProvider.class
+	 * @return - IF cache supported, CachedTileProvider object ELSE the given SVGTileProvider object
+	 */
+	public TileProvider getTileProvider(int layer, SVGTileProvider svgTileProvider) {
+		return mTileCache == null
+				? svgTileProvider
+				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
+	}
+
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+		// get stuff from dialog and bla bla
+		MapTools.getZoomMarkers(mMapCurrentZoom, onZoomChangedCallback);
 	}
 }
