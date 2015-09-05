@@ -12,7 +12,7 @@
         tools:context=".MainActivity"/>
 
     <LinearLayout
-        android:id="@+id/main_dev_layout"
+        android:id="@+id/dev_overlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"

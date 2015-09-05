@@ -6,8 +6,6 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -21,23 +19,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.parse.DeleteCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.SaveCallback;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.app.Keys;
-import me.gurinderhans.sfumaps.utils.MercatorProjection;
+import me.gurinderhans.sfumaps.factory.classes.MapPlace;
+import me.gurinderhans.sfumaps.ui.MainActivity;
+import me.gurinderhans.sfumaps.utils.MarkerCreator;
 
 /**
  * Created by ghans on 15-09-03.
@@ -50,8 +44,8 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	private Activity mActivity;
 
 	// place being created / edited in this dialog
-	private Pair<ParseObject, Marker> mTmpPlace;
-	private final PointF mClickedPoint;
+	private MapPlace mTmpPlace;
+	private int mEditingPlaceIndex;
 
 	// global views
 	private EditText mPlaceTitleEditText;
@@ -60,22 +54,12 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	private SeekBar mMarkerRotator;
 
 
-	public PlaceFormDialog(Activity activity, GoogleMap map, PointF point, Pair<ParseObject, Marker> oldPlaceOpt) {
+	public PlaceFormDialog(Activity activity, GoogleMap map, int placeIndex) {
 		super(activity);
 
 		mActivity = activity;
-		mClickedPoint = point;
-
-
-		if (oldPlaceOpt == null) {
-			mTmpPlace = Pair.create(
-					new ParseObject(Keys.KEY_PLACE),
-					map.addMarker(new MarkerOptions()
-							.position(MercatorProjection.fromPointToLatLng(point)))
-			);
-		} else {
-			mTmpPlace = oldPlaceOpt;
-		}
+		mEditingPlaceIndex = placeIndex;
+		mTmpPlace = MainActivity.mAllMapPlaces.get(placeIndex);
 
 		setCancelable(false);
 	}
@@ -112,70 +96,40 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 	void loadPlace() {
 
-		mPlaceTitleEditText.setText(mTmpPlace.first.getString(Keys.KEY_PLACE_TITLE));
-		((TextView) findViewById(R.id.view_place_coords)).setText(mClickedPoint.x + ", " + mClickedPoint.y);
+		mPlaceTitleEditText.setText(mTmpPlace.getTitle());
+
+		PointF position = mTmpPlace.getPosition();
+		((TextView) findViewById(R.id.view_place_coords)).setText(position.x + ", " + position.y);
+
 
 		// get position of place type
-		int selectIndex = Arrays.asList(mActivity.getResources().getStringArray(R.array.place_types)).indexOf(mTmpPlace.first.get(Keys.KEY_PLACE_TYPE));
-		Log.i(TAG, "selectIndex: " + selectIndex);
-		mSpinner.setSelection(selectIndex);
+		int spinnerSelectIndex = Arrays.asList(mActivity
+				.getResources()
+				.getStringArray(R.array.place_types)).indexOf(mTmpPlace.getType());
+		mSpinner.setSelection(spinnerSelectIndex);
 
 		// load rotation
-		mMarkerRotator.setProgress(mTmpPlace.first.getInt(Keys.KEY_PLACE_MARKER_ROTATION));
+		mMarkerRotator.setProgress(mTmpPlace.getMarkerRotation());
 
 		// load checkboxes
-		try {
-
-			JSONArray zooms = mTmpPlace.first.getJSONArray(Keys.KEY_PLACE_ZOOM);
-
-			if (zooms == null) return;
-
-			for (int i = 0; i < zooms.length(); i++) {
-				switch (zooms.getInt(i)) {
-					case 2:
-						((CheckBox) findViewById(R.id.zoom_2)).setChecked(true);
-						break;
-					case 3:
-						((CheckBox) findViewById(R.id.zoom_3)).setChecked(true);
-						break;
-					case 4:
-						((CheckBox) findViewById(R.id.zoom_4)).setChecked(true);
-						break;
-					case 5:
-						((CheckBox) findViewById(R.id.zoom_5)).setChecked(true);
-						break;
-					case 6:
-						((CheckBox) findViewById(R.id.zoom_6)).setChecked(true);
-						break;
-					case 7:
-						((CheckBox) findViewById(R.id.zoom_7)).setChecked(true);
-						break;
-					case 8:
-						((CheckBox) findViewById(R.id.zoom_8)).setChecked(true);
-						break;
-				}
-			}
-		} catch (JSONException e) {
-			// TODO: 15-09-04 handle exception here ?
-			e.printStackTrace();
-		}
+		List<Integer> zooms = mTmpPlace.getZooms();
+		((CheckBox) findViewById(R.id.zoom_2)).setChecked(zooms.contains(2));
+		((CheckBox) findViewById(R.id.zoom_3)).setChecked(zooms.contains(3));
+		((CheckBox) findViewById(R.id.zoom_4)).setChecked(zooms.contains(4));
+		((CheckBox) findViewById(R.id.zoom_5)).setChecked(zooms.contains(5));
+		((CheckBox) findViewById(R.id.zoom_6)).setChecked(zooms.contains(6));
+		((CheckBox) findViewById(R.id.zoom_7)).setChecked(zooms.contains(7));
+		((CheckBox) findViewById(R.id.zoom_8)).setChecked(zooms.contains(8));
 	}
 
 	void savePlace() {
-		// place title
-		mTmpPlace.first.put(Keys.KEY_PLACE_TITLE, mPlaceTitleEditText.getText().toString());
-
-		// place location
-		mTmpPlace.first.put(Keys.KEY_PLACE_POSITION_X, mClickedPoint.x);
-		mTmpPlace.first.put(Keys.KEY_PLACE_POSITION_Y, mClickedPoint.y);
-
-		// place type
-		mTmpPlace.first.put(Keys.KEY_PLACE_TYPE, mSpinner.getSelectedItem().toString());
+		if (mPlaceTitleEditText.getText().toString().isEmpty()) {
+			Toast.makeText(getContext(), "Not saving place without title.", Toast.LENGTH_LONG).show();
+			return;
+		}
 
 		List<Integer> zooms = new ArrayList<>();
 
-		// NOTE: yes I am doing this FO REAL!!
-		// FIXME: 15-09-04 Get a better way to do this
 		// get place zooms
 		if (((CheckBox) findViewById(R.id.zoom_2)).isChecked())
 			zooms.add(2);
@@ -192,19 +146,27 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		if (((CheckBox) findViewById(R.id.zoom_8)).isChecked())
 			zooms.add(8);
 
-		mTmpPlace.first.put(Keys.KEY_PLACE_ZOOM, zooms);
 
-		// place marker rotation
-		mTmpPlace.first.put(Keys.KEY_PLACE_MARKER_ROTATION, mMarkerRotator.getProgress());
+		mTmpPlace.setTitle(mPlaceTitleEditText.getText().toString());
+		mTmpPlace.setZooms(zooms);
+		mTmpPlace.setType(mSpinner.getSelectedItem().toString());
+
+		// update list
+		MainActivity.mAllMapPlaces.set(mEditingPlaceIndex, mTmpPlace);
+
+		// update marker text
+		mTmpPlace.getPlaceMarker().setIcon(BitmapDescriptorFactory.fromBitmap(
+				MarkerCreator.createPlaceIcon(mActivity.getApplicationContext(), mTmpPlace, MarkerCreator.MapLabelIconAlign.TOP)
+		));
 
 
-		// push place to parse servers
-		mTmpPlace.first.saveInBackground(new SaveCallback() {
+		mTmpPlace.savePlaceWithCallback(new SaveCallback() {
 			@Override
 			public void done(ParseException e) {
 				if (e != null)
-					e.printStackTrace();
-				Toast.makeText(getContext(), "Place saved.", Toast.LENGTH_LONG).show();
+					Toast.makeText(getContext(), "Unable to save.", Toast.LENGTH_LONG).show();
+				else
+					Toast.makeText(getContext(), "MapPlace saved.", Toast.LENGTH_LONG).show();
 			}
 		});
 	}
@@ -217,19 +179,18 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 				break;
 			case R.id.btn_remove_place:
 				// remove place
-				mTmpPlace.first.deleteInBackground(new DeleteCallback() {
+				mTmpPlace.deleteInBackground(new DeleteCallback() {
 					@Override
 					public void done(ParseException e) {
-						Toast.makeText(getContext(), "Place deleted.", Toast.LENGTH_LONG).show();
+						Toast.makeText(getContext(), "MapPlace deleted.", Toast.LENGTH_LONG).show();
 					}
 				});
-
+				mTmpPlace.getPlaceMarker().remove();
+				MainActivity.mAllMapPlaces.remove(mEditingPlaceIndex);
 				break;
 			default:
 				break;
 		}
-
-		mTmpPlace.second.remove();
 
 		dismiss();
 	}
@@ -237,7 +198,8 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		markerRotateValueView.setText(progress + "°");
-		mTmpPlace.second.setRotation(progress);
+		mTmpPlace.setMarkerRotation(progress);
+
 	}
 
 	@Override

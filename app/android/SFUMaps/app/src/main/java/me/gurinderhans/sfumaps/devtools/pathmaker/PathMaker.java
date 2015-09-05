@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps.devtools.pathmaker;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -210,10 +211,11 @@ public class PathMaker implements MapWrapperLayout.OnDragListener {
 		});
 	}
 
-	public static void initPathMaker(GoogleMap map, MapGrid grid, CustomMapFragment mapFragment, View rootView) {
+	public static void initPathMaker(GoogleMap map, MapGrid grid, FragmentManager fragmentManager, View rootView) {
 
 		if (mInstance == null) {
 			try {
+				CustomMapFragment mapFragment = (CustomMapFragment) fragmentManager.findFragmentById(R.id.map);
 				mInstance = new PathMaker(map, grid, mapFragment, rootView);
 			} catch (PathMakerException e) {
 				Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
