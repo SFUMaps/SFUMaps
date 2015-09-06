@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 
@@ -34,6 +36,7 @@ import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
+import me.gurinderhans.sfumaps.factory.classes.PathSearch;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
@@ -58,6 +61,8 @@ public class MainActivity extends FragmentActivity
 	private GoogleMap Map;
 	private DiskLruCache mTileCache;
 	private PlaceFormDialog mPlaceFormDialog;
+	private PathSearch mPathSearch;
+	private Pair<MapPlace, MapPlace> mPlaceFromTo;
 
 
 	// static so that PlaceForm dialog can directly access this list and modify it
@@ -110,9 +115,12 @@ public class MainActivity extends FragmentActivity
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		MapGrid mGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
+		MapGrid mapGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
 
 		setUpMapIfNeeded();
+
+		mPathSearch = new PathSearch(Map, mapGrid);
+
 
 
 		/* Dev Controls */
@@ -123,7 +131,7 @@ public class MainActivity extends FragmentActivity
 			findViewById(R.id.dev_overlay).setVisibility(View.VISIBLE);
 
 			// create admin panel
-			PathMaker.initPathMaker(Map, mGrid, getSupportFragmentManager(),
+			PathMaker.initPathMaker(Map, mapGrid, getSupportFragmentManager(),
 					findViewById(R.id.edit_map_grid_controls));
 		}
 	}
@@ -229,14 +237,29 @@ public class MainActivity extends FragmentActivity
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
 
-			if (BuildConfig.DEBUG) {
+			// do path search
+			if (mPlaceFromTo == null) {
+				mPlaceFromTo = Pair.create(mAllMapPlaces.get(clickedPlaceIndex), null);
+			} else {
+				mPlaceFromTo = Pair.create(mPlaceFromTo.first, mAllMapPlaces.get(clickedPlaceIndex));
+				mPathSearch.drawPath(mPlaceFromTo.first, mPlaceFromTo.second);
+			}
+			try {
+				Log.i(TAG, "first: " + mPlaceFromTo.first + ", " + mPlaceFromTo.second);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			/*if (BuildConfig.DEBUG) {
 				mPlaceFormDialog = new PlaceFormDialog(
 						this,
 						Map,
 						clickedPlaceIndex
 				);
 				mPlaceFormDialog.show();
-			}
+			} else {
+
+			}*/
 		}
 
 		return true;
