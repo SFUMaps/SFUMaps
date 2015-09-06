@@ -135,10 +135,10 @@ public class MarkerCreator {
 
 	// enum for placing label icon on which side
 	public enum MapLabelIconAlign {
-		T("Top", new PointF(0.5f, 0f)),
+		T("Top", new PointF(0.5f, 0.5f)),
 		L("Left", new PointF(0f, 1f)),
 		R("Right", new PointF(1f, 1f)),
-		B("Bottom", new PointF(0.5f, 1f));
+		B("Bottom", new PointF(0.5f, 0.5f));
 
 		private String text;
 		private PointF anchorPoint;
