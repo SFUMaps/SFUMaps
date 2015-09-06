@@ -46,18 +46,4 @@
     <color name="dialog_background">#F1F1F1</color>
     <color name="transparent_dialog_marker_rotator_background">#4DF1F1F1</color>
 
-    <string-array name="place_types">
-        <item>Room</item>
-        <item>Lecture Hall / Auditorium</item>
-        <item>Building</item>
-        <item>Walkway</item>
-        <item>Road</item>
-    </string-array>
-
-    <string-array name="icon_alignments">
-        <item>Top</item>
-        <item>Left</item>
-        <item>Right</item>
-        <item>Bottom</item>
-    </string-array>
 </resources>

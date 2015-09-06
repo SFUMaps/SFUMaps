@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
+import me.gurinderhans.sfumaps.utils.MarkerCreator.MapPlaceType;
 
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace;
 
@@ -33,7 +34,7 @@ public class MapPlace extends ParseObject {
 
 
 	public MapPlace() {
-		/* empty constructor not be used by anyone other than Parse */
+		/* empty constructor, not be used by anyone other than Parse */
 	}
 
 	/* Parse methods */
@@ -46,17 +47,16 @@ public class MapPlace extends ParseObject {
 		put(ParseMapPlace.TITLE, title);
 	}
 
-	public String getType() {
-		return getString(ParseMapPlace.TYPE);
+	public MapPlaceType getType() {
+		return MapPlaceType.fromString(getString(ParseMapPlace.TYPE));
 	}
 
-	public void setType(String type) {
-		put(ParseMapPlace.TYPE, type);
+	public void setType(MapPlaceType type) {
+		put(ParseMapPlace.TYPE, type.getText());
 	}
 
 	public MapLabelIconAlign getIconAlignment() {
-		String alignmentString = getString(ParseMapPlace.ICON_ALIGNMENT);
-		return MapLabelIconAlign.fromString(alignmentString);
+		return MapLabelIconAlign.fromString(getString(ParseMapPlace.ICON_ALIGNMENT));
 	}
 
 	public void setIconAlignment(MapLabelIconAlign alignment) {

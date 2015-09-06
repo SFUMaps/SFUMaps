@@ -14,6 +14,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.ui.IconGenerator;
 import com.larvalabs.svgandroid.SVGBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
@@ -24,17 +27,25 @@ import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 public class MarkerCreator {
 
 	public static Bitmap createPlaceIcon(Context c, MapPlace place, MapLabelIconAlign iconAlign) {
-		Bitmap textIcon = createTextIcon(c, place.getTitle(), null);
+		Bitmap markerText = createTextIcon(c, place.getTitle(), null);
 
-		// get passed in icon or use the default one
-		int iconId = R.drawable.location_marker;
+		Integer rId = place.getType().getResourceId();
+		if (rId == null) { // text icon only
+			if (markerText == null)
+				return pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), R.drawable.location_marker)
+						.build().getPicture());
+			return markerText;
+		}
 
-		Bitmap markerIcon = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), iconId)
+		// ELSE: add icon
+
+		// FIXME: 15-09-05 decide if resource image will be SVG or PNG
+		Bitmap markerIcon = pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), rId)
 				.build().getPicture());
 
 		// combine text and image
-		if (textIcon != null)
-			markerIcon = combineLabelBitmaps(markerIcon, textIcon, iconAlign);
+		if (markerText != null)
+			markerIcon = combineLabelBitmaps(markerIcon, markerText, iconAlign);
 
 		return markerIcon;
 	}
@@ -50,6 +61,7 @@ public class MarkerCreator {
 						.anchor(labelAnchor.first, labelAnchor.second)
 						.rotation(place.getMarkerRotation())
 						.draggable(BuildConfig.DEBUG)
+						.flat(place.getType() == MapPlaceType.ROAD)
 						.visible(BuildConfig.DEBUG)
 		);
 	}
@@ -150,6 +162,58 @@ public class MarkerCreator {
 						return align;
 
 			return T;
+		}
+
+		public static List<String> allValues() {
+			List<String> values = new ArrayList<>();
+
+			for (MapLabelIconAlign align : MapLabelIconAlign.values())
+				values.add(align.getText());
+
+			return values;
+		}
+	}
+
+	// enum for marker place types
+	public enum MapPlaceType {
+		ROOM("Room", null),
+		ROOM_BIG("Big Room", R.drawable.location_marker),
+		ROAD("Road", null),
+		BLDG("Building", R.drawable.location_marker),
+		SPECIAL("Special", R.drawable.location_marker);
+
+		private String text;
+		private Integer resourceId;
+
+		MapPlaceType(String text, Integer rId) {
+			this.text = text;
+			this.resourceId = rId;
+		}
+
+		public String getText() {
+			return this.text;
+		}
+
+		public Integer getResourceId() {
+			return resourceId;
+		}
+
+		public static MapPlaceType fromString(String text) {
+			if (text != null)
+				for (MapPlaceType align : MapPlaceType.values())
+					if (text.equalsIgnoreCase(align.text))
+						return align;
+
+			return ROOM;
+		}
+
+		public static List<String> allValues() {
+			List<String> values = new ArrayList<>();
+
+			for (MapPlaceType align : MapPlaceType.values())
+				values.add(align.getText());
+
+			return values;
 		}
 	}
 }

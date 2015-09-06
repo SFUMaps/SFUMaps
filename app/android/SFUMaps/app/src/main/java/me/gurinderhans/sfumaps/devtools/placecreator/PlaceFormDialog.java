@@ -26,7 +26,6 @@ import com.parse.ParseException;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
@@ -34,6 +33,7 @@ import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.ui.MainActivity;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
+import me.gurinderhans.sfumaps.utils.MarkerCreator.MapPlaceType;
 
 /**
  * Created by ghans on 15-09-03.
@@ -69,39 +69,38 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
 		setContentView(R.layout.admin_create_place_form_dialog);
 
-		// click listeners for form action buttons
-		findViewById(R.id.btn_save_place).setOnClickListener(this);
-		findViewById(R.id.btn_remove_place).setOnClickListener(this);
-
+		// views
 		mPlaceTitleEditText = (EditText) findViewById(R.id.text_place_title);
 		markerRotateValueView = (TextView) findViewById(R.id.marker_rotate_value);
-
-		// setup place type selector
 		mPlaceTypeSelector = (Spinner) findViewById(R.id.select_place_type);
-		ArrayAdapter<CharSequence> placeTypeAdapter = ArrayAdapter.createFromResource(getContext(),
-				R.array.place_types, android.R.layout.simple_spinner_item);
+		mIconAlignmentSelector = (Spinner) findViewById(R.id.select_icon_alignment);
+		mMarkerRotator = ((SeekBar) findViewById(R.id.marker_rotator));
+
+		/* place type selector */
+		ArrayAdapter<String> placeTypeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+		placeTypeAdapter.addAll(MapPlaceType.allValues());
 		placeTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mPlaceTypeSelector.setAdapter(placeTypeAdapter);
 
-		// icon alignment selector
-		mIconAlignmentSelector = (Spinner) findViewById(R.id.select_icon_alignment);
-		ArrayAdapter<CharSequence> iconAlignmentAdapter = ArrayAdapter.createFromResource(getContext(),
-				R.array.icon_alignments, android.R.layout.simple_spinner_item);
+		/* icon alignment selector */
+		ArrayAdapter<String> iconAlignmentAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+		iconAlignmentAdapter.addAll(MapLabelIconAlign.allValues());
 		iconAlignmentAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mIconAlignmentSelector.setAdapter(iconAlignmentAdapter);
 
 
-		mMarkerRotator = ((SeekBar) findViewById(R.id.marker_rotator));
+		// event listeners
+		findViewById(R.id.btn_save_place).setOnClickListener(this);
+		findViewById(R.id.btn_remove_place).setOnClickListener(this);
 		mMarkerRotator.setOnSeekBarChangeListener(this);
 
 		// load place into views
 		loadPlace();
+
 	}
 
 	void loadPlace() {
@@ -111,17 +110,12 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		PointF position = mTmpPlace.getPosition();
 		((TextView) findViewById(R.id.view_place_coords)).setText(position.x + ", " + position.y);
 
-
 		// set place type
-		int spinnerSelectIndex = Arrays.asList(mActivity
-				.getResources()
-				.getStringArray(R.array.place_types)).indexOf(mTmpPlace.getType());
+		int spinnerSelectIndex = MapPlaceType.allValues().indexOf(mTmpPlace.getType().getText());
 		mPlaceTypeSelector.setSelection(spinnerSelectIndex);
 
 		// set icon alignment
-		int iconAlignmentIndex = Arrays.asList(mActivity
-				.getResources()
-				.getStringArray(R.array.icon_alignments)).indexOf(mTmpPlace.getIconAlignment().getText());
+		int iconAlignmentIndex = MapLabelIconAlign.allValues().indexOf(mTmpPlace.getIconAlignment().getText());
 		mIconAlignmentSelector.setSelection(iconAlignmentIndex);
 
 		// load rotation
@@ -165,22 +159,26 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 		mTmpPlace.setTitle(mPlaceTitleEditText.getText().toString());
 		mTmpPlace.setZooms(zooms);
-		mTmpPlace.setType(mPlaceTypeSelector.getSelectedItem().toString());
+		mTmpPlace.setType(MapPlaceType.fromString(mPlaceTypeSelector.getSelectedItem().toString()));
 		mTmpPlace.setIconAlignment(MapLabelIconAlign.fromString(mIconAlignmentSelector.getSelectedItem().toString()));
 
 		// update list
 		MainActivity.mAllMapPlaces.set(mEditingPlaceIndex, mTmpPlace);
 
+
+		/* update the marker */
 		// update marker text along with icon alignment
 		mTmpPlace.getPlaceMarker().setIcon(BitmapDescriptorFactory.fromBitmap(
 				MarkerCreator.createPlaceIcon(mActivity.getApplicationContext(), mTmpPlace, mTmpPlace.getIconAlignment())
 		));
-
 		// update marker anchor point
 		Pair<Float, Float> anchorPoint = mTmpPlace.getIconAlignment().getAnchorPoint();
 		mTmpPlace.getPlaceMarker().setAnchor(anchorPoint.first, anchorPoint.second);
+		// update marker flat
+		mTmpPlace.getPlaceMarker().setFlat(mTmpPlace.getType() == MapPlaceType.ROAD);
 
 
+		// finally, save the place
 		mTmpPlace.savePlaceWithCallback(new SaveCallback() {
 			@Override
 			public void done(ParseException e) {
@@ -220,7 +218,6 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		markerRotateValueView.setText(progress + "°");
 		mTmpPlace.setMarkerRotation(progress);
-
 	}
 
 	@Override
