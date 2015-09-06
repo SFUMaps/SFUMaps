@@ -38,20 +38,25 @@
         android:paddingRight="10dp"
         android:paddingStart="10dp">
 
-        <EditText
+        <me.gurinderhans.sfumaps.ui.MCompletionView
             android:id="@+id/text_place_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:hint="Place Name"/>
+            android:layout_height="wrap_content"/>
+
+        <!--<EditText-->
+            <!--android:id="@+id/text_place_title"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:hint="Place Name"-->
+            <!--android:singleLine="true"/>-->
 
         <LinearLayout
+            android:id="@+id/select_inputs_wrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="5dp"
             android:orientation="horizontal"
-            android:id="@+id/select_inputs_wrapper"
             android:weightSum="1">
 
             <LinearLayout
@@ -176,8 +181,8 @@
                 android:layout_height="wrap_content"
                 android:background="@color/transparent_dialog_marker_rotator_background"
                 android:max="360"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp"/>
+                android:paddingBottom="7dp"
+                android:paddingTop="7dp"/>
         </LinearLayout>
 
         <LinearLayout

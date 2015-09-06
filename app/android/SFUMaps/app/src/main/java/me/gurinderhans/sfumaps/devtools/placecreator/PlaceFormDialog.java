@@ -11,7 +11,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
@@ -29,6 +28,7 @@ import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
+import me.gurinderhans.sfumaps.ui.MCompletionView;
 import me.gurinderhans.sfumaps.ui.MainActivity;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
@@ -49,7 +49,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	private int mEditingPlaceIndex;
 
 	// global views
-	private EditText mPlaceTitleEditText;
+	private MCompletionView mPlaceTitleEditText;
 	private Spinner mPlaceTypeSelector, mIconAlignmentSelector;
 	private TextView markerRotateValueView;
 	private SeekBar mMarkerRotator;
@@ -73,7 +73,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		setContentView(R.layout.admin_create_place_form_dialog);
 
 		// views
-		mPlaceTitleEditText = (EditText) findViewById(R.id.text_place_title);
+		mPlaceTitleEditText = (MCompletionView) findViewById(R.id.text_place_title);
 		markerRotateValueView = (TextView) findViewById(R.id.marker_rotate_value);
 		mPlaceTypeSelector = (Spinner) findViewById(R.id.select_place_type);
 		mIconAlignmentSelector = (Spinner) findViewById(R.id.select_icon_alignment);
@@ -99,6 +99,12 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 		// load place into views
 		loadPlace();
+
+
+		String[] stirngs = new String[]{"Academic Quadrangle", "Applied Sciences Building"};
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, stirngs);
+		mPlaceTitleEditText.setAdapter(adapter);
+		mPlaceTitleEditText.setPrefix("");
 	}
 
 	void loadPlace() {

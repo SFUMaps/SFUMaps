@@ -1,13 +1,22 @@
 package me.gurinderhans.sfumaps.factory.classes;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.PointF;
 import android.support.annotation.NonNull;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
+import com.tokenautocomplete.TokenCompleteTextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +24,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapPlaceType;
 
@@ -127,5 +137,5 @@ public class MapPlace extends ParseObject {
 	public Marker getPlaceMarker() {
 		return mMapPlaceMarker;
 	}
-
 }
+
