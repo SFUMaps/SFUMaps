@@ -237,20 +237,7 @@ public class MainActivity extends FragmentActivity
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
 
-			// do path search
-			if (mPlaceFromTo == null) {
-				mPlaceFromTo = Pair.create(mAllMapPlaces.get(clickedPlaceIndex), null);
-			} else {
-				mPlaceFromTo = Pair.create(mPlaceFromTo.first, mAllMapPlaces.get(clickedPlaceIndex));
-				mPathSearch.drawPath(mPlaceFromTo.first, mPlaceFromTo.second);
-			}
-			try {
-				Log.i(TAG, "first: " + mPlaceFromTo.first + ", " + mPlaceFromTo.second);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			/*if (BuildConfig.DEBUG) {
+			if (BuildConfig.DEBUG) {
 				mPlaceFormDialog = new PlaceFormDialog(
 						this,
 						Map,
@@ -258,8 +245,19 @@ public class MainActivity extends FragmentActivity
 				);
 				mPlaceFormDialog.show();
 			} else {
-
-			}*/
+				// do path search
+				if (mPlaceFromTo == null) {
+					mPlaceFromTo = Pair.create(mAllMapPlaces.get(clickedPlaceIndex), null);
+				} else {
+					mPlaceFromTo = Pair.create(mPlaceFromTo.first, mAllMapPlaces.get(clickedPlaceIndex));
+					mPathSearch.drawPath(mPlaceFromTo.first, mPlaceFromTo.second);
+				}
+				try {
+					Log.i(TAG, "first: " + mPlaceFromTo.first + ", " + mPlaceFromTo.second);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return true;

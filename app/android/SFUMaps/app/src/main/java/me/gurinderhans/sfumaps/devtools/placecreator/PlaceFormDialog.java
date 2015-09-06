@@ -99,15 +99,10 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 		// load place into views
 		loadPlace();
-
 	}
 
 	void loadPlace() {
-
 		mPlaceTitleEditText.setText(mTmpPlace.getTitle());
-
-		PointF position = mTmpPlace.getPosition();
-		((TextView) findViewById(R.id.view_place_coords)).setText(position.x + ", " + position.y);
 
 		// set place type
 		int spinnerSelectIndex = MapPlaceType.allValues().indexOf(mTmpPlace.getType().getText());
@@ -222,16 +217,14 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	@Override
 	public void onStartTrackingTouch(SeekBar seekBar) {
 		// hide stuff
+		findViewById(R.id.add_place_image).setVisibility(View.INVISIBLE);
 		findViewById(R.id.text_place_title).setVisibility(View.INVISIBLE);
-		findViewById(R.id.view_place_coords).setVisibility(View.INVISIBLE);
-		findViewById(R.id.select_place_type).setVisibility(View.INVISIBLE);
+		findViewById(R.id.select_inputs_wrapper).setVisibility(View.INVISIBLE);
 		findViewById(R.id.zooms_selects).setVisibility(View.INVISIBLE);
 		findViewById(R.id.form_actions).setVisibility(View.INVISIBLE);
-		findViewById(R.id.add_image).setVisibility(View.INVISIBLE);
-		findViewById(R.id.select_icon_alignment).setVisibility(View.INVISIBLE);
 
 		// remove white background
-		findViewById(R.id.form_place_dialog_wrapper).setBackgroundColor(mActivity.getResources().getColor(android.R.color.transparent));
+		findViewById(R.id.form_place_dialog_wrapper).setBackgroundResource(android.R.color.transparent);
 
 		getWindow().setDimAmount(0f);
 	}
@@ -239,16 +232,14 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	@Override
 	public void onStopTrackingTouch(SeekBar seekBar) {
 		// show stuff
+		findViewById(R.id.add_place_image).setVisibility(View.VISIBLE);
 		findViewById(R.id.text_place_title).setVisibility(View.VISIBLE);
-		findViewById(R.id.view_place_coords).setVisibility(View.VISIBLE);
-		findViewById(R.id.select_place_type).setVisibility(View.VISIBLE);
+		findViewById(R.id.select_inputs_wrapper).setVisibility(View.VISIBLE);
 		findViewById(R.id.zooms_selects).setVisibility(View.VISIBLE);
 		findViewById(R.id.form_actions).setVisibility(View.VISIBLE);
-		findViewById(R.id.add_image).setVisibility(View.VISIBLE);
-		findViewById(R.id.select_icon_alignment).setVisibility(View.VISIBLE);
 
 		// remove white background
-		findViewById(R.id.form_place_dialog_wrapper).setBackgroundColor(mActivity.getResources().getColor(R.color.dialog_background));
+		findViewById(R.id.form_place_dialog_wrapper).setBackgroundResource(R.drawable.card_shape);
 
 		getWindow().setDimAmount(0.55f);
 	}

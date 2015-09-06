@@ -2,42 +2,100 @@
 <LinearLayout
     android:id="@+id/form_place_dialog_wrapper"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="311dp"
+    android:layout_width="320dp"
     android:layout_height="fill_parent"
-    android:background="@color/dialog_background"
+    android:background="@drawable/card_shape"
     android:orientation="vertical">
 
-    <!-- http://www.getmdl.io/assets/demos/welcome_card.jpg -->
-    <!-- This will be used later to add place image, for now a cool image to enjoy -->
-    <ImageView
-        android:id="@+id/add_image"
+    <!-- header -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="140dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/create_place_card"/>
+        android:layout_height="wrap_content"
+        android:paddingEnd="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingStart="5dp"
+        android:paddingTop="5dp">
 
+        <!-- http://www.getmdl.io/assets/demos/welcome_card.jpg -->
+        <!-- This will be used later to add place image, for now a cool image to enjoy -->
+        <ImageView
+            android:id="@+id/add_place_image"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/create_place_card"/>
+    </LinearLayout>
+
+    <!-- body -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:paddingBottom="7dp"
+        android:paddingEnd="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingStart="10dp">
 
         <EditText
             android:id="@+id/text_place_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             android:hint="Place Name"/>
 
-        <TextView
-            android:id="@+id/view_place_coords"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="34.45, 32.67"/>
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal"
+            android:id="@+id/select_inputs_wrapper"
+            android:weightSum="1">
 
-        <Spinner
-            android:id="@+id/select_place_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:text="Place Type"
+                    android:textSize="12sp"/>
+
+                <Spinner
+                    android:id="@+id/select_place_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.5"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:text="Icon Align"
+                    android:textSize="12sp"/>
+
+                <Spinner
+                    android:id="@+id/select_icon_alignment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.5"/>
+
+            </LinearLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/zooms_selects"
@@ -90,11 +148,9 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:background="@color/transparent_dialog_marker_rotator_background"
-            android:gravity="center_vertical"
-            android:orientation="vertical"
-            android:padding="10dp">
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/marker_rotator_label"
@@ -118,14 +174,11 @@
                 android:id="@+id/marker_rotator"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="360"/>
+                android:background="@color/transparent_dialog_marker_rotator_background"
+                android:max="360"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"/>
         </LinearLayout>
-
-        <Spinner
-            android:id="@+id/select_icon_alignment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"/>
 
         <LinearLayout
             android:id="@+id/form_actions"
@@ -133,7 +186,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <!-- Future future TODO: replace buttons with left and right gestures -->
             <Button
                 android:id="@+id/btn_save_place"
                 android:layout_width="wrap_content"
