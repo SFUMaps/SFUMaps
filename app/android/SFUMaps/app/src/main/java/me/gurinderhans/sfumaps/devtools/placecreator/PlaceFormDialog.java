@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -172,8 +171,8 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 				MarkerCreator.createPlaceIcon(mActivity.getApplicationContext(), mTmpPlace, mTmpPlace.getIconAlignment())
 		));
 		// update marker anchor point
-		Pair<Float, Float> anchorPoint = mTmpPlace.getIconAlignment().getAnchorPoint();
-		mTmpPlace.getPlaceMarker().setAnchor(anchorPoint.first, anchorPoint.second);
+		PointF anchorPoint = mTmpPlace.getIconAlignment().getAnchorPoint();
+		mTmpPlace.getPlaceMarker().setAnchor(anchorPoint.x, anchorPoint.y);
 		// update marker flat
 		mTmpPlace.getPlaceMarker().setFlat(mTmpPlace.getType() == MapPlaceType.ROAD);
 

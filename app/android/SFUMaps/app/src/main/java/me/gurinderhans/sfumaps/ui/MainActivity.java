@@ -56,7 +56,6 @@ public class MainActivity extends FragmentActivity
 
 	// member variables
 	private GoogleMap Map;
-	private MapGrid mGrid;
 	private DiskLruCache mTileCache;
 	private PlaceFormDialog mPlaceFormDialog;
 
@@ -111,7 +110,7 @@ public class MainActivity extends FragmentActivity
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		mGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
+		MapGrid mGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
 
 		setUpMapIfNeeded();
 
@@ -276,7 +275,7 @@ public class MainActivity extends FragmentActivity
 	private int getPlaceIndex(LatLng placePos) {
 
 		for (int i = 0; i < mAllMapPlaces.size(); i++) {
-			// level the latlng to same 'precision'
+			// level the LatLng to same 'precision'
 			PointF thisMarkerPoint = MercatorProjection.fromLatLngToPoint(
 					mAllMapPlaces.get(i).getPlaceMarker().getPosition());
 

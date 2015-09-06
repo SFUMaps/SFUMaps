@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Picture;
+import android.graphics.PointF;
 import android.graphics.drawable.PictureDrawable;
 import android.util.Pair;
 
@@ -53,12 +54,12 @@ public class MarkerCreator {
 	public static Marker createPlaceMarker(Context c, GoogleMap map, MapPlace place) {
 
 		MapLabelIconAlign imageIconAlignment = place.getIconAlignment();
-		Pair<Float, Float> labelAnchor = place.getIconAlignment().getAnchorPoint();
+		PointF labelAnchor = place.getIconAlignment().getAnchorPoint();
 
 		return map.addMarker(new MarkerOptions()
 						.position(MercatorProjection.fromPointToLatLng(place.getPosition()))
 						.icon(BitmapDescriptorFactory.fromBitmap(createPlaceIcon(c, place, imageIconAlignment)))
-						.anchor(labelAnchor.first, labelAnchor.second)
+						.anchor(labelAnchor.x, labelAnchor.y)
 						.rotation(place.getMarkerRotation())
 						.draggable(BuildConfig.DEBUG)
 						.flat(place.getType() == MapPlaceType.ROAD)
@@ -134,15 +135,15 @@ public class MarkerCreator {
 
 	// enum for placing label icon on which side
 	public enum MapLabelIconAlign {
-		T("Top", new Pair<>(0.5f, 0.5f)),
-		L("Left", new Pair<>(0f, 1f)),
-		R("Right", new Pair<>(1f, 1f)),
-		B("Bottom", new Pair<>(0.5f, 0.5f));
+		T("Top", new PointF(0.5f, 0f)),
+		L("Left", new PointF(0f, 1f)),
+		R("Right", new PointF(1f, 1f)),
+		B("Bottom", new PointF(0.5f, 1f));
 
 		private String text;
-		private Pair<Float, Float> anchorPoint;
+		private PointF anchorPoint;
 
-		MapLabelIconAlign(String text, Pair<Float, Float> anchorPoint) {
+		MapLabelIconAlign(String text, PointF anchorPoint) {
 			this.text = text;
 			this.anchorPoint = anchorPoint;
 		}
@@ -151,7 +152,7 @@ public class MarkerCreator {
 			return this.text;
 		}
 
-		public Pair<Float, Float> getAnchorPoint() {
+		public PointF getAnchorPoint() {
 			return anchorPoint;
 		}
 
