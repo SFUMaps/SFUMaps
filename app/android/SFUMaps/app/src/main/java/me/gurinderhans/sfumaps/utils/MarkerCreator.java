@@ -177,7 +177,7 @@ public class MarkerCreator {
 	// enum for marker place types
 	public enum MapPlaceType {
 		ROOM("Room", null),
-		ROOM_BIG("Big Room", R.drawable.location_marker),
+		ROOM_LG("Room (Large)", R.drawable.location_marker),
 		ROAD("Road", null),
 		BLDG("Building", R.drawable.location_marker),
 		SPECIAL("Special", R.drawable.location_marker);

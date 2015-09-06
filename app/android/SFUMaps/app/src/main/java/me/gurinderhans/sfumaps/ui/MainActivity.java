@@ -172,7 +172,6 @@ public class MainActivity extends FragmentActivity
 				.zIndex(11));
 	}
 
-
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -180,7 +179,7 @@ public class MainActivity extends FragmentActivity
 	}
 
 
-	private int mapCurrentZoom; // used for detecing when map zoom changes
+	private int mapCurrentZoom; // used for detecting when map zoom changes
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
@@ -255,10 +254,6 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onMarkerDragEnd(Marker marker) {
 
-		// FIXME: 15-09-05 Only a minor issue, but when you drag a place, the getPlaceIndex isn't
-		// able to find it anymore, plus it stays visible on the map at all times, even when the map zoom,
-		// is not for the marker (only happens in dev mode as that's the only place where markers are draggable
-
 		// find the clicked marker
 		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (draggedPlaceIndex != -1) {
@@ -279,9 +274,15 @@ public class MainActivity extends FragmentActivity
 	/* Custom helper methods */
 
 	private int getPlaceIndex(LatLng placePos) {
-		for (int i = 0; i < mAllMapPlaces.size(); i++)
-			if (mAllMapPlaces.get(i).getPlaceMarker().getPosition().equals(placePos))
+
+		for (int i = 0; i < mAllMapPlaces.size(); i++) {
+			// level the latlng to same 'precision'
+			PointF thisMarkerPoint = MercatorProjection.fromLatLngToPoint(
+					mAllMapPlaces.get(i).getPlaceMarker().getPosition());
+
+			if (thisMarkerPoint.equals(MercatorProjection.fromLatLngToPoint(placePos)))
 				return i;
+		}
 
 		return -1;
 	}
