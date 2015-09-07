@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.devtools.placecreator;
+package me.gurinderhans.sfumaps.devtools;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -27,7 +27,7 @@ import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
-import me.gurinderhans.sfumaps.ui.MCompletionView;
+import me.gurinderhans.sfumaps.ui.views.MapPlaceDialogTitleCompletionView;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapPlaceType;
@@ -47,7 +47,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	private int mEditingPlaceIndex;
 
 	// global views
-	private MCompletionView mPlaceTitleEditText;
+	private MapPlaceDialogTitleCompletionView mPlaceTitleEditText;
 	private Spinner mPlaceTypeSelector, mIconAlignmentSelector;
 	private TextView markerRotateValueView;
 	private SeekBar mMarkerRotator;
@@ -69,7 +69,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		setContentView(R.layout.admin_create_place_form_dialog);
 
 		// views
-		mPlaceTitleEditText = (MCompletionView) findViewById(R.id.text_place_title);
+		mPlaceTitleEditText = (MapPlaceDialogTitleCompletionView) findViewById(R.id.text_place_title);
 		markerRotateValueView = (TextView) findViewById(R.id.marker_rotate_value);
 		mPlaceTypeSelector = (Spinner) findViewById(R.id.select_place_type);
 		mIconAlignmentSelector = (Spinner) findViewById(R.id.select_icon_alignment);

@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui;
+package me.gurinderhans.sfumaps.ui.activities;
 
 import android.graphics.PointF;
 import android.os.Build;
@@ -31,14 +31,17 @@ import java.util.List;
 
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
-import me.gurinderhans.sfumaps.devtools.placecreator.PlaceFormDialog;
+import me.gurinderhans.sfumaps.devtools.PathMaker;
+import me.gurinderhans.sfumaps.devtools.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
+import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
+import me.gurinderhans.sfumaps.utils.CachedTileProvider;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
+import me.gurinderhans.sfumaps.utils.SVGTileProvider;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
 

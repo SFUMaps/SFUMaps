@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui;
+package me.gurinderhans.sfumaps.ui.views;
 
 import android.content.Context;
 import android.view.MotionEvent;

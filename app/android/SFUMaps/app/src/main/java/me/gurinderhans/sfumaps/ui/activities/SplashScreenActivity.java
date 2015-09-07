@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui;
+package me.gurinderhans.sfumaps.ui.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,12 +27,12 @@ public class SplashScreenActivity extends Activity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
 			getWindow().setStatusBarColor(getResources().getColor(R.color.transparent_status_bar_color));
 
-		int secondsDelayed = 1;
+		int msDelay = 1;
 		new Handler().postDelayed(new Runnable() {
 			public void run() {
 				startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
 				finish(); // remove activity from stack
 			}
-		}, secondsDelayed * 500);
+		}, msDelay * 500);
 	}
 }

@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.app.Keys;
-import me.gurinderhans.sfumaps.ui.SVGTileProvider;
 
 /**
  * Created by ghans on 2/9/15.

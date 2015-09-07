@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
+import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.utils.MapTools;
 
 /**
@@ -110,4 +110,39 @@ public class MapGrid {
 		return neighbors;
 	}
 
+	public static class GridNode {
+
+		public static final String TAG = GridNode.class.getSimpleName();
+
+		// map world position
+		public final PointF projCoords;
+		// array indices
+		public final int gridX;
+		public final int gridY;
+		// node costs
+		public float gCost = -1f;
+		public float hCost = -1f;
+		public GridNode parentNode = null;
+		private boolean isWalkable = false;
+
+		// @constructor
+		public GridNode(int x, int y, MapGrid mapGrid) {
+			this.gridX = x;
+			this.gridY = y;
+			this.projCoords = new PointF(mapGrid.startPoint.x + x * EACH_POINT_DIST, mapGrid.startPoint.y + y * EACH_POINT_DIST);
+		}
+
+		public float getFCost() {
+			return gCost + hCost;
+		}
+
+		public boolean isWalkable() {
+			return isWalkable;
+		}
+
+		public void setWalkable(boolean walkable) {
+			this.isWalkable = walkable;
+		}
+
+	}
 }

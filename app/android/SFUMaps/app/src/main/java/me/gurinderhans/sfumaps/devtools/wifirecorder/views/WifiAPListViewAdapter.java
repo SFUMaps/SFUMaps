@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.devtools.wifirecorder.View;
+package me.gurinderhans.sfumaps.devtools.wifirecorder.views;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.factory.classes.WiFiAccessPoint;
+import me.gurinderhans.sfumaps.devtools.wifirecorder.models.WiFiAccessPoint;
 
 /**
  * Created by ghans on 15-05-28.

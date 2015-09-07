@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui;
+package me.gurinderhans.sfumaps.ui.views;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.maps.SupportMapFragment;
+
+import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout;
 
 /**
  * Created by ghans on 15-08-10.
