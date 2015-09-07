@@ -46,10 +46,10 @@ public class PathSearch {
 
 		Log.i(TAG, "finding for place: " + placeFrom.getTitle());
 
-		GridNode from = findClosestWalkablePathPoint(placeFrom.getPosition(), placeTo.getPosition());
-		GridNode to = findClosestWalkablePathPoint(placeTo.getPosition(), from.projCoords);
+		MapGrid.GridNode from = findClosestWalkablePathPoint(placeFrom.getPosition(), placeTo.getPosition());
+		MapGrid.GridNode to = findClosestWalkablePathPoint(placeTo.getPosition(), from.projCoords);
 
-		List<GridNode> path = AStar(mGrid, from, to);
+		List<MapGrid.GridNode> path = AStar(mGrid, from, to);
 
 		if (path != null) {
 
@@ -57,7 +57,7 @@ public class PathSearch {
 
 			List<LatLng> pathPoints = new ArrayList<>();
 
-			for (GridNode node : path)
+			for (MapGrid.GridNode node : path)
 				pathPoints.add(MercatorProjection.fromPointToLatLng(node.projCoords));
 
 			if (pathPoints.size() - 1 >= 0)
@@ -70,12 +70,12 @@ public class PathSearch {
 		mGoogleMap.addMarker(new MarkerOptions().position(MercatorProjection.fromPointToLatLng(to.projCoords)));
 	}
 
-	private GridNode findClosestWalkablePathPoint(PointF placePos, PointF compareTo) {
+	private MapGrid.GridNode findClosestWalkablePathPoint(PointF placePos, PointF compareTo) {
 		Point gridNodeIndices = getGridIndices(placePos);
 		Point compareToGridNode = getGridIndices(compareTo);
 
 
-		List<GridNode> possibleWalkableNodes = new ArrayList<>();
+		List<MapGrid.GridNode> possibleWalkableNodes = new ArrayList<>();
 
 		int expander = 0;
 		while (possibleWalkableNodes.isEmpty()) {
@@ -87,7 +87,7 @@ public class PathSearch {
 					int nX = gridNodeIndices.x + x;
 					int nY = gridNodeIndices.y + y;
 
-					GridNode checkNode = mGrid.getNode(nX, nY);
+					MapGrid.GridNode checkNode = mGrid.getNode(nX, nY);
 					if (checkNode.isWalkable())
 						if (checkNode.gridX == gridNodeIndices.x || checkNode.gridY == gridNodeIndices.y
 //								|| (Math.abs(nX - gridNodeIndices.x) == Math.abs(nY - gridNodeIndices.y))
@@ -100,8 +100,8 @@ public class PathSearch {
 
 		// filter the point closest to placeFrom AND placeTo
 		int lowestLength = Integer.MAX_VALUE;
-		GridNode filteredNode = null;
-		for (GridNode node : possibleWalkableNodes) {
+		MapGrid.GridNode filteredNode = null;
+		for (MapGrid.GridNode node : possibleWalkableNodes) {
 			int fromX = Math.abs(node.gridX - gridNodeIndices.x),
 					fromY = Math.abs(node.gridY - gridNodeIndices.y),
 					toX = Math.abs(node.gridX - compareToGridNode.x),
@@ -135,17 +135,17 @@ public class PathSearch {
 		mapPointFrom = mapPointTo = null;
 	}
 
-	private static List<GridNode> AStar(MapGrid grid, GridNode startNode, GridNode targetNode) {
+	private static List<MapGrid.GridNode> AStar(MapGrid grid, MapGrid.GridNode startNode, MapGrid.GridNode targetNode) {
 
-		List<GridNode> openSet = new ArrayList<>();
-		List<GridNode> closedSet = new ArrayList<>();
+		List<MapGrid.GridNode> openSet = new ArrayList<>();
+		List<MapGrid.GridNode> closedSet = new ArrayList<>();
 
 		openSet.add(startNode);
 
 		while (openSet.size() > 0) {
 
 			// get node with min fcost from openset
-			GridNode currentNode = openSet.get(0);
+			MapGrid.GridNode currentNode = openSet.get(0);
 			for (int i = 1; i < openSet.size(); i++) {
 				if (openSet.get(i).getFCost() < currentNode.getFCost() || openSet.get(i).getFCost() == currentNode.getFCost() && openSet.get(i).hCost < currentNode.hCost) {
 					currentNode = openSet.get(i);
@@ -157,8 +157,8 @@ public class PathSearch {
 
 			if (currentNode.gridX == targetNode.gridX && currentNode.gridY == targetNode.gridY) {
 				// retrace path and return it
-				List<GridNode> path = new ArrayList<>();
-				GridNode thisNode = targetNode;
+				List<MapGrid.GridNode> path = new ArrayList<>();
+				MapGrid.GridNode thisNode = targetNode;
 				while (thisNode != startNode) {
 					path.add(thisNode);
 					thisNode = thisNode.parentNode;
@@ -168,7 +168,7 @@ public class PathSearch {
 				return path;
 			}
 
-			for (GridNode neighborNode : grid.getNeighbors(currentNode)) {
+			for (MapGrid.GridNode neighborNode : grid.getNeighbors(currentNode)) {
 
 				if (!neighborNode.isWalkable() || closedSet.contains(neighborNode))
 					continue;
@@ -188,7 +188,7 @@ public class PathSearch {
 		return null;
 	}
 
-	public static float dist(GridNode a, GridNode b) {
+	public static float dist(MapGrid.GridNode a, MapGrid.GridNode b) {
 		float dstX = Math.abs(a.gridX - b.gridX);
 		float dstY = Math.abs(a.gridY - b.gridY);
 

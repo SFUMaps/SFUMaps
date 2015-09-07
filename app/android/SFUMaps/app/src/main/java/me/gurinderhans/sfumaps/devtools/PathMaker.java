@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.devtools.pathmaker;
+package me.gurinderhans.sfumaps.devtools;
 
 import android.graphics.Point;
 import android.graphics.PointF;
@@ -27,15 +27,15 @@ import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
-import me.gurinderhans.sfumaps.ui.CustomMapFragment;
-import me.gurinderhans.sfumaps.ui.MapWrapperLayout;
+import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
+import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout.OnDragListener;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 /**
  * Created by ghans on 15-08-10.
  */
-public class PathMaker implements MapWrapperLayout.OnDragListener {
+public class PathMaker implements OnDragListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
 

@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui;
+package me.gurinderhans.sfumaps.ui.views;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,11 +14,11 @@ import com.tokenautocomplete.TokenCompleteTextView;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 
-public class MCompletionView extends TokenCompleteTextView<MapPlace> {
+public class MapPlaceDialogTitleCompletionView extends TokenCompleteTextView<MapPlace> {
 
 	public static final int TOKENIZER_MAX = 2;
 
-	public MCompletionView(Context context, AttributeSet attrs) {
+	public MapPlaceDialogTitleCompletionView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
 		allowDuplicates(false); // trying to do dups don't make no sense boy!

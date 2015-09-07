@@ -38,7 +38,7 @@
         android:paddingRight="10dp"
         android:paddingStart="10dp">
 
-        <me.gurinderhans.sfumaps.ui.MCompletionView
+        <me.gurinderhans.sfumaps.ui.views.MapPlaceDialogTitleCompletionView
             android:id="@+id/text_place_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

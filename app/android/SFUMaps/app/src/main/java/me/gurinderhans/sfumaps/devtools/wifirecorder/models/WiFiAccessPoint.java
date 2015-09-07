@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.factory.classes;
+package me.gurinderhans.sfumaps.devtools.wifirecorder.models;
 
 /**
  * Created by ghans on 15-05-28.

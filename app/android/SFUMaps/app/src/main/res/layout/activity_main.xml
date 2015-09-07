@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/map"
-        android:name="me.gurinderhans.sfumaps.ui.CustomMapFragment"
+        android:name="me.gurinderhans.sfumaps.ui.views.CustomMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity"/>

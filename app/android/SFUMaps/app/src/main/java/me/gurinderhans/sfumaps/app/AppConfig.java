@@ -26,10 +26,6 @@ public class AppConfig {
 	public static Set<String> ALL_SSIDS;
 	public static int RSSI_THRESHOLD;
 
-	AppConfig() {
-		// @constructor
-	}
-
 	/**
 	 * Loads the saved prefs and stores them into class variables
 	 *

@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui;
+package me.gurinderhans.sfumaps.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

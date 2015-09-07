@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.devtools.wifirecorder.Controller;
+package me.gurinderhans.sfumaps.devtools.wifirecorder.controllers;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -28,10 +28,8 @@ import java.util.Map;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.app.Keys;
-import me.gurinderhans.sfumaps.devtools.wifirecorder.View.WifiAPListViewAdapter;
-import me.gurinderhans.sfumaps.factory.DataBaseManager;
-import me.gurinderhans.sfumaps.factory.DrawRecordedPaths;
-import me.gurinderhans.sfumaps.factory.classes.WiFiAccessPoint;
+import me.gurinderhans.sfumaps.devtools.wifirecorder.views.WifiAPListViewAdapter;
+import me.gurinderhans.sfumaps.devtools.wifirecorder.models.WiFiAccessPoint;
 import me.gurinderhans.sfumaps.app.AppConfig;
 
 public class RecordWifiDataActivity extends AppCompatActivity {

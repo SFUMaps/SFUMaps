@@ -35,39 +35,17 @@ public class MapPlace extends ParseObject {
 	/* Member variables */
 	private Marker mMapPlaceMarker;
 
+	/**
+	 * NOTE: **NONE** of the constructors are to be used for creating MapPlace.class instances
+	 */
 
 	public MapPlace() {
 		/* empty constructor, not be used by anyone other than Parse */
 	}
 
-
-	/* autocompelete textview specific stuff */
-
-
 	public MapPlace(String title) {
+		/* constructor only to be used for AutocompleteTextView adding view tokens */
 		put(ParseMapPlace.TITLE, title);
-	}
-
-	/**
-	 * Get place title
-	 *
-	 * @return - place title
-	 */
-	@Override
-	public String toString() {
-		return getTitle();
-	}
-
-	public void setParentPlace(MapPlace parentPlace) {
-		if (parentPlace == null) {
-			remove(ParseMapPlace.PARENT_PLACE);
-		} else {
-			put(ParseMapPlace.PARENT_PLACE, parentPlace);
-		}
-	}
-
-	public MapPlace getParentPlace() {
-		return (MapPlace) get(ParseMapPlace.PARENT_PLACE);
 	}
 
 	/* Parse methods */
@@ -140,6 +118,18 @@ public class MapPlace extends ParseObject {
 		getPlaceMarker().setRotation(rotation);
 	}
 
+	public void setParentPlace(MapPlace parentPlace) {
+		if (parentPlace == null) {
+			remove(ParseMapPlace.PARENT_PLACE);
+		} else {
+			put(ParseMapPlace.PARENT_PLACE, parentPlace);
+		}
+	}
+
+	public MapPlace getParentPlace() {
+		return (MapPlace) get(ParseMapPlace.PARENT_PLACE);
+	}
+
 
 	// save methods
 	public void savePlace() {
@@ -148,6 +138,16 @@ public class MapPlace extends ParseObject {
 
 	public void savePlaceWithCallback(@NonNull SaveCallback saveCallback) {
 		saveInBackground(saveCallback);
+	}
+
+	/**
+	 * Get place title
+	 *
+	 * @return - place title
+	 */
+	@Override
+	public String toString() {
+		return getTitle();
 	}
 
 
