@@ -42,6 +42,69 @@ public class PathSearch {
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
 	}
 
+	private static List<MapGrid.GridNode> AStar(MapGrid grid, MapGrid.GridNode startNode, MapGrid.GridNode targetNode) {
+
+		List<MapGrid.GridNode> openSet = new ArrayList<>();
+		List<MapGrid.GridNode> closedSet = new ArrayList<>();
+
+		openSet.add(startNode);
+
+		while (openSet.size() > 0) {
+
+			// get node with min fcost from openset
+			MapGrid.GridNode currentNode = openSet.get(0);
+			for (int i = 1; i < openSet.size(); i++) {
+				if (openSet.get(i).getFCost() < currentNode.getFCost() || openSet.get(i).getFCost() == currentNode.getFCost() && openSet.get(i).hCost < currentNode.hCost) {
+					currentNode = openSet.get(i);
+				}
+			}
+
+			openSet.remove(currentNode);
+			closedSet.add(currentNode);
+
+			if (currentNode.gridX == targetNode.gridX && currentNode.gridY == targetNode.gridY) {
+				// retrace path and return it
+				List<MapGrid.GridNode> path = new ArrayList<>();
+				MapGrid.GridNode thisNode = targetNode;
+				while (thisNode != startNode) {
+					path.add(thisNode);
+					thisNode = thisNode.parentNode;
+				}
+				Collections.reverse(path);
+
+				return path;
+			}
+
+			for (MapGrid.GridNode neighborNode : grid.getNeighbors(currentNode)) {
+
+				if (!neighborNode.isWalkable() || closedSet.contains(neighborNode))
+					continue;
+
+				float newMovementCost = currentNode.gCost + dist(currentNode, neighborNode);
+				if (newMovementCost < neighborNode.gCost || !openSet.contains(neighborNode)) {
+					neighborNode.gCost = newMovementCost;
+					neighborNode.hCost = dist(neighborNode, targetNode);
+					neighborNode.parentNode = currentNode;
+
+					if (!openSet.contains(neighborNode))
+						openSet.add(neighborNode);
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static float dist(MapGrid.GridNode a, MapGrid.GridNode b) {
+		float dstX = Math.abs(a.gridX - b.gridX);
+		float dstY = Math.abs(a.gridY - b.gridY);
+
+		if (dstX > dstY)
+			return 1.4f * dstY + (dstX - dstY);
+
+		return 1.4f * dstX + (dstY - dstX);
+	}
+
 	public void drawPath(MapPlace placeFrom, MapPlace placeTo) {
 
 		Log.i(TAG, "finding for place: " + placeFrom.getTitle());
@@ -133,69 +196,6 @@ public class PathSearch {
 			markerTo.remove();
 
 		mapPointFrom = mapPointTo = null;
-	}
-
-	private static List<MapGrid.GridNode> AStar(MapGrid grid, MapGrid.GridNode startNode, MapGrid.GridNode targetNode) {
-
-		List<MapGrid.GridNode> openSet = new ArrayList<>();
-		List<MapGrid.GridNode> closedSet = new ArrayList<>();
-
-		openSet.add(startNode);
-
-		while (openSet.size() > 0) {
-
-			// get node with min fcost from openset
-			MapGrid.GridNode currentNode = openSet.get(0);
-			for (int i = 1; i < openSet.size(); i++) {
-				if (openSet.get(i).getFCost() < currentNode.getFCost() || openSet.get(i).getFCost() == currentNode.getFCost() && openSet.get(i).hCost < currentNode.hCost) {
-					currentNode = openSet.get(i);
-				}
-			}
-
-			openSet.remove(currentNode);
-			closedSet.add(currentNode);
-
-			if (currentNode.gridX == targetNode.gridX && currentNode.gridY == targetNode.gridY) {
-				// retrace path and return it
-				List<MapGrid.GridNode> path = new ArrayList<>();
-				MapGrid.GridNode thisNode = targetNode;
-				while (thisNode != startNode) {
-					path.add(thisNode);
-					thisNode = thisNode.parentNode;
-				}
-				Collections.reverse(path);
-
-				return path;
-			}
-
-			for (MapGrid.GridNode neighborNode : grid.getNeighbors(currentNode)) {
-
-				if (!neighborNode.isWalkable() || closedSet.contains(neighborNode))
-					continue;
-
-				float newMovementCost = currentNode.gCost + dist(currentNode, neighborNode);
-				if (newMovementCost < neighborNode.gCost || !openSet.contains(neighborNode)) {
-					neighborNode.gCost = newMovementCost;
-					neighborNode.hCost = dist(neighborNode, targetNode);
-					neighborNode.parentNode = currentNode;
-
-					if (!openSet.contains(neighborNode))
-						openSet.add(neighborNode);
-				}
-			}
-		}
-
-		return null;
-	}
-
-	public static float dist(MapGrid.GridNode a, MapGrid.GridNode b) {
-		float dstX = Math.abs(a.gridX - b.gridX);
-		float dstY = Math.abs(a.gridY - b.gridY);
-
-		if (dstX > dstY)
-			return 1.4f * dstY + (dstX - dstY);
-
-		return 1.4f * dstX + (dstY - dstX);
 	}
 
 }

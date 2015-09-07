@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.maps.SupportMapFragment;
 
-import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout;
-
 /**
  * Created by ghans on 15-08-10.
  */

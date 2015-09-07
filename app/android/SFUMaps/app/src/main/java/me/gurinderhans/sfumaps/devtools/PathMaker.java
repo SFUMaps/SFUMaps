@@ -48,36 +48,27 @@ public class PathMaker implements OnDragListener {
 
 	//
 	public static boolean isEditingMap = false; // TODO: 15-08-16 improve application mode management
-
-	public final GoogleMap mGoogleMap;
-	public MapGrid mGrid;
-
-	JSONObject jsonGridRoot = new JSONObject();
-
-	boolean createBoxMode = false;
-	boolean deletePathMode = false;
-
-	boolean mapEdited = false;
-	boolean boxCreated;
-
-	Point mTmpBoxDragStartGridIndices;
-
 	// Admin Panel States
 	private static int STATE_NONE = -1;
 	private static int STATE_EDITING_MAP = 0;
 	private static int STATE_CREATING_BOX = 1;
 	private static int STATE_DELETING_PATH = 2;
 	private static int STATE_EXPORT_MAP_PATH = 3;
-
+	private static PathMaker mInstance = null;
+	public final GoogleMap mGoogleMap;
+	public MapGrid mGrid;
+	JSONObject jsonGridRoot = new JSONObject();
+	boolean createBoxMode = false;
+	boolean deletePathMode = false;
+	boolean mapEdited = false;
+	boolean boxCreated;
+	Point mTmpBoxDragStartGridIndices;
 	int mState = STATE_NONE; // initially the map editor is in `NONE` state
-
 	@Nullable
 	GroundOverlay mTmpSelectedArea;
 	// this is only used for holding onto ground overlays until removed from map, (NOT List itself)
 	private List<GroundOverlay> boxRectList = new ArrayList<>();
 	private List<Marker> individualMarkers = new ArrayList<>();
-
-	private static PathMaker mInstance = null;
 
 	public PathMaker(GoogleMap map, MapGrid grid, CustomMapFragment mapFragment, View actionsControl) throws PathMakerException {
 
@@ -223,6 +214,20 @@ public class PathMaker implements OnDragListener {
 				Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 			}
 		}
+	}
+
+	/**
+	 * @return - distance in meters
+	 */
+	public static float LatLngDistance(double lat1, double lng1, double lat2, double lng2) {
+		double earthRadius = 6371000; //meters
+		double dLat = Math.toRadians(lat2 - lat1);
+		double dLng = Math.toRadians(lng2 - lng1);
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+				Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+						Math.sin(dLng / 2) * Math.sin(dLng / 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		return (float) (earthRadius * c);
 	}
 
 	@Override
@@ -396,28 +401,13 @@ public class PathMaker implements OnDragListener {
 		return new PointF(hDist, vDist);
 	}
 
-	/**
-	 * @return - distance in meters
-	 */
-	public static float LatLngDistance(double lat1, double lng1, double lat2, double lng2) {
-		double earthRadius = 6371000; //meters
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLng = Math.toRadians(lng2 - lng1);
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-				Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-						Math.sin(dLng / 2) * Math.sin(dLng / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		return (float) (earthRadius * c);
+	private int getState() {
+		return mState;
 	}
 
 	private void setState(int state) {
 		this.mState = state;
 	}
-
-	private int getState() {
-		return mState;
-	}
-
 
 	/* Custom Exception class */
 	class PathMakerException extends Exception {

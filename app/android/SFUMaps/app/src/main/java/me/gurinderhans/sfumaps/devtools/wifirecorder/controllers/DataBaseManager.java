@@ -23,14 +23,13 @@ import me.gurinderhans.sfumaps.devtools.wifirecorder.models.WiFiAccessPoint;
  */
 public class DataBaseManager extends SQLiteOpenHelper {
 
-	protected static final String TAG = DataBaseManager.class.getSimpleName();
+	public static final String TAG = DataBaseManager.class.getSimpleName();
 
 	// constants
 	public static final String DATABASE_NAME = "WIFI_DATA";
 	public static final int DATABASE_VERSION = 1;
 	public static final String ASSETS_DATABASE_PATH = "databases/" + DATABASE_NAME;
 	public static final String TABLE_NAME = "apsdata";
-
 	// class instance
 	private static DataBaseManager mInstance = null;
 

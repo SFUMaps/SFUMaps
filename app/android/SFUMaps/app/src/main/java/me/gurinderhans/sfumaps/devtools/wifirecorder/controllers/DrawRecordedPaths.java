@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.app.AppConfig;
+import me.gurinderhans.sfumaps.app.Keys;
 
 /**
  * Created by ghans on 1/26/15.

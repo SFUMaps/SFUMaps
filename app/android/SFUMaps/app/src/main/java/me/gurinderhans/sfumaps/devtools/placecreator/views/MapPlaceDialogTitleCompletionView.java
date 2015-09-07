@@ -33,7 +33,7 @@ public class MapPlaceDialogTitleCompletionView extends TokenCompleteTextView<Map
 	protected View getViewForObject(MapPlace completionText) {
 
 		LayoutInflater l = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-		LinearLayout view = (LinearLayout) l.inflate(R.layout.place_token_layout, (ViewGroup) getParent(), false);
+		LinearLayout view = (LinearLayout) l.inflate(R.layout.devtools_placecreator_place_token_layout, (ViewGroup) getParent(), false);
 
 		((TextView) view.findViewById(R.id.textData)).setText(completionText.getTitle());
 
