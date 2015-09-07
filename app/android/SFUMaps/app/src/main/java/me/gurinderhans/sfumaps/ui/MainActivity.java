@@ -68,6 +68,11 @@ public class MainActivity extends FragmentActivity
 		@Override
 		public void done(List<ParseObject> results, ParseException e) {
 
+			if (e != null) {
+				// There was an error or the network wasn't available.
+				return;
+			}
+
 			for (ParseObject result : results) {
 
 				MapPlace place = (MapPlace) result;

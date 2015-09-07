@@ -110,8 +110,10 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	}
 
 	void loadPlace() {
-		mPlaceTitleEditText.addObject(mTmpPlace.getParentPlace());
-		mPlaceTitleEditText.addObject(mTmpPlace);
+		if (mTmpPlace.getParentPlace() != null)
+			mPlaceTitleEditText.addObject(mTmpPlace.getParentPlace());
+		if (mTmpPlace.getTitle() != null)
+			mPlaceTitleEditText.addObject(mTmpPlace);
 
 		// set place type
 		int spinnerSelectIndex = MapPlaceType.allValues().indexOf(mTmpPlace.getType().getText());
