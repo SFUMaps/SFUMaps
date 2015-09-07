@@ -1,22 +1,13 @@
 package me.gurinderhans.sfumaps.factory.classes;
 
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.PointF;
 import android.support.annotation.NonNull;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
-import com.tokenautocomplete.TokenCompleteTextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,7 +15,6 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapPlaceType;
 
@@ -39,6 +29,9 @@ public class MapPlace extends ParseObject {
 
 	protected static final String TAG = MapPlace.class.getSimpleName();
 
+	// to allow direct access for editing
+	public static List<MapPlace> mAllMapPlaces = new ArrayList<>();
+
 	/* Member variables */
 	private Marker mMapPlaceMarker;
 
@@ -47,8 +40,37 @@ public class MapPlace extends ParseObject {
 		/* empty constructor, not be used by anyone other than Parse */
 	}
 
-	/* Parse methods */
 
+	/* autocompelete textview specific stuff */
+
+
+	public MapPlace(String title) {
+		put(ParseMapPlace.TITLE, title);
+	}
+
+	/**
+	 * Get place title
+	 *
+	 * @return - place title
+	 */
+	@Override
+	public String toString() {
+		return getTitle();
+	}
+
+	public void setParentPlace(MapPlace parentPlace) {
+		if (parentPlace == null) {
+			remove(ParseMapPlace.PARENT_PLACE);
+		} else {
+			put(ParseMapPlace.PARENT_PLACE, parentPlace);
+		}
+	}
+
+	public MapPlace getParentPlace() {
+		return (MapPlace) get(ParseMapPlace.PARENT_PLACE);
+	}
+
+	/* Parse methods */
 	public String getTitle() {
 		return getString(ParseMapPlace.TITLE);
 	}

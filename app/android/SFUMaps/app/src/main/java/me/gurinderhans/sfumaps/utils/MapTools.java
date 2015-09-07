@@ -45,6 +45,7 @@ public class MapTools {
 	public static void getZoomMarkers(int zoom, FindCallback<ParseObject> callback) {
 		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.ParseMapPlace.CLASS);
 		Integer[] zooms = {zoom};
+		query.include(Keys.ParseMapPlace.PARENT_PLACE);
 		query.whereContainedIn(Keys.ParseMapPlace.ZOOM, Arrays.asList(zooms));
 		query.findInBackground(callback);
 	}

@@ -41,6 +41,7 @@ public final class Keys {
 		public static final String POSITION_Y = "positionY";
 		public static final String ZOOM = "placeZoom";
 		public static final String MARKER_ROTATION = "placeMarkerRotation";
+		public static final String PARENT_PLACE = "parentPlace";
 	}
 
 }

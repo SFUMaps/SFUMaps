@@ -29,7 +29,6 @@ import java.util.List;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.ui.MCompletionView;
-import me.gurinderhans.sfumaps.ui.MainActivity;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapPlaceType;
@@ -60,7 +59,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 		mActivity = activity;
 		mEditingPlaceIndex = placeIndex;
-		mTmpPlace = MainActivity.mAllMapPlaces.get(placeIndex);
+		mTmpPlace = MapPlace.mAllMapPlaces.get(placeIndex);
 
 		setCancelable(false);
 	}
@@ -101,14 +100,18 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		loadPlace();
 
 
-		String[] stirngs = new String[]{"Academic Quadrangle", "Applied Sciences Building"};
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, stirngs);
-		mPlaceTitleEditText.setAdapter(adapter);
-		mPlaceTitleEditText.setPrefix("");
+		// load adapter data
+		List<MapPlace> places = new ArrayList<>();
+		for (MapPlace place : MapPlace.mAllMapPlaces)
+			if (place != null && place.getTitle() != null)
+				places.add(place);
+		ArrayAdapter<MapPlace> autoCompleteAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, places);
+		mPlaceTitleEditText.setAdapter(autoCompleteAdapter);
 	}
 
 	void loadPlace() {
-		mPlaceTitleEditText.setText(mTmpPlace.getTitle());
+		mPlaceTitleEditText.addObject(mTmpPlace.getParentPlace());
+		mPlaceTitleEditText.addObject(mTmpPlace);
 
 		// set place type
 		int spinnerSelectIndex = MapPlaceType.allValues().indexOf(mTmpPlace.getType().getText());
@@ -133,14 +136,25 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	}
 
 	void savePlace() {
-		if (mPlaceTitleEditText.getText().toString().isEmpty()) {
+
+		List<MapPlace> objects = mPlaceTitleEditText.getObjects();
+		if (objects.size() == 0) {
 			Toast.makeText(getContext(), "Not saving place without title.", Toast.LENGTH_LONG).show();
 			return;
+		} else {
+			if (objects.size() == 2) {
+				// set title and parent
+				mTmpPlace.setParentPlace(objects.get(0));
+				mTmpPlace.setTitle(objects.get(1).getTitle());
+			} else {
+				mTmpPlace.setTitle(objects.get(0).getTitle());
+				mTmpPlace.setParentPlace(null);
+			}
 		}
 
-		List<Integer> zooms = new ArrayList<>();
 
 		// get place zooms
+		List<Integer> zooms = new ArrayList<>();
 		if (((CheckBox) findViewById(R.id.zoom_2)).isChecked())
 			zooms.add(2);
 		if (((CheckBox) findViewById(R.id.zoom_3)).isChecked())
@@ -157,13 +171,12 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 			zooms.add(8);
 
 
-		mTmpPlace.setTitle(mPlaceTitleEditText.getText().toString());
 		mTmpPlace.setZooms(zooms);
 		mTmpPlace.setType(MapPlaceType.fromString(mPlaceTypeSelector.getSelectedItem().toString()));
 		mTmpPlace.setIconAlignment(MapLabelIconAlign.fromString(mIconAlignmentSelector.getSelectedItem().toString()));
 
 		// update list
-		MainActivity.mAllMapPlaces.set(mEditingPlaceIndex, mTmpPlace);
+		MapPlace.mAllMapPlaces.set(mEditingPlaceIndex, mTmpPlace);
 
 
 		/* update the marker */
@@ -182,10 +195,11 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		mTmpPlace.savePlaceWithCallback(new SaveCallback() {
 			@Override
 			public void done(ParseException e) {
-				if (e != null)
-					Toast.makeText(getContext(), "Unable to save.", Toast.LENGTH_LONG).show();
-				else
+				if (e == null) {
 					Toast.makeText(getContext(), "MapPlace saved.", Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(getContext(), "Unable to save.", Toast.LENGTH_LONG).show();
+				}
 			}
 		});
 	}
@@ -205,7 +219,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 					}
 				});
 				mTmpPlace.getPlaceMarker().remove();
-				MainActivity.mAllMapPlaces.remove(mEditingPlaceIndex);
+				MapPlace.mAllMapPlaces.remove(mEditingPlaceIndex);
 				break;
 			default:
 				break;
