@@ -36,11 +36,11 @@ public class CachedTileProvider implements TileProvider {
 
 	/**
 	 * TileProvider that wraps another TileProvider and caches all Tiles in a DiskLruCache.
-	 * <p/>
+	 * <p>
 	 * <p>A {@link DiskLruCache} can be reused across multiple instances.
 	 * The keyTag is used to annotate entries for this TileProvider, it is recommended to use a unique
 	 * String for each instance to prevent collisions.
-	 * <p/>
+	 * <p>
 	 * <p>NOTE: The supplied {@link DiskLruCache} requires space for
 	 * 3 entries per cached object.
 	 *

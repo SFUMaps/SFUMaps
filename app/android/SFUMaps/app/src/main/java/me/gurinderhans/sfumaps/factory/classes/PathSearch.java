@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import me.gurinderhans.sfumaps.factory.classes.MapGrid.GridNode;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 /**
@@ -42,17 +43,17 @@ public class PathSearch {
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
 	}
 
-	private static List<MapGrid.GridNode> AStar(MapGrid grid, MapGrid.GridNode startNode, MapGrid.GridNode targetNode) {
+	private static List<GridNode> AStar(MapGrid grid, GridNode startNode, GridNode targetNode) {
 
-		List<MapGrid.GridNode> openSet = new ArrayList<>();
-		List<MapGrid.GridNode> closedSet = new ArrayList<>();
+		List<GridNode> openSet = new ArrayList<>();
+		List<GridNode> closedSet = new ArrayList<>();
 
 		openSet.add(startNode);
 
 		while (openSet.size() > 0) {
 
 			// get node with min fcost from openset
-			MapGrid.GridNode currentNode = openSet.get(0);
+			GridNode currentNode = openSet.get(0);
 			for (int i = 1; i < openSet.size(); i++) {
 				if (openSet.get(i).getFCost() < currentNode.getFCost() || openSet.get(i).getFCost() == currentNode.getFCost() && openSet.get(i).hCost < currentNode.hCost) {
 					currentNode = openSet.get(i);
@@ -64,8 +65,8 @@ public class PathSearch {
 
 			if (currentNode.gridX == targetNode.gridX && currentNode.gridY == targetNode.gridY) {
 				// retrace path and return it
-				List<MapGrid.GridNode> path = new ArrayList<>();
-				MapGrid.GridNode thisNode = targetNode;
+				List<GridNode> path = new ArrayList<>();
+				GridNode thisNode = targetNode;
 				while (thisNode != startNode) {
 					path.add(thisNode);
 					thisNode = thisNode.parentNode;
@@ -75,15 +76,27 @@ public class PathSearch {
 				return path;
 			}
 
-			for (MapGrid.GridNode neighborNode : grid.getNeighbors(currentNode)) {
+			for (GridNode neighborNode : grid.getNeighbors(currentNode)) {
 
 				if (!neighborNode.isWalkable() || closedSet.contains(neighborNode))
 					continue;
 
 				float newMovementCost = currentNode.gCost + dist(currentNode, neighborNode);
 				if (newMovementCost < neighborNode.gCost || !openSet.contains(neighborNode)) {
-					neighborNode.gCost = newMovementCost;
-					neighborNode.hCost = dist(neighborNode, targetNode);
+					float gcost = newMovementCost;
+					float hcost = dist(neighborNode, targetNode);
+
+					// this is to avoid staircase effect at some diagonal turns
+					// NOTE: not sure but this maaay have broken (A *)
+					if (currentNode.gridX - neighborNode.gridX != 0) {
+						gcost += 0.01;
+						hcost += 0.01;
+					}
+
+					neighborNode.gCost = gcost;
+					neighborNode.hCost = hcost;
+
+
 					neighborNode.parentNode = currentNode;
 
 					if (!openSet.contains(neighborNode))
@@ -95,7 +108,7 @@ public class PathSearch {
 		return null;
 	}
 
-	public static float dist(MapGrid.GridNode a, MapGrid.GridNode b) {
+	public static float dist(GridNode a, GridNode b) {
 		float dstX = Math.abs(a.gridX - b.gridX);
 		float dstY = Math.abs(a.gridY - b.gridY);
 
@@ -109,10 +122,10 @@ public class PathSearch {
 
 		Log.i(TAG, "finding for place: " + placeFrom.getTitle());
 
-		MapGrid.GridNode from = findClosestWalkablePathPoint(placeFrom.getPosition(), placeTo.getPosition());
-		MapGrid.GridNode to = findClosestWalkablePathPoint(placeTo.getPosition(), from.projCoords);
+		GridNode from = findClosestWalkablePathPoint(placeFrom.getPosition(), placeTo.getPosition());
+		GridNode to = findClosestWalkablePathPoint(placeTo.getPosition(), from.projCoords);
 
-		List<MapGrid.GridNode> path = AStar(mGrid, from, to);
+		List<GridNode> path = AStar(mGrid, from, to);
 
 		if (path != null) {
 
@@ -120,7 +133,7 @@ public class PathSearch {
 
 			List<LatLng> pathPoints = new ArrayList<>();
 
-			for (MapGrid.GridNode node : path)
+			for (GridNode node : path)
 				pathPoints.add(MercatorProjection.fromPointToLatLng(node.projCoords));
 
 			if (pathPoints.size() - 1 >= 0)
@@ -133,12 +146,12 @@ public class PathSearch {
 		mGoogleMap.addMarker(new MarkerOptions().position(MercatorProjection.fromPointToLatLng(to.projCoords)));
 	}
 
-	private MapGrid.GridNode findClosestWalkablePathPoint(PointF placePos, PointF compareTo) {
+	private GridNode findClosestWalkablePathPoint(PointF placePos, PointF compareTo) {
 		Point gridNodeIndices = getGridIndices(placePos);
 		Point compareToGridNode = getGridIndices(compareTo);
 
 
-		List<MapGrid.GridNode> possibleWalkableNodes = new ArrayList<>();
+		List<GridNode> possibleWalkableNodes = new ArrayList<>();
 
 		int expander = 0;
 		while (possibleWalkableNodes.isEmpty()) {
@@ -150,7 +163,7 @@ public class PathSearch {
 					int nX = gridNodeIndices.x + x;
 					int nY = gridNodeIndices.y + y;
 
-					MapGrid.GridNode checkNode = mGrid.getNode(nX, nY);
+					GridNode checkNode = mGrid.getNode(nX, nY);
 					if (checkNode.isWalkable())
 						if (checkNode.gridX == gridNodeIndices.x || checkNode.gridY == gridNodeIndices.y
 //								|| (Math.abs(nX - gridNodeIndices.x) == Math.abs(nY - gridNodeIndices.y))
@@ -163,8 +176,8 @@ public class PathSearch {
 
 		// filter the point closest to placeFrom AND placeTo
 		int lowestLength = Integer.MAX_VALUE;
-		MapGrid.GridNode filteredNode = null;
-		for (MapGrid.GridNode node : possibleWalkableNodes) {
+		GridNode filteredNode = null;
+		for (GridNode node : possibleWalkableNodes) {
 			int fromX = Math.abs(node.gridX - gridNodeIndices.x),
 					fromY = Math.abs(node.gridY - gridNodeIndices.y),
 					toX = Math.abs(node.gridX - compareToGridNode.x),

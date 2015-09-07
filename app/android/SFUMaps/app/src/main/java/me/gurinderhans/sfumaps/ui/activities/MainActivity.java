@@ -62,7 +62,12 @@ public class MainActivity extends FragmentActivity
 	// member variables
 	private int mapCurrentZoom; // used for detecting when map zoom changes
 	private GoogleMap Map;
-	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
+	private DiskLruCache mTileCache;
+	private PlaceFormDialog mPlaceFormDialog;
+	private PathSearch mPathSearch;
+	private Pair<MapPlace, MapPlace> mPlaceFromTo;
+
+	private FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> results, ParseException e) {
 
@@ -92,10 +97,6 @@ public class MainActivity extends FragmentActivity
 			syncMarkers();
 		}
 	};
-	private DiskLruCache mTileCache;
-	private PlaceFormDialog mPlaceFormDialog;
-	private PathSearch mPathSearch;
-	private Pair<MapPlace, MapPlace> mPlaceFromTo;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -237,12 +238,6 @@ public class MainActivity extends FragmentActivity
 		if (clickedPlaceIndex != -1) {
 
 			if (BuildConfig.DEBUG) {
-				mPlaceFormDialog = new PlaceFormDialog(
-						this,
-						clickedPlaceIndex
-				);
-				mPlaceFormDialog.show();
-			} else {
 				// do path search
 				if (mPlaceFromTo == null) {
 					mPlaceFromTo = Pair.create(MapPlace.mAllMapPlaces.get(clickedPlaceIndex), null);
@@ -255,6 +250,12 @@ public class MainActivity extends FragmentActivity
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			} else {
+				mPlaceFormDialog = new PlaceFormDialog(
+						this,
+						clickedPlaceIndex
+				);
+				mPlaceFormDialog.show();
 			}
 		}
 
