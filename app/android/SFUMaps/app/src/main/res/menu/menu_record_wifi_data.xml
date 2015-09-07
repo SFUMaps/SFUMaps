@@ -5,13 +5,13 @@
 
     <item
         android:id="@+id/record"
-        android:icon="@drawable/ic_play_arrow_white_24dp"
+        android:icon="@drawable/devtools_wifirecorder_ic_play_arrow_white"
         android:title="@string/menu_action_record_play"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/list_tables"
-        android:icon="@drawable/ic_sort_white_24dp"
+        android:icon="@drawable/devtools_wifirecorder_ic_sort_white"
         android:title="@string/menu_action_list_tables"
         app:showAsAction="ifRoom"/>
 

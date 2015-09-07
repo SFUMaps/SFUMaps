@@ -37,6 +37,8 @@ import me.gurinderhans.sfumaps.utils.MercatorProjection;
  */
 public class PathMaker implements OnDragListener {
 
+	// TODO: 15-09-07 rewrite with Parse
+
 	public static final String TAG = PathMaker.class.getSimpleName();
 
 	// data keys
@@ -147,7 +149,7 @@ public class PathMaker implements OnDragListener {
 											.anchor(0f, 0f)
 											.zIndex(10000)
 											.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(pointA).projCoords), sdf.x, sdf.y)
-											.image(BitmapDescriptorFactory.fromResource(R.drawable.box_rect_outline))
+											.image(BitmapDescriptorFactory.fromResource(android.R.color.holo_green_light))
 											.transparency(0.2f))
 							);
 						}
@@ -159,7 +161,7 @@ public class PathMaker implements OnDragListener {
 							individualMarkers.add(
 									mGoogleMap.addMarker(new MarkerOptions()
 											.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(new Point(Integer.parseInt(pointString[0]), Integer.parseInt(pointString[1]))).projCoords))
-											.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_path))
+											.icon(BitmapDescriptorFactory.fromResource(android.R.color.holo_blue_dark))
 											.anchor(0.5f, 0.5f))
 							);
 						}
@@ -188,11 +190,11 @@ public class PathMaker implements OnDragListener {
 			@Override
 			public void onClick(View v) {
 				createBoxMode = !createBoxMode;
-				v.setBackgroundResource(createBoxMode ? R.drawable.box_rect_outline : R.drawable.dark_red_color);
+				v.setBackgroundResource(createBoxMode ? android.R.color.holo_green_light : android.R.color.holo_red_light);
 
 				if (createBoxMode) {
 					deletePathMode = false;
-					deleteButton.setBackgroundResource(R.drawable.dark_red_color);
+					deleteButton.setBackgroundResource(android.R.color.holo_red_light);
 				}
 			}
 		});
@@ -201,11 +203,11 @@ public class PathMaker implements OnDragListener {
 			@Override
 			public void onClick(View v) {
 				deletePathMode = !deletePathMode;
-				v.setBackgroundResource(deletePathMode ? R.drawable.box_rect_outline : R.drawable.dark_red_color);
+				v.setBackgroundResource(deletePathMode ? android.R.color.holo_green_light : android.R.color.holo_red_light);
 
 				if (deletePathMode) {
 					createBoxMode = false;
-					boxButton.setBackgroundResource(R.drawable.dark_red_color);
+					boxButton.setBackgroundResource(android.R.color.holo_red_light);
 				}
 			}
 		});
@@ -239,7 +241,7 @@ public class PathMaker implements OnDragListener {
 					mTmpBoxDragStartGridIndices = currentDragPointIndices;
 					mTmpSelectedArea = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 									.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords), 1000)
-									.image(BitmapDescriptorFactory.fromResource(R.drawable.box_rect_outline))
+									.image(BitmapDescriptorFactory.fromResource(android.R.color.holo_green_light))
 									.transparency(0.2f)
 									.zIndex(10000)
 									.anchor(0, 0)
@@ -329,7 +331,7 @@ public class PathMaker implements OnDragListener {
 
 						individualMarkers.add(mGoogleMap.addMarker(new MarkerOptions()
 								.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords))
-								.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_path))
+								.icon(BitmapDescriptorFactory.fromResource(android.R.color.holo_blue_dark))
 								.anchor(0.5f, 0.5f)));
 
 						// set to walkable point

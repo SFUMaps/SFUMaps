@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui.views;
+package me.gurinderhans.sfumaps.devtools.placecreator.views;
 
 import android.app.Activity;
 import android.content.Context;

@@ -32,7 +32,7 @@ import java.util.List;
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.devtools.PathMaker;
-import me.gurinderhans.sfumaps.devtools.PlaceFormDialog;
+import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;

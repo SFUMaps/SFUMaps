@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.devtools;
+package me.gurinderhans.sfumaps.devtools.placecreator.controllers;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.devtools.placecreator.views.MapPlaceDialogTitleCompletionView;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
-import me.gurinderhans.sfumaps.ui.views.MapPlaceDialogTitleCompletionView;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapPlaceType;
@@ -258,7 +258,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		findViewById(R.id.form_actions).setVisibility(View.VISIBLE);
 
 		// remove white background
-		findViewById(R.id.form_place_dialog_wrapper).setBackgroundResource(R.drawable.card_shape);
+		findViewById(R.id.form_place_dialog_wrapper).setBackgroundResource(R.drawable.devtools_placecreator_cardShape);
 
 		getWindow().setDimAmount(0.55f);
 	}
