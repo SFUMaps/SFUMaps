@@ -222,7 +222,6 @@ public class MainActivity extends FragmentActivity
 			// show dialog asking place info
 			mPlaceFormDialog = new PlaceFormDialog(
 					this,
-					Map,
 					getPlaceIndex(
 							MercatorProjection.fromPointToLatLng(newPlace.getPosition())
 					)
@@ -241,7 +240,6 @@ public class MainActivity extends FragmentActivity
 			if (BuildConfig.DEBUG) {
 				mPlaceFormDialog = new PlaceFormDialog(
 						this,
-						Map,
 						clickedPlaceIndex
 				);
 				mPlaceFormDialog.show();

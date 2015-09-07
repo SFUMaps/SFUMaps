@@ -17,7 +17,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.parse.DeleteCallback;
 import com.parse.ParseException;
@@ -54,14 +53,12 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	private SeekBar mMarkerRotator;
 
 
-	public PlaceFormDialog(Activity activity, GoogleMap map, int placeIndex) {
+	public PlaceFormDialog(Activity activity, int placeIndex) {
 		super(activity);
 
 		mActivity = activity;
 		mEditingPlaceIndex = placeIndex;
 		mTmpPlace = MapPlace.mAllMapPlaces.get(placeIndex);
-
-		setCancelable(false);
 	}
 
 	@Override
