@@ -28,4 +28,5 @@ dependencies {
     compile 'com.android.support:design:23.0.1'
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.parse:parse-android:1.10.1'
+    compile "com.splitwise:tokenautocomplete:2.0.1@aar"
 }

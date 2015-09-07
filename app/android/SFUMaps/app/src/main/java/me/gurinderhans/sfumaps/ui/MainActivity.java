@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 
@@ -25,7 +27,6 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.BuildConfig;
@@ -34,6 +35,7 @@ import me.gurinderhans.sfumaps.devtools.pathmaker.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
+import me.gurinderhans.sfumaps.factory.classes.PathSearch;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
@@ -56,17 +58,20 @@ public class MainActivity extends FragmentActivity
 
 	// member variables
 	private GoogleMap Map;
-	private MapGrid mGrid;
 	private DiskLruCache mTileCache;
 	private PlaceFormDialog mPlaceFormDialog;
+	private PathSearch mPathSearch;
+	private Pair<MapPlace, MapPlace> mPlaceFromTo;
 
-
-	// static so that PlaceForm dialog can directly access this list and modify it
-	public static List<MapPlace> mAllMapPlaces = new ArrayList<>();
 
 	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> results, ParseException e) {
+
+			if (e != null) {
+				// There was an error or the network wasn't available.
+				return;
+			}
 
 			for (ParseObject result : results) {
 
@@ -82,7 +87,7 @@ public class MainActivity extends FragmentActivity
 							MarkerCreator.createPlaceMarker(getApplicationContext(), Map, place)
 					);
 
-					mAllMapPlaces.add(place);
+					MapPlace.mAllMapPlaces.add(place);
 				}
 			}
 
@@ -111,9 +116,12 @@ public class MainActivity extends FragmentActivity
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		mGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
+		MapGrid mapGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
 
 		setUpMapIfNeeded();
+
+		mPathSearch = new PathSearch(Map, mapGrid);
+
 
 
 		/* Dev Controls */
@@ -124,7 +132,7 @@ public class MainActivity extends FragmentActivity
 			findViewById(R.id.dev_overlay).setVisibility(View.VISIBLE);
 
 			// create admin panel
-			PathMaker.initPathMaker(Map, mGrid, getSupportFragmentManager(),
+			PathMaker.initPathMaker(Map, mapGrid, getSupportFragmentManager(),
 					findViewById(R.id.edit_map_grid_controls));
 		}
 	}
@@ -172,7 +180,6 @@ public class MainActivity extends FragmentActivity
 				.zIndex(11));
 	}
 
-
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -180,7 +187,7 @@ public class MainActivity extends FragmentActivity
 	}
 
 
-	private int mapCurrentZoom; // used for detecing when map zoom changes
+	private int mapCurrentZoom; // used for detecting when map zoom changes
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
@@ -210,12 +217,11 @@ public class MainActivity extends FragmentActivity
 			MapPlace newPlace = new MapPlace();
 			newPlace.setPosition(MercatorProjection.fromLatLngToPoint(latLng));
 			newPlace.tieWithMarker(MarkerCreator.createPlaceMarker(getApplicationContext(), Map, newPlace));
-			mAllMapPlaces.add(newPlace);
+			MapPlace.mAllMapPlaces.add(newPlace);
 
 			// show dialog asking place info
 			mPlaceFormDialog = new PlaceFormDialog(
 					this,
-					Map,
 					getPlaceIndex(
 							MercatorProjection.fromPointToLatLng(newPlace.getPosition())
 					)
@@ -234,10 +240,22 @@ public class MainActivity extends FragmentActivity
 			if (BuildConfig.DEBUG) {
 				mPlaceFormDialog = new PlaceFormDialog(
 						this,
-						Map,
 						clickedPlaceIndex
 				);
 				mPlaceFormDialog.show();
+			} else {
+				// do path search
+				if (mPlaceFromTo == null) {
+					mPlaceFromTo = Pair.create(MapPlace.mAllMapPlaces.get(clickedPlaceIndex), null);
+				} else {
+					mPlaceFromTo = Pair.create(mPlaceFromTo.first, MapPlace.mAllMapPlaces.get(clickedPlaceIndex));
+					mPathSearch.drawPath(mPlaceFromTo.first, mPlaceFromTo.second);
+				}
+				try {
+					Log.i(TAG, "first: " + mPlaceFromTo.first + ", " + mPlaceFromTo.second);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -255,18 +273,14 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onMarkerDragEnd(Marker marker) {
 
-		// FIXME: 15-09-05 Only a minor issue, but when you drag a place, the getPlaceIndex isn't
-		// able to find it anymore, plus it stays visible on the map at all times, even when the map zoom,
-		// is not for the marker (only happens in dev mode as that's the only place where markers are draggable
-
 		// find the clicked marker
 		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (draggedPlaceIndex != -1) {
-			mAllMapPlaces.get(draggedPlaceIndex).setPosition(
+			MapPlace.mAllMapPlaces.get(draggedPlaceIndex).setPosition(
 					MercatorProjection.fromLatLngToPoint(marker.getPosition())
 			);
 
-			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
+			MapPlace.mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
 				@Override
 				public void done(ParseException e) {
 					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
@@ -279,15 +293,21 @@ public class MainActivity extends FragmentActivity
 	/* Custom helper methods */
 
 	private int getPlaceIndex(LatLng placePos) {
-		for (int i = 0; i < mAllMapPlaces.size(); i++)
-			if (mAllMapPlaces.get(i).getPlaceMarker().getPosition().equals(placePos))
+
+		for (int i = 0; i < MapPlace.mAllMapPlaces.size(); i++) {
+			// level the LatLng to same 'precision'
+			PointF thisMarkerPoint = MercatorProjection.fromLatLngToPoint(
+					MapPlace.mAllMapPlaces.get(i).getPlaceMarker().getPosition());
+
+			if (thisMarkerPoint.equals(MercatorProjection.fromLatLngToPoint(placePos)))
 				return i;
+		}
 
 		return -1;
 	}
 
 	private void syncMarkers() {
-		for (MapPlace el : mAllMapPlaces)
+		for (MapPlace el : MapPlace.mAllMapPlaces)
 			for (int zoom : el.getZooms()) {
 				if (zoom == mapCurrentZoom) {
 					el.getPlaceMarker().setVisible(true);

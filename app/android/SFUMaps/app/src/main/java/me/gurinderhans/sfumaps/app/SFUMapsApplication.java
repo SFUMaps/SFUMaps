@@ -16,9 +16,6 @@ public class SFUMapsApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		// Enable Local Datastore.
-		Parse.enableLocalDatastore(this);
-
 		// register subclasses
 		ParseObject.registerSubclass(MapPlace.class);
 

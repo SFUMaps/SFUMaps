@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.utils.MarkerCreator.MapLabelIconAlign;
+import me.gurinderhans.sfumaps.utils.MarkerCreator.MapPlaceType;
 
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace;
 
@@ -28,16 +29,48 @@ public class MapPlace extends ParseObject {
 
 	protected static final String TAG = MapPlace.class.getSimpleName();
 
+	// to allow direct access for editing
+	public static List<MapPlace> mAllMapPlaces = new ArrayList<>();
+
 	/* Member variables */
 	private Marker mMapPlaceMarker;
 
 
 	public MapPlace() {
-		/* empty constructor not be used by anyone other than Parse */
+		/* empty constructor, not be used by anyone other than Parse */
+	}
+
+
+	/* autocompelete textview specific stuff */
+
+
+	public MapPlace(String title) {
+		put(ParseMapPlace.TITLE, title);
+	}
+
+	/**
+	 * Get place title
+	 *
+	 * @return - place title
+	 */
+	@Override
+	public String toString() {
+		return getTitle();
+	}
+
+	public void setParentPlace(MapPlace parentPlace) {
+		if (parentPlace == null) {
+			remove(ParseMapPlace.PARENT_PLACE);
+		} else {
+			put(ParseMapPlace.PARENT_PLACE, parentPlace);
+		}
+	}
+
+	public MapPlace getParentPlace() {
+		return (MapPlace) get(ParseMapPlace.PARENT_PLACE);
 	}
 
 	/* Parse methods */
-
 	public String getTitle() {
 		return getString(ParseMapPlace.TITLE);
 	}
@@ -46,17 +79,16 @@ public class MapPlace extends ParseObject {
 		put(ParseMapPlace.TITLE, title);
 	}
 
-	public String getType() {
-		return getString(ParseMapPlace.TYPE);
+	public MapPlaceType getType() {
+		return MapPlaceType.fromString(getString(ParseMapPlace.TYPE));
 	}
 
-	public void setType(String type) {
-		put(ParseMapPlace.TYPE, type);
+	public void setType(MapPlaceType type) {
+		put(ParseMapPlace.TYPE, type.getText());
 	}
 
 	public MapLabelIconAlign getIconAlignment() {
-		String alignmentString = getString(ParseMapPlace.ICON_ALIGNMENT);
-		return MapLabelIconAlign.fromString(alignmentString);
+		return MapLabelIconAlign.fromString(getString(ParseMapPlace.ICON_ALIGNMENT));
 	}
 
 	public void setIconAlignment(MapLabelIconAlign alignment) {
@@ -127,5 +159,5 @@ public class MapPlace extends ParseObject {
 	public Marker getPlaceMarker() {
 		return mMapPlaceMarker;
 	}
-
 }
+
