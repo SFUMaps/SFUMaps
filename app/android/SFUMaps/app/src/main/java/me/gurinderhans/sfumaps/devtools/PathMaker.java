@@ -15,9 +15,6 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.MapPath;
@@ -36,22 +33,19 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
 
-	//
 	public static boolean isEditingMap = false;
-	private static PathMaker mInstance = null;
 	private static final int MOVE_THRESHOLD = 2; // grid units
+	private static PathMaker mInstance = null;
 
 	// UI
-	private ImageButton deleteButton;
-	private GroundOverlay mTmpSelectedOverlay;
 	private final GoogleMap mGoogleMap;
 	private final MapGrid mGrid;
 	private final FragmentActivity mActivity;
+	private GroundOverlay mTmpSelectedOverlay;
 
 	// Logic
 	boolean deleteMode = false;
 	Point mBoxStartGridIndices;
-	private List<MapPath> mNewThisSessionPaths = new ArrayList<>();
 
 	// @constructor
 	PathMaker(FragmentActivity activity, GoogleMap map, MapGrid grid) {
@@ -62,14 +56,10 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 		// ------------
 		mActivity.findViewById(R.id.dev_overlay).setVisibility(VISIBLE);
+		mActivity.findViewById(R.id.edit_map_path).setOnClickListener(this);
+		mActivity.findViewById(R.id.delete_path_button).setOnClickListener(this);
 
 		// ------------
-		deleteButton = (ImageButton) mActivity.findViewById(R.id.delete_path_button);
-
-		//
-		mActivity.findViewById(R.id.edit_map_path).setOnClickListener(this);
-		deleteButton.setOnClickListener(this);
-
 		((CustomMapFragment) mActivity.getSupportFragmentManager().findFragmentById(R.id.map)).setOnDragListener(this);
 	}
 
@@ -77,6 +67,33 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	public static void createPathMaker(FragmentActivity activity, GoogleMap map, MapGrid grid) {
 		if (mInstance == null)
 			mInstance = new PathMaker(activity, map, grid);
+	}
+
+	/**
+	 * Calculate the horizontal and vertical distance between points a and b
+	 *
+	 * @param dragStartCoordinates   - screen point
+	 * @param dragCurrentCoordinates - indices
+	 * @return - {@link PointF} object containing the horizontal and vertical distance in meters
+	 */
+	public static PointF getXYDist(LatLng dragStartCoordinates, LatLng dragCurrentCoordinates) {
+
+		// calculate the middle corner point
+		PointF dragStart = MercatorProjection.fromLatLngToPoint(dragStartCoordinates);
+		PointF dragCurrent = MercatorProjection.fromLatLngToPoint(dragCurrentCoordinates);
+
+		// the middle corner point
+		dragCurrent.set(dragCurrent.x, dragStart.y);
+
+		LatLng middleCornerPoint = MercatorProjection.fromPointToLatLng(dragCurrent);
+
+		// horizontal distance
+		float hDist = MapTools.LatLngDistance(dragStartCoordinates.latitude, dragStartCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+
+		// vertical distance
+		float vDist = MapTools.LatLngDistance(dragCurrentCoordinates.latitude, dragCurrentCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+
+		return new PointF(hDist, vDist);
 	}
 
 	@Override
@@ -105,9 +122,10 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					MapPath mapPath = new MapPath();
 					mapPath.setStartPoint(mBoxStartGridIndices);
 					mapPath.setEndPoint(currentDragPointIndices);
-					mapPath.setMapOverlay(mTmpSelectedOverlay);
+					mapPath.setMapEditOverlay(mTmpSelectedOverlay);
+					mapPath.saveInBackground();
 
-					mNewThisSessionPaths.add(mapPath);
+					MapPath.mAllMapPaths.add(mapPath);
 
 					mTmpSelectedOverlay = null;
 				}
@@ -118,14 +136,14 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				if (deleteMode) {
 					// delete stuff
 					MapPath toRemove = null;
-					for (MapPath path : mNewThisSessionPaths)
-						if (path.getMapOverlay().getBounds().contains(mGoogleMap.getProjection().fromScreenLocation(new Point((int) ev.getX(), (int) ev.getY())))) {
-							path.getMapOverlay().remove();
+					for (MapPath path : MapPath.mAllMapPaths)
+						if (path.getMapEditOverlay().getBounds().contains(mGoogleMap.getProjection().fromScreenLocation(new Point((int) ev.getX(), (int) ev.getY())))) {
+							path.getMapEditOverlay().remove();
 							path.deleteInBackground();
 							toRemove = path;
 						}
 					if (toRemove != null)
-						mNewThisSessionPaths.remove(toRemove);
+						MapPath.mAllMapPaths.remove(toRemove);
 				} else {
 					if (!((Math.abs(currentDragPointIndices.x - mBoxStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mBoxStartGridIndices.y)) >= MOVE_THRESHOLD))
 						return;
@@ -166,7 +184,9 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				toggleEditing((ImageButton) v);
 				break;
 			case R.id.delete_path_button:
-				toggleDeleteMode();
+				deleteMode = !deleteMode;
+				// change button background
+				v.setBackgroundResource(deleteMode ? android.R.color.holo_green_light : android.R.color.holo_red_light);
 				break;
 			default:
 				break;
@@ -174,22 +194,19 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 	}
 
-	/* views toggle */
+	/* edit map grid toggle */
 	private void toggleEditing(ImageButton editButton) {
 
-//		if (MapPath.mAllMapPaths.isEmpty()) {
-//			 tell map path data isn't available yet, so try again later
-//			Toast.makeText(mActivity.getApplicationContext(), "Map Path data isn't yet available. Try again later.", Toast.LENGTH_LONG).show();
-//			return;
-//		}
+		if (MapPath.mAllMapPaths.isEmpty()) {
+			// tell map path data isn't available yet, so try again later
+			Toast.makeText(mActivity.getApplicationContext(), "Map Path data isn't yet available.", Toast.LENGTH_LONG).show();
+		}
 
 		isEditingMap = !isEditingMap;
 
-
-		if (!isEditingMap) {
-			// save the edited map
-			MapPath.saveAllInBackground(mNewThisSessionPaths);
-		}
+		// show / hide the overlays
+		for (MapPath path : MapPath.mAllMapPaths)
+			path.getMapEditOverlay().setVisible(isEditingMap);
 
 		mGoogleMap.getUiSettings().setScrollGesturesEnabled(!isEditingMap);
 
@@ -199,14 +216,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 		// hide edit controls
 		mActivity.findViewById(R.id.delete_path_button).setVisibility(isEditingMap ? VISIBLE : INVISIBLE);
-	}
-
-	private void toggleDeleteMode() {
-		deleteMode = !deleteMode;
-
-		// change button background
-		deleteButton.setBackgroundResource(deleteMode ? android.R.color.holo_green_light : android.R.color.holo_red_light);
-
 	}
 
 	/**
@@ -224,33 +233,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 		// convert dist to grid index and return the position of the node at that index
 		return new Point((int) ((mapPoint.x - gridFirstPoint.x) / MapGrid.EACH_POINT_DIST), (int) ((mapPoint.y - gridFirstPoint.y) / MapGrid.EACH_POINT_DIST));
-	}
-
-	/**
-	 * Calculate the horizontal and vertical distance between points a and b
-	 *
-	 * @param dragStartCoordinates   - screen point
-	 * @param dragCurrentCoordinates - indices
-	 * @return - {@link PointF} object containing the horizontal and vertical distance in meters
-	 */
-	public static PointF getXYDist(LatLng dragStartCoordinates, LatLng dragCurrentCoordinates) {
-
-		// calculate the middle corner point
-		PointF dragStart = MercatorProjection.fromLatLngToPoint(dragStartCoordinates);
-		PointF dragCurrent = MercatorProjection.fromLatLngToPoint(dragCurrentCoordinates);
-
-		// the middle corner point
-		dragCurrent.set(dragCurrent.x, dragStart.y);
-
-		LatLng middleCornerPoint = MercatorProjection.fromPointToLatLng(dragCurrent);
-
-		// horizontal distance
-		float hDist = MapTools.LatLngDistance(dragStartCoordinates.latitude, dragStartCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
-
-		// vertical distance
-		float vDist = MapTools.LatLngDistance(dragCurrentCoordinates.latitude, dragCurrentCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
-
-		return new PointF(hDist, vDist);
 	}
 
 

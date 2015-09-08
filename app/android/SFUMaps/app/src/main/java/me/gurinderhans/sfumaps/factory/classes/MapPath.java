@@ -45,11 +45,11 @@ public class MapPath extends ParseObject {
 		return new Point(getInt(ParseMapPath.POINT_END_X), getInt(ParseMapPath.POINT_END_Y));
 	}
 
-	public void setMapOverlay(GroundOverlay overlay) {
+	public void setMapEditOverlay(GroundOverlay overlay) {
 		this.groundOverlay = overlay;
 	}
 
-	public GroundOverlay getMapOverlay() {
+	public GroundOverlay getMapEditOverlay() {
 		return groundOverlay;
 	}
 }

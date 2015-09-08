@@ -62,36 +62,43 @@ public class PathSearch {
 		query.findInBackground(new FindCallback<ParseObject>() {
 			@Override
 			public void done(List<ParseObject> objects, ParseException e) {
-				if (e == null)
-					for (ParseObject obj : objects) {
-						MapPath mapPath = (MapPath) obj;
+				if (e != null) {
+					// There was an error or the network wasn't available.
+					return;
+				}
 
-						GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-										.image(BitmapDescriptorFactory.fromResource(R.drawable.green_bg))
-										.zIndex(10000)
-										.transparency(0.2f)
-										.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), 1000000)
-										.anchor(0, 0)
-						);
+				for (ParseObject obj : objects) {
+					MapPath mapPath = (MapPath) obj;
 
-						PointF dims = PathMaker.getXYDist(
-								MercatorProjection.fromPointToLatLng(
-										mGrid.getNode(mapPath.getStartPoint()).projCoords
-								),
-								MercatorProjection.fromPointToLatLng(
-										mGrid.getNode(mapPath.getEndPoint()).projCoords
-								)
-						);
+					GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+									.image(BitmapDescriptorFactory.fromResource(R.drawable.green_bg))
+									.zIndex(10000)
+									.transparency(0.2f)
+									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), 1000000)
+									.anchor(0, 0)
+									.visible(false)
+					);
 
-						if (dims.x == 0f)
-							dims.offset(8888, 0);
-						if (dims.y == 0f)
-							dims.offset(0, 8888);
+					PointF dims = PathMaker.getXYDist(
+							MercatorProjection.fromPointToLatLng(
+									mGrid.getNode(mapPath.getStartPoint()).projCoords
+							),
+							MercatorProjection.fromPointToLatLng(
+									mGrid.getNode(mapPath.getEndPoint()).projCoords
+							)
+					);
 
-						groundOverlay.setDimensions(dims.x, dims.y);
-						mapPath.setMapOverlay(groundOverlay);
-						MapPath.mAllMapPaths.add(mapPath);
-					}
+					if (dims.x == 0f)
+						dims.offset(8888, 0);
+					if (dims.y == 0f)
+						dims.offset(0, 8888);
+
+					groundOverlay.setDimensions(dims.x, dims.y);
+					mapPath.setMapEditOverlay(groundOverlay);
+					MapPath.mAllMapPaths.add(mapPath);
+
+					mGrid.createWalkableArea(mapPath.getStartPoint(), mapPath.getEndPoint());
+				}
 			}
 		});
 	}
