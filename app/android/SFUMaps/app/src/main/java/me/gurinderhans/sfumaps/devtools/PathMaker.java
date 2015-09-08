@@ -2,232 +2,83 @@ package me.gurinderhans.sfumaps.devtools;
 
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
+import me.gurinderhans.sfumaps.factory.classes.MapPath;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout.OnDragListener;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
 /**
  * Created by ghans on 15-08-10.
  */
-public class PathMaker implements OnDragListener {
-
-	// TODO: 15-09-07 rewrite with Parse
+public class PathMaker implements OnDragListener, OnClickListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
 
-	// data keys
-	public static final String WALKABLE_KEY = "walkable";
-	public static final String INDIVIDUAL_POINTS = "points";
-	public static final String BOX_RECTS = "rects";
-
 	//
-	public static boolean isEditingMap = false; // TODO: 15-08-16 improve application mode management
-	// Admin Panel States
-	private static int STATE_NONE = -1;
-	private static int STATE_EDITING_MAP = 0;
-	private static int STATE_CREATING_BOX = 1;
-	private static int STATE_DELETING_PATH = 2;
-	private static int STATE_EXPORT_MAP_PATH = 3;
+	public static boolean isEditingMap = false;
 	private static PathMaker mInstance = null;
-	public final GoogleMap mGoogleMap;
-	public MapGrid mGrid;
-	JSONObject jsonGridRoot = new JSONObject();
-	boolean createBoxMode = false;
-	boolean deletePathMode = false;
-	boolean mapEdited = false;
-	boolean boxCreated;
-	Point mTmpBoxDragStartGridIndices;
-	int mState = STATE_NONE; // initially the map editor is in `NONE` state
-	@Nullable
-	GroundOverlay mTmpSelectedArea;
-	// this is only used for holding onto ground overlays until removed from map, (NOT List itself)
-	private List<GroundOverlay> boxRectList = new ArrayList<>();
-	private List<Marker> individualMarkers = new ArrayList<>();
+	private static final int MOVE_THRESHOLD = 2; // grid units
 
-	public PathMaker(GoogleMap map, MapGrid grid, CustomMapFragment mapFragment, View actionsControl) throws PathMakerException {
+	// UI
+	private ImageButton deleteButton;
+	private GroundOverlay mTmpSelectedOverlay;
+	private final GoogleMap mGoogleMap;
+	private final MapGrid mGrid;
+	private final FragmentActivity mActivity;
+
+	// Logic
+	boolean deleteMode = false;
+	Point mBoxStartGridIndices;
+	private List<MapPath> mNewThisSessionPaths = new ArrayList<>();
+
+	// @constructor
+	PathMaker(FragmentActivity activity, GoogleMap map, MapGrid grid) {
 
 		this.mGoogleMap = map;
 		this.mGrid = grid;
+		this.mActivity = activity;
 
-		// create the initial json tree structure
-		try {
-			jsonGridRoot.put(WALKABLE_KEY, new JSONObject());
-			jsonGridRoot.getJSONObject(WALKABLE_KEY).put(INDIVIDUAL_POINTS, new JSONArray());
-			jsonGridRoot.getJSONObject(WALKABLE_KEY).put(BOX_RECTS, new JSONArray());
-		} catch (JSONException e) {
-			throw new PathMakerException("Unable to create JSON structure");
-		}
+		// ------------
+		mActivity.findViewById(R.id.dev_overlay).setVisibility(VISIBLE);
 
-		// listen for drag events on map
-		mapFragment.setOnDragListener(this);
+		// ------------
+		deleteButton = (ImageButton) mActivity.findViewById(R.id.delete_path_button);
 
-		// action button views
-		final View editButton = actionsControl.findViewById(R.id.edit_map_path);
-		final View exportButton = actionsControl.findViewById(R.id.export_map_path);
-		final View boxButton = actionsControl.findViewById(R.id.create_box_rect);
-		final View deleteButton = actionsControl.findViewById(R.id.delete_path);
+		//
+		mActivity.findViewById(R.id.edit_map_path).setOnClickListener(this);
+		deleteButton.setOnClickListener(this);
 
+		((CustomMapFragment) mActivity.getSupportFragmentManager().findFragmentById(R.id.map)).setOnDragListener(this);
 
-		// set input listeners on views
-
-
-		editButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-
-				isEditingMap = !isEditingMap;
-
-				//
-				exportButton.setVisibility(isEditingMap ? View.VISIBLE : View.INVISIBLE);
-				boxButton.setVisibility(isEditingMap ? View.VISIBLE : View.INVISIBLE);
-				deleteButton.setVisibility(isEditingMap ? View.VISIBLE : View.INVISIBLE);
-
-				((ImageButton) v).setImageResource(isEditingMap ? android.R.drawable.ic_menu_close_clear_cancel : android.R.drawable.ic_menu_edit);
-
-				mGoogleMap.getUiSettings().setScrollGesturesEnabled(!isEditingMap);
-
-				// hide / show the edit layouts
-				try {
-					JSONObject walkableNode = jsonGridRoot.getJSONObject(WALKABLE_KEY);
-					if (isEditingMap && walkableNode.getJSONArray(BOX_RECTS).length() == 0
-							&& walkableNode.getJSONArray(INDIVIDUAL_POINTS).length() == 0 && !mapEdited) { // if their is previously something drawn on screen, then we won't override it
-
-						mapEdited = true;
-
-						// load the json file, and load the edit gizmos
-
-						jsonGridRoot = new JSONObject(MapTools.loadFile(v.getContext(), "map_grid.json"));
-
-						walkableNode = jsonGridRoot.getJSONObject(WALKABLE_KEY);
-
-						// draw green box rects
-						JSONArray boxRects = walkableNode.getJSONArray(BOX_RECTS);
-						for (int i = 0; i < boxRects.length(); i++) {
-							String[] boxString = boxRects.getString(i).split(",");
-							Point pointA = new Point(Integer.parseInt(boxString[0]), Integer.parseInt(boxString[1]));
-							Point pointB = new Point(Integer.parseInt(boxString[2]), Integer.parseInt(boxString[3]));
-
-							PointF sdf = getXYDist(MercatorProjection.fromPointToLatLng(mGrid.getNode(pointA).projCoords), MercatorProjection.fromPointToLatLng(mGrid.getNode(pointB).projCoords));
-
-							boxRectList.add(
-									mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-											.anchor(0f, 0f)
-											.zIndex(10000)
-											.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(pointA).projCoords), sdf.x, sdf.y)
-											.image(BitmapDescriptorFactory.fromResource(android.R.color.holo_green_light))
-											.transparency(0.2f))
-							);
-						}
-
-						// export individual points
-						JSONArray points = walkableNode.getJSONArray(INDIVIDUAL_POINTS);
-						for (int i = 0; i < points.length(); i++) {
-							String[] pointString = points.getString(i).split(",");
-							individualMarkers.add(
-									mGoogleMap.addMarker(new MarkerOptions()
-											.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(new Point(Integer.parseInt(pointString[0]), Integer.parseInt(pointString[1]))).projCoords))
-											.icon(BitmapDescriptorFactory.fromResource(android.R.color.holo_blue_dark))
-											.anchor(0.5f, 0.5f))
-							);
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-		// export map path
-		exportButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				try {
-					// create file
-					MapTools.createFile("map_grid.json", jsonGridRoot.toString(4));
-					Toast.makeText(v.getContext(), "Grid exported!", Toast.LENGTH_SHORT).show();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-		boxButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				createBoxMode = !createBoxMode;
-				v.setBackgroundResource(createBoxMode ? android.R.color.holo_green_light : android.R.color.holo_red_light);
-
-				if (createBoxMode) {
-					deletePathMode = false;
-					deleteButton.setBackgroundResource(android.R.color.holo_red_light);
-				}
-			}
-		});
-
-		deleteButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				deletePathMode = !deletePathMode;
-				v.setBackgroundResource(deletePathMode ? android.R.color.holo_green_light : android.R.color.holo_red_light);
-
-				if (deletePathMode) {
-					createBoxMode = false;
-					boxButton.setBackgroundResource(android.R.color.holo_red_light);
-				}
-			}
-		});
+		// TODO: 15-09-07 load the map edit data here.
 	}
 
-	public static void initPathMaker(GoogleMap map, MapGrid grid, FragmentManager fragmentManager, View rootView) {
-
-		if (mInstance == null) {
-			try {
-				CustomMapFragment mapFragment = (CustomMapFragment) fragmentManager.findFragmentById(R.id.map);
-				mInstance = new PathMaker(map, grid, mapFragment, rootView);
-			} catch (PathMakerException e) {
-				Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-			}
-		}
-	}
-
-	/**
-	 * @return - distance in meters
-	 */
-	public static float LatLngDistance(double lat1, double lng1, double lat2, double lng2) {
-		double earthRadius = 6371000; //meters
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLng = Math.toRadians(lng2 - lng1);
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-				Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-						Math.sin(dLng / 2) * Math.sin(dLng / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		return (float) (earthRadius * c);
+	// initializer
+	public static void createPathMaker(FragmentActivity activity, GoogleMap map, MapGrid grid) {
+		if (mInstance == null)
+			mInstance = new PathMaker(activity, map, grid);
 	}
 
 	@Override
@@ -239,122 +90,117 @@ public class PathMaker implements OnDragListener {
 
 		switch (ev.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
-
-				boxCreated = false; // no box has been created yet
-
-				if (createBoxMode) {
-					mTmpBoxDragStartGridIndices = currentDragPointIndices;
-					mTmpSelectedArea = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-									.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords), 1000)
-									.image(BitmapDescriptorFactory.fromResource(android.R.color.holo_green_light))
-									.transparency(0.2f)
-									.zIndex(10000)
-									.anchor(0, 0)
-					);
-				}
+				mBoxStartGridIndices = currentDragPointIndices;
+				mTmpSelectedOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+								.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords), 10000)
+								.image(BitmapDescriptorFactory.fromResource(R.drawable.green_bg))
+								.transparency(0.2f)
+								.zIndex(10000)
+								.anchor(0, 0)
+				);
 				break;
-
 			case MotionEvent.ACTION_UP:
-				if (createBoxMode && boxCreated) {
-					// add box to json tree
-					try {
-						// TODO: 15-08-16 store data in a more JSON fashioned way
-						String boxString = mTmpBoxDragStartGridIndices.x + "," + mTmpBoxDragStartGridIndices.y + "," + currentDragPointIndices.x + "," + currentDragPointIndices.y;
-						jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(BOX_RECTS).put(boxString);
+				if (mTmpSelectedOverlay != null) {
 
-						// box was created, so store its ground overlay
-						boxRectList.add(mTmpSelectedArea);
+					MapPath mapPath = new MapPath();
+					mapPath.setStartPoint(mBoxStartGridIndices);
+					mapPath.setEndPoint(currentDragPointIndices);
+					mapPath.setMapOverlay(mTmpSelectedOverlay);
 
-//						Log.i(TAG, "boxRectList size: " + boxRectList.size() + ", json box array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(BOX_RECTS).length());
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				} else {
-					if (mTmpSelectedArea != null)
-						mTmpSelectedArea.remove();
+					mNewThisSessionPaths.add(mapPath);
+
+					mTmpSelectedOverlay = null;
 				}
-				mTmpSelectedArea = null;
-				break;
 
+				break;
 			case MotionEvent.ACTION_MOVE:
 
-				if (createBoxMode) {
-					boxCreated = !currentDragPointIndices.equals(mTmpBoxDragStartGridIndices);
+				if (deleteMode) {
+					// delete stuff
+					MapPath toRemove = null;
+					for (MapPath path : mNewThisSessionPaths)
+						if (path.getMapOverlay().getBounds().contains(mGoogleMap.getProjection().fromScreenLocation(new Point((int) ev.getX(), (int) ev.getY())))) {
+							path.getMapOverlay().remove();
+							path.deleteInBackground();
+							toRemove = path;
+						}
+					if (toRemove != null)
+						mNewThisSessionPaths.remove(toRemove);
+				} else {
+					if (!((Math.abs(currentDragPointIndices.x - mBoxStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mBoxStartGridIndices.y)) >= MOVE_THRESHOLD))
+						return;
+
+					// create box
 					try {
+
 						PointF dims = getXYDist(
 								MercatorProjection.fromPointToLatLng(
-										mGrid.getNode(mTmpBoxDragStartGridIndices).projCoords
+										mGrid.getNode(mBoxStartGridIndices).projCoords
 								),
 								MercatorProjection.fromPointToLatLng(
 										mGrid.getNode(currentDragPointIndices).projCoords
 								)
 						);
 
-						if (dims != null && mTmpSelectedArea != null)
-							mTmpSelectedArea.setDimensions(dims.x, dims.y);
+						if (dims.x == 0f)
+							dims.offset(8888, 0);
+						if (dims.y == 0f)
+							dims.offset(0, 8888);
+
+						if (mTmpSelectedOverlay != null)
+							mTmpSelectedOverlay.setDimensions(dims.x, dims.y);
 					} catch (Exception e) {
 						e.printStackTrace();
-					}
-				} else if (deletePathMode) {
-					// TODO: 15-08-16 delete blue points
-
-					try {
-						// remove box rectangle
-						for (int i = 0; i < boxRectList.size(); i++) {
-							if (boxRectList.get(i).getBounds().contains(mGoogleMap.getProjection().fromScreenLocation(new Point((int) ev.getX(), (int) ev.getY())))) {
-								boxRectList.get(i).remove();
-								boxRectList.remove(i);
-								jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(BOX_RECTS).remove(i);
-								break;
-							}
-						}
-//						Log.i(TAG, "boxRectList size: " + boxRectList.size() + ", json box array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(BOX_RECTS).length());
-
-						// remove blue dots
-						for (int i = 0; i < individualMarkers.size(); i++) {
-							if (individualMarkers.get(i).getPosition().equals(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords))) {
-								individualMarkers.get(i).remove();
-								individualMarkers.remove(i);
-								jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(INDIVIDUAL_POINTS).remove(i);
-							}
-						}
-						Log.i(TAG, "list size: " + individualMarkers.size() + ", array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(INDIVIDUAL_POINTS).length());
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-
-				} else {
-					// add map path marker
-
-					boolean alreadyContains = false;
-					for (Marker marker : individualMarkers) {
-						if (marker.getPosition().equals(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords)))
-							alreadyContains = true;
-					}
-
-					if (!alreadyContains) {
-
-						individualMarkers.add(mGoogleMap.addMarker(new MarkerOptions()
-								.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords))
-								.icon(BitmapDescriptorFactory.fromResource(android.R.color.holo_blue_dark))
-								.anchor(0.5f, 0.5f)));
-
-						// set to walkable point
-						mGrid.getNode(currentDragPointIndices).setWalkable(true);
-
-						// add to json tree
-						try {
-							jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(INDIVIDUAL_POINTS).put(currentDragPointIndices.x + "," + currentDragPointIndices.y);
-							Log.i(TAG, "list size: " + individualMarkers.size() + ", array size: " + jsonGridRoot.getJSONObject(WALKABLE_KEY).getJSONArray(INDIVIDUAL_POINTS).length());
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
 					}
 				}
 				break;
 			default:
 				break;
 		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+			case R.id.edit_map_path:
+				toggleEditing((ImageButton) v);
+				break;
+			case R.id.delete_path_button:
+				toggleDeleteMode();
+				break;
+			default:
+				break;
+		}
+
+	}
+
+	/* views toggle */
+	private void toggleEditing(ImageButton editButton) {
+		isEditingMap = !isEditingMap;
+
+
+		if (!isEditingMap) {
+			// save the edited map
+			MapPath.saveAllInBackground(mNewThisSessionPaths);
+			Log.i(TAG, "saving: " + mNewThisSessionPaths.size() + " paths");
+		}
+
+		mGoogleMap.getUiSettings().setScrollGesturesEnabled(!isEditingMap);
+
+		// change the button icon / background
+		editButton.setImageResource(isEditingMap ? android.R.drawable.ic_menu_close_clear_cancel : android.R.drawable.ic_menu_edit);
+		editButton.setBackgroundResource(isEditingMap ? android.R.color.holo_green_light : android.R.color.holo_red_light);
+
+		// hide edit controls
+		mActivity.findViewById(R.id.delete_path_button).setVisibility(isEditingMap ? VISIBLE : INVISIBLE);
+	}
+
+	private void toggleDeleteMode() {
+		deleteMode = !deleteMode;
+
+		// change button background
+		deleteButton.setBackgroundResource(deleteMode ? android.R.color.holo_green_light : android.R.color.holo_red_light);
+
 	}
 
 	/**
@@ -364,7 +210,7 @@ public class PathMaker implements OnDragListener {
 	 * @param screenY - y value of the screen coordinate
 	 * @return - The (x, y) indices of the grid array
 	 */
-	public Point getGridIndices(float screenX, float screenY) {
+	private Point getGridIndices(float screenX, float screenY) {
 
 		PointF mapPoint = MercatorProjection.fromLatLngToPoint(
 				mGoogleMap.getProjection().fromScreenLocation(new Point((int) screenX, (int) screenY)));
@@ -379,7 +225,7 @@ public class PathMaker implements OnDragListener {
 	 *
 	 * @param dragStartCoordinates   - screen point
 	 * @param dragCurrentCoordinates - indices
-	 * @return - {@link Point} object containing the horizontal and vertical distance
+	 * @return - {@link PointF} object containing the horizontal and vertical distance in meters
 	 */
 	private PointF getXYDist(LatLng dragStartCoordinates, LatLng dragCurrentCoordinates) {
 
@@ -393,27 +239,13 @@ public class PathMaker implements OnDragListener {
 		LatLng middleCornerPoint = MercatorProjection.fromPointToLatLng(dragCurrent);
 
 		// horizontal distance
-		float hDist = LatLngDistance(dragStartCoordinates.latitude, dragStartCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+		float hDist = MapTools.LatLngDistance(dragStartCoordinates.latitude, dragStartCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
 
 		// vertical distance
-		float vDist = LatLngDistance(dragCurrentCoordinates.latitude, dragCurrentCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+		float vDist = MapTools.LatLngDistance(dragCurrentCoordinates.latitude, dragCurrentCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
 
 		return new PointF(hDist, vDist);
 	}
 
-	private int getState() {
-		return mState;
-	}
-
-	private void setState(int state) {
-		this.mState = state;
-	}
-
-	/* Custom Exception class */
-	class PathMakerException extends Exception {
-		public PathMakerException(String message) {
-			super(message);
-		}
-	}
 
 }

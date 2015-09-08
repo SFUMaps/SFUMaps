@@ -44,4 +44,14 @@ public final class Keys {
 		public static final String PARENT_PLACE = "parentPlace";
 	}
 
+	public static class ParseMapPath {
+		/* Map MapPath (ParseObject) keys */
+		public static final String CLASS = "MapPath";
+		public static final String POINT_START_X = "startX";
+		public static final String POINT_START_Y = "startY";
+		public static final String POINT_END_X = "endX";
+		public static final String POINT_END_Y = "endY";
+
+	}
+
 }

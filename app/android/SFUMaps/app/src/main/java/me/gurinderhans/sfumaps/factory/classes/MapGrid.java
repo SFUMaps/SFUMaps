@@ -43,12 +43,12 @@ public class MapGrid {
 		for (int x = 0; x < mapGridSizeX; x++) {
 			ArrayList<GridNode> tmp = new ArrayList<>();
 			for (int y = 0; y < mapGridSizeY; y++)
-				tmp.add(new GridNode(x, y, this));
+				tmp.add(new GridNode(this, x, y));
 
 			mMapGrid.add(tmp);
 		}
 
-		// FIXME: load json file in another thread as it creates an overhead on the UI thread
+		/*// FIXME: load json file in another thread as it creates an overhead on the UI thread
 		// TODO: handle exceptions and filename specs
 		try {
 			// parse json and map the grid
@@ -74,7 +74,7 @@ public class MapGrid {
 
 		} catch (JSONException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	public GridNode getNode(int x, int y) {
@@ -116,17 +116,21 @@ public class MapGrid {
 
 		// map world position
 		public final PointF projCoords;
+
 		// array indices
 		public final int gridX;
 		public final int gridY;
+
 		// node costs
 		public float gCost = -1f;
 		public float hCost = -1f;
 		public GridNode parentNode = null;
+
+		// private
 		private boolean isWalkable = false;
 
 		// @constructor
-		public GridNode(int x, int y, MapGrid mapGrid) {
+		public GridNode(MapGrid mapGrid, int x, int y) {
 			this.gridX = x;
 			this.gridY = y;
 			this.projCoords = new PointF(mapGrid.startPoint.x + x * EACH_POINT_DIST, mapGrid.startPoint.y + y * EACH_POINT_DIST);

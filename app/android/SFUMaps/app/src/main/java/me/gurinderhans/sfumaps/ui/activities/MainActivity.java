@@ -131,12 +131,8 @@ public class MainActivity extends FragmentActivity
 
 		// show dev controls if app is in dev mode
 		if (BuildConfig.DEBUG) {
-			// show views
-			findViewById(R.id.dev_overlay).setVisibility(View.VISIBLE);
-
 			// create admin panel
-			PathMaker.initPathMaker(Map, mapGrid, getSupportFragmentManager(),
-					findViewById(R.id.edit_map_grid_controls));
+			PathMaker.createPathMaker(this, Map, mapGrid);
 		}
 	}
 
@@ -211,7 +207,7 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onMapLongClick(LatLng latLng) {
-		if (BuildConfig.DEBUG) {
+		if (BuildConfig.DEBUG && !PathMaker.isEditingMap) {
 
 			// create new place
 			MapPlace newPlace = new MapPlace();
