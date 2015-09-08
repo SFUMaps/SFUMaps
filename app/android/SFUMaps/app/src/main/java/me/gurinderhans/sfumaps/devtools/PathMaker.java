@@ -90,14 +90,16 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 		switch (ev.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
-				mBoxStartGridIndices = currentDragPointIndices;
-				mTmpSelectedOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-								.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords), 10000)
-								.image(BitmapDescriptorFactory.fromResource(R.drawable.green_bg))
-								.transparency(0.2f)
-								.zIndex(10000)
-								.anchor(0, 0)
-				);
+				if (!deleteMode) {
+					mBoxStartGridIndices = currentDragPointIndices;
+					mTmpSelectedOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+									.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords), 10000)
+									.image(BitmapDescriptorFactory.fromResource(R.drawable.green_bg))
+									.transparency(0.2f)
+									.zIndex(10000)
+									.anchor(0, 0)
+					);
+				}
 				break;
 			case MotionEvent.ACTION_UP:
 				if (mTmpSelectedOverlay != null) {
