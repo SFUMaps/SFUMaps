@@ -3,11 +3,11 @@ package me.gurinderhans.sfumaps.devtools;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -71,8 +71,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		deleteButton.setOnClickListener(this);
 
 		((CustomMapFragment) mActivity.getSupportFragmentManager().findFragmentById(R.id.map)).setOnDragListener(this);
-
-		// TODO: 15-09-07 load the map edit data here.
 	}
 
 	// initializer
@@ -93,7 +91,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				if (!deleteMode) {
 					mBoxStartGridIndices = currentDragPointIndices;
 					mTmpSelectedOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-									.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords), 10000)
+									.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(mBoxStartGridIndices).projCoords), 8888)
 									.image(BitmapDescriptorFactory.fromResource(R.drawable.green_bg))
 									.transparency(0.2f)
 									.zIndex(10000)
@@ -178,13 +176,19 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 	/* views toggle */
 	private void toggleEditing(ImageButton editButton) {
+
+//		if (MapPath.mAllMapPaths.isEmpty()) {
+//			 tell map path data isn't available yet, so try again later
+//			Toast.makeText(mActivity.getApplicationContext(), "Map Path data isn't yet available. Try again later.", Toast.LENGTH_LONG).show();
+//			return;
+//		}
+
 		isEditingMap = !isEditingMap;
 
 
 		if (!isEditingMap) {
 			// save the edited map
 			MapPath.saveAllInBackground(mNewThisSessionPaths);
-			Log.i(TAG, "saving: " + mNewThisSessionPaths.size() + " paths");
 		}
 
 		mGoogleMap.getUiSettings().setScrollGesturesEnabled(!isEditingMap);
@@ -229,7 +233,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	 * @param dragCurrentCoordinates - indices
 	 * @return - {@link PointF} object containing the horizontal and vertical distance in meters
 	 */
-	private PointF getXYDist(LatLng dragStartCoordinates, LatLng dragCurrentCoordinates) {
+	public static PointF getXYDist(LatLng dragStartCoordinates, LatLng dragCurrentCoordinates) {
 
 		// calculate the middle corner point
 		PointF dragStart = MercatorProjection.fromLatLngToPoint(dragStartCoordinates);

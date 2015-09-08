@@ -29,7 +29,7 @@ public class MapPath extends ParseObject {
 
 	public void setStartPoint(Point startPoint) {
 		put(ParseMapPath.POINT_START_X, startPoint.x);
-		put(ParseMapPath.POINT_START_Y, startPoint.x);
+		put(ParseMapPath.POINT_START_Y, startPoint.y);
 	}
 
 	public Point getStartPoint() {
@@ -38,7 +38,7 @@ public class MapPath extends ParseObject {
 
 	public void setEndPoint(Point endPoint) {
 		put(ParseMapPath.POINT_END_X, endPoint.x);
-		put(ParseMapPath.POINT_END_Y, endPoint.x);
+		put(ParseMapPath.POINT_END_Y, endPoint.y);
 	}
 
 	public Point getEndPoint() {

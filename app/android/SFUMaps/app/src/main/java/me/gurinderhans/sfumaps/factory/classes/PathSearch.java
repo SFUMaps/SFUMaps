@@ -5,18 +5,32 @@ import android.graphics.PointF;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import me.gurinderhans.sfumaps.BuildConfig;
+import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.Keys;
+import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid.GridNode;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
+
+import static com.parse.ParseQuery.CachePolicy.CACHE_ELSE_NETWORK;
+import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
 
 /**
  * Created by ghans on 15-08-17.
@@ -36,11 +50,50 @@ public class PathSearch {
 	Marker markerFrom;
 	Marker markerTo;
 
-	public PathSearch(GoogleMap googleMap, MapGrid mapGrid) {
+	public PathSearch(GoogleMap googleMap, final MapGrid mapGrid) {
 		this.mGoogleMap = googleMap;
 		this.mGrid = mapGrid;
 
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
+
+		// load map path data
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.ParseMapPath.CLASS);
+		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
+		query.findInBackground(new FindCallback<ParseObject>() {
+			@Override
+			public void done(List<ParseObject> objects, ParseException e) {
+				if (e == null)
+					for (ParseObject obj : objects) {
+						MapPath mapPath = (MapPath) obj;
+
+						GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+										.image(BitmapDescriptorFactory.fromResource(R.drawable.green_bg))
+										.zIndex(10000)
+										.transparency(0.2f)
+										.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), 1000000)
+										.anchor(0, 0)
+						);
+
+						PointF dims = PathMaker.getXYDist(
+								MercatorProjection.fromPointToLatLng(
+										mGrid.getNode(mapPath.getStartPoint()).projCoords
+								),
+								MercatorProjection.fromPointToLatLng(
+										mGrid.getNode(mapPath.getEndPoint()).projCoords
+								)
+						);
+
+						if (dims.x == 0f)
+							dims.offset(8888, 0);
+						if (dims.y == 0f)
+							dims.offset(0, 8888);
+
+						groundOverlay.setDimensions(dims.x, dims.y);
+						mapPath.setMapOverlay(groundOverlay);
+						MapPath.mAllMapPaths.add(mapPath);
+					}
+			}
+		});
 	}
 
 	private static List<GridNode> AStar(MapGrid grid, GridNode startNode, GridNode targetNode) {

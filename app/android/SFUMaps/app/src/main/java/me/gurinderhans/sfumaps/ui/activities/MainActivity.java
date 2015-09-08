@@ -125,8 +125,6 @@ public class MainActivity extends FragmentActivity
 
 		mPathSearch = new PathSearch(Map, mapGrid);
 
-
-
 		/* Dev Controls */
 
 		// show dev controls if app is in dev mode
