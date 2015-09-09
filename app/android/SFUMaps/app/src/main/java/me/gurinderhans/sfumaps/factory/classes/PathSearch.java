@@ -62,10 +62,9 @@ public class PathSearch {
 		query.findInBackground(new FindCallback<ParseObject>() {
 			@Override
 			public void done(List<ParseObject> objects, ParseException e) {
-				if (e != null) {
-					// There was an error or the network wasn't available.
+				// There was an error or the network wasn't available.
+				if (e != null)
 					return;
-				}
 
 				for (ParseObject obj : objects) {
 					MapPath mapPath = (MapPath) obj;

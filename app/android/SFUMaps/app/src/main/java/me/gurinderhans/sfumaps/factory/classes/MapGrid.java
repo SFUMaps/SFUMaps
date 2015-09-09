@@ -4,15 +4,8 @@ import android.content.Context;
 import android.graphics.Point;
 import android.graphics.PointF;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import me.gurinderhans.sfumaps.devtools.PathMaker;
-import me.gurinderhans.sfumaps.utils.MapTools;
 
 /**
  * Created by ghans on 15-07-29.

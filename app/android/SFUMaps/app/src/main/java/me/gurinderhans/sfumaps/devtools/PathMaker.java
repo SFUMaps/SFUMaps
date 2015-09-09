@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -31,20 +32,18 @@ import static android.view.View.VISIBLE;
 public class PathMaker implements OnDragListener, OnClickListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
-
-	public static boolean isEditingMap = false;
 	private static final int MOVE_THRESHOLD = 2; // grid units
+	public static boolean isEditingMap = false;
 	private static PathMaker mInstance = null;
 
 	// UI
 	private final GoogleMap mGoogleMap;
 	private final MapGrid mGrid;
 	private final FragmentActivity mActivity;
-	private GroundOverlay mTmpSelectedOverlay;
-
 	// Logic
 	boolean deleteMode = false;
 	Point mBoxStartGridIndices;
+	private GroundOverlay mTmpSelectedOverlay;
 
 	// @constructor
 	PathMaker(FragmentActivity activity, GoogleMap map, MapGrid grid) {
@@ -186,10 +185,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		}
 	}
 
-	public static boolean inRange(double num, double range_min, double range_max) {
-		return (num >= range_min && num <= range_max);
-	}
-
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -210,10 +205,9 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	/* edit map grid toggle */
 	private void toggleEditing(ImageButton editButton) {
 
-		if (MapPath.mAllMapPaths.isEmpty()) {
-			// tell map path data isn't available yet, so try again later
-//			Toast.makeText(mActivity.getApplicationContext(), "Map Path data isn't yet available.", Toast.LENGTH_LONG).show();
-		}
+		// tell map path data isn't available yet, so try again later
+		if (MapPath.mAllMapPaths.isEmpty())
+			Toast.makeText(mActivity.getApplicationContext(), "Map Path data isn't yet available.", Toast.LENGTH_LONG).show();
 
 		isEditingMap = !isEditingMap;
 
