@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps.devtools;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,10 +41,12 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	private final GoogleMap mGoogleMap;
 	private final MapGrid mGrid;
 	private final FragmentActivity mActivity;
+
+	private GroundOverlay mTmpSelectedOverlay;
 	// Logic
 	boolean deleteMode = false;
-	Point mBoxStartGridIndices;
-	private GroundOverlay mTmpSelectedOverlay;
+	Point mPathStartGridIndices;
+	Point mPathEndGridIndices;
 
 	// @constructor
 	PathMaker(FragmentActivity activity, GoogleMap map, MapGrid grid) {
@@ -104,12 +107,12 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		switch (ev.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
 				if (!deleteMode) {
-					mBoxStartGridIndices = currentDragPointIndices;
+					mPathStartGridIndices = currentDragPointIndices;
 					mTmpSelectedOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-									.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(mBoxStartGridIndices).projCoords), 10000)
+									.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(mPathStartGridIndices).projCoords), 10000)
 									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_path_drawable))
 									.transparency(0.2f)
-									.anchor(0, 0)
+									.anchor(0, 0.5f)
 									.zIndex(10000)
 					);
 				}
@@ -118,11 +121,12 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				if (mTmpSelectedOverlay != null) {
 
 					MapPath mapPath = new MapPath();
-					mapPath.setStartPoint(mBoxStartGridIndices);
-					mapPath.setEndPoint(currentDragPointIndices);
+					mapPath.setStartPoint(mPathStartGridIndices);
+					mapPath.setEndPoint(mPathEndGridIndices);
 					mapPath.setMapEditOverlay(mTmpSelectedOverlay);
 					mapPath.setRotation(mTmpSelectedOverlay.getBearing());
-					mapPath.saveInBackground();
+//					mapPath.saveInBackground();
+					Log.i(TAG, "SAVING -> start: " + mapPath.getStartPoint() + ", end: " + mapPath.getEndPoint());
 
 					MapPath.mAllMapPaths.add(mapPath);
 
@@ -147,30 +151,59 @@ public class PathMaker implements OnDragListener, OnClickListener {
 						MapPath.mAllMapPaths.remove(toRemove);
 
 				} else {
-					if (!((Math.abs(currentDragPointIndices.x - mBoxStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mBoxStartGridIndices.y)) >= MOVE_THRESHOLD))
+					if (!((Math.abs(currentDragPointIndices.x - mPathStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mPathStartGridIndices.y)) >= MOVE_THRESHOLD))
 						return;
 
 					try {
 
 						// calculate the angle
-						double xSize = currentDragPointIndices.x - mBoxStartGridIndices.x;
-						double ySize = currentDragPointIndices.y - mBoxStartGridIndices.y;
+						double xSize = currentDragPointIndices.x - mPathStartGridIndices.x;
+						double ySize = currentDragPointIndices.y - mPathStartGridIndices.y;
 						double dragAngle = (Math.atan2(ySize, xSize)) * 180 / Math.PI; // convert to degrees
-
-						// this could be improved to allow more
-						if (((int) dragAngle) % 45 == 0)
-							mTmpSelectedOverlay.setBearing((float) dragAngle);
-
 
 						PointF dims = getXYDist(
 								MercatorProjection.fromPointToLatLng(
-										mGrid.getNode(mBoxStartGridIndices).projCoords
+										mGrid.getNode(mPathStartGridIndices).projCoords
 								),
 								MercatorProjection.fromPointToLatLng(
 										mGrid.getNode(currentDragPointIndices).projCoords
 								)
 						);
 
+						// mod currentDragGridIndices here
+						if (dragAngle > 67.5 && dragAngle <= 112.5) {
+							Log.i(TAG, "down");
+							mTmpSelectedOverlay.setBearing(90);
+							mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
+
+						} else if (dragAngle > -112.5 && dragAngle <= -67.5) {
+							Log.i(TAG, "up");
+							mTmpSelectedOverlay.setBearing(270);
+							mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
+
+						} else if (dragAngle > -22.5 && dragAngle <= 22.5) {
+							Log.i(TAG, "right");
+							mTmpSelectedOverlay.setBearing(0);
+							mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
+
+						} else if ((dragAngle <= -157.5 && dragAngle > -180) || (dragAngle > 157.5 && dragAngle <= 180)) {
+							Log.i(TAG, "left");
+							mTmpSelectedOverlay.setBearing(180);
+							mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
+
+						} else if (dragAngle > 22.5 && dragAngle <= 67.5) {
+							Log.i(TAG, "downright");
+							mTmpSelectedOverlay.setBearing(45);
+						} else if (dragAngle > 112.5 && dragAngle <= 157.5) {
+							Log.i(TAG, "downleft");
+							mTmpSelectedOverlay.setBearing(135);
+						} else if (dragAngle > -67.5 && dragAngle <= -22.5) {
+							Log.i(TAG, "topright");
+							mTmpSelectedOverlay.setBearing(-45);
+						} else {
+							Log.i(TAG, "topleft");
+							mTmpSelectedOverlay.setBearing(-135);
+						}
 
 						if (mTmpSelectedOverlay != null)
 							mTmpSelectedOverlay.setDimensions(dims.x + dims.y, 10000);

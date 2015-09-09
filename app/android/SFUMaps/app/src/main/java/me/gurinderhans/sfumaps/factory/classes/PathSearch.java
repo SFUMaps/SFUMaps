@@ -72,9 +72,9 @@ public class PathSearch {
 					GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_path_drawable))
 									.zIndex(10000)
-									.transparency(0.2f)
+									.transparency(0.7f)
 									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), 10000)
-									.anchor(0, 0)
+									.anchor(0, 0.5f)
 									.visible(false)
 					);
 

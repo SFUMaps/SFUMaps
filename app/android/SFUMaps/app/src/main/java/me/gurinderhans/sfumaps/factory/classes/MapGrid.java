@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps.factory.classes;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,9 +80,19 @@ public class MapGrid {
 	}
 
 	public void createWalkableArea(Point indicesFrom, Point indicesTo) {
-		for (int x = indicesFrom.x; x <= indicesTo.x; x++)
-			for (int y = indicesFrom.y; y <= indicesTo.y; y++)
-				getNode(x, y).setWalkable(true);
+		int distX = indicesTo.x - indicesFrom.x;
+		int distY = indicesTo.y - indicesFrom.y;
+
+		// find top left point from the two
+		Point topLeft = (!(distX >= 0 && distY >= 0)) ? indicesTo : indicesFrom;
+
+		Log.i(TAG, "topLeft: " + topLeft);
+		Log.i(TAG, "from: " + indicesFrom + ", to: " + indicesTo);
+
+		for (int x = 0; x < Math.abs(distX); x++)
+			for (int y = 0; y < Math.abs(distY); y++)
+				getNode(topLeft.x + x, topLeft.y + y).setWalkable(true);
+
 	}
 
 	public List<GridNode> getNeighbors(GridNode node) {
