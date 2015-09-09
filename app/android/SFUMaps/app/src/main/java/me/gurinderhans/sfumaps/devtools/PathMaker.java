@@ -14,14 +14,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
-import com.google.android.gms.maps.model.LatLng;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.MapPath;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout.OnDragListener;
-import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 import static android.view.View.INVISIBLE;
@@ -33,7 +31,6 @@ import static android.view.View.VISIBLE;
 public class PathMaker implements OnDragListener, OnClickListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
-	private static final int MOVE_THRESHOLD = 2; // grid units
 	public static boolean isEditingMap = false;
 	private static PathMaker mInstance = null;
 
@@ -70,33 +67,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 			mInstance = new PathMaker(activity, map, grid);
 	}
 
-	/**
-	 * Calculate the horizontal and vertical distance between points a and b
-	 *
-	 * @param dragStartCoordinates   - screen point
-	 * @param dragCurrentCoordinates - indices
-	 * @return - {@link PointF} object containing the horizontal and vertical distance in meters
-	 */
-	public static PointF getXYDist(LatLng dragStartCoordinates, LatLng dragCurrentCoordinates) {
-
-		// calculate the middle corner point
-		PointF dragStart = MercatorProjection.fromLatLngToPoint(dragStartCoordinates);
-		PointF dragCurrent = MercatorProjection.fromLatLngToPoint(dragCurrentCoordinates);
-
-		// the middle corner point
-		dragCurrent.set(dragCurrent.x, dragStart.y);
-
-		LatLng middleCornerPoint = MercatorProjection.fromPointToLatLng(dragCurrent);
-
-		// horizontal distance
-		float hDist = MapTools.LatLngDistance(dragStartCoordinates.latitude, dragStartCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
-
-		// vertical distance
-		float vDist = MapTools.LatLngDistance(dragCurrentCoordinates.latitude, dragCurrentCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
-
-		return new PointF(hDist, vDist);
-	}
-
 	@Override
 	public void onDrag(MotionEvent ev) {
 		if (!isEditingMap)
@@ -118,15 +88,15 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				}
 				break;
 			case MotionEvent.ACTION_UP:
-				if (mTmpSelectedOverlay != null) {
+				if (!deleteMode) {
 
 					MapPath mapPath = new MapPath();
 					mapPath.setStartPoint(mPathStartGridIndices);
-					mapPath.setEndPoint(mPathEndGridIndices);
+//					mapPath.setEndPoint(mPathEndGridIndices);
 					mapPath.setMapEditOverlay(mTmpSelectedOverlay);
 					mapPath.setRotation(mTmpSelectedOverlay.getBearing());
 //					mapPath.saveInBackground();
-					Log.i(TAG, "SAVING -> start: " + mapPath.getStartPoint() + ", end: " + mapPath.getEndPoint());
+//					Log.i(TAG, "SAVING -> start: " + mapPath.getStartPoint() + ", end: " + mapPath.getEndPoint());
 
 					MapPath.mAllMapPaths.add(mapPath);
 
@@ -136,7 +106,58 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				break;
 			case MotionEvent.ACTION_MOVE:
 
-				if (deleteMode) {
+				if (!deleteMode && (Math.abs(currentDragPointIndices.x - mPathStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mPathStartGridIndices.y)) >= 1) {
+
+					// calculate the angle, distance, and stuff.
+					double xSize = currentDragPointIndices.x - mPathStartGridIndices.x;
+					double ySize = currentDragPointIndices.y - mPathStartGridIndices.y;
+					PointF dims = new PointF(
+							(float) Math.abs(xSize) * mGrid.GRID_POINT_DIST,
+							(float) Math.abs(ySize) * mGrid.GRID_POINT_DIST
+					);
+					int grid_nodes_down = (int) ((dims.x + dims.y) / mGrid.GRID_POINT_DIST);
+					double dragAngle = (Math.atan2(ySize, xSize)) * 180 / Math.PI; // convert to degrees
+
+					Log.i(TAG, "grid node dist: " + mGrid.GRID_POINT_DIST);
+
+					if (dragAngle > 67.5 && dragAngle <= 112.5) { // down
+						mTmpSelectedOverlay.setBearing(90);
+						mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
+
+					} else if (dragAngle > -112.5 && dragAngle <= -67.5) { // up
+						mTmpSelectedOverlay.setBearing(270);
+						mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
+
+					} else if (dragAngle > -22.5 && dragAngle <= 22.5) { // right
+						mTmpSelectedOverlay.setBearing(0);
+						mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
+
+					} else if ((dragAngle <= -157.5 && dragAngle > -180) || (dragAngle > 157.5 && dragAngle <= 180)) { // left
+						mTmpSelectedOverlay.setBearing(180);
+						mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
+
+					}
+					// diagonals
+					else if (dragAngle > 22.5 && dragAngle <= 67.5) { // downright
+						mTmpSelectedOverlay.setBearing(45);
+						mPathEndGridIndices = new Point(mPathStartGridIndices.x + grid_nodes_down, mPathStartGridIndices.y + grid_nodes_down);
+
+					} else if (dragAngle > 112.5 && dragAngle <= 157.5) { // downleft
+						mTmpSelectedOverlay.setBearing(135);
+						mPathEndGridIndices = new Point(mPathStartGridIndices.x - grid_nodes_down, mPathStartGridIndices.y + grid_nodes_down);
+
+					} else if (dragAngle > -67.5 && dragAngle <= -22.5) { // topright
+						mTmpSelectedOverlay.setBearing(-45);
+						mPathEndGridIndices = new Point(mPathStartGridIndices.x + grid_nodes_down, mPathStartGridIndices.y - grid_nodes_down);
+
+					} else { // topleft
+						mTmpSelectedOverlay.setBearing(-135);
+						mPathEndGridIndices = new Point(mPathStartGridIndices.x - grid_nodes_down, mPathStartGridIndices.y - grid_nodes_down);
+
+					}
+
+					mTmpSelectedOverlay.setDimensions(dims.x + dims.y, 10000);
+				} else {
 
 					// delete stuff
 					MapPath toRemove = null;
@@ -150,67 +171,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					if (toRemove != null)
 						MapPath.mAllMapPaths.remove(toRemove);
 
-				} else {
-					if (!((Math.abs(currentDragPointIndices.x - mPathStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mPathStartGridIndices.y)) >= MOVE_THRESHOLD))
-						return;
-
-					try {
-
-						// calculate the angle
-						double xSize = currentDragPointIndices.x - mPathStartGridIndices.x;
-						double ySize = currentDragPointIndices.y - mPathStartGridIndices.y;
-						double dragAngle = (Math.atan2(ySize, xSize)) * 180 / Math.PI; // convert to degrees
-
-						PointF dims = getXYDist(
-								MercatorProjection.fromPointToLatLng(
-										mGrid.getNode(mPathStartGridIndices).projCoords
-								),
-								MercatorProjection.fromPointToLatLng(
-										mGrid.getNode(currentDragPointIndices).projCoords
-								)
-						);
-
-						// mod currentDragGridIndices here
-						if (dragAngle > 67.5 && dragAngle <= 112.5) {
-							Log.i(TAG, "down");
-							mTmpSelectedOverlay.setBearing(90);
-							mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
-
-						} else if (dragAngle > -112.5 && dragAngle <= -67.5) {
-							Log.i(TAG, "up");
-							mTmpSelectedOverlay.setBearing(270);
-							mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
-
-						} else if (dragAngle > -22.5 && dragAngle <= 22.5) {
-							Log.i(TAG, "right");
-							mTmpSelectedOverlay.setBearing(0);
-							mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
-
-						} else if ((dragAngle <= -157.5 && dragAngle > -180) || (dragAngle > 157.5 && dragAngle <= 180)) {
-							Log.i(TAG, "left");
-							mTmpSelectedOverlay.setBearing(180);
-							mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
-
-						} else if (dragAngle > 22.5 && dragAngle <= 67.5) {
-							Log.i(TAG, "downright");
-							mTmpSelectedOverlay.setBearing(45);
-						} else if (dragAngle > 112.5 && dragAngle <= 157.5) {
-							Log.i(TAG, "downleft");
-							mTmpSelectedOverlay.setBearing(135);
-						} else if (dragAngle > -67.5 && dragAngle <= -22.5) {
-							Log.i(TAG, "topright");
-							mTmpSelectedOverlay.setBearing(-45);
-						} else {
-							Log.i(TAG, "topleft");
-							mTmpSelectedOverlay.setBearing(-135);
-						}
-
-						if (mTmpSelectedOverlay != null)
-							mTmpSelectedOverlay.setDimensions(dims.x + dims.y, 10000);
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 				}
 				break;
 			default:
@@ -232,7 +192,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 			default:
 				break;
 		}
-
 	}
 
 	/* edit map grid toggle */

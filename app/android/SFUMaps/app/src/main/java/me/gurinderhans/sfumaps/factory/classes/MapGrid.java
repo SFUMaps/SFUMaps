@@ -5,8 +5,13 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import me.gurinderhans.sfumaps.utils.MapTools;
+import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 /**
  * Created by ghans on 15-07-29.
@@ -22,6 +27,8 @@ public class MapGrid {
 
 	public final int mapGridSizeY; // rows
 	public final int mapGridSizeX; // cols
+
+	public final float GRID_POINT_DIST; // in metres
 
 	public ArrayList<ArrayList<GridNode>> mMapGrid = new ArrayList<>(); // map grid
 
@@ -42,33 +49,12 @@ public class MapGrid {
 			mMapGrid.add(tmp);
 		}
 
-		/*// FIXME: load json file in another thread as it creates an overhead on the UI thread
-		// TODO: handle exceptions and filename specs
-		try {
-			// parse json and map the grid
-			JSONObject walkablePointsNode = new JSONObject(MapTools.loadFile(ctx, "map_grid.json"))
-					.getJSONObject(PathMaker.WALKABLE_KEY);
 
-			JSONArray boxRects = walkablePointsNode.getJSONArray(PathMaker.BOX_RECTS);
-			// unwrap the box and add to walkablePoints array
-			for (int i = 0; i < boxRects.length(); i++) {
-				String[] boxString = boxRects.getString(i).split(",");
-				Point start = new Point(Integer.parseInt(boxString[0]), Integer.parseInt(boxString[1]));
-				Point end = new Point(Integer.parseInt(boxString[2]), Integer.parseInt(boxString[3]));
+		// calculate each grid point distance
+		LatLng a = MercatorProjection.fromPointToLatLng(getNode(0, 0).projCoords);
+		LatLng b = MercatorProjection.fromPointToLatLng(getNode(1, 0).projCoords);
+		this.GRID_POINT_DIST = MapTools.LatLngDistance(a.latitude, a.longitude, b.latitude, b.longitude);
 
-				createWalkableArea(start, end);
-			}
-
-			JSONArray individualPoints = walkablePointsNode.getJSONArray(PathMaker.INDIVIDUAL_POINTS);
-			// plot the individual points
-			for (int i = 0; i < individualPoints.length(); i++) {
-				String[] xy = individualPoints.getString(i).split(",");
-				getNode(Integer.parseInt(xy[0]), Integer.parseInt(xy[1])).setWalkable(true);
-			}
-
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}*/
 	}
 
 	public GridNode getNode(int x, int y) {

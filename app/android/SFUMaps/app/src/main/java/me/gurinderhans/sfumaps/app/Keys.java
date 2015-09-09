@@ -49,10 +49,8 @@ public final class Keys {
 		public static final String CLASS = "MapPath";
 		public static final String POINT_START_X = "startX";
 		public static final String POINT_START_Y = "startY";
-		public static final String POINT_END_X = "endX";
-		public static final String POINT_END_Y = "endY";
+		public static final String PATH_SIZE = "pathSize";
 		public static final String ROTATION = "pathRotation";
-
 	}
 
 }

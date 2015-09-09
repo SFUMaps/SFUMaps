@@ -25,7 +25,6 @@ import java.util.List;
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.app.Keys;
-import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid.GridNode;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
@@ -66,7 +65,7 @@ public class PathSearch {
 				if (e != null)
 					return;
 
-				for (ParseObject obj : objects) {
+				/*for (ParseObject obj : objects) {
 					MapPath mapPath = (MapPath) obj;
 
 					GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
@@ -79,15 +78,10 @@ public class PathSearch {
 					);
 
 
-					PointF dims = PathMaker.getXYDist(
-							MercatorProjection.fromPointToLatLng(
-									mGrid.getNode(mapPath.getStartPoint()).projCoords
-							),
-							MercatorProjection.fromPointToLatLng(
-									mGrid.getNode(mapPath.getEndPoint()).projCoords
-							)
+					PointF dims = new PointF(
+							(float) Math.abs(mapPath.getEndPoint().x - mapPath.getStartPoint().x) * mGrid.GRID_POINT_DIST,
+							(float) Math.abs(mapPath.getEndPoint().x - mapPath.getStartPoint().x) * mGrid.GRID_POINT_DIST
 					);
-
 
 					groundOverlay.setDimensions((dims.x + dims.y) == 0 ? 10000 : dims.x + dims.y, 10000);
 					groundOverlay.setBearing(mapPath.getRotation());
@@ -97,7 +91,7 @@ public class PathSearch {
 					MapPath.mAllMapPaths.add(mapPath);
 
 					mGrid.createWalkableArea(mapPath.getStartPoint(), mapPath.getEndPoint());
-				}
+				}*/
 			}
 		});
 	}
