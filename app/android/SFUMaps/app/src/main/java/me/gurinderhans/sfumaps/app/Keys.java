@@ -51,6 +51,7 @@ public final class Keys {
 		public static final String POINT_START_Y = "startY";
 		public static final String POINT_END_X = "endX";
 		public static final String POINT_END_Y = "endY";
+		public static final String ROTATION = "pathRotation";
 
 	}
 

@@ -45,6 +45,14 @@ public class MapPath extends ParseObject {
 		return new Point(getInt(ParseMapPath.POINT_END_X), getInt(ParseMapPath.POINT_END_Y));
 	}
 
+	public void setRotation(float rotation) {
+		put(ParseMapPath.ROTATION, rotation);
+	}
+
+	public float getRotation() {
+		return (float) getDouble(ParseMapPath.ROTATION);
+	}
+
 	public void setMapEditOverlay(GroundOverlay overlay) {
 		this.groundOverlay = overlay;
 	}

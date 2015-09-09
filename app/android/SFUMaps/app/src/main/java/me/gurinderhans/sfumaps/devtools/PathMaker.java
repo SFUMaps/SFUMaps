@@ -7,7 +7,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -108,11 +107,11 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				if (!deleteMode) {
 					mBoxStartGridIndices = currentDragPointIndices;
 					mTmpSelectedOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-									.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(mBoxStartGridIndices).projCoords), 8888)
-									.image(BitmapDescriptorFactory.fromResource(R.drawable.green_bg))
+									.position(MercatorProjection.fromPointToLatLng(mGrid.getNode(mBoxStartGridIndices).projCoords), 10000)
+									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_path_drawable))
 									.transparency(0.2f)
-									.zIndex(10000)
 									.anchor(0, 0)
+									.zIndex(10000)
 					);
 				}
 				break;
@@ -123,6 +122,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					mapPath.setStartPoint(mBoxStartGridIndices);
 					mapPath.setEndPoint(currentDragPointIndices);
 					mapPath.setMapEditOverlay(mTmpSelectedOverlay);
+					mapPath.setRotation(mTmpSelectedOverlay.getBearing());
 					mapPath.saveInBackground();
 
 					MapPath.mAllMapPaths.add(mapPath);
@@ -134,6 +134,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 			case MotionEvent.ACTION_MOVE:
 
 				if (deleteMode) {
+
 					// delete stuff
 					MapPath toRemove = null;
 					for (MapPath path : MapPath.mAllMapPaths)
@@ -141,15 +142,26 @@ public class PathMaker implements OnDragListener, OnClickListener {
 							path.getMapEditOverlay().remove();
 							path.deleteInBackground();
 							toRemove = path;
+							break;
 						}
 					if (toRemove != null)
 						MapPath.mAllMapPaths.remove(toRemove);
+
 				} else {
 					if (!((Math.abs(currentDragPointIndices.x - mBoxStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mBoxStartGridIndices.y)) >= MOVE_THRESHOLD))
 						return;
 
-					// create box
 					try {
+
+						// calculate the angle
+						double xSize = currentDragPointIndices.x - mBoxStartGridIndices.x;
+						double ySize = currentDragPointIndices.y - mBoxStartGridIndices.y;
+						double dragAngle = (Math.atan2(ySize, xSize)) * 180 / Math.PI; // convert to degrees
+
+						// this could be improved to allow more
+						if (((int) dragAngle) % 45 == 0)
+							mTmpSelectedOverlay.setBearing((float) dragAngle);
+
 
 						PointF dims = getXYDist(
 								MercatorProjection.fromPointToLatLng(
@@ -160,13 +172,10 @@ public class PathMaker implements OnDragListener, OnClickListener {
 								)
 						);
 
-						if (dims.x == 0f)
-							dims.offset(8888, 0);
-						if (dims.y == 0f)
-							dims.offset(0, 8888);
 
 						if (mTmpSelectedOverlay != null)
-							mTmpSelectedOverlay.setDimensions(dims.x, dims.y);
+							mTmpSelectedOverlay.setDimensions(dims.x + dims.y, 10000);
+
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -175,6 +184,10 @@ public class PathMaker implements OnDragListener, OnClickListener {
 			default:
 				break;
 		}
+	}
+
+	public static boolean inRange(double num, double range_min, double range_max) {
+		return (num >= range_min && num <= range_max);
 	}
 
 	@Override
@@ -199,7 +212,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 		if (MapPath.mAllMapPaths.isEmpty()) {
 			// tell map path data isn't available yet, so try again later
-			Toast.makeText(mActivity.getApplicationContext(), "Map Path data isn't yet available.", Toast.LENGTH_LONG).show();
+//			Toast.makeText(mActivity.getApplicationContext(), "Map Path data isn't yet available.", Toast.LENGTH_LONG).show();
 		}
 
 		isEditingMap = !isEditingMap;

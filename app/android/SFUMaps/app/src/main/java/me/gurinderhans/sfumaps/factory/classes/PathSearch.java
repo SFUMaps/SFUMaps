@@ -71,13 +71,14 @@ public class PathSearch {
 					MapPath mapPath = (MapPath) obj;
 
 					GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-									.image(BitmapDescriptorFactory.fromResource(R.drawable.green_bg))
+									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_path_drawable))
 									.zIndex(10000)
 									.transparency(0.2f)
-									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), 1000000)
+									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), 10000)
 									.anchor(0, 0)
 									.visible(false)
 					);
+
 
 					PointF dims = PathMaker.getXYDist(
 							MercatorProjection.fromPointToLatLng(
@@ -88,12 +89,11 @@ public class PathSearch {
 							)
 					);
 
-					if (dims.x == 0f)
-						dims.offset(8888, 0);
-					if (dims.y == 0f)
-						dims.offset(0, 8888);
 
-					groundOverlay.setDimensions(dims.x, dims.y);
+					groundOverlay.setDimensions((dims.x + dims.y) == 0 ? 10000 : dims.x + dims.y, 10000);
+					groundOverlay.setBearing(mapPath.getRotation());
+
+
 					mapPath.setMapEditOverlay(groundOverlay);
 					MapPath.mAllMapPaths.add(mapPath);
 
