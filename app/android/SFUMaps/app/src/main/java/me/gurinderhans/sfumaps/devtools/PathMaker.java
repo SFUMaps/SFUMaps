@@ -45,6 +45,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	private final MapGrid mGrid;
 	private final FragmentActivity mActivity;
 	private GroundOverlay mTmpSelectedOverlay;
+	private GroundOverlay mDiagonalMatchDot;
 
 	// Logic
 	boolean deleteMode = false;
@@ -92,6 +93,15 @@ public class PathMaker implements OnDragListener, OnClickListener {
 									.zIndex(10000)
 					);
 				}
+
+				if (mDiagonalMatchDot != null)
+					mDiagonalMatchDot.remove();
+				mDiagonalMatchDot = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+								.position(fromPointToLatLng(mGrid.getNode(mPathStartGridIndices).projCoords), 8888)
+								.image(BitmapDescriptorFactory.fromResource(R.drawable.red_dot))
+								.transparency(0.1f)
+								.zIndex(100001)
+				);
 				break;
 			case MotionEvent.ACTION_UP:
 				if (!deleteMode) {
@@ -114,6 +124,8 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 				break;
 			case MotionEvent.ACTION_MOVE:
+
+				mDiagonalMatchDot.setPosition(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords));
 
 				if (!deleteMode && (Math.abs(currentDragPointIndices.x - mPathStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mPathStartGridIndices.y)) >= 1) {
 
@@ -151,6 +163,26 @@ public class PathMaker implements OnDragListener, OnClickListener {
 						mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
 
 						mTmpSelectedOverlay.setDimensions(dims.x, 10000);
+
+					}
+					// diagonals
+					else if (dragAngle > 22.5 && dragAngle <= 67.5) { // downright
+						mTmpSelectedOverlay.setBearing(45);
+						mPathEndGridIndices = currentDragPointIndices;
+
+						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
+						mTmpSelectedOverlay.setDimensions(c, 10000);
+
+					} else if (dragAngle > 112.5 && dragAngle <= 157.5) { // downleft
+
+					} else if (dragAngle > -67.5 && dragAngle <= -22.5) { // topright
+
+					} else { // topleft
+						mTmpSelectedOverlay.setBearing(-135);
+						mPathEndGridIndices = currentDragPointIndices;
+
+						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
+						mTmpSelectedOverlay.setDimensions(c, 10000);
 
 					}
 				}
@@ -231,7 +263,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		// convert dist to grid index and return the position of the node at that index
 		return new Point((int) ((mapPoint.x - gridFirstPoint.x) / MapGrid.EACH_POINT_DIST), (int) ((mapPoint.y - gridFirstPoint.y) / MapGrid.EACH_POINT_DIST));
 	}
-	
+
 
 	/**
 	 * Calculate the horizontal and vertical distance between points a and b
