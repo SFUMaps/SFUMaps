@@ -49,10 +49,28 @@ public class MapGrid {
 		return mMapGrid.get(p.x).get(p.y);
 	}
 
-	public void createWalkableArea(Point indicesFrom, Point indicesTo) {
+	public void createWalkableArea(Point indicesFrom, Point indicesTo, float pathRotation) {
+
+		if (pathRotation == -45f) {
+			for (int x = indicesFrom.x; x >= indicesTo.x; x--)
+				for (int y = indicesTo.y; y >= indicesFrom.y; y--)
+					if (Math.abs(x - indicesTo.x) == Math.abs(y - indicesTo.y))
+						getNode(x, y).setWalkable(true);
+
+			return;
+		}
+
 		for (int x = indicesFrom.x; x <= indicesTo.x; x++)
-			for (int y = indicesFrom.y; y <= indicesTo.y; y++)
+			for (int y = indicesFrom.y; y <= indicesTo.y; y++) {
+				if (pathRotation == 45f) {
+					if (Math.abs(x - indicesFrom.x) == Math.abs(y - indicesFrom.y))
+						getNode(x, y).setWalkable(true);
+
+					continue;
+				}
+
 				getNode(x, y).setWalkable(true);
+			}
 	}
 
 	public List<GridNode> getNeighbors(GridNode node) {

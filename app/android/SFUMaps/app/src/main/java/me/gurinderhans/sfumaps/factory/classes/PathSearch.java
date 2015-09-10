@@ -25,6 +25,7 @@ import java.util.List;
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.app.Keys;
+import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid.GridNode;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
@@ -65,35 +66,70 @@ public class PathSearch {
 				if (e != null)
 					return;
 
-				/*for (ParseObject obj : objects) {
+				for (ParseObject obj : objects) {
 					MapPath mapPath = (MapPath) obj;
 
 					GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_path_drawable))
 									.zIndex(10000)
-									.transparency(0.7f)
+									.transparency(0.2f)
 									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), 10000)
 									.anchor(0, 0.5f)
 									.visible(false)
 					);
 
 
-					PointF dims = new PointF(
-							(float) Math.abs(mapPath.getEndPoint().x - mapPath.getStartPoint().x) * mGrid.gridPointDist,
-							(float) Math.abs(mapPath.getEndPoint().x - mapPath.getStartPoint().x) * mGrid.gridPointDist
+					PointF dims = PathMaker.getXYDist(
+							MercatorProjection.fromPointToLatLng(mGrid.getNode(mapPath.getStartPoint()).projCoords),
+							MercatorProjection.fromPointToLatLng(mGrid.getNode(mapPath.getEndPoint()).projCoords)
 					);
 
-					groundOverlay.setDimensions((dims.x + dims.y) == 0 ? 10000 : dims.x + dims.y, 10000);
-					groundOverlay.setBearing(mapPath.getRotation());
+					float pathSize = dims.x + dims.y;
+					if (mapPath.getRotation() % 45 == 0)
+						pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 
+					groundOverlay.setDimensions(pathSize, 10000);
+
+					int rotation = (int) mapPath.getRotation();
+					switch (rotation) {
+						case 90:
+						case 270:
+							groundOverlay.setBearing(90);
+							break;
+						case 0:
+						case 180:
+							groundOverlay.setBearing(0);
+							break;
+						case -45:
+							groundOverlay.setBearing(135);
+							break;
+						case 45:
+							groundOverlay.setBearing(45);
+						default:
+							break;
+					}
 
 					mapPath.setMapEditOverlay(groundOverlay);
 					MapPath.mAllMapPaths.add(mapPath);
 
-					mGrid.createWalkableArea(mapPath.getStartPoint(), mapPath.getEndPoint());
-				}*/
+					mGrid.createWalkableArea(mapPath.getStartPoint(), mapPath.getEndPoint(), mapPath.getRotation());
+				}
+
+
+				// label the walkable nodes
+				for (ArrayList<GridNode> row : mGrid.mMapGrid) {
+					for (GridNode rowNode : row) {
+						if (rowNode.isWalkable())
+							mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+											.image(BitmapDescriptorFactory.fromResource(R.drawable.red_dot))
+											.zIndex(10000111)
+											.position(MercatorProjection.fromPointToLatLng(rowNode.projCoords), 10000)
+							);
+					}
+				}
 			}
 		});
+
 	}
 
 	private static List<GridNode> AStar(MapGrid grid, GridNode startNode, GridNode targetNode) {

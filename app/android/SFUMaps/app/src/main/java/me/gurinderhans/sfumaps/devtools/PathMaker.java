@@ -45,7 +45,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	private final MapGrid mGrid;
 	private final FragmentActivity mActivity;
 	private GroundOverlay mTmpSelectedOverlay;
-	private GroundOverlay mDiagonalMatchDot;
+	private GroundOverlay mPathMakerNodeTrackDot;
 
 	// Logic
 	boolean deleteMode = false;
@@ -83,8 +83,8 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 		switch (ev.getAction() & MotionEvent.ACTION_MASK) {
 			case MotionEvent.ACTION_DOWN:
+				mPathStartGridIndices = currentDragPointIndices;
 				if (!deleteMode) {
-					mPathStartGridIndices = currentDragPointIndices;
 					mTmpSelectedOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 									.position(fromPointToLatLng(mGrid.getNode(mPathStartGridIndices).projCoords), 10000)
 									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_path_drawable))
@@ -94,9 +94,9 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					);
 				}
 
-				if (mDiagonalMatchDot != null)
-					mDiagonalMatchDot.remove();
-				mDiagonalMatchDot = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+				if (mPathMakerNodeTrackDot != null)
+					mPathMakerNodeTrackDot.remove();
+				mPathMakerNodeTrackDot = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 								.position(fromPointToLatLng(mGrid.getNode(mPathStartGridIndices).projCoords), 8888)
 								.image(BitmapDescriptorFactory.fromResource(R.drawable.red_dot))
 								.transparency(0.1f)
@@ -113,7 +113,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					mapPath.setEndPoint(tl_br.second);
 					mapPath.setMapEditOverlay(mTmpSelectedOverlay);
 					mapPath.setRotation(mTmpSelectedOverlay.getBearing());
-//					mapPath.saveInBackground();
+					mapPath.saveInBackground();
 
 					Log.i(TAG, "SAVING -> start: " + mapPath.getStartPoint() + ", end: " + mapPath.getEndPoint());
 
@@ -125,7 +125,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				break;
 			case MotionEvent.ACTION_MOVE:
 
-				mDiagonalMatchDot.setPosition(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords));
+				mPathMakerNodeTrackDot.setPosition(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords));
 
 				if (!deleteMode && (Math.abs(currentDragPointIndices.x - mPathStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mPathStartGridIndices.y)) >= 1) {
 
@@ -165,6 +165,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 						mTmpSelectedOverlay.setDimensions(dims.x, 10000);
 
 					}
+
 					// diagonals
 					else if (dragAngle > 22.5 && dragAngle <= 67.5) { // downright
 						mTmpSelectedOverlay.setBearing(45);
@@ -173,17 +174,27 @@ public class PathMaker implements OnDragListener, OnClickListener {
 						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 						mTmpSelectedOverlay.setDimensions(c, 10000);
 
-					} else if (dragAngle > 112.5 && dragAngle <= 157.5) { // downleft
-
 					} else if (dragAngle > -67.5 && dragAngle <= -22.5) { // topright
-
-					} else { // topleft
-						mTmpSelectedOverlay.setBearing(-135);
+						mTmpSelectedOverlay.setBearing(-45);
 						mPathEndGridIndices = currentDragPointIndices;
 
 						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 						mTmpSelectedOverlay.setDimensions(c, 10000);
 
+					} else if (dragAngle > 112.5 && dragAngle <= 157.5) {
+						// downleft
+//						mTmpSelectedOverlay.setBearing(135);
+//						mPathEndGridIndices = currentDragPointIndices;
+//
+//						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
+//						mTmpSelectedOverlay.setDimensions(c, 10000);
+					} else {
+						// topleft
+//						mTmpSelectedOverlay.setBearing(-135);
+//						mPathEndGridIndices = currentDragPointIndices;
+//
+//						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
+//						mTmpSelectedOverlay.setDimensions(c, 10000);
 					}
 				}
 
@@ -216,8 +227,9 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				break;
 			case R.id.delete_path_button:
 				deleteMode = !deleteMode;
-				// change button background
-				v.setBackgroundResource(deleteMode ? android.R.color.holo_green_light : android.R.color.holo_red_light);
+				v.setBackgroundResource(deleteMode
+						? android.R.color.holo_green_light
+						: android.R.color.holo_red_light);
 				break;
 			default:
 				break;
@@ -245,6 +257,10 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 		// hide edit controls
 		mActivity.findViewById(R.id.delete_path_button).setVisibility(isEditingMap ? VISIBLE : INVISIBLE);
+
+		// cleanup stuff here
+		if (!isEditingMap && mPathMakerNodeTrackDot != null)
+			mPathMakerNodeTrackDot.remove();
 	}
 
 	/**
@@ -272,7 +288,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	 * @param dragCurrentCoordinates - indices
 	 * @return - {@link Point} object containing the horizontal and vertical distance
 	 */
-	private PointF getXYDist(LatLng dragStartCoordinates, LatLng dragCurrentCoordinates) {
+	public static PointF getXYDist(LatLng dragStartCoordinates, LatLng dragCurrentCoordinates) {
 
 		// calculate the middle corner point
 		PointF dragStart = fromLatLngToPoint(dragStartCoordinates);
