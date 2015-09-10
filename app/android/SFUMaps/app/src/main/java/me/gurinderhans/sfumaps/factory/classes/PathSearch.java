@@ -31,6 +31,7 @@ import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 import static com.parse.ParseQuery.CachePolicy.CACHE_ELSE_NETWORK;
 import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
+import static me.gurinderhans.sfumaps.devtools.PathMaker.MAP_PATH_WIDTH;
 
 /**
  * Created by ghans on 15-08-17.
@@ -73,7 +74,7 @@ public class PathSearch {
 									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_path_drawable))
 									.zIndex(10000)
 									.transparency(0.2f)
-									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), 10000)
+									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), MAP_PATH_WIDTH)
 									.anchor(0, 0.5f)
 									.visible(false)
 					);
@@ -88,7 +89,7 @@ public class PathSearch {
 					if (mapPath.getRotation() % 45 == 0)
 						pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 
-					groundOverlay.setDimensions(pathSize, 10000);
+					groundOverlay.setDimensions(pathSize, MAP_PATH_WIDTH);
 
 					int rotation = (int) mapPath.getRotation();
 					switch (rotation) {
@@ -113,19 +114,6 @@ public class PathSearch {
 					MapPath.mAllMapPaths.add(mapPath);
 
 					mGrid.createWalkableArea(mapPath.getStartPoint(), mapPath.getEndPoint(), mapPath.getRotation());
-				}
-
-
-				// label the walkable nodes
-				for (ArrayList<GridNode> row : mGrid.mMapGrid) {
-					for (GridNode rowNode : row) {
-						if (rowNode.isWalkable())
-							mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-											.image(BitmapDescriptorFactory.fromResource(R.drawable.red_dot))
-											.zIndex(10000111)
-											.position(MercatorProjection.fromPointToLatLng(rowNode.projCoords), 10000)
-							);
-					}
 				}
 			}
 		});

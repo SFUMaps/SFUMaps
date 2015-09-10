@@ -3,7 +3,6 @@ package me.gurinderhans.sfumaps.devtools;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +37,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
 	public static boolean isEditingMap = false;
+	public static final int MAP_PATH_WIDTH = 10000; // TODO: 15-09-09 make this dynamic and user editable
 	private static PathMaker mInstance = null;
 
 	// UI
@@ -86,7 +86,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				mPathStartGridIndices = currentDragPointIndices;
 				if (!deleteMode) {
 					mTmpSelectedOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-									.position(fromPointToLatLng(mGrid.getNode(mPathStartGridIndices).projCoords), 10000)
+									.position(fromPointToLatLng(mGrid.getNode(mPathStartGridIndices).projCoords), MAP_PATH_WIDTH)
 									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_path_drawable))
 									.transparency(0.2f)
 									.anchor(0, 0.5f)
@@ -115,10 +115,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					mapPath.setRotation(mTmpSelectedOverlay.getBearing());
 					mapPath.saveInBackground();
 
-					Log.i(TAG, "SAVING -> start: " + mapPath.getStartPoint() + ", end: " + mapPath.getEndPoint());
-
 					mAllMapPaths.add(mapPath);
-
 					mTmpSelectedOverlay = null;
 				}
 
@@ -127,7 +124,24 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 				mPathMakerNodeTrackDot.setPosition(MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords));
 
-				if (!deleteMode && (Math.abs(currentDragPointIndices.x - mPathStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mPathStartGridIndices.y)) >= 1) {
+				// delete mode
+				if (deleteMode) {
+
+					MapPath toRemove = null;
+					for (MapPath path : mAllMapPaths)
+						if (path.getMapEditOverlay().getBounds().contains(mGoogleMap.getProjection().fromScreenLocation(new Point((int) ev.getX(), (int) ev.getY())))) {
+							path.getMapEditOverlay().remove();
+							path.deleteInBackground();
+							toRemove = path;
+							break;
+						}
+					if (toRemove != null)
+						mAllMapPaths.remove(toRemove);
+
+				} else {
+
+					if (!((Math.abs(currentDragPointIndices.x - mPathStartGridIndices.x) + Math.abs(currentDragPointIndices.y - mPathStartGridIndices.y)) >= 1))
+						return;
 
 					Point nodeDist = new Point(
 							currentDragPointIndices.x - mPathStartGridIndices.x,
@@ -144,25 +158,25 @@ public class PathMaker implements OnDragListener, OnClickListener {
 						mTmpSelectedOverlay.setBearing(90);
 						mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
 
-						mTmpSelectedOverlay.setDimensions(dims.y + 0, 10000); // +0 to hide the warning for y bring the place of x
+						mTmpSelectedOverlay.setDimensions(dims.y + 0, MAP_PATH_WIDTH); // +0 to hide the warning for y bring the place of x
 
 					} else if (dragAngle > -112.5 && dragAngle <= -67.5) { // up
 						mTmpSelectedOverlay.setBearing(270);
 						mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
 
-						mTmpSelectedOverlay.setDimensions(dims.y + 0, 10000);
+						mTmpSelectedOverlay.setDimensions(dims.y + 0, MAP_PATH_WIDTH);
 
 					} else if (dragAngle > -22.5 && dragAngle <= 22.5) { // right
 						mTmpSelectedOverlay.setBearing(0);
 						mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
 
-						mTmpSelectedOverlay.setDimensions(dims.x, 10000);
+						mTmpSelectedOverlay.setDimensions(dims.x, MAP_PATH_WIDTH);
 
 					} else if ((dragAngle <= -157.5 && dragAngle > -180) || (dragAngle > 157.5 && dragAngle <= 180)) { // left
 						mTmpSelectedOverlay.setBearing(180);
 						mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
 
-						mTmpSelectedOverlay.setDimensions(dims.x, 10000);
+						mTmpSelectedOverlay.setDimensions(dims.x, MAP_PATH_WIDTH);
 
 					}
 
@@ -172,47 +186,23 @@ public class PathMaker implements OnDragListener, OnClickListener {
 						mPathEndGridIndices = currentDragPointIndices;
 
 						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
-						mTmpSelectedOverlay.setDimensions(c, 10000);
+						mTmpSelectedOverlay.setDimensions(c, MAP_PATH_WIDTH);
 
 					} else if (dragAngle > -67.5 && dragAngle <= -22.5) { // topright
 						mTmpSelectedOverlay.setBearing(-45);
 						mPathEndGridIndices = currentDragPointIndices;
 
 						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
-						mTmpSelectedOverlay.setDimensions(c, 10000);
+						mTmpSelectedOverlay.setDimensions(c, MAP_PATH_WIDTH);
 
-					} else if (dragAngle > 112.5 && dragAngle <= 157.5) {
-						// downleft
-//						mTmpSelectedOverlay.setBearing(135);
-//						mPathEndGridIndices = currentDragPointIndices;
-//
-//						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
-//						mTmpSelectedOverlay.setDimensions(c, 10000);
-					} else {
-						// topleft
-//						mTmpSelectedOverlay.setBearing(-135);
-//						mPathEndGridIndices = currentDragPointIndices;
-//
-//						float c = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
-//						mTmpSelectedOverlay.setDimensions(c, 10000);
 					}
+
+
+					// NOTE: when creating diagonal paths, the grid indices of the `mPathMakerNodeTrackDot` must match up with `currentDragPointIndices`
+					// otherwise the drawn ground-overlay does no fully represent the walkable nodes, and it may give funny results.
+					// TODO: 15-09-09 catch the Note statement above and inform the user and not create the path
 				}
 
-				// delete mode
-				else {
-
-					MapPath toRemove = null;
-					for (MapPath path : mAllMapPaths)
-						if (path.getMapEditOverlay().getBounds().contains(mGoogleMap.getProjection().fromScreenLocation(new Point((int) ev.getX(), (int) ev.getY())))) {
-							path.getMapEditOverlay().remove();
-							path.deleteInBackground();
-							toRemove = path;
-							break;
-						}
-					if (toRemove != null)
-						mAllMapPaths.remove(toRemove);
-
-				}
 				break;
 			default:
 				break;
