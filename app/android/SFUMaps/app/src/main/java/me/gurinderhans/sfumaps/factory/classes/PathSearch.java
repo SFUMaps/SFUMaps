@@ -79,8 +79,8 @@ public class PathSearch {
 
 
 					PointF dims = new PointF(
-							(float) Math.abs(mapPath.getEndPoint().x - mapPath.getStartPoint().x) * mGrid.GRID_POINT_DIST,
-							(float) Math.abs(mapPath.getEndPoint().x - mapPath.getStartPoint().x) * mGrid.GRID_POINT_DIST
+							(float) Math.abs(mapPath.getEndPoint().x - mapPath.getStartPoint().x) * mGrid.gridPointDist,
+							(float) Math.abs(mapPath.getEndPoint().x - mapPath.getStartPoint().x) * mGrid.gridPointDist
 					);
 
 					groundOverlay.setDimensions((dims.x + dims.y) == 0 ? 10000 : dims.x + dims.y, 10000);

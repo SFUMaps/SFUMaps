@@ -36,14 +36,14 @@ public class MapPath extends ParseObject {
 		put(ParseMapPath.POINT_START_Y, startPoint.y);
 	}
 
-//	public Point getEndPoint() {
-//		return new Point(getInt(ParseMapPath.POINT_END_X), getInt(ParseMapPath.POINT_END_Y));
-//	}
+	public Point getEndPoint() {
+		return new Point(getInt(ParseMapPath.POINT_END_X), getInt(ParseMapPath.POINT_END_Y));
+	}
 
-//	public void setEndPoint(Point endPoint) {
-//		put(ParseMapPath.POINT_END_X, endPoint.x);
-//		put(ParseMapPath.POINT_END_Y, endPoint.y);
-//	}
+	public void setEndPoint(Point endPoint) {
+		put(ParseMapPath.POINT_END_X, endPoint.x);
+		put(ParseMapPath.POINT_END_Y, endPoint.y);
+	}
 
 	public float getRotation() {
 		return (float) getDouble(ParseMapPath.ROTATION);

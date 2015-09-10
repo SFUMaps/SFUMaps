@@ -1,6 +1,5 @@
 package me.gurinderhans.sfumaps.factory.classes;
 
-import android.content.Context;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.Log;
@@ -28,11 +27,11 @@ public class MapGrid {
 	public final int mapGridSizeY; // rows
 	public final int mapGridSizeX; // cols
 
-	public final float GRID_POINT_DIST; // in metres
+	public final double gridPointDist; // in metres
 
 	public ArrayList<ArrayList<GridNode>> mMapGrid = new ArrayList<>(); // map grid
 
-	public MapGrid(Context ctx, PointF startPoint, PointF endPoint) {
+	public MapGrid(PointF startPoint, PointF endPoint) {
 
 		this.startPoint = startPoint;
 		this.endPoint = endPoint;
@@ -53,8 +52,7 @@ public class MapGrid {
 		// calculate each grid point distance
 		LatLng a = MercatorProjection.fromPointToLatLng(getNode(0, 0).projCoords);
 		LatLng b = MercatorProjection.fromPointToLatLng(getNode(1, 0).projCoords);
-		this.GRID_POINT_DIST = MapTools.LatLngDistance(a.latitude, a.longitude, b.latitude, b.longitude);
-
+		this.gridPointDist = MapTools.LatLngDistance(a.latitude, a.longitude, b.latitude, b.longitude);
 	}
 
 	public GridNode getNode(int x, int y) {

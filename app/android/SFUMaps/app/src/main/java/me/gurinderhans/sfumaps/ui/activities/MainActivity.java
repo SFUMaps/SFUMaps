@@ -119,7 +119,7 @@ public class MainActivity extends FragmentActivity
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		MapGrid mapGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
+		MapGrid mapGrid = new MapGrid(new PointF(121f, 100f), new PointF(192f, 183f));
 
 		setUpMapIfNeeded();
 
