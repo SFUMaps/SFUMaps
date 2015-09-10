@@ -5,9 +5,6 @@ import android.graphics.PointF;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.GroundOverlay;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -23,15 +20,12 @@ import java.util.Collections;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.BuildConfig;
-import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.app.Keys;
-import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid.GridNode;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 import static com.parse.ParseQuery.CachePolicy.CACHE_ELSE_NETWORK;
 import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
-import static me.gurinderhans.sfumaps.devtools.PathMaker.MAP_PATH_WIDTH;
 
 /**
  * Created by ghans on 15-08-17.
@@ -58,7 +52,7 @@ public class PathSearch {
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
 
 		// load map path data
-		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.ParseMapPath.CLASS);
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.ParseMapPathNode.CLASS);
 		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
 		query.findInBackground(new FindCallback<ParseObject>() {
 			@Override
@@ -67,21 +61,21 @@ public class PathSearch {
 				if (e != null)
 					return;
 
-				for (ParseObject obj : objects) {
-					MapPath mapPath = (MapPath) obj;
+				/*for (ParseObject obj : objects) {
+					MapPathNode mapPath = (MapPathNode) obj;
 
 					GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_path_drawable))
+									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
 									.zIndex(10000)
 									.transparency(0.2f)
-									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getStartPoint()).projCoords), MAP_PATH_WIDTH)
+									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getPosition()).projCoords), 10000)
 									.anchor(0, 0.5f)
 									.visible(false)
 					);
 
 
 					PointF dims = PathMaker.getXYDist(
-							MercatorProjection.fromPointToLatLng(mGrid.getNode(mapPath.getStartPoint()).projCoords),
+							MercatorProjection.fromPointToLatLng(mGrid.getNode(mapPath.getPosition()).projCoords),
 							MercatorProjection.fromPointToLatLng(mGrid.getNode(mapPath.getEndPoint()).projCoords)
 					);
 
@@ -89,7 +83,7 @@ public class PathSearch {
 					if (mapPath.getRotation() % 45 == 0)
 						pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 
-					groundOverlay.setDimensions(pathSize, MAP_PATH_WIDTH);
+					groundOverlay.setDimensions(pathSize, 10000);
 
 					int rotation = (int) mapPath.getRotation();
 					switch (rotation) {
@@ -111,10 +105,10 @@ public class PathSearch {
 					}
 
 					mapPath.setMapEditOverlay(groundOverlay);
-					MapPath.mAllMapPaths.add(mapPath);
+					MapPathNode.mAllMapPathNodes.add(mapPath);
 
-					mGrid.createWalkableArea(mapPath.getStartPoint(), mapPath.getEndPoint(), mapPath.getRotation());
-				}
+					mGrid.createWalkableArea(mapPath.getPosition(), mapPath.getEndPoint(), mapPath.getRotation());
+				}*/
 			}
 		});
 

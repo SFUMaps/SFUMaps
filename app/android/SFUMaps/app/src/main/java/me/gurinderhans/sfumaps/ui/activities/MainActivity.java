@@ -54,11 +54,6 @@ public class MainActivity extends FragmentActivity
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
-	/* !! NOTE !!
-	 * `BuildConfig.DEBUG` is our "dev mode". Since only the developer can generate app-debug.apk
-	 * this should make it secure for someone who tries to mod the apk to turn this on or something.
-	 */
-
 	// member variables
 	private int mapCurrentZoom; // used for detecting when map zoom changes
 	private GoogleMap Map;
@@ -155,7 +150,7 @@ public class MainActivity extends FragmentActivity
 		// hide the marker toolbar - the two buttons on the bottom right that go to google maps
 		Map.getUiSettings().setMapToolbarEnabled(false);
 
-		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
+		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 8f));
 
 		Map.setOnCameraChangeListener(this);
 		Map.setOnMapLongClickListener(this);
@@ -232,7 +227,7 @@ public class MainActivity extends FragmentActivity
 		if (clickedPlaceIndex != -1) {
 
 			if (BuildConfig.DEBUG) {
-				// do path search
+				/*// do path search
 				if (mPlaceFromTo == null) {
 					mPlaceFromTo = Pair.create(MapPlace.mAllMapPlaces.get(clickedPlaceIndex), null);
 				} else {
@@ -243,7 +238,7 @@ public class MainActivity extends FragmentActivity
 					Log.i(TAG, "first: " + mPlaceFromTo.first + ", " + mPlaceFromTo.second);
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
+				}*/
 			} else {
 				mPlaceFormDialog = new PlaceFormDialog(
 						this,
