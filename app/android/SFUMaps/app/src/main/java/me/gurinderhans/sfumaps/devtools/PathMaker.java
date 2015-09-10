@@ -4,6 +4,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,6 +22,7 @@ import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.MapPath;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout.OnDragListener;
+import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -94,13 +96,16 @@ public class PathMaker implements OnDragListener, OnClickListener {
 			case MotionEvent.ACTION_UP:
 				if (!deleteMode) {
 
+					Pair<Point, Point> tl_br = get_TL_BR_Points(mPathStartGridIndices, mPathEndGridIndices);
+
 					MapPath mapPath = new MapPath();
-					mapPath.setStartPoint(mPathStartGridIndices);
-					mapPath.setEndPoint(mPathEndGridIndices); // set size
+					mapPath.setStartPoint(tl_br.first);
+					mapPath.setEndPoint(tl_br.second);
 					mapPath.setMapEditOverlay(mTmpSelectedOverlay);
 					mapPath.setRotation(mTmpSelectedOverlay.getBearing());
 //					mapPath.saveInBackground();
-					Log.i(TAG, "SAVING -> start: " + mPathStartGridIndices + ", end: " + mPathEndGridIndices);
+
+					Log.i(TAG, "SAVING -> start: " + mapPath.getStartPoint() + ", end: " + mapPath.getEndPoint());
 
 					mAllMapPaths.add(mapPath);
 
@@ -117,49 +122,37 @@ public class PathMaker implements OnDragListener, OnClickListener {
 							currentDragPointIndices.y - mPathStartGridIndices.y
 					);
 
-//					double dimsX = Math.abs(nodeDist.x) * mGrid.gridPointDist;
-//					double dimsY = Math.abs(nodeDist.y) * mGrid.gridPointDist;
-//					int grid_nodes_down = (int) ((dimsX + dimsY) / mGrid.gridPointDist);
+					PointF dims = getXYDist(
+							MercatorProjection.fromPointToLatLng(mGrid.getNode(mPathStartGridIndices).projCoords),
+							MercatorProjection.fromPointToLatLng(mGrid.getNode(currentDragPointIndices).projCoords)
+					);
 
 					double dragAngle = (Math.atan2(nodeDist.y, nodeDist.x)) * 180 / Math.PI; // convert to degrees
 					if (dragAngle > 67.5 && dragAngle <= 112.5) { // down
 						mTmpSelectedOverlay.setBearing(90);
 						mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
 
+						mTmpSelectedOverlay.setDimensions(dims.y + 0, 10000); // +0 to hide the warning for y bring the place of x
+
 					} else if (dragAngle > -112.5 && dragAngle <= -67.5) { // up
 						mTmpSelectedOverlay.setBearing(270);
 						mPathEndGridIndices = new Point(mPathStartGridIndices.x, currentDragPointIndices.y);
+
+						mTmpSelectedOverlay.setDimensions(dims.y + 0, 10000);
 
 					} else if (dragAngle > -22.5 && dragAngle <= 22.5) { // right
 						mTmpSelectedOverlay.setBearing(0);
 						mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
 
+						mTmpSelectedOverlay.setDimensions(dims.x, 10000);
+
 					} else if ((dragAngle <= -157.5 && dragAngle > -180) || (dragAngle > 157.5 && dragAngle <= 180)) { // left
 						mTmpSelectedOverlay.setBearing(180);
 						mPathEndGridIndices = new Point(currentDragPointIndices.x, mPathStartGridIndices.y);
 
+						mTmpSelectedOverlay.setDimensions(dims.x, 10000);
+
 					}
-
-//					mTmpSelectedOverlay.setDimensions((float) (dimsX + dimsY), 10000);
-
-					/*// diagonals
-					else if (dragAngle > 22.5 && dragAngle <= 67.5) { // downright
-						mTmpSelectedOverlay.setBearing(45);
-						mPathEndGridIndices = new Point(mPathStartGridIndices.x + grid_nodes_down, mPathStartGridIndices.y + grid_nodes_down);
-
-					} else if (dragAngle > 112.5 && dragAngle <= 157.5) { // downleft
-						mTmpSelectedOverlay.setBearing(135);
-						mPathEndGridIndices = new Point(mPathStartGridIndices.x - grid_nodes_down, mPathStartGridIndices.y + grid_nodes_down);
-
-					} else if (dragAngle > -67.5 && dragAngle <= -22.5) { // topright
-						mTmpSelectedOverlay.setBearing(-45);
-						mPathEndGridIndices = new Point(mPathStartGridIndices.x + grid_nodes_down, mPathStartGridIndices.y - grid_nodes_down);
-
-					} else { // topleft
-						mTmpSelectedOverlay.setBearing(-135);
-						mPathEndGridIndices = new Point(mPathStartGridIndices.x - grid_nodes_down, mPathStartGridIndices.y - grid_nodes_down);
-
-					}*/
 				}
 
 				// delete mode
@@ -238,7 +231,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		// convert dist to grid index and return the position of the node at that index
 		return new Point((int) ((mapPoint.x - gridFirstPoint.x) / MapGrid.EACH_POINT_DIST), (int) ((mapPoint.y - gridFirstPoint.y) / MapGrid.EACH_POINT_DIST));
 	}
-
+	
 
 	/**
 	 * Calculate the horizontal and vertical distance between points a and b
@@ -265,6 +258,12 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		float vDist = (float) LatLngDistance(dragCurrentCoordinates.latitude, dragCurrentCoordinates.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
 
 		return new PointF(hDist, vDist);
+	}
+
+	private static Pair<Point, Point> get_TL_BR_Points(Point assumedTL, Point assumedBR) {
+		if (assumedBR.x >= assumedTL.x && assumedBR.y >= assumedTL.y)
+			return Pair.create(assumedTL, assumedBR);
+		else return Pair.create(assumedBR, assumedTL);
 	}
 
 }
