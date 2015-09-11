@@ -52,7 +52,7 @@ public class PathSearch {
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
 
 		// load map path data
-		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.ParseMapPathNode.CLASS);
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.ParseMapPath.CLASS);
 		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
 		query.findInBackground(new FindCallback<ParseObject>() {
 			@Override
@@ -62,7 +62,7 @@ public class PathSearch {
 					return;
 
 				/*for (ParseObject obj : objects) {
-					MapPathNode mapPath = (MapPathNode) obj;
+					MapPath mapPath = (MapPath) obj;
 
 					GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
@@ -105,7 +105,7 @@ public class PathSearch {
 					}
 
 					mapPath.setMapEditOverlay(groundOverlay);
-					MapPathNode.mAllMapPathNodes.add(mapPath);
+					MapPath.mAllMapPaths.add(mapPath);
 
 					mGrid.createWalkableArea(mapPath.getPosition(), mapPath.getEndPoint(), mapPath.getRotation());
 				}*/

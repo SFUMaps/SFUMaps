@@ -19,6 +19,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
@@ -125,7 +126,7 @@ public class MainActivity extends FragmentActivity
 		// show dev controls if app is in dev mode
 		if (BuildConfig.DEBUG) {
 			// create admin panel
-			PathMaker.createPathMaker(this, Map, mapGrid);
+			PathMaker.createPathMaker(this, Map);
 		}
 	}
 
@@ -170,6 +171,8 @@ public class MainActivity extends FragmentActivity
 						getTileProvider(2, new SVGTileProvider(MapTools.getOverlayTiles(this),
 								getResources().getDisplayMetrics().densityDpi / 160f)))
 				.zIndex(11));
+
+
 	}
 
 	@Override
