@@ -2,26 +2,22 @@ package me.gurinderhans.sfumaps.devtools;
 
 import android.graphics.Point;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.factory.classes.MapPath;
+import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout.OnDragListener;
-import me.gurinderhans.sfumaps.utils.MapTools;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static me.gurinderhans.sfumaps.factory.classes.MapPath.mAllMapPaths;
 
 /**
  * Created by ghans on 15-08-10.
@@ -40,13 +36,13 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 	// Logic
 	boolean deleteMode = false;
+	MapGraph mMapGraph = new MapGraph();
 
 
 	// @constructor
 	PathMaker(FragmentActivity activity, GoogleMap map) {
 
 		this.mGoogleMap = map;
-//		this.mGrid = grid;
 		this.mActivity = activity;
 
 		// ------------
@@ -65,8 +61,8 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	}
 
 	// onDrag variables
-	LatLngBounds mTmpNodeBounds;
-	MapPath mTmpMapPath;
+	LatLng dragStartPos;
+	LatLng dragEndPos;
 
 	@Override
 	public void onDrag(MotionEvent ev) {
@@ -79,68 +75,20 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 			case MotionEvent.ACTION_DOWN:
 				if (!deleteMode)
-					mTmpMapPath = new MapPath();
+					dragStartPos = mGoogleMap.getProjection().fromScreenLocation(currentScreenDragPoint);
 
 				break;
 			case MotionEvent.ACTION_UP:
 				if (!deleteMode) {
-					mAllMapPaths.add(mTmpMapPath);
-
-					// calculate neighbors for each node
-//					for (int i = 0; i < mAllMapPaths.size(); i++) {
-//						MapPath path = mAllMapPaths.get(i);
-//						List<MapPath.MapPathNode> nodes = path.getNodes();
-//
-//					}
-
-
-
-					mTmpMapPath.saveInBackground();
-					mTmpMapPath = null;
+					Log.i(TAG, "added edge: " + mMapGraph.addEdge(dragStartPos, dragEndPos));
+					Log.i(TAG, "added edge: " + mMapGraph.addEdge(dragStartPos, dragEndPos));
 				}
-
-				/*// save new nodes
-				for (int i = 0; i < mAllMapPaths.size(); i++) {
-
-					MapPath compareTo = mAllMapPaths.get(i);
-
-					LatLngBounds nodeBounds = new LatLngBounds(
-							MapTools.LatLngFrom(compareTo.getPosition(), 225, (NODE_DIST + (NODE_DIST / 2f))),
-							MapTools.LatLngFrom(compareTo.getPosition(), 45, (NODE_DIST + (NODE_DIST / 2f)))
-					);
-
-					for (int j = 0; j < mAllMapPaths.size(); j++) {
-						MapPath compareFrom = mAllMapPaths.get(j);
-						if (compareFrom.getPosition().equals(compareTo.getPosition()))
-							continue;
-
-						if (nodeBounds.contains(compareFrom.getPosition()))
-							compareTo.addNeighbour(compareFrom);
-					}
-				}*/
 
 				break;
 			case MotionEvent.ACTION_MOVE:
-				if (!deleteMode) {
-					LatLng nodePos = mGoogleMap.getProjection().fromScreenLocation(currentScreenDragPoint);
-					if (mTmpNodeBounds == null || !mTmpNodeBounds.contains(nodePos)) {
-						// update bounds
-						mTmpNodeBounds = new LatLngBounds(
-								MapTools.LatLngFrom(nodePos, 225, NODE_DIST),
-								MapTools.LatLngFrom(nodePos, 45, NODE_DIST)
-						);
+				if (!deleteMode)
+					dragEndPos = mGoogleMap.getProjection().fromScreenLocation(currentScreenDragPoint);
 
-						// create map path node and add it to map path
-						MapPath.MapPathNode node = new MapPath.MapPathNode();
-						node.setPosition(nodePos);
-						node.setMapEditOverlay(mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-								.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
-								.zIndex(100)
-								.position(nodePos, 20000)));
-
-						mTmpMapPath.addNode(node);
-					}
-				}
 				break;
 			default:
 				break;
@@ -166,6 +114,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	}
 
 	/* edit map grid toggle */
+
 	private void toggleEditing(ImageButton editButton) {
 
 		isEditingMap = !isEditingMap;
