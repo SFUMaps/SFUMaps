@@ -55,6 +55,7 @@ public final class Keys {
 		public static final String NODE_FROM = "nodeFrom";
 		public static final String NODE_TO = "nodeTo";
 		public static final String WEIGHT = "edgeWeight";
+		public static final String ROTATION = "rotation";
 	}
 
 	public static class ParseMapGraphNode {

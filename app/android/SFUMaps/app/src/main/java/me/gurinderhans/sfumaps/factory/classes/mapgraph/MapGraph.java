@@ -1,49 +1,57 @@
 package me.gurinderhans.sfumaps.factory.classes.mapgraph;
 
-import android.support.annotation.NonNull;
-
 import com.google.android.gms.maps.model.LatLng;
-import com.parse.ParseClassName;
-import com.parse.ParseObject;
+import com.google.android.gms.maps.model.LatLngBounds;
 
+import java.util.List;
 import java.util.Vector;
 
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraph.CLASS;
+import me.gurinderhans.sfumaps.utils.MapTools;
 
 /**
  * Created by ghans on 15-09-07.
  */
 
-@ParseClassName(CLASS)
-public class MapGraph extends ParseObject {
+public class MapGraph {
 
-	protected Vector<MapGraphNode> nodes = new Vector<>();
-	protected Vector<MapGraphEdge> edges = new Vector<>();
+	private Vector<MapGraphNode> nodes = new Vector<>();
+	private Vector<MapGraphEdge> edges = new Vector<>();
 
 	public MapGraph() {
 		/* empty constructor, not be used by anyone other than Parse */
 	}
 
-	public boolean addEdge(@NonNull LatLng nodeAPos, @NonNull LatLng nodeBPos) {
 
-		MapGraphNode nodeA = new MapGraphNode(nodeAPos);
-		MapGraphNode nodeB = new MapGraphNode(nodeBPos);
-		MapGraphEdge edge = new MapGraphEdge(nodeA, nodeB, 0);
+	public Vector<MapGraphEdge> getEdges() {
+		return edges;
+	}
 
-		return !(edges.contains(edge) || (nodes.contains(nodeA) && nodes.contains(nodeB))) && edges.add(edge);
-
+	public void addEdge(MapGraphEdge edge) {
+		edges.add(edge);
 	}
 
 	public Vector<MapGraphNode> getNodes() {
 		return nodes;
 	}
 
-	public Vector<MapGraphEdge> getEdges() {
-		return edges;
+	public void addNode(MapGraphNode node) {
+		nodes.add(node);
 	}
 
-	public MapGraphNode getNodeAt(int i) {
-		return nodes.elementAt(i);
+	public MapGraphNode getNodeAt(LatLng position, double kmRange) {
+		// create node search bounds
+		LatLngBounds searchBounds = new LatLngBounds.Builder()
+				.include(MapTools.LatLngFrom(position, 225, kmRange))
+				.include(MapTools.LatLngFrom(position, 45, kmRange))
+				.build();
+
+		List<MapGraphNode> searchNodes = getNodes();
+		if (searchNodes != null)
+			for (MapGraphNode node : searchNodes)
+				if (searchBounds.contains(node.getMapPosition()))
+					return node;
+
+		return null;
 	}
 
 }

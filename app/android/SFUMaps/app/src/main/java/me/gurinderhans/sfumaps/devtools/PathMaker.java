@@ -1,23 +1,31 @@
 package me.gurinderhans.sfumaps.devtools;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
+import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
+import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout.OnDragListener;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static me.gurinderhans.sfumaps.utils.MapTools.LatLngDistance;
+import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromLatLngToPoint;
+import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
 
 /**
  * Created by ghans on 15-08-10.
@@ -25,7 +33,7 @@ import static android.view.View.VISIBLE;
 public class PathMaker implements OnDragListener, OnClickListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
-	public static final int NODE_DIST = 70; // kms
+	public static final int SNAP_TO_NODE_SEARCH_RANGE = 20; // kms
 
 	public static boolean isEditingMap = false;
 	private static PathMaker mInstance = null;
@@ -36,8 +44,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 	// Logic
 	boolean deleteMode = false;
-	MapGraph mMapGraph = new MapGraph();
-
+	MapGraph mapGraph = new MapGraph();
 
 	// @constructor
 	PathMaker(FragmentActivity activity, GoogleMap map) {
@@ -61,8 +68,10 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	}
 
 	// onDrag variables
-	LatLng dragStartPos;
-	LatLng dragEndPos;
+	LatLng tmpDragStartPos;
+	LatLng tmpDragEndPos;
+	GroundOverlay tmpEdgeOverlay;
+	MapGraphEdge tmpGraphEdge;
 
 	@Override
 	public void onDrag(MotionEvent ev) {
@@ -74,26 +83,106 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		switch (ev.getAction() & MotionEvent.ACTION_MASK) {
 
 			case MotionEvent.ACTION_DOWN:
-				if (!deleteMode)
-					dragStartPos = mGoogleMap.getProjection().fromScreenLocation(currentScreenDragPoint);
+				if (!deleteMode) {
+					tmpDragStartPos = mGoogleMap.getProjection().fromScreenLocation(currentScreenDragPoint);
+
+					MapGraphNode nodeA = mapGraph.getNodeAt(tmpDragStartPos, SNAP_TO_NODE_SEARCH_RANGE);
+					if (nodeA == null) {
+						nodeA = new MapGraphNode(tmpDragStartPos);
+
+						nodeA.setMapGizmo(
+								mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+										.position(tmpDragStartPos, 20000)
+										.zIndex(10001)
+										.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
+										.transparency(0.2f))
+						);
+						mapGraph.addNode(nodeA);
+
+					}
+
+					tmpGraphEdge = new MapGraphEdge(nodeA);
+					tmpEdgeOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+							.position(nodeA.getMapPosition(), 20000)
+							.zIndex(10000)
+							.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
+							.transparency(0.2f)
+							.anchor(0, 0.5f));
+					tmpGraphEdge.setMapGizmo(tmpEdgeOverlay);
+				}
 
 				break;
 			case MotionEvent.ACTION_UP:
 				if (!deleteMode) {
-					Log.i(TAG, "added edge: " + mMapGraph.addEdge(dragStartPos, dragEndPos));
-					Log.i(TAG, "added edge: " + mMapGraph.addEdge(dragStartPos, dragEndPos));
-				}
+					MapGraphNode nodeB = mapGraph.getNodeAt(tmpDragEndPos, SNAP_TO_NODE_SEARCH_RANGE);
+					if (nodeB == null) {
+						nodeB = new MapGraphNode(tmpDragEndPos);
 
+						nodeB.setMapGizmo(
+								mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
+										.position(tmpDragEndPos, 20000)
+										.zIndex(10001)
+										.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
+										.transparency(0.2f))
+						);
+
+						mapGraph.addNode(nodeB);
+
+					}
+
+					tmpGraphEdge.setNodeB(nodeB);
+					mapGraph.addEdge(tmpGraphEdge);
+				}
 				break;
 			case MotionEvent.ACTION_MOVE:
-				if (!deleteMode)
-					dragEndPos = mGoogleMap.getProjection().fromScreenLocation(currentScreenDragPoint);
+				if (!deleteMode) {
+					tmpDragEndPos = mGoogleMap.getProjection().fromScreenLocation(currentScreenDragPoint);
+
+					// compute edge rotation angle
+					Point startPoint = mGoogleMap.getProjection().toScreenLocation(tmpDragStartPos);
+					Point dist = new Point(currentScreenDragPoint.x - startPoint.x, currentScreenDragPoint.y - startPoint.y);
+					double dragAngle = (Math.atan2(dist.y, dist.x)) * 180 / Math.PI; // convert to degrees
+					tmpEdgeOverlay.setBearing((float) dragAngle);
+
+					// compute edge size dimensions
+					PointF dims = getXYDist(tmpDragStartPos, tmpDragEndPos);
+					float pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
+					tmpEdgeOverlay.setDimensions(pathSize, 20000);
+				}
 
 				break;
 			default:
 				break;
 
 		}
+	}
+
+
+	/**
+	 * Calculate the horizontal and vertical distance between points a and b
+	 *
+	 * @param coordA - screen point
+	 * @param coordB - indices
+	 * @return - {@link Point} object containing the horizontal and vertical distance
+	 */
+	public static PointF getXYDist(LatLng coordA, LatLng coordB) {
+
+		// calculate the middle corner point
+		PointF dragStart = fromLatLngToPoint(coordA);
+		PointF dragCurrent = fromLatLngToPoint(coordB);
+
+		// the middle corner point
+		dragCurrent.set(dragCurrent.x, dragStart.y);
+
+		LatLng middleCornerPoint = fromPointToLatLng(dragCurrent);
+
+		// horizontal distance
+		float hDist = (float) LatLngDistance(coordA.latitude, coordA.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+
+		// vertical distance
+		float vDist = (float) LatLngDistance(coordB.latitude, coordB.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+
+		return new PointF(hDist, vDist);
 	}
 
 	@Override
@@ -114,7 +203,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	}
 
 	/* edit map grid toggle */
-
 	private void toggleEditing(ImageButton editButton) {
 
 		isEditingMap = !isEditingMap;

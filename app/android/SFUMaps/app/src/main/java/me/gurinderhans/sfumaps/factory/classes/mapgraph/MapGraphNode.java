@@ -1,5 +1,8 @@
 package me.gurinderhans.sfumaps.factory.classes.mapgraph;
 
+import android.support.annotation.Nullable;
+
+import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
@@ -16,6 +19,7 @@ import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.LNG;
 public class MapGraphNode extends ParseObject {
 
 	private boolean visited = false;
+	private GroundOverlay map_gizmo;
 
 	public MapGraphNode() {
 		/* empty constructor, not be used by anyone other than Parse */
@@ -36,6 +40,14 @@ public class MapGraphNode extends ParseObject {
 
 	public void setVisited(boolean visited) {
 		this.visited = visited;
+	}
+
+	public GroundOverlay getMapGizmo() {
+		return map_gizmo;
+	}
+
+	public void setMapGizmo(GroundOverlay overlay) {
+		this.map_gizmo = overlay;
 	}
 
 }

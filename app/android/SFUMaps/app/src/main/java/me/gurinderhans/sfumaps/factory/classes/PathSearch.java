@@ -104,7 +104,7 @@ public class PathSearch {
 							break;
 					}
 
-					mapPath.setMapEditOverlay(groundOverlay);
+					mapPath.setMapGizmo(groundOverlay);
 					MapGraph.mAllMapGraphs.add(mapPath);
 
 					mGrid.createWalkableArea(mapPath.getPosition(), mapPath.getEndPoint(), mapPath.getRotation());

@@ -21,7 +21,6 @@ public class SFUMapsApplication extends Application {
 
 		// register subclasses
 		ParseObject.registerSubclass(MapPlace.class);
-		ParseObject.registerSubclass(MapGraph.class);
 		ParseObject.registerSubclass(MapGraphEdge.class);
 		ParseObject.registerSubclass(MapGraphNode.class);
 
