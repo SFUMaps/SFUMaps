@@ -52,8 +52,8 @@ public final class Keys {
 	public static class ParseMapGraphEdge {
 		/* Map MapGraph (ParseObject) keys */
 		public static final String CLASS = "MapGraphEdge";
-		public static final String NODE_FROM = "nodeFrom";
-		public static final String NODE_TO = "nodeTo";
+		public static final String NODE_A = "nodeA";
+		public static final String NODE_B = "nodeB";
 		public static final String WEIGHT = "edgeWeight";
 		public static final String ROTATION = "rotation";
 	}

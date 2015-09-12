@@ -1,5 +1,7 @@
 package me.gurinderhans.sfumaps.factory.classes.mapgraph;
 
+import android.support.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -18,9 +20,7 @@ public class MapGraph {
 	private Vector<MapGraphEdge> edges = new Vector<>();
 
 	public MapGraph() {
-		/* empty constructor, not be used by anyone other than Parse */
 	}
-
 
 	public Vector<MapGraphEdge> getEdges() {
 		return edges;
@@ -28,6 +28,7 @@ public class MapGraph {
 
 	public void addEdge(MapGraphEdge edge) {
 		edges.add(edge);
+		edge.saveInBackground();
 	}
 
 	public Vector<MapGraphNode> getNodes() {
@@ -52,6 +53,16 @@ public class MapGraph {
 					return node;
 
 		return null;
+	}
+
+	public Vector<MapGraphEdge> getNodeEdges(@NonNull MapGraphNode node) {
+		Vector<MapGraphEdge> returnEdges = new Vector<>();
+
+		for (MapGraphEdge edge : edges)
+			if (edge.nodeA().equals(node) || edge.nodeB().equals(node))
+				returnEdges.add(edge);
+
+		return returnEdges;
 	}
 
 }

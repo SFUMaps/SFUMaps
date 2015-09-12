@@ -95,7 +95,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 										.position(tmpDragStartPos, 20000)
 										.zIndex(10001)
 										.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
-										.transparency(0.2f))
+										.transparency(0.5f))
 						);
 						mapGraph.addNode(nodeA);
 
@@ -123,7 +123,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 										.position(tmpDragEndPos, 20000)
 										.zIndex(10001)
 										.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
-										.transparency(0.2f))
+										.transparency(0.5f))
 						);
 
 						mapGraph.addNode(nodeB);
@@ -131,7 +131,9 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					}
 
 					tmpGraphEdge.setNodeB(nodeB);
+
 					mapGraph.addEdge(tmpGraphEdge);
+
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:
