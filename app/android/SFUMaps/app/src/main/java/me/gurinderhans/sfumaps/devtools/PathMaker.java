@@ -133,6 +133,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					tmpGraphEdge.setRotation(tmpEdgeOverlay.getBearing());
 
 					mapGraph.addEdge(tmpGraphEdge);
+					tmpGraphEdge.saveInBackground(); // saves edge nodes too
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:

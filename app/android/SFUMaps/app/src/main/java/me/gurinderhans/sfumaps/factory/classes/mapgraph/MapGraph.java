@@ -37,7 +37,6 @@ public class MapGraph {
 			return false;
 
 		edges.add(edge);
-		edge.saveInBackground(); // saves edge nodes too
 
 		return true;
 	}

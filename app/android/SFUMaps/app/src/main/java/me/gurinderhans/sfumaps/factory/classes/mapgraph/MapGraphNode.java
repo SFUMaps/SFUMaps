@@ -65,4 +65,22 @@ public class MapGraphNode extends ParseObject {
 		this.map_gizmo = overlay;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		boolean retVal = false;
+
+		if (o instanceof MapGraphNode) {
+			MapGraphNode ptr = (MapGraphNode) o;
+			retVal = ptr.getMapPosition().equals(this.getMapPosition());
+		}
+
+		return retVal;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = hash + (this.getMapPosition() != null ? this.getMapPosition().hashCode() : 0);
+		return hash;
+	}
 }

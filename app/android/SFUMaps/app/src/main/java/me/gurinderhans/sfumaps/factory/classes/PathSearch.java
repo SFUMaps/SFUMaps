@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.parse.FindCallback;
@@ -94,8 +95,30 @@ public class PathSearch {
 //					Log.i(TAG, "edge nodeB: " + edge.nodeB());
 				}
 
-				List<MapGraphNode> path = AStar(mapGraph, mapGraph.getNodes().get(0), mapGraph.getNodes().get(4));
-				Log.i(TAG, "path size: " + (path != null ? path.size() : 0));
+
+				Log.i(TAG, "[graph stats] -> #nodes: " + mapGraph.getNodes().size() + ", #edges: " + mapGraph.getEdges().size());
+
+				MapGraphNode anode = mapGraph.getNodes().get(0);
+				MapGraphNode bnode = mapGraph.getNodes().get(4);
+
+				mGoogleMap.addMarker(new MarkerOptions().position(anode.getMapPosition()));
+				mGoogleMap.addMarker(new MarkerOptions().position(bnode.getMapPosition()));
+
+				List<MapGraphNode> path = AStar(mapGraph, anode, bnode);
+				if (path != null) {
+
+					Log.i(TAG, "path size: " + path.size());
+
+					List<LatLng> pathPoints = new ArrayList<>();
+
+					for (MapGraphNode node : path)
+						pathPoints.add(node.getMapPosition());
+
+					if (pathPoints.size() - 1 >= 0)
+						pathPoints.remove(pathPoints.size() - 1);
+
+					mPathPolyline.setPoints(pathPoints);
+				}
 			}
 		});
 
