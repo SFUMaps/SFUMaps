@@ -26,9 +26,14 @@ public class MapGraph {
 		return edges;
 	}
 
-	public void addEdge(MapGraphEdge edge) {
+	public boolean addEdge(MapGraphEdge edge) {
+		if (edges.contains(edge))
+			return false;
+
 		edges.add(edge);
-		edge.saveInBackground();
+		edge.saveInBackground(); // saves edge nodes too
+
+		return true;
 	}
 
 	public Vector<MapGraphNode> getNodes() {

@@ -2,6 +2,8 @@ package me.gurinderhans.sfumaps.utils;
 
 import android.content.Context;
 import android.graphics.Picture;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.Log;
 import android.util.Pair;
 
@@ -23,6 +25,9 @@ import java.util.regex.Pattern;
 
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.app.Keys;
+
+import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromLatLngToPoint;
+import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
 
 /**
  * Created by ghans on 2/9/15.
@@ -196,6 +201,33 @@ public class MapTools {
 						Math.sin(dLng / 2) * Math.sin(dLng / 2);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 		return earthRadius * c;
+	}
+
+	/**
+	 * Calculate the horizontal and vertical distance between points a and b
+	 *
+	 * @param coordA - screen point
+	 * @param coordB - indices
+	 * @return - {@link Point} object containing the horizontal and vertical distance
+	 */
+	public static PointF getXYDist(LatLng coordA, LatLng coordB) {
+
+		// calculate the middle corner point
+		PointF dragStart = fromLatLngToPoint(coordA);
+		PointF dragCurrent = fromLatLngToPoint(coordB);
+
+		// the middle corner point
+		dragCurrent.set(dragCurrent.x, dragStart.y);
+
+		LatLng middleCornerPoint = fromPointToLatLng(dragCurrent);
+
+		// horizontal distance
+		float hDist = (float) LatLngDistance(coordA.latitude, coordA.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+
+		// vertical distance
+		float vDist = (float) LatLngDistance(coordB.latitude, coordB.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+
+		return new PointF(hDist, vDist);
 	}
 
 

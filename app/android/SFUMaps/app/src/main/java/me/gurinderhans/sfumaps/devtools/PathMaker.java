@@ -20,12 +20,10 @@ import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout.OnDragListener;
+import me.gurinderhans.sfumaps.utils.MapTools;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static me.gurinderhans.sfumaps.utils.MapTools.LatLngDistance;
-import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromLatLngToPoint;
-import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
 
 /**
  * Created by ghans on 15-08-10.
@@ -34,6 +32,8 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
 	public static final int SNAP_TO_NODE_SEARCH_RANGE = 20; // kms
+	public static final int NODE_MAP_GIZMO_SIZE = 30000;
+	public static final int EDGE_MAP_GIZMO_SIZE = 20000;
 
 	public static boolean isEditingMap = false;
 	private static PathMaker mInstance = null;
@@ -68,8 +68,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 	}
 
 	// onDrag variables
-	LatLng tmpDragStartPos;
-	LatLng tmpDragEndPos;
+	LatLng tmpDragStartPos, tmpDragEndPos;
 	GroundOverlay tmpEdgeOverlay;
 	MapGraphEdge tmpGraphEdge;
 
@@ -92,7 +91,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 						nodeA.setMapGizmo(
 								mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-										.position(tmpDragStartPos, 20000)
+										.position(tmpDragStartPos, NODE_MAP_GIZMO_SIZE)
 										.zIndex(10001)
 										.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
 										.transparency(0.5f))
@@ -103,7 +102,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 					tmpGraphEdge = new MapGraphEdge(nodeA);
 					tmpEdgeOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-							.position(nodeA.getMapPosition(), 20000)
+							.position(nodeA.getMapPosition(), EDGE_MAP_GIZMO_SIZE)
 							.zIndex(10000)
 							.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
 							.transparency(0.2f)
@@ -114,26 +113,24 @@ public class PathMaker implements OnDragListener, OnClickListener {
 				break;
 			case MotionEvent.ACTION_UP:
 				if (!deleteMode) {
+					// see if there's a node where we are ending the drag, if yes link edge nodeB to this, else create new node here
 					MapGraphNode nodeB = mapGraph.getNodeAt(tmpDragEndPos, SNAP_TO_NODE_SEARCH_RANGE);
 					if (nodeB == null) {
 						nodeB = new MapGraphNode(tmpDragEndPos);
 
 						nodeB.setMapGizmo(
 								mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-										.position(tmpDragEndPos, 20000)
+										.position(tmpDragEndPos, NODE_MAP_GIZMO_SIZE)
 										.zIndex(10001)
 										.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
 										.transparency(0.5f))
 						);
 
 						mapGraph.addNode(nodeB);
-
 					}
 
 					tmpGraphEdge.setNodeB(nodeB);
-
 					mapGraph.addEdge(tmpGraphEdge);
-
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:
@@ -147,11 +144,10 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					tmpEdgeOverlay.setBearing((float) dragAngle);
 
 					// compute edge size dimensions
-					PointF dims = getXYDist(tmpDragStartPos, tmpDragEndPos);
+					PointF dims = MapTools.getXYDist(tmpDragStartPos, tmpDragEndPos);
 					float pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 					tmpEdgeOverlay.setDimensions(pathSize, 20000);
 				}
-
 				break;
 			default:
 				break;
@@ -159,33 +155,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		}
 	}
 
-
-	/**
-	 * Calculate the horizontal and vertical distance between points a and b
-	 *
-	 * @param coordA - screen point
-	 * @param coordB - indices
-	 * @return - {@link Point} object containing the horizontal and vertical distance
-	 */
-	public static PointF getXYDist(LatLng coordA, LatLng coordB) {
-
-		// calculate the middle corner point
-		PointF dragStart = fromLatLngToPoint(coordA);
-		PointF dragCurrent = fromLatLngToPoint(coordB);
-
-		// the middle corner point
-		dragCurrent.set(dragCurrent.x, dragStart.y);
-
-		LatLng middleCornerPoint = fromPointToLatLng(dragCurrent);
-
-		// horizontal distance
-		float hDist = (float) LatLngDistance(coordA.latitude, coordA.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
-
-		// vertical distance
-		float vDist = (float) LatLngDistance(coordB.latitude, coordB.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
-
-		return new PointF(hDist, vDist);
-	}
 
 	@Override
 	public void onClick(View v) {

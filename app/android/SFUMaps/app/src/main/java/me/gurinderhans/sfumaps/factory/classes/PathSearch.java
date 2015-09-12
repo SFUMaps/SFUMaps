@@ -51,67 +51,6 @@ public class PathSearch {
 
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
 
-		// load map path data
-		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.ParseMapGraph.CLASS);
-		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
-		query.findInBackground(new FindCallback<ParseObject>() {
-			@Override
-			public void done(List<ParseObject> objects, ParseException e) {
-				// There was an error or the network wasn't available.
-				if (e != null)
-					return;
-
-				/*for (ParseObject obj : objects) {
-					MapGraph mapPath = (MapGraph) obj;
-
-					GroundOverlay groundOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
-									.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
-									.zIndex(10000)
-									.transparency(0.2f)
-									.position(MercatorProjection.fromPointToLatLng(mapGrid.getNode(mapPath.getPosition()).projCoords), 10000)
-									.anchor(0, 0.5f)
-									.visible(false)
-					);
-
-
-					PointF dims = PathMaker.getXYDist(
-							MercatorProjection.fromPointToLatLng(mGrid.getNode(mapPath.getPosition()).projCoords),
-							MercatorProjection.fromPointToLatLng(mGrid.getNode(mapPath.getEndPoint()).projCoords)
-					);
-
-					float pathSize = dims.x + dims.y;
-					if (mapPath.getRotation() % 45 == 0)
-						pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
-
-					groundOverlay.setDimensions(pathSize, 10000);
-
-					int rotation = (int) mapPath.getRotation();
-					switch (rotation) {
-						case 90:
-						case 270:
-							groundOverlay.setBearing(90);
-							break;
-						case 0:
-						case 180:
-							groundOverlay.setBearing(0);
-							break;
-						case -45:
-							groundOverlay.setBearing(135);
-							break;
-						case 45:
-							groundOverlay.setBearing(45);
-						default:
-							break;
-					}
-
-					mapPath.setMapGizmo(groundOverlay);
-					MapGraph.mAllMapGraphs.add(mapPath);
-
-					mGrid.createWalkableArea(mapPath.getPosition(), mapPath.getEndPoint(), mapPath.getRotation());
-				}*/
-			}
-		});
-
 	}
 
 	private static List<GridNode> AStar(MapGrid grid, GridNode startNode, GridNode targetNode) {
