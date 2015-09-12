@@ -44,11 +44,6 @@ public final class Keys {
 		public static final String PARENT_PLACE = "parentPlace";
 	}
 
-	public static class ParseMapGraph {
-		/* Map MapGraph (ParseObject) keys */
-		public static final String CLASS = "MapGraph";
-	}
-
 	public static class ParseMapGraphEdge {
 		/* Map MapGraph (ParseObject) keys */
 		public static final String CLASS = "MapGraphEdge";

@@ -16,10 +16,16 @@ import me.gurinderhans.sfumaps.utils.MapTools;
 
 public class MapGraph {
 
+	private static MapGraph mInstance = new MapGraph();
+
 	private Vector<MapGraphNode> nodes = new Vector<>();
 	private Vector<MapGraphEdge> edges = new Vector<>();
 
-	public MapGraph() {
+	private MapGraph() {
+	}
+
+	public static MapGraph getInstance() {
+		return mInstance;
 	}
 
 	public Vector<MapGraphEdge> getEdges() {
@@ -40,8 +46,13 @@ public class MapGraph {
 		return nodes;
 	}
 
-	public void addNode(MapGraphNode node) {
+	public boolean addNode(MapGraphNode node) {
+		if (nodes.contains(node))
+			return false;
+
 		nodes.add(node);
+
+		return true;
 	}
 
 	public MapGraphNode getNodeAt(LatLng position, double kmRange) {

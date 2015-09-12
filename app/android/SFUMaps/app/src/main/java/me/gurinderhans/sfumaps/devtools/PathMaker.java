@@ -44,7 +44,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 	// Logic
 	boolean deleteMode = false;
-	MapGraph mapGraph = new MapGraph();
+	public MapGraph mapGraph = MapGraph.getInstance();
 
 	// @constructor
 	PathMaker(FragmentActivity activity, GoogleMap map) {
@@ -130,6 +130,8 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					}
 
 					tmpGraphEdge.setNodeB(nodeB);
+					tmpGraphEdge.setRotation(tmpEdgeOverlay.getBearing());
+
 					mapGraph.addEdge(tmpGraphEdge);
 				}
 				break;

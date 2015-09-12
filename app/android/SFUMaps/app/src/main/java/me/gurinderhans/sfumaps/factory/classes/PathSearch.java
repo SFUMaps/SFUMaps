@@ -1,20 +1,37 @@
 package me.gurinderhans.sfumaps.factory.classes;
 
 import android.graphics.Point;
+import android.graphics.PointF;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import me.gurinderhans.sfumaps.BuildConfig;
+import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
+import me.gurinderhans.sfumaps.utils.MapTools;
+
+import static com.parse.ParseQuery.CachePolicy.CACHE_ELSE_NETWORK;
+import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.CLASS;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_A;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_B;
 
 /**
  * Created by ghans on 15-08-17.
@@ -24,7 +41,7 @@ public class PathSearch {
 	public static final String TAG = PathSearch.class.getSimpleName();
 
 	final GoogleMap mGoogleMap;
-	final MapGraph mapGraph;
+	final MapGraph mapGraph = MapGraph.getInstance();
 	final Polyline mPathPolyline;
 
 	// location points
@@ -34,11 +51,53 @@ public class PathSearch {
 	Marker markerFrom;
 	Marker markerTo;
 
-	public PathSearch(GoogleMap googleMap, final MapGraph graph) {
+	public PathSearch(GoogleMap googleMap) {
 		this.mGoogleMap = googleMap;
-		this.mapGraph = graph;
 
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
+
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(CLASS);
+		query.include(NODE_A);
+		query.include(NODE_B);
+		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
+		query.findInBackground(new FindCallback<ParseObject>() {
+			@Override
+			public void done(List<ParseObject> objects, ParseException e) {
+				for (ParseObject obj : objects) {
+					MapGraphEdge edge = (MapGraphEdge) obj;
+
+					PointF dims = MapTools.getXYDist(edge.nodeA().getMapPosition(), edge.nodeB().getMapPosition());
+					float pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
+
+					edge.setMapGizmo(mGoogleMap.addGroundOverlay(
+									new GroundOverlayOptions()
+											.position(edge.nodeA().getMapPosition(), pathSize, 20000)
+											.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
+											.zIndex(10000)
+											.anchor(0, 0.5f)
+											.transparency(0.2f)
+											.bearing(edge.getRotation())
+							)
+					);
+
+					mapGraph.addEdge(edge);
+
+					if (mapGraph.addNode(edge.nodeA())) {
+						// set gizmo
+//						edge.nodeA()
+					}
+
+					mapGraph.addNode(edge.nodeB());
+
+//					Log.i(TAG, "edge rotation: " + edge.getRotation());
+//					Log.i(TAG, "edge nodeA: " + edge.nodeA());
+//					Log.i(TAG, "edge nodeB: " + edge.nodeB());
+				}
+
+				List<MapGraphNode> path = AStar(mapGraph, mapGraph.getNodes().get(0), mapGraph.getNodes().get(4));
+				Log.i(TAG, "path size: " + (path != null ? path.size() : 0));
+			}
+		});
 
 	}
 
