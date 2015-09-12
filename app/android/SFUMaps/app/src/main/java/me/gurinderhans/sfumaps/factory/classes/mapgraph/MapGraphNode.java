@@ -1,11 +1,13 @@
 package me.gurinderhans.sfumaps.factory.classes.mapgraph;
 
+import android.graphics.PointF;
+
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
-import java.util.Vector;
+import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.LAT;
@@ -20,6 +22,19 @@ public class MapGraphNode extends ParseObject {
 
 	private GroundOverlay map_gizmo;
 	private boolean visited = false;
+
+	// tmp A start implementation variables and methods
+	public float gCost = -1f;
+	public float hCost = -1f;
+	public MapGraphNode parentNode = null;
+
+	public float getFCost() {
+		return gCost + hCost;
+	}
+
+	public PointF getMapPoint() {
+		return MercatorProjection.fromLatLngToPoint(getMapPosition());
+	}
 
 	public MapGraphNode() {
 		/* empty constructor, not be used by anyone other than Parse */

@@ -1,31 +1,20 @@
 package me.gurinderhans.sfumaps.factory.classes;
 
 import android.graphics.Point;
-import android.graphics.PointF;
-import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import me.gurinderhans.sfumaps.BuildConfig;
-import me.gurinderhans.sfumaps.app.Keys;
-import me.gurinderhans.sfumaps.factory.classes.MapGrid.GridNode;
-import me.gurinderhans.sfumaps.utils.MercatorProjection;
-
-import static com.parse.ParseQuery.CachePolicy.CACHE_ELSE_NETWORK;
-import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
+import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
+import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
+import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
 
 /**
  * Created by ghans on 15-08-17.
@@ -35,7 +24,7 @@ public class PathSearch {
 	public static final String TAG = PathSearch.class.getSimpleName();
 
 	final GoogleMap mGoogleMap;
-	final MapGrid mGrid;
+	final MapGraph mapGraph;
 	final Polyline mPathPolyline;
 
 	// location points
@@ -45,25 +34,25 @@ public class PathSearch {
 	Marker markerFrom;
 	Marker markerTo;
 
-	public PathSearch(GoogleMap googleMap, final MapGrid mapGrid) {
+	public PathSearch(GoogleMap googleMap, final MapGraph graph) {
 		this.mGoogleMap = googleMap;
-		this.mGrid = mapGrid;
+		this.mapGraph = graph;
 
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
 
 	}
 
-	private static List<GridNode> AStar(MapGrid grid, GridNode startNode, GridNode targetNode) {
+	private static List<MapGraphNode> AStar(MapGraph graph, MapGraphNode startNode, MapGraphNode targetNode) {
 
-		List<GridNode> openSet = new ArrayList<>();
-		List<GridNode> closedSet = new ArrayList<>();
+		List<MapGraphNode> openSet = new ArrayList<>();
+		List<MapGraphNode> closedSet = new ArrayList<>();
 
 		openSet.add(startNode);
 
 		while (openSet.size() > 0) {
 
 			// get node with min fcost from openset
-			GridNode currentNode = openSet.get(0);
+			MapGraphNode currentNode = openSet.get(0);
 			for (int i = 1; i < openSet.size(); i++) {
 				if (openSet.get(i).getFCost() < currentNode.getFCost() || openSet.get(i).getFCost() == currentNode.getFCost() && openSet.get(i).hCost < currentNode.hCost) {
 					currentNode = openSet.get(i);
@@ -73,11 +62,11 @@ public class PathSearch {
 			openSet.remove(currentNode);
 			closedSet.add(currentNode);
 
-			if (currentNode.gridX == targetNode.gridX && currentNode.gridY == targetNode.gridY) {
+			if (currentNode.getMapPoint().x == targetNode.getMapPoint().x && currentNode.getMapPoint().y == targetNode.getMapPoint().y) {
 				// retrace path and return it
-				List<GridNode> path = new ArrayList<>();
-				GridNode thisNode = targetNode;
-				while (thisNode != startNode) {
+				List<MapGraphNode> path = new ArrayList<>();
+				MapGraphNode thisNode = targetNode;
+				while (!thisNode.equals(startNode)) {
 					path.add(thisNode);
 					thisNode = thisNode.parentNode;
 				}
@@ -86,31 +75,22 @@ public class PathSearch {
 				return path;
 			}
 
-			for (GridNode neighborNode : grid.getNeighbors(currentNode)) {
+			for (MapGraphEdge edge : graph.getNodeEdges(currentNode)) {
 
-				if (!neighborNode.isWalkable() || closedSet.contains(neighborNode))
+				MapGraphNode nodeB = edge.nodeB(); // question is will the nodeB in list change too ?
+
+				if (closedSet.contains(nodeB))
 					continue;
 
-				float newMovementCost = currentNode.gCost + dist(currentNode, neighborNode);
-				if (newMovementCost < neighborNode.gCost || !openSet.contains(neighborNode)) {
-					float gcost = newMovementCost;
-					float hcost = dist(neighborNode, targetNode);
+				float newMovementCost = currentNode.gCost + dist(currentNode, nodeB);
+				if (newMovementCost < nodeB.gCost || !openSet.contains(nodeB)) {
 
-					// this is to avoid staircase effect at some diagonal turns
-					// NOTE: not sure but this maaay have broken (A *)
-					if (currentNode.gridX - neighborNode.gridX != 0) {
-						gcost += 0.01;
-						hcost += 0.01;
-					}
+					nodeB.gCost = newMovementCost;
+					nodeB.hCost = dist(nodeB, targetNode);
+					nodeB.parentNode = currentNode;
 
-					neighborNode.gCost = gcost;
-					neighborNode.hCost = hcost;
-
-
-					neighborNode.parentNode = currentNode;
-
-					if (!openSet.contains(neighborNode))
-						openSet.add(neighborNode);
+					if (!openSet.contains(nodeB))
+						openSet.add(nodeB);
 				}
 			}
 		}
@@ -118,9 +98,9 @@ public class PathSearch {
 		return null;
 	}
 
-	public static float dist(GridNode a, GridNode b) {
-		float dstX = Math.abs(a.gridX - b.gridX);
-		float dstY = Math.abs(a.gridY - b.gridY);
+	public static float dist(MapGraphNode a, MapGraphNode b) {
+		float dstX = Math.abs(a.getMapPoint().x - b.getMapPoint().x);
+		float dstY = Math.abs(a.getMapPoint().y - b.getMapPoint().y);
 
 		if (dstX > dstY)
 			return 1.4f * dstY + (dstX - dstY);
@@ -128,16 +108,16 @@ public class PathSearch {
 		return 1.4f * dstX + (dstY - dstX);
 	}
 
-	public void drawPath(MapPlace placeFrom, MapPlace placeTo) {
+	/*public void drawPath(MapPlace placeFrom, MapPlace placeTo) {
 
 		Log.i(TAG, "finding for place: " + placeFrom.getTitle());
 
 		GridNode from = findClosestWalkablePathPoint(placeFrom.getPosition(), placeTo.getPosition());
 		GridNode to = findClosestWalkablePathPoint(placeTo.getPosition(), from.projCoords);
 
-		List<GridNode> path = AStar(mGrid, from, to);
+		List<MapGraphNode> path = AStar(mapGraph, from, to);
 
-		if (path != null) {
+		*//*if (path != null) {
 
 			Log.i(TAG, "path size: " + path.size());
 
@@ -150,13 +130,13 @@ public class PathSearch {
 				pathPoints.remove(pathPoints.size() - 1);
 
 			mPathPolyline.setPoints(pathPoints);
-		}
+		}*//*
 
 		mGoogleMap.addMarker(new MarkerOptions().position(MercatorProjection.fromPointToLatLng(from.projCoords)));
 		mGoogleMap.addMarker(new MarkerOptions().position(MercatorProjection.fromPointToLatLng(to.projCoords)));
-	}
+	}*/
 
-	private GridNode findClosestWalkablePathPoint(PointF placePos, PointF compareTo) {
+	/*private GridNode findClosestWalkablePathPoint(PointF placePos, PointF compareTo) {
 		Point gridNodeIndices = getGridIndices(placePos);
 		Point compareToGridNode = getGridIndices(compareTo);
 
@@ -173,7 +153,7 @@ public class PathSearch {
 					int nX = gridNodeIndices.x + x;
 					int nY = gridNodeIndices.y + y;
 
-					GridNode checkNode = mGrid.getNode(nX, nY);
+					GridNode checkNode = mapGraph.getNode(nX, nY);
 					if (checkNode.isWalkable())
 						if (checkNode.gridX == gridNodeIndices.x || checkNode.gridY == gridNodeIndices.y
 //								|| (Math.abs(nX - gridNodeIndices.x) == Math.abs(nY - gridNodeIndices.y))
@@ -201,13 +181,13 @@ public class PathSearch {
 		}
 
 		return filteredNode;
-	}
+	}*/
 
-	private Point getGridIndices(PointF placePos) {
-		PointF gridFirstPoint = mGrid.getNode(0, 0).projCoords;
+	/*private Point getGridIndices(PointF placePos) {
+		PointF gridFirstPoint = mapGraph.getNode(0, 0).projCoords;
 		// convert dist to grid index and return the position of the node at that index
 		return new Point((int) ((placePos.x - gridFirstPoint.x) / MapGrid.EACH_POINT_DIST), (int) ((placePos.y - gridFirstPoint.y) / MapGrid.EACH_POINT_DIST));
-	}
+	}*/
 
 	public void clearPath() {
 
