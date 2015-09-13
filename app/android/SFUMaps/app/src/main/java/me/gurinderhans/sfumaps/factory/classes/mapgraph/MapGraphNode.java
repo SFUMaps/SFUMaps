@@ -24,6 +24,7 @@ public class MapGraphNode extends ParseObject {
 	private boolean visited = false;
 
 	private MapGraphNode parent;
+	public float dist;
 
 	public MapGraphNode getParent() {
 		return parent;

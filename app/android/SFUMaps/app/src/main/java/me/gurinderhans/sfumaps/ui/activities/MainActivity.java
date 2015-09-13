@@ -149,7 +149,7 @@ public class MainActivity extends FragmentActivity
 		// hide the marker toolbar - the two buttons on the bottom right that go to google maps
 		Map.getUiSettings().setMapToolbarEnabled(false);
 
-		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 5f));
+		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 
 		Map.setOnCameraChangeListener(this);
 		Map.setOnMapLongClickListener(this);

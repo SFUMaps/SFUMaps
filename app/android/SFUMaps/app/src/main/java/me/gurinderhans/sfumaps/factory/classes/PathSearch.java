@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 import me.gurinderhans.sfumaps.BuildConfig;
@@ -107,48 +108,59 @@ public class PathSearch {
 
 				// test search
 
-				MapGraphNode anode = mapGraph.getNodes().get(0);
-				MapGraphNode bnode = mapGraph.getNodes().get(3);
+				try {
+					MapGraphNode anode = mapGraph.getNodes().get(0);
+					MapGraphNode bnode = mapGraph.getNodes().get(4);
 
-				mGoogleMap.addMarker(new MarkerOptions().position(anode.getMapPosition()));
-				mGoogleMap.addMarker(new MarkerOptions().position(bnode.getMapPosition()));
+					mGoogleMap.addMarker(new MarkerOptions().position(anode.getMapPosition()));
+					mGoogleMap.addMarker(new MarkerOptions().position(bnode.getMapPosition()));
 
-//				Log.i(TAG, "node 0 edges: " + mapGraph.getNodeEdges(anode));
-//				for (MapGraphEdge edge : mapGraph.getNodeEdges(anode)) {
-//					Log.i(TAG, edge.nodeB())
-//				}
+					runBFS(anode);
 
+					List<LatLng> path = new ArrayList<>();
+					// trace path back from end vertex to start
+					while (bnode != null && bnode != anode) {
+						path.add(bnode.getMapPosition());
+						bnode = bnode.getParent();
+					}
+					path.add(anode.getMapPosition());
 
-				runBFS(anode);
-
-				List<LatLng> path = new ArrayList<>();
-				// trace path back from end vertex to start
-				while (bnode != anode) {
-					path.add(bnode.getMapPosition());
-					bnode = bnode.getParent();
+					mPathPolyline.setPoints(path);
+				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
-				path.add(anode.getMapPosition());
 
-				mPathPolyline.setPoints(path);
-
-
-				/*List<MapGraphNode> path = AStar(mapGraph, anode, bnode);
-				if (path != null) {
-
-					Log.i(TAG, "path size: " + path.size());
-
-					List<LatLng> pathPoints = new ArrayList<>();
-
-					// add initial position
-					pathPoints.add(anode.getMapPosition());
-
-					for (MapGraphNode node : path)
-						pathPoints.add(node.getMapPosition());
-
-					mPathPolyline.setPoints(pathPoints);
-				}*/
 			}
 		});
+
+	}
+
+	public void Dijkstra(MapGraphNode source) {
+		source.dist = 0f;
+		PriorityQueue<MapGraphNode> q = new PriorityQueue<>();
+		q.add(source);
+
+		while (!q.isEmpty()) {
+			MapGraphNode u = q.poll();
+
+			// Visit each edge exiting u
+			for (MapGraphEdge e : mapGraph.getNodeEdges(u)) {
+				MapGraphNode v = getTrueNodeB(u, e);
+
+				double weight = dist(e.nodeA(), e.nodeB());
+
+				double distanceThroughU = u.dist + weight;
+				if (distanceThroughU < v.dist) {
+					q.remove(v);
+
+					v.dist = (float) distanceThroughU;
+					v.setParent(u);
+					q.add(v);
+				}
+			}
+
+		}
+
 
 	}
 
@@ -162,7 +174,7 @@ public class PathSearch {
 
 		// explore the graph
 		while (!queue.isEmpty()) {
-			MapGraphNode first = queue.remove();
+			MapGraphNode first = queue.poll();
 			first.setVisited(true);
 			List<MapGraphEdge> nodeEdges = mapGraph.getNodeEdges(first);
 
@@ -171,7 +183,8 @@ public class PathSearch {
 				public int compare(MapGraphEdge lhs, MapGraphEdge rhs) {
 					double distL = dist(lhs.nodeA(), lhs.nodeB());
 					double distR = dist(rhs.nodeA(), rhs.nodeB());
-					return (int) (distL - distR);
+
+					return (int) (distR - distL);
 				}
 			});
 
