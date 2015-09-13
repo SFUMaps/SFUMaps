@@ -17,7 +17,10 @@ import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
@@ -82,7 +85,7 @@ public class PathSearch {
 										new GroundOverlayOptions()
 												.position(edge.nodeA().getMapPosition(), NODE_MAP_GIZMO_SIZE)
 												.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
-												.zIndex(10000)
+												.zIndex(100001)
 												.transparency(0.2f))
 						);
 					}
@@ -93,7 +96,7 @@ public class PathSearch {
 										new GroundOverlayOptions()
 												.position(edge.nodeB().getMapPosition(), NODE_MAP_GIZMO_SIZE)
 												.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
-												.zIndex(10000)
+												.zIndex(100001)
 												.transparency(0.2f))
 						);
 					}
@@ -102,96 +105,101 @@ public class PathSearch {
 
 				Log.i(TAG, "[graph stats] -> #nodes: " + mapGraph.getNodes().size() + ", #edges: " + mapGraph.getEdges().size());
 
+				// test search
+
 				MapGraphNode anode = mapGraph.getNodes().get(0);
-				MapGraphNode bnode = mapGraph.getNodes().get(4);
+				MapGraphNode bnode = mapGraph.getNodes().get(3);
 
 				mGoogleMap.addMarker(new MarkerOptions().position(anode.getMapPosition()));
 				mGoogleMap.addMarker(new MarkerOptions().position(bnode.getMapPosition()));
 
-				List<MapGraphNode> path = AStar(mapGraph, anode, bnode);
+//				Log.i(TAG, "node 0 edges: " + mapGraph.getNodeEdges(anode));
+//				for (MapGraphEdge edge : mapGraph.getNodeEdges(anode)) {
+//					Log.i(TAG, edge.nodeB())
+//				}
+
+
+				runBFS(anode);
+
+				List<LatLng> path = new ArrayList<>();
+				// trace path back from end vertex to start
+				while (bnode != anode) {
+					path.add(bnode.getMapPosition());
+					bnode = bnode.getParent();
+				}
+				path.add(anode.getMapPosition());
+
+				mPathPolyline.setPoints(path);
+
+
+				/*List<MapGraphNode> path = AStar(mapGraph, anode, bnode);
 				if (path != null) {
 
 					Log.i(TAG, "path size: " + path.size());
 
 					List<LatLng> pathPoints = new ArrayList<>();
 
+					// add initial position
+					pathPoints.add(anode.getMapPosition());
+
 					for (MapGraphNode node : path)
 						pathPoints.add(node.getMapPosition());
 
-					if (pathPoints.size() - 1 >= 0)
-						pathPoints.remove(pathPoints.size() - 1);
-
 					mPathPolyline.setPoints(pathPoints);
-				}
+				}*/
 			}
 		});
 
 	}
 
-	private static List<MapGraphNode> AStar(MapGraph graph, MapGraphNode startNode, MapGraphNode targetNode) {
+	private void runBFS(MapGraphNode start) {
+		// reset the graph
 
-		List<MapGraphNode> openSet = new ArrayList<>();
-		List<MapGraphNode> closedSet = new ArrayList<>();
 
-		openSet.add(startNode);
+		// init the queue
+		Queue<MapGraphNode> queue = new LinkedList<>();
+		queue.add(start);
 
-		while (openSet.size() > 0) {
+		// explore the graph
+		while (!queue.isEmpty()) {
+			MapGraphNode first = queue.remove();
+			first.setVisited(true);
+			List<MapGraphEdge> nodeEdges = mapGraph.getNodeEdges(first);
 
-			// get node with min fcost from openset
-			MapGraphNode currentNode = openSet.get(0);
-			for (int i = 1; i < openSet.size(); i++) {
-				if (openSet.get(i).getFCost() < currentNode.getFCost() || openSet.get(i).getFCost() == currentNode.getFCost() && openSet.get(i).hCost < currentNode.hCost) {
-					currentNode = openSet.get(i);
+			Collections.sort(nodeEdges, new Comparator<MapGraphEdge>() {
+				@Override
+				public int compare(MapGraphEdge lhs, MapGraphEdge rhs) {
+					double distL = dist(lhs.nodeA(), lhs.nodeB());
+					double distR = dist(rhs.nodeA(), rhs.nodeB());
+					return (int) (distL - distR);
 				}
-			}
+			});
 
-			openSet.remove(currentNode);
-			closedSet.add(currentNode);
+			for (MapGraphEdge edge : nodeEdges) {
 
-			if (currentNode.getMapPoint().x == targetNode.getMapPoint().x && currentNode.getMapPoint().y == targetNode.getMapPoint().y) {
-				// retrace path and return it
-				List<MapGraphNode> path = new ArrayList<>();
-				MapGraphNode thisNode = targetNode;
-				while (!thisNode.equals(startNode)) {
-					path.add(thisNode);
-					thisNode = thisNode.parentNode;
-				}
-				Collections.reverse(path);
+				MapGraphNode neighbor = getTrueNodeB(first, edge);
 
-				return path;
-			}
-
-			for (MapGraphEdge edge : graph.getNodeEdges(currentNode)) {
-
-				MapGraphNode nodeB = edge.nodeB(); // question is will the nodeB in list change too ?
-
-				if (closedSet.contains(nodeB))
-					continue;
-
-				float newMovementCost = currentNode.gCost + dist(currentNode, nodeB);
-				if (newMovementCost < nodeB.gCost || !openSet.contains(nodeB)) {
-
-					nodeB.gCost = newMovementCost;
-					nodeB.hCost = dist(nodeB, targetNode);
-					nodeB.parentNode = currentNode;
-
-					if (!openSet.contains(nodeB))
-						openSet.add(nodeB);
+				if (!neighbor.isVisited()) {
+					neighbor.setParent(first);
+					queue.add(neighbor);
 				}
 			}
 		}
+	}
 
-		return null;
+	public MapGraphNode getTrueNodeB(MapGraphNode trueNodeA, MapGraphEdge edge) {
+
+		if (edge.nodeB().equals(trueNodeA)) {
+			return edge.nodeA();
+		}
+
+		return edge.nodeB();
 	}
 
 	public static float dist(MapGraphNode a, MapGraphNode b) {
-		float dstX = Math.abs(a.getMapPoint().x - b.getMapPoint().x);
-		float dstY = Math.abs(a.getMapPoint().y - b.getMapPoint().y);
-
-		if (dstX > dstY)
-			return 1.4f * dstY + (dstX - dstY);
-
-		return 1.4f * dstX + (dstY - dstX);
+		LatLng latLng_A = a.getMapPosition();
+		LatLng latLng_B = b.getMapPosition();
+		return (float) MapTools.LatLngDistance(latLng_A.latitude, latLng_A.longitude, latLng_B.latitude, latLng_B.longitude);
 	}
 
 }

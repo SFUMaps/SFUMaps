@@ -23,13 +23,14 @@ public class MapGraphNode extends ParseObject {
 	private GroundOverlay map_gizmo;
 	private boolean visited = false;
 
-	// tmp A start implementation variables and methods
-	public float gCost = -1f;
-	public float hCost = -1f;
-	public MapGraphNode parentNode = null;
+	private MapGraphNode parent;
 
-	public float getFCost() {
-		return gCost + hCost;
+	public MapGraphNode getParent() {
+		return parent;
+	}
+
+	public void setParent(MapGraphNode parent) {
+		this.parent = parent;
 	}
 
 	public PointF getMapPoint() {
