@@ -1,6 +1,5 @@
 package me.gurinderhans.sfumaps.factory.classes;
 
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.Log;
 
@@ -8,7 +7,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -33,6 +31,8 @@ import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_A;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_B;
+import static me.gurinderhans.sfumaps.devtools.PathMaker.EDGE_MAP_GIZMO_SIZE;
+import static me.gurinderhans.sfumaps.devtools.PathMaker.NODE_MAP_GIZMO_SIZE;
 
 /**
  * Created by ghans on 15-08-17.
@@ -41,16 +41,9 @@ public class PathSearch {
 
 	public static final String TAG = PathSearch.class.getSimpleName();
 
-	final GoogleMap mGoogleMap;
-	final MapGraph mapGraph = MapGraph.getInstance();
-	final Polyline mPathPolyline;
-
-	// location points
-	public Point mapPointFrom;
-	public Point mapPointTo;
-
-	Marker markerFrom;
-	Marker markerTo;
+	private final GoogleMap mGoogleMap;
+	private final MapGraph mapGraph = MapGraph.getInstance();
+	private final Polyline mPathPolyline;
 
 	public PathSearch(GoogleMap googleMap) {
 		this.mGoogleMap = googleMap;
@@ -72,7 +65,7 @@ public class PathSearch {
 
 					edge.setMapGizmo(mGoogleMap.addGroundOverlay(
 									new GroundOverlayOptions()
-											.position(edge.nodeA().getMapPosition(), pathSize, 20000)
+											.position(edge.nodeA().getMapPosition(), pathSize, EDGE_MAP_GIZMO_SIZE)
 											.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
 											.zIndex(10000)
 											.anchor(0, 0.5f)
@@ -85,14 +78,25 @@ public class PathSearch {
 
 					if (mapGraph.addNode(edge.nodeA())) {
 						// set gizmo
-//						edge.nodeA()
+						edge.nodeA().setMapGizmo(mGoogleMap.addGroundOverlay(
+										new GroundOverlayOptions()
+												.position(edge.nodeA().getMapPosition(), NODE_MAP_GIZMO_SIZE)
+												.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
+												.zIndex(10000)
+												.transparency(0.2f))
+						);
 					}
 
-					mapGraph.addNode(edge.nodeB());
-
-//					Log.i(TAG, "edge rotation: " + edge.getRotation());
-//					Log.i(TAG, "edge nodeA: " + edge.nodeA());
-//					Log.i(TAG, "edge nodeB: " + edge.nodeB());
+					if (mapGraph.addNode(edge.nodeB())) {
+						// set gizmo
+						edge.nodeB().setMapGizmo(mGoogleMap.addGroundOverlay(
+										new GroundOverlayOptions()
+												.position(edge.nodeB().getMapPosition(), NODE_MAP_GIZMO_SIZE)
+												.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
+												.zIndex(10000)
+												.transparency(0.2f))
+						);
+					}
 				}
 
 
@@ -188,99 +192,6 @@ public class PathSearch {
 			return 1.4f * dstY + (dstX - dstY);
 
 		return 1.4f * dstX + (dstY - dstX);
-	}
-
-	/*public void drawPath(MapPlace placeFrom, MapPlace placeTo) {
-
-		Log.i(TAG, "finding for place: " + placeFrom.getTitle());
-
-		GridNode from = findClosestWalkablePathPoint(placeFrom.getPosition(), placeTo.getPosition());
-		GridNode to = findClosestWalkablePathPoint(placeTo.getPosition(), from.projCoords);
-
-		List<MapGraphNode> path = AStar(mapGraph, from, to);
-
-		*//*if (path != null) {
-
-			Log.i(TAG, "path size: " + path.size());
-
-			List<LatLng> pathPoints = new ArrayList<>();
-
-			for (GridNode node : path)
-				pathPoints.add(MercatorProjection.fromPointToLatLng(node.projCoords));
-
-			if (pathPoints.size() - 1 >= 0)
-				pathPoints.remove(pathPoints.size() - 1);
-
-			mPathPolyline.setPoints(pathPoints);
-		}*//*
-
-		mGoogleMap.addMarker(new MarkerOptions().position(MercatorProjection.fromPointToLatLng(from.projCoords)));
-		mGoogleMap.addMarker(new MarkerOptions().position(MercatorProjection.fromPointToLatLng(to.projCoords)));
-	}*/
-
-	/*private GridNode findClosestWalkablePathPoint(PointF placePos, PointF compareTo) {
-		Point gridNodeIndices = getGridIndices(placePos);
-		Point compareToGridNode = getGridIndices(compareTo);
-
-
-		List<GridNode> possibleWalkableNodes = new ArrayList<>();
-
-		int expander = 0;
-		while (possibleWalkableNodes.isEmpty()) {
-			for (int x = -2 - expander; x <= 2 + expander; x++)
-				for (int y = -2 - expander; y <= 2 + expander; y++) {
-					if (x == 0 && y == 0)
-						continue;
-
-					int nX = gridNodeIndices.x + x;
-					int nY = gridNodeIndices.y + y;
-
-					GridNode checkNode = mapGraph.getNode(nX, nY);
-					if (checkNode.isWalkable())
-						if (checkNode.gridX == gridNodeIndices.x || checkNode.gridY == gridNodeIndices.y
-//								|| (Math.abs(nX - gridNodeIndices.x) == Math.abs(nY - gridNodeIndices.y))
-								)
-							possibleWalkableNodes.add(checkNode);
-				}
-
-			expander += 2;
-		}
-
-		// filter the point closest to placeFrom AND placeTo
-		int lowestLength = Integer.MAX_VALUE;
-		GridNode filteredNode = null;
-		for (GridNode node : possibleWalkableNodes) {
-			int fromX = Math.abs(node.gridX - gridNodeIndices.x),
-					fromY = Math.abs(node.gridY - gridNodeIndices.y),
-					toX = Math.abs(node.gridX - compareToGridNode.x),
-					toY = Math.abs(node.gridY - compareToGridNode.y);
-
-			int path_length = fromX + fromY + toX + toY;
-			if (path_length < lowestLength) {
-				lowestLength = path_length;
-				filteredNode = node;
-			}
-		}
-
-		return filteredNode;
-	}*/
-
-	/*private Point getGridIndices(PointF placePos) {
-		PointF gridFirstPoint = mapGraph.getNode(0, 0).projCoords;
-		// convert dist to grid index and return the position of the node at that index
-		return new Point((int) ((placePos.x - gridFirstPoint.x) / MapGrid.EACH_POINT_DIST), (int) ((placePos.y - gridFirstPoint.y) / MapGrid.EACH_POINT_DIST));
-	}*/
-
-	public void clearPath() {
-
-		mPathPolyline.setPoints(new ArrayList<LatLng>());
-
-		if (markerFrom != null)
-			markerFrom.remove();
-		if (markerTo != null)
-			markerTo.remove();
-
-		mapPointFrom = mapPointTo = null;
 	}
 
 }
