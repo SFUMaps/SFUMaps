@@ -1,5 +1,6 @@
 package me.gurinderhans.sfumaps.ui.activities;
 
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
+import me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapPlaceSearchBoxView;
 import me.gurinderhans.sfumaps.utils.CachedTileProvider;
@@ -59,6 +61,7 @@ public class MainActivity extends FragmentActivity
 	// UI
 	private MapPlaceSearchBoxView mSearchView;
 	private GoogleMap Map;
+	private SlidingUpPanel mPanel;
 
 	// Data
 	private int mapCurrentZoom; // used for detecting when map zoom changes
@@ -85,6 +88,11 @@ public class MainActivity extends FragmentActivity
 		// places search view
 		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
 
+		mPanel = (SlidingUpPanel) findViewById(R.id.sliding_panel);
+		Point screenSize = new Point();
+		getWindowManager().getDefaultDisplay().getSize(screenSize);
+		mPanel.initWithScreenSize(screenSize);
+
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
@@ -92,6 +100,7 @@ public class MainActivity extends FragmentActivity
 		setUpMapIfNeeded();
 		setupMapSearchBox();
 		setupPlaces();
+
 
 
 		// TODO: 15-09-17 look at later

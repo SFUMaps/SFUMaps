@@ -24,6 +24,7 @@ public class MapWrapperLayout extends FrameLayout {
 		return super.dispatchTouchEvent(ev);
 	}
 
+
 	public void setOnDragListener(OnDragListener mOnDragListener) {
 		this.mOnDragListener = mOnDragListener;
 	}

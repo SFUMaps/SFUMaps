@@ -53,7 +53,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		this.mActivity = activity;
 
 		// ------------
-		mActivity.findViewById(R.id.dev_overlay).setVisibility(VISIBLE);
+//		mActivity.findViewById(R.id.dev_overlay).setVisibility(VISIBLE);
 		mActivity.findViewById(R.id.edit_map_path).setOnClickListener(this);
 		mActivity.findViewById(R.id.delete_path_button).setOnClickListener(this);
 
