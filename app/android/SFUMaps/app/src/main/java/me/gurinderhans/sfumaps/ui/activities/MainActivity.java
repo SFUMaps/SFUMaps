@@ -24,7 +24,7 @@ import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.util.List;
@@ -44,6 +44,8 @@ import me.gurinderhans.sfumaps.utils.MercatorProjection;
 import me.gurinderhans.sfumaps.utils.SVGTileProvider;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.CLASS;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.PARENT_PLACE;
 
 public class MainActivity extends FragmentActivity
 		implements
@@ -57,50 +59,17 @@ public class MainActivity extends FragmentActivity
 	// UI
 	private MapPlaceSearchBoxView mSearchView;
 	private GoogleMap Map;
-	private PlaceFormDialog mPlaceFormDialog;
 
 	// Data
 	private int mapCurrentZoom; // used for detecting when map zoom changes
 	private DiskLruCache mTileCache;
 	private Pair<MapPlace, MapPlace> mPlaceFromTo;
-
-	private FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
-		@Override
-		public void done(List<ParseObject> results, ParseException e) {
-
-			if (e != null) {
-				// There was an error or the network wasn't available.
-				return;
-			}
-
-			for (ParseObject result : results) {
-
-				MapPlace place = (MapPlace) result;
-
-				int placeIndex = getPlaceIndex(
-						MercatorProjection.fromPointToLatLng(place.getPosition())
-				);
-
-				if (placeIndex == -1) { // place is new!
-
-					place.tieWithMarker(
-							MarkerCreator.createPlaceMarker(getApplicationContext(), Map, place)
-					);
-
-					MapPlace.mAllMapPlaces.add(place);
-				}
-			}
-
-			syncMarkers();
-		}
-	};
+	private ArrayAdapter<MapPlace> mSearchAutoCompleteAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
-		// set activity theme to light text
 		this.setTheme(R.style.MainActivity);
-
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -113,30 +82,30 @@ public class MainActivity extends FragmentActivity
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
 			getWindow().setStatusBarColor(getResources().getColor(R.color.transparent_status_bar_color));
 
+		// places search view
+		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
+
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
-
-		setupMapSearchBox();
-
+		// additional setup
 		setUpMapIfNeeded();
+		setupMapSearchBox();
+		setupPlaces();
 
+
+		// TODO: 15-09-17 look at later
 		PathSearch mPathSearch = new PathSearch(Map);
 
-		/* Dev Controls */
 
-		// show dev controls if app is in dev mode
+		//
+		// MARK: DEV Controls
+		//
+
+
 		if (BuildConfig.DEBUG) {
-			// create admin panel
 			PathMaker.createPathMaker(this, Map);
 		}
-	}
-
-	private void setupMapSearchBox() {
-		// get adapter from PlaceFormDialog.class just so the same adapter is being used
-		ArrayAdapter<MapPlace> autoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, null);
-		mSearchView.setAdapter(autoCompleteAdapter);
 	}
 
 	private void setUpMapIfNeeded() {
@@ -204,30 +173,23 @@ public class MainActivity extends FragmentActivity
 		// 2. load this zoom markers
 		if (mapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
 			mapCurrentZoom = (int) cameraPosition.zoom;
-			MapTools.getZoomMarkers(mapCurrentZoom, onZoomChangedCallback);
 			syncMarkers();
 		}
 	}
-
 
 	@Override
 	public void onMapLongClick(LatLng latLng) {
 		if (BuildConfig.DEBUG && !PathMaker.isEditingMap) {
 
-			// create new place
 			MapPlace newPlace = new MapPlace();
 			newPlace.setPosition(MercatorProjection.fromLatLngToPoint(latLng));
-			newPlace.tieWithMarker(MarkerCreator.createPlaceMarker(getApplicationContext(), Map, newPlace));
+			newPlace.setMapGizmo(MarkerCreator.createPlaceMarker(getApplicationContext(), Map, newPlace));
 			MapPlace.mAllMapPlaces.add(newPlace);
 
-			// show dialog asking place info
-			mPlaceFormDialog = new PlaceFormDialog(
-					this,
-					getPlaceIndex(
-							MercatorProjection.fromPointToLatLng(newPlace.getPosition())
-					)
-			);
-			mPlaceFormDialog.show();
+			// send to edit
+			new PlaceFormDialog(this,
+					getPlaceIndex(MercatorProjection.fromPointToLatLng(newPlace.getPosition())))
+					.show();
 		}
 	}
 
@@ -238,13 +200,9 @@ public class MainActivity extends FragmentActivity
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
 
-			if (BuildConfig.DEBUG) {
-				mPlaceFormDialog = new PlaceFormDialog(
-						this,
-						clickedPlaceIndex
-				);
-				mPlaceFormDialog.show();
-			}
+			if (BuildConfig.DEBUG) // edit place
+				new PlaceFormDialog(this, clickedPlaceIndex).show();
+
 		}
 
 		return true;
@@ -278,14 +236,48 @@ public class MainActivity extends FragmentActivity
 	}
 
 
-	/* Custom helper methods */
+	//
+	// MARK: Custom helper methods
+	//
+
+
+	public void setupPlaces() {
+		// TODO: 15-09-17 Use local data-store as well
+		ParseQuery<MapPlace> query = ParseQuery.getQuery(CLASS);
+		query.include(PARENT_PLACE);
+		query.findInBackground(new FindCallback<MapPlace>() {
+			@Override
+			public void done(List<MapPlace> objects, ParseException e) {
+
+				if (e != null) // There was an error or the network wasn't available.
+					return;
+
+				for (MapPlace place : objects) {
+
+					place.setMapGizmo(MarkerCreator.createPlaceMarker(
+							getApplicationContext(), Map, place));
+
+					MapPlace.mAllMapPlaces.add(place);
+				}
+
+				syncMarkers();
+			}
+		});
+	}
+
+	private void setupMapSearchBox() {
+		// get adapter from PlaceFormDialog.class just so the same adapter is being used
+		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
+		mSearchAutoCompleteAdapter = new ArrayAdapter<MapPlace>(this, android.R.layout.simple_list_item_1);
+		mSearchView.setAdapter(mSearchAutoCompleteAdapter);
+	}
 
 	private int getPlaceIndex(LatLng placePos) {
 
 		for (int i = 0; i < MapPlace.mAllMapPlaces.size(); i++) {
 			// level the LatLng to same 'precision'
 			PointF thisMarkerPoint = MercatorProjection.fromLatLngToPoint(
-					MapPlace.mAllMapPlaces.get(i).getPlaceMarker().getPosition());
+					MapPlace.mAllMapPlaces.get(i).getMapGizmo().getPosition());
 
 			if (thisMarkerPoint.equals(MercatorProjection.fromLatLngToPoint(placePos)))
 				return i;
@@ -298,10 +290,10 @@ public class MainActivity extends FragmentActivity
 		for (MapPlace el : MapPlace.mAllMapPlaces)
 			for (int zoom : el.getZooms()) {
 				if (zoom == mapCurrentZoom) {
-					el.getPlaceMarker().setVisible(true);
+					el.getMapGizmo().setVisible(true);
 					break;
 				} else {
-					el.getPlaceMarker().setVisible(false);
+					el.getMapGizmo().setVisible(false);
 				}
 			}
 	}

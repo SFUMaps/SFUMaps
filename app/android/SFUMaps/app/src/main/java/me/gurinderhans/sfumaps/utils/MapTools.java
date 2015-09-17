@@ -10,9 +10,6 @@ import android.util.Pair;
 import com.google.android.gms.maps.model.LatLng;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.larvalabs.svgandroid.SVGBuilder;
-import com.parse.FindCallback;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,11 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Pattern;
-
-import me.gurinderhans.sfumaps.BuildConfig;
-import me.gurinderhans.sfumaps.app.Keys;
 
 import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromLatLngToPoint;
 import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
@@ -42,8 +35,8 @@ public class MapTools {
 	/**
 	 * Calculates LatLng of some point at a distance from given latitude, longitude at an angle
 	 *
-	 * @param location - given location
-	 * @param bearing  - give bearing / angle (in degrees)
+	 * @param location   - given location
+	 * @param bearing    - give bearing / angle (in degrees)
 	 * @param distanceKm - distance in Km
 	 * @return - new LatLng that is distance away from current point at some angle
 	 */
@@ -58,26 +51,6 @@ public class MapTools {
 		double nLng = Math.toDegrees(Math.toRadians(longitude) + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin(distanceKm / radius) * Math.cos(Math.toRadians(latitude)), Math.cos(distanceKm / radius) - Math.sin(Math.toRadians(latitude)) * Math.sin(Math.toRadians(nLat))));
 
 		return new LatLng(nLat, nLng);
-	}
-
-
-	//
-	// MARK: Parse
-	//
-
-	public static void getZoomMarkers(int zoom, FindCallback<ParseObject> callback) {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery(Keys.ParseMapPlace.CLASS);
-		Integer[] zooms = {zoom};
-		query.include(Keys.ParseMapPlace.PARENT_PLACE);
-
-		// set cache
-		if (BuildConfig.DEBUG)
-			query.setCachePolicy(ParseQuery.CachePolicy.NETWORK_ELSE_CACHE);
-		else
-			query.setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK);
-
-		query.whereContainedIn(Keys.ParseMapPlace.ZOOM, Arrays.asList(zooms));
-		query.findInBackground(callback);
 	}
 
 

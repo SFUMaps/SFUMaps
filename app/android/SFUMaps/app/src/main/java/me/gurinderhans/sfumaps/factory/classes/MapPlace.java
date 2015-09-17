@@ -27,20 +27,14 @@ import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace;
 @ParseClassName(ParseMapPlace.CLASS)
 public class MapPlace extends ParseObject {
 
-	protected static final String TAG = MapPlace.class.getSimpleName();
+	public static final String TAG = MapPlace.class.getSimpleName();
 
-	// to allow direct access for editing
 	public static List<MapPlace> mAllMapPlaces = new ArrayList<>();
 
 	/* Member variables */
-	private Marker mMapPlaceMarker;
-
-	/**
-	 * NOTE: **NONE** of the constructors are to be used for creating MapPlace.class instances
-	 */
+	private Marker mPlaceMarker;
 
 	public MapPlace() {
-		/* empty constructor, not be used by anyone other than Parse */
 	}
 
 	public MapPlace(String title) {
@@ -115,7 +109,7 @@ public class MapPlace extends ParseObject {
 		put(ParseMapPlace.MARKER_ROTATION, rotation);
 
 		// rotate the marker
-		getPlaceMarker().setRotation(rotation);
+		getMapGizmo().setRotation(rotation);
 	}
 
 	public MapPlace getParentPlace() {
@@ -151,12 +145,12 @@ public class MapPlace extends ParseObject {
 
 
 	/* MapPlace Class methods */
-	public void tieWithMarker(Marker marker) {
-		this.mMapPlaceMarker = marker;
+	public void setMapGizmo(Marker marker) {
+		this.mPlaceMarker = marker;
 	}
 
-	public Marker getPlaceMarker() {
-		return mMapPlaceMarker;
+	public Marker getMapGizmo() {
+		return mPlaceMarker;
 	}
 }
 

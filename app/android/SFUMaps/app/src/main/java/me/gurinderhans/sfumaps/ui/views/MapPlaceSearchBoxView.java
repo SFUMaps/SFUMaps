@@ -26,7 +26,7 @@ public class MapPlaceSearchBoxView extends TokenCompleteTextView<MapPlace> {
 
 		setSingleLine();
 
-		setHint("Search...");
+		setHint("Search SFU...");
 
 		allowDuplicates(false); // trying to do dups don't make no sense boy!
 	}
@@ -39,7 +39,7 @@ public class MapPlaceSearchBoxView extends TokenCompleteTextView<MapPlace> {
 
 		((TextView) view.findViewById(R.id.textData)).setText(completionText.getTitle());
 
-		view.findViewById(R.id.textData).setBackgroundResource(android.R.color.transparent);
+		view.findViewById(R.id.textData).setBackgroundResource(android.R.color.darker_gray);
 
 		return view;
 	}
