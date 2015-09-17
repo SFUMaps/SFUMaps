@@ -1,7 +1,6 @@
 package me.gurinderhans.sfumaps.factory.classes;
 
 import android.graphics.PointF;
-import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -101,22 +100,14 @@ public class PathSearch {
 				}
 
 
-				Log.i(TAG, "[graph stats] -> #nodes: " + mapGraph.getNodes().size() + ", #edges: " + mapGraph.getEdges().size());
-
-				// test search
-
 				try {
-					MapGraphNode anode = mapGraph.getNodes().get(2);
-					MapGraphNode bnode = mapGraph.getNodes().get(9);
-
-					Log.i(TAG, "from: " + anode.getMapPosition() + ", to: " + bnode.getMapPosition());
+					MapGraphNode anode = mapGraph.getNodes().get(8);
+					MapGraphNode bnode = mapGraph.getNodes().get(0);
 
 					mGoogleMap.addMarker(new MarkerOptions().position(anode.getMapPosition()));
 					mGoogleMap.addMarker(new MarkerOptions().position(bnode.getMapPosition()));
 
 					Dijkstra(mapGraph, anode);
-
-					Log.i(TAG, "parent: " + bnode.getParent());
 
 					List<LatLng> path = getShortestPathTo(bnode);
 					mPathPolyline.setPoints(path);
@@ -132,52 +123,33 @@ public class PathSearch {
 
 	public static void Dijkstra(MapGraph graph, MapGraphNode source) {
 
-		Log.i(TAG, "starting 'path search'.");
-
 		source.setDist(0d);
 		PriorityQueue<MapGraphNode> vertexQueue = new PriorityQueue<>();
 		vertexQueue.add(source);
-		Log.i(TAG, "added source to queue");
 
 		while (!vertexQueue.isEmpty()) {
 			MapGraphNode u = vertexQueue.poll();
-
-			Log.i(TAG, "---------------------------------------");
-			Log.i(TAG, "U pos: " + u.getMapPosition());
-			Log.i(TAG, "---------------------------------------");
 
 			// Visit each edge exiting u
 			for (MapGraphEdge e : graph.getNodeEdges(u)) {
 				MapGraphNode v = getTrueNodeB(u, e);
 
-				Log.i(TAG, "V pos: " + v.getMapPosition());
-
 				PointF point = MapTools.getXYDist(u.getMapPosition(), v.getMapPosition());
 				double weight = Math.sqrt(point.x * point.x + point.y * point.y);
-
-//				Log.i(TAG, "edge weight: " + weight);
-//				Log.i(TAG, "U dist: " + u.getDist());
-//				Log.i(TAG, "V dist: " + v.getDist());
-
 				double distanceThroughU = u.getDist() + weight;
 
-//				Log.i(TAG, "distThroughU: " + (u.getDist() + weight));
 				// TODO: 15-09-16 create a method to get the node at exact position
 
 				if (distanceThroughU < graph.getNodeAt(v.getMapPosition(), 0.5).getDist()) {
-
 
 					graph.getNodeAt(v.getMapPosition(), 0.5).setDist(distanceThroughU);
 					graph.getNodeAt(v.getMapPosition(), 0.5).setParent(u);
 
 					vertexQueue.add(graph.getNodeAt(v.getMapPosition(), 0.5));
-
-					Log.i(TAG, "add: " + v.getMapPosition());
 				}
 			}
 		}
 
-		Log.i(TAG, "path 'search' ended!");
 	}
 
 	public static List<LatLng> getShortestPathTo(MapGraphNode target) {
@@ -196,12 +168,6 @@ public class PathSearch {
 			return edge.nodeA();
 
 		return edge.nodeB();
-	}
-
-	public static float dist(MapGraphNode a, MapGraphNode b) {
-		LatLng latLng_A = a.getMapPosition();
-		LatLng latLng_B = b.getMapPosition();
-		return (float) MapTools.LatLngDistance(latLng_A.latitude, latLng_A.longitude, latLng_B.latitude, latLng_B.longitude);
 	}
 
 }
