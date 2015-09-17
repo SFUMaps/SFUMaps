@@ -33,27 +33,30 @@
     </LinearLayout>
 
     <!-- Dev mode layout -->
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/dev_overlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:visibility="gone">
 
         <TextView
             android:id="@+id/map_current_zoom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="15dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
             android:text="n/a"
             android:textSize="18sp"/>
 
         <include
             layout="@layout/devtools_pathmaker_action_buttons"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="100dp"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>
