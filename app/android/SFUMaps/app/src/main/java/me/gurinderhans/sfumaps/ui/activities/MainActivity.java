@@ -5,7 +5,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
@@ -32,7 +31,7 @@ import java.util.List;
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.devtools.PathMaker;
-import me.gurinderhans.sfumaps.devtools.PlaceFormDialog;
+import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
@@ -54,20 +53,15 @@ public class MainActivity extends FragmentActivity
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
-	/* !! NOTE !!
-	 * `BuildConfig.DEBUG` is our "dev mode". Since only the developer can generate app-debug.apk
-	 * this should make it secure for someone who tries to mod the apk to turn this on or something.
-	 */
-
 	// member variables
+	private int mapCurrentZoom; // used for detecting when map zoom changes
 	private GoogleMap Map;
 	private DiskLruCache mTileCache;
 	private PlaceFormDialog mPlaceFormDialog;
 	private PathSearch mPathSearch;
 	private Pair<MapPlace, MapPlace> mPlaceFromTo;
 
-
-	FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
+	private FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> results, ParseException e) {
 
@@ -119,24 +113,18 @@ public class MainActivity extends FragmentActivity
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		MapGrid mapGrid = new MapGrid(this, new PointF(121f, 100f), new PointF(192f, 183f));
+		MapGrid mapGrid = new MapGrid(new PointF(121f, 100f), new PointF(192f, 183f));
 
 		setUpMapIfNeeded();
 
-		mPathSearch = new PathSearch(Map, mapGrid);
-
-
+		mPathSearch = new PathSearch(Map);
 
 		/* Dev Controls */
 
 		// show dev controls if app is in dev mode
 		if (BuildConfig.DEBUG) {
-			// show views
-			findViewById(R.id.dev_overlay).setVisibility(View.VISIBLE);
-
 			// create admin panel
-			PathMaker.initPathMaker(Map, mapGrid, getSupportFragmentManager(),
-					findViewById(R.id.edit_map_grid_controls));
+			PathMaker.createPathMaker(this, Map);
 		}
 	}
 
@@ -181,6 +169,8 @@ public class MainActivity extends FragmentActivity
 						getTileProvider(2, new SVGTileProvider(MapTools.getOverlayTiles(this),
 								getResources().getDisplayMetrics().densityDpi / 160f)))
 				.zIndex(11));
+
+
 	}
 
 	@Override
@@ -188,9 +178,6 @@ public class MainActivity extends FragmentActivity
 		super.onResume();
 		setUpMapIfNeeded();
 	}
-
-
-	private int mapCurrentZoom; // used for detecting when map zoom changes
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
@@ -214,7 +201,7 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onMapLongClick(LatLng latLng) {
-		if (BuildConfig.DEBUG) {
+		if (BuildConfig.DEBUG && !PathMaker.isEditingMap) {
 
 			// create new place
 			MapPlace newPlace = new MapPlace();
@@ -241,13 +228,7 @@ public class MainActivity extends FragmentActivity
 		if (clickedPlaceIndex != -1) {
 
 			if (BuildConfig.DEBUG) {
-				mPlaceFormDialog = new PlaceFormDialog(
-						this,
-						clickedPlaceIndex
-				);
-				mPlaceFormDialog.show();
-			} else {
-				// do path search
+				/*// do path search
 				if (mPlaceFromTo == null) {
 					mPlaceFromTo = Pair.create(MapPlace.mAllMapPlaces.get(clickedPlaceIndex), null);
 				} else {
@@ -258,7 +239,13 @@ public class MainActivity extends FragmentActivity
 					Log.i(TAG, "first: " + mPlaceFromTo.first + ", " + mPlaceFromTo.second);
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
+				}*/
+			} else {
+				mPlaceFormDialog = new PlaceFormDialog(
+						this,
+						clickedPlaceIndex
+				);
+				mPlaceFormDialog.show();
 			}
 		}
 

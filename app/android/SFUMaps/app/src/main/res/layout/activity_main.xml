@@ -11,13 +11,6 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity"/>
 
-    <!--<LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </LinearLayout>-->
-
-
     <!-- Dev mode layout -->
     <LinearLayout
         android:id="@+id/dev_overlay"
@@ -36,7 +29,7 @@
             android:textSize="18sp"/>
 
         <include
-            layout="@layout/pathmaker_action_buttons"
+            layout="@layout/devtools_pathmaker_action_buttons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

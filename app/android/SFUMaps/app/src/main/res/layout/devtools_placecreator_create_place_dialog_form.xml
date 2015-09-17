@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="320dp"
     android:layout_height="fill_parent"
-    android:background="@drawable/card_shape"
+    android:background="@drawable/devtools_placecreator_card_shape_round_corners"
     android:orientation="vertical">
 
     <!-- header -->
@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="140dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/create_place_card"/>
+            android:src="@drawable/devtools_placecreator_add_image_placeholder"/>
     </LinearLayout>
 
     <!-- body -->
@@ -38,17 +38,10 @@
         android:paddingRight="10dp"
         android:paddingStart="10dp">
 
-        <me.gurinderhans.sfumaps.ui.views.MapPlaceDialogTitleCompletionView
+        <me.gurinderhans.sfumaps.devtools.placecreator.views.MapPlaceDialogTitleCompletionView
             android:id="@+id/text_place_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-
-        <!--<EditText-->
-            <!--android:id="@+id/text_place_title"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:hint="Place Name"-->
-            <!--android:singleLine="true"/>-->
 
         <LinearLayout
             android:id="@+id/select_inputs_wrapper"

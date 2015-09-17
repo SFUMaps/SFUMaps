@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 
 import me.gurinderhans.sfumaps.R;
-import me.gurinderhans.sfumaps.app.Keys;
-import me.gurinderhans.sfumaps.devtools.wifirecorder.views.WifiAPListViewAdapter;
-import me.gurinderhans.sfumaps.devtools.wifirecorder.models.WiFiAccessPoint;
 import me.gurinderhans.sfumaps.app.AppConfig;
+import me.gurinderhans.sfumaps.app.Keys;
+import me.gurinderhans.sfumaps.devtools.wifirecorder.models.WiFiAccessPoint;
+import me.gurinderhans.sfumaps.devtools.wifirecorder.views.WifiAPListViewAdapter;
 
 public class RecordWifiDataActivity extends AppCompatActivity {
 
@@ -86,7 +86,7 @@ public class RecordWifiDataActivity extends AppCompatActivity {
 
 		// initial setup
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_record_wifi_data);
+		setContentView(R.layout.devtools_wifirecorder_activity_record_wifi_data);
 
 		// get views and services
 		mWifiApListView = (ListView) findViewById(R.id.scanned_APs);
@@ -153,11 +153,11 @@ public class RecordWifiDataActivity extends AppCompatActivity {
 		MenuItem recordButton = menu.getItem(0);
 		MenuItem listButton = menu.getItem(1);
 
-		recordButton.setIcon(MODE_RECORD_DATA ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp);
+		recordButton.setIcon(MODE_RECORD_DATA ? R.drawable.devtools_wifirecorder_ic_pause_white : R.drawable.devtools_wifirecorder_ic_play_arrow_white);
 		recordButton.setTitle(this.getString(MODE_RECORD_DATA ? R.string.menu_action_record_pause : R.string.menu_action_record_play));
 		recordButton.setEnabled(!MODE_INSPECT_DATA);
 
-		listButton.setIcon(MODE_INSPECT_DATA ? R.drawable.ic_clear_white_24dp : R.drawable.ic_sort_white_24dp);
+		listButton.setIcon(MODE_INSPECT_DATA ? R.drawable.devtools_wifirecorder_ic_clear_white : R.drawable.devtools_wifirecorder_ic_sort_white);
 		listButton.setTitle(getString(MODE_INSPECT_DATA ? R.string.menu_action_cancel : R.string.menu_action_list_tables));
 		listButton.setEnabled(!MODE_RECORD_DATA);
 

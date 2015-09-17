@@ -19,7 +19,7 @@ public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
 	Context context;
 
 	public WifiAPListViewAdapter(Context ctx) {
-		super(ctx, R.layout.lv_item_wifi_ap);
+		super(ctx, R.layout.devtools_wifirecorder_lv_item_wifi_ap);
 		this.context = ctx;
 	}
 
@@ -40,7 +40,7 @@ public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
 			LayoutInflater inflater = LayoutInflater.from(context);
 
 			// fill convert view
-			convertView = inflater.inflate(R.layout.lv_item_wifi_ap, parent, false);
+			convertView = inflater.inflate(R.layout.devtools_wifirecorder_lv_item_wifi_ap, parent, false);
 
 			// get view holder's views
 			accessPointHolder.ssid = (TextView) convertView.findViewById(R.id.ssid);
@@ -65,9 +65,9 @@ public class WifiAPListViewAdapter extends ArrayAdapter<WiFiAccessPoint> {
 		} else accessPointHolder.rssiDiff.setText("");
 
 		if (accessPoint.isOnTop != null && accessPoint.isOnTop) {
-			accessPointHolder.rssi.setBackgroundColor(context.getResources().getColor(R.color.selected_access_point));
+			accessPointHolder.rssi.setBackgroundResource(R.color.selected_access_point);
 		} else {
-			accessPointHolder.rssi.setBackgroundColor(context.getResources().getColor(R.color.app_color_primary_dark));
+			accessPointHolder.rssi.setBackgroundResource(R.color.app_color_primary_dark);
 		}
 
 		// return the completed view to render on screen

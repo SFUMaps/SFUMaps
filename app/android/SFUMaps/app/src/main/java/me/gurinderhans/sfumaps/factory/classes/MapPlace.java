@@ -118,6 +118,10 @@ public class MapPlace extends ParseObject {
 		getPlaceMarker().setRotation(rotation);
 	}
 
+	public MapPlace getParentPlace() {
+		return (MapPlace) get(ParseMapPlace.PARENT_PLACE);
+	}
+
 	public void setParentPlace(MapPlace parentPlace) {
 		if (parentPlace == null) {
 			remove(ParseMapPlace.PARENT_PLACE);
@@ -125,11 +129,6 @@ public class MapPlace extends ParseObject {
 			put(ParseMapPlace.PARENT_PLACE, parentPlace);
 		}
 	}
-
-	public MapPlace getParentPlace() {
-		return (MapPlace) get(ParseMapPlace.PARENT_PLACE);
-	}
-
 
 	// save methods
 	public void savePlace() {

@@ -1,18 +1,10 @@
 package me.gurinderhans.sfumaps.factory.classes;
 
-import android.content.Context;
 import android.graphics.Point;
 import android.graphics.PointF;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import me.gurinderhans.sfumaps.devtools.PathMaker;
-import me.gurinderhans.sfumaps.utils.MapTools;
 
 /**
  * Created by ghans on 15-07-29.
@@ -31,7 +23,7 @@ public class MapGrid {
 
 	public ArrayList<ArrayList<GridNode>> mMapGrid = new ArrayList<>(); // map grid
 
-	public MapGrid(Context ctx, PointF startPoint, PointF endPoint) {
+	public MapGrid(PointF startPoint, PointF endPoint) {
 
 		this.startPoint = startPoint;
 		this.endPoint = endPoint;
@@ -43,37 +35,9 @@ public class MapGrid {
 		for (int x = 0; x < mapGridSizeX; x++) {
 			ArrayList<GridNode> tmp = new ArrayList<>();
 			for (int y = 0; y < mapGridSizeY; y++)
-				tmp.add(new GridNode(x, y, this));
+				tmp.add(new GridNode(this, x, y));
 
 			mMapGrid.add(tmp);
-		}
-
-		// FIXME: load json file in another thread as it creates an overhead on the UI thread
-		// TODO: handle exceptions and filename specs
-		try {
-			// parse json and map the grid
-			JSONObject walkablePointsNode = new JSONObject(MapTools.loadFile(ctx, "map_grid.json"))
-					.getJSONObject(PathMaker.WALKABLE_KEY);
-
-			JSONArray boxRects = walkablePointsNode.getJSONArray(PathMaker.BOX_RECTS);
-			// unwrap the box and add to walkablePoints array
-			for (int i = 0; i < boxRects.length(); i++) {
-				String[] boxString = boxRects.getString(i).split(",");
-				Point start = new Point(Integer.parseInt(boxString[0]), Integer.parseInt(boxString[1]));
-				Point end = new Point(Integer.parseInt(boxString[2]), Integer.parseInt(boxString[3]));
-
-				createWalkableArea(start, end);
-			}
-
-			JSONArray individualPoints = walkablePointsNode.getJSONArray(PathMaker.INDIVIDUAL_POINTS);
-			// plot the individual points
-			for (int i = 0; i < individualPoints.length(); i++) {
-				String[] xy = individualPoints.getString(i).split(",");
-				getNode(Integer.parseInt(xy[0]), Integer.parseInt(xy[1])).setWalkable(true);
-			}
-
-		} catch (JSONException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -85,10 +49,28 @@ public class MapGrid {
 		return mMapGrid.get(p.x).get(p.y);
 	}
 
-	public void createWalkableArea(Point indicesFrom, Point indicesTo) {
+	public void createWalkableArea(Point indicesFrom, Point indicesTo, float pathRotation) {
+
+		if (pathRotation == -45f) {
+			for (int x = indicesFrom.x; x >= indicesTo.x; x--)
+				for (int y = indicesTo.y; y >= indicesFrom.y; y--)
+					if (Math.abs(x - indicesTo.x) == Math.abs(y - indicesTo.y))
+						getNode(x, y).setWalkable(true);
+
+			return;
+		}
+
 		for (int x = indicesFrom.x; x <= indicesTo.x; x++)
-			for (int y = indicesFrom.y; y <= indicesTo.y; y++)
+			for (int y = indicesFrom.y; y <= indicesTo.y; y++) {
+				if (pathRotation == 45f) {
+					if (Math.abs(x - indicesFrom.x) == Math.abs(y - indicesFrom.y))
+						getNode(x, y).setWalkable(true);
+
+					continue;
+				}
+
 				getNode(x, y).setWalkable(true);
+			}
 	}
 
 	public List<GridNode> getNeighbors(GridNode node) {
@@ -116,17 +98,21 @@ public class MapGrid {
 
 		// map world position
 		public final PointF projCoords;
+
 		// array indices
 		public final int gridX;
 		public final int gridY;
+
 		// node costs
 		public float gCost = -1f;
 		public float hCost = -1f;
 		public GridNode parentNode = null;
+
+		// private
 		private boolean isWalkable = false;
 
 		// @constructor
-		public GridNode(int x, int y, MapGrid mapGrid) {
+		public GridNode(MapGrid mapGrid, int x, int y) {
 			this.gridX = x;
 			this.gridY = y;
 			this.projCoords = new PointF(mapGrid.startPoint.x + x * EACH_POINT_DIST, mapGrid.startPoint.y + y * EACH_POINT_DIST);

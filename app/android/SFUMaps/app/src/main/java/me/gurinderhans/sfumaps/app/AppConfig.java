@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public class AppConfig {
 
-	protected static final String TAG = AppConfig.class.getSimpleName();
+	public static final String TAG = AppConfig.class.getSimpleName();
 
 	/**
 	 * :: constants ::
@@ -19,7 +19,6 @@ public class AppConfig {
 
 	public static final float TILE_SIZE = 256f;
 	public static final String DATABASE_TABLE_PREFIX = "apsdata";
-
 	/**
 	 * :: config variables ::
 	 */

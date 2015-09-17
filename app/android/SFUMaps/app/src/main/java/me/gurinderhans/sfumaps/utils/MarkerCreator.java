@@ -33,7 +33,7 @@ public class MarkerCreator {
 		Integer rId = place.getType().getResourceId();
 		if (rId == null) { // text icon only
 			if (markerText == null)
-				return pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), R.drawable.location_marker)
+				return pictureDrawableToBitmap(new SVGBuilder().readFromResource(c.getResources(), R.drawable.activity_main_mapplace_marker)
 						.build().getPicture());
 			return markerText;
 		}
@@ -148,14 +148,6 @@ public class MarkerCreator {
 			this.anchorPoint = anchorPoint;
 		}
 
-		public String getText() {
-			return this.text;
-		}
-
-		public PointF getAnchorPoint() {
-			return anchorPoint;
-		}
-
 		public static MapLabelIconAlign fromString(String text) {
 			if (text != null)
 				for (MapLabelIconAlign align : MapLabelIconAlign.values())
@@ -173,15 +165,23 @@ public class MarkerCreator {
 
 			return values;
 		}
+
+		public String getText() {
+			return this.text;
+		}
+
+		public PointF getAnchorPoint() {
+			return anchorPoint;
+		}
 	}
 
 	// enum for marker place types
 	public enum MapPlaceType {
 		ROOM("Room", null),
-		ROOM_LG("Room (Large)", R.drawable.location_marker),
+		ROOM_LG("Room (Large)", R.drawable.activity_main_mapplace_marker),
 		ROAD("Road", null),
-		BLDG("Building", R.drawable.location_marker),
-		SPECIAL("Special", R.drawable.location_marker);
+		BLDG("Building", R.drawable.activity_main_mapplace_marker),
+		SPECIAL("Special", R.drawable.activity_main_mapplace_marker);
 
 		private String text;
 		private Integer resourceId;
@@ -189,14 +189,6 @@ public class MarkerCreator {
 		MapPlaceType(String text, Integer rId) {
 			this.text = text;
 			this.resourceId = rId;
-		}
-
-		public String getText() {
-			return this.text;
-		}
-
-		public Integer getResourceId() {
-			return resourceId;
 		}
 
 		public static MapPlaceType fromString(String text) {
@@ -215,6 +207,14 @@ public class MarkerCreator {
 				values.add(align.getText());
 
 			return values;
+		}
+
+		public String getText() {
+			return this.text;
+		}
+
+		public Integer getResourceId() {
+			return resourceId;
 		}
 	}
 }

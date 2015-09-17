@@ -44,4 +44,20 @@ public final class Keys {
 		public static final String PARENT_PLACE = "parentPlace";
 	}
 
+	public static class ParseMapGraphEdge {
+		/* Map MapGraph (ParseObject) keys */
+		public static final String CLASS = "MapGraphEdge";
+		public static final String NODE_A = "nodeA";
+		public static final String NODE_B = "nodeB";
+		public static final String WEIGHT = "edgeWeight";
+		public static final String ROTATION = "rotation";
+	}
+
+	public static class ParseMapGraphNode {
+		/* Map MapGraph (ParseObject) keys */
+		public static final String CLASS = "MapGraphNode";
+		public static final String LAT = "posX";
+		public static final String LNG = "posY";
+	}
+
 }
