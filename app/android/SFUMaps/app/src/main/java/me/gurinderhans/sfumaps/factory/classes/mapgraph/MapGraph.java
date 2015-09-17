@@ -80,19 +80,32 @@ public class MapGraph {
 		for (MapGraphEdge edge : getEdges()) {
 			if (edge.getMapGizmo().getBounds().contains(nodePosition)) {
 
-				if (getNodeEdges(edge.nodeA()).size() == 1) {
-					edge.nodeA().getMapGizmo().remove();
-					edge.nodeA().deleteInBackground();
+
+				MapGraphNode nodeA = edge.nodeA();
+				MapGraphNode nodeB = edge.nodeB();
+
+				if (getNodeEdges(nodeA).size() == 1) {
+					if (nodeA.getMapGizmo() != null)
+						nodeA.getMapGizmo().remove();
+
+					nodeA.deleteInBackground();
+					getNodes().remove(nodeB);
 				}
 
-				if (getNodeEdges(edge.nodeB()).size() == 1) {
-					edge.nodeB().getMapGizmo().remove();
-					edge.nodeB().deleteInBackground();
+				if (getNodeEdges(nodeB).size() == 1) {
+					if (nodeB.getMapGizmo() != null)
+						nodeB.getMapGizmo().remove();
+
+					nodeB.deleteInBackground();
+					getNodes().remove(nodeB);
 				}
 
-				// remove edge
+				// remove edge map gizmo, local copy and server copy
 				edge.getMapGizmo().remove();
 				edge.deleteInBackground();
+				getEdges().remove(edge);
+
+				return;
 			}
 		}
 	}
