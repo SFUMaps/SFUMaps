@@ -1,6 +1,7 @@
 package me.gurinderhans.sfumaps.factory.classes.mapgraph;
 
 import android.graphics.PointF;
+import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
@@ -18,13 +19,14 @@ import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.LNG;
  */
 
 @ParseClassName(CLASS)
-public class MapGraphNode extends ParseObject {
+public class MapGraphNode extends ParseObject implements Comparable<MapGraphNode> {
 
-	private GroundOverlay map_gizmo;
+
+	private GroundOverlay map_gizmo = null;
 	private boolean visited = false;
 
 	private MapGraphNode parent;
-	public float dist;
+	private double dist = Double.POSITIVE_INFINITY;
 
 	public MapGraphNode getParent() {
 		return parent;
@@ -47,6 +49,15 @@ public class MapGraphNode extends ParseObject {
 		put(LNG, position.longitude);
 	}
 
+	public double getDist() {
+		return dist;
+	}
+
+	public void setDist(double dist) {
+		this.dist = dist;
+	}
+
+	@NonNull
 	public LatLng getMapPosition() {
 		return new LatLng(getDouble(LAT), getDouble(LNG));
 	}
@@ -84,5 +95,10 @@ public class MapGraphNode extends ParseObject {
 		int hash = 7;
 		hash = hash + (this.getMapPosition() != null ? this.getMapPosition().hashCode() : 0);
 		return hash;
+	}
+
+	@Override
+	public int compareTo(MapGraphNode another) {
+		return Double.compare(dist, another.dist);
 	}
 }

@@ -17,11 +17,8 @@ import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
@@ -109,23 +106,21 @@ public class PathSearch {
 				// test search
 
 				try {
-					MapGraphNode anode = mapGraph.getNodes().get(0);
-					MapGraphNode bnode = mapGraph.getNodes().get(4);
+					MapGraphNode anode = mapGraph.getNodes().get(2);
+					MapGraphNode bnode = mapGraph.getNodes().get(9);
+
+					Log.i(TAG, "from: " + anode.getMapPosition() + ", to: " + bnode.getMapPosition());
 
 					mGoogleMap.addMarker(new MarkerOptions().position(anode.getMapPosition()));
 					mGoogleMap.addMarker(new MarkerOptions().position(bnode.getMapPosition()));
 
-					runBFS(anode);
+					Dijkstra(mapGraph, anode);
 
-					List<LatLng> path = new ArrayList<>();
-					// trace path back from end vertex to start
-					while (bnode != null && bnode != anode) {
-						path.add(bnode.getMapPosition());
-						bnode = bnode.getParent();
-					}
-					path.add(anode.getMapPosition());
+					Log.i(TAG, "parent: " + bnode.getParent());
 
+					List<LatLng> path = getShortestPathTo(bnode);
 					mPathPolyline.setPoints(path);
+
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -135,76 +130,70 @@ public class PathSearch {
 
 	}
 
-	public void Dijkstra(MapGraphNode source) {
-		source.dist = 0f;
-		PriorityQueue<MapGraphNode> q = new PriorityQueue<>();
-		q.add(source);
+	public static void Dijkstra(MapGraph graph, MapGraphNode source) {
 
-		while (!q.isEmpty()) {
-			MapGraphNode u = q.poll();
+		Log.i(TAG, "starting 'path search'.");
+
+		source.setDist(0d);
+		PriorityQueue<MapGraphNode> vertexQueue = new PriorityQueue<>();
+		vertexQueue.add(source);
+		Log.i(TAG, "added source to queue");
+
+		while (!vertexQueue.isEmpty()) {
+			MapGraphNode u = vertexQueue.poll();
+
+			Log.i(TAG, "---------------------------------------");
+			Log.i(TAG, "U pos: " + u.getMapPosition());
+			Log.i(TAG, "---------------------------------------");
 
 			// Visit each edge exiting u
-			for (MapGraphEdge e : mapGraph.getNodeEdges(u)) {
+			for (MapGraphEdge e : graph.getNodeEdges(u)) {
 				MapGraphNode v = getTrueNodeB(u, e);
 
-				double weight = dist(e.nodeA(), e.nodeB());
+				Log.i(TAG, "V pos: " + v.getMapPosition());
 
-				double distanceThroughU = u.dist + weight;
-				if (distanceThroughU < v.dist) {
-					q.remove(v);
+				PointF point = MapTools.getXYDist(u.getMapPosition(), v.getMapPosition());
+				double weight = Math.sqrt(point.x * point.x + point.y * point.y);
 
-					v.dist = (float) distanceThroughU;
-					v.setParent(u);
-					q.add(v);
-				}
-			}
+//				Log.i(TAG, "edge weight: " + weight);
+//				Log.i(TAG, "U dist: " + u.getDist());
+//				Log.i(TAG, "V dist: " + v.getDist());
 
-		}
+				double distanceThroughU = u.getDist() + weight;
 
+//				Log.i(TAG, "distThroughU: " + (u.getDist() + weight));
+				// TODO: 15-09-16 create a method to get the node at exact position
 
-	}
-
-	private void runBFS(MapGraphNode start) {
-		// reset the graph
+				if (distanceThroughU < graph.getNodeAt(v.getMapPosition(), 0.5).getDist()) {
 
 
-		// init the queue
-		Queue<MapGraphNode> queue = new LinkedList<>();
-		queue.add(start);
+					graph.getNodeAt(v.getMapPosition(), 0.5).setDist(distanceThroughU);
+					graph.getNodeAt(v.getMapPosition(), 0.5).setParent(u);
 
-		// explore the graph
-		while (!queue.isEmpty()) {
-			MapGraphNode first = queue.poll();
-			first.setVisited(true);
-			List<MapGraphEdge> nodeEdges = mapGraph.getNodeEdges(first);
+					vertexQueue.add(graph.getNodeAt(v.getMapPosition(), 0.5));
 
-			Collections.sort(nodeEdges, new Comparator<MapGraphEdge>() {
-				@Override
-				public int compare(MapGraphEdge lhs, MapGraphEdge rhs) {
-					double distL = dist(lhs.nodeA(), lhs.nodeB());
-					double distR = dist(rhs.nodeA(), rhs.nodeB());
-
-					return (int) (distR - distL);
-				}
-			});
-
-			for (MapGraphEdge edge : nodeEdges) {
-
-				MapGraphNode neighbor = getTrueNodeB(first, edge);
-
-				if (!neighbor.isVisited()) {
-					neighbor.setParent(first);
-					queue.add(neighbor);
+					Log.i(TAG, "add: " + v.getMapPosition());
 				}
 			}
 		}
+
+		Log.i(TAG, "path 'search' ended!");
 	}
 
-	public MapGraphNode getTrueNodeB(MapGraphNode trueNodeA, MapGraphEdge edge) {
+	public static List<LatLng> getShortestPathTo(MapGraphNode target) {
+		List<LatLng> path = new ArrayList<>();
 
-		if (edge.nodeB().equals(trueNodeA)) {
+		for (MapGraphNode vertex = target; vertex != null; vertex = vertex.getParent())
+			path.add(vertex.getMapPosition());
+
+		Collections.reverse(path);
+		return path;
+	}
+
+	public static MapGraphNode getTrueNodeB(MapGraphNode trueNodeA, MapGraphEdge edge) {
+
+		if (edge.nodeB().equals(trueNodeA))
 			return edge.nodeA();
-		}
 
 		return edge.nodeB();
 	}
