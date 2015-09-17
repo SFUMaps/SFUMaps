@@ -11,6 +11,26 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity"/>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:fitsSystemWindows="true">
+
+        <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchBoxView
+            android:id="@+id/main_search_view"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/activity_main_search_box_shadow"
+            android:paddingEnd="15dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:textColor="#aaaaaa"/>
+
+    </LinearLayout>
+
     <!-- Dev mode layout -->
     <LinearLayout
         android:id="@+id/dev_overlay"

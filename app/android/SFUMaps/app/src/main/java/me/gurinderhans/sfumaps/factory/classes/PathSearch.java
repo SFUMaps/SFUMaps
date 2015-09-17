@@ -101,12 +101,13 @@ public class PathSearch {
 
 
 				try {
-					MapGraphNode anode = mapGraph.getNodes().get(8);
+					MapGraphNode anode = mapGraph.getNodes().get(34);
 					MapGraphNode bnode = mapGraph.getNodes().get(0);
 
 					mGoogleMap.addMarker(new MarkerOptions().position(anode.getMapPosition()));
 					mGoogleMap.addMarker(new MarkerOptions().position(bnode.getMapPosition()));
 
+					// TODO: 15-09-16 Switch to AStar, Dijkstra is too slow!!
 					Dijkstra(mapGraph, anode);
 
 					List<LatLng> path = getShortestPathTo(bnode);

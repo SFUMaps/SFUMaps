@@ -84,6 +84,7 @@ public class MapGraph {
 				MapGraphNode nodeA = edge.nodeA();
 				MapGraphNode nodeB = edge.nodeB();
 
+				// FIXME: 15-09-16 This is not a perfectly correct way of checking if a node should be deleted
 				if (getNodeEdges(nodeA).size() == 1) {
 					if (nodeA.getMapGizmo() != null)
 						nodeA.getMapGizmo().remove();

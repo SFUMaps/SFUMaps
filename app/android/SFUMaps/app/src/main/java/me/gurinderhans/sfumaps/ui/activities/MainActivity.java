@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.util.Pair;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,6 +36,7 @@ import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
+import me.gurinderhans.sfumaps.ui.views.MapPlaceSearchBoxView;
 import me.gurinderhans.sfumaps.utils.CachedTileProvider;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
@@ -52,12 +54,14 @@ public class MainActivity extends FragmentActivity
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
-	// member variables
-	private int mapCurrentZoom; // used for detecting when map zoom changes
+	// UI
+	private MapPlaceSearchBoxView mSearchView;
 	private GoogleMap Map;
-	private DiskLruCache mTileCache;
 	private PlaceFormDialog mPlaceFormDialog;
-	private PathSearch mPathSearch;
+
+	// Data
+	private int mapCurrentZoom; // used for detecting when map zoom changes
+	private DiskLruCache mTileCache;
 	private Pair<MapPlace, MapPlace> mPlaceFromTo;
 
 	private FindCallback<ParseObject> onZoomChangedCallback = new FindCallback<ParseObject>() {
@@ -112,9 +116,13 @@ public class MainActivity extends FragmentActivity
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
+		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
+
+		setupMapSearchBox();
+
 		setUpMapIfNeeded();
 
-		mPathSearch = new PathSearch(Map);
+		PathSearch mPathSearch = new PathSearch(Map);
 
 		/* Dev Controls */
 
@@ -123,6 +131,12 @@ public class MainActivity extends FragmentActivity
 			// create admin panel
 			PathMaker.createPathMaker(this, Map);
 		}
+	}
+
+	private void setupMapSearchBox() {
+		// get adapter from PlaceFormDialog.class just so the same adapter is being used
+		ArrayAdapter<MapPlace> autoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, null);
+		mSearchView.setAdapter(autoCompleteAdapter);
 	}
 
 	private void setUpMapIfNeeded() {
@@ -225,19 +239,6 @@ public class MainActivity extends FragmentActivity
 		if (clickedPlaceIndex != -1) {
 
 			if (BuildConfig.DEBUG) {
-				/*// do path search
-				if (mPlaceFromTo == null) {
-					mPlaceFromTo = Pair.create(MapPlace.mAllMapPlaces.get(clickedPlaceIndex), null);
-				} else {
-					mPlaceFromTo = Pair.create(mPlaceFromTo.first, MapPlace.mAllMapPlaces.get(clickedPlaceIndex));
-					mPathSearch.drawPath(mPlaceFromTo.first, mPlaceFromTo.second);
-				}
-				try {
-					Log.i(TAG, "first: " + mPlaceFromTo.first + ", " + mPlaceFromTo.second);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}*/
-			} else {
 				mPlaceFormDialog = new PlaceFormDialog(
 						this,
 						clickedPlaceIndex
