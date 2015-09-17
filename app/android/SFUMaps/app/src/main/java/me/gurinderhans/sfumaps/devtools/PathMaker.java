@@ -112,7 +112,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 				break;
 			case MotionEvent.ACTION_UP:
-				if (!deleteMode) {
+				if (!deleteMode && tmpDragEndPos != null) {
 					// see if there's a node where we are ending the drag, if yes link edge nodeB to this, else create new node here
 					MapGraphNode nodeB = mapGraph.getNodeAt(tmpDragEndPos, SNAP_TO_NODE_SEARCH_RANGE);
 					if (nodeB == null) {
@@ -150,6 +150,9 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					PointF dims = MapTools.getXYDist(tmpDragStartPos, tmpDragEndPos);
 					float pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 					tmpEdgeOverlay.setDimensions(pathSize, 20000);
+				} else {
+					// delete nodes and edges
+					mapGraph.removeEdgeAt(mGoogleMap.getProjection().fromScreenLocation(currentScreenDragPoint));
 				}
 				break;
 			default:
@@ -157,7 +160,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 		}
 	}
-
 
 	@Override
 	public void onClick(View v) {

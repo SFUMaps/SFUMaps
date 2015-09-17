@@ -32,7 +32,6 @@ import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog;
-import me.gurinderhans.sfumaps.factory.classes.MapGrid;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
@@ -112,8 +111,6 @@ public class MainActivity extends FragmentActivity
 
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
-
-		MapGrid mapGrid = new MapGrid(new PointF(121f, 100f), new PointF(192f, 183f));
 
 		setUpMapIfNeeded();
 

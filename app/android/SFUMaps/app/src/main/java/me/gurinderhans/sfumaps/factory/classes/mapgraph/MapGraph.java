@@ -1,6 +1,7 @@
 package me.gurinderhans.sfumaps.factory.classes.mapgraph;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -15,6 +16,8 @@ import me.gurinderhans.sfumaps.utils.MapTools;
  */
 
 public class MapGraph {
+
+	protected static final String TAG = MapGraph.class.getSimpleName();
 
 	private static MapGraph mInstance = new MapGraph();
 
@@ -54,7 +57,9 @@ public class MapGraph {
 		return true;
 	}
 
+	@Nullable
 	public MapGraphNode getNodeAt(LatLng position, double kmRange) {
+
 		// create node search bounds
 		LatLngBounds searchBounds = new LatLngBounds.Builder()
 				.include(MapTools.LatLngFrom(position, 225, kmRange))
@@ -68,6 +73,28 @@ public class MapGraph {
 					return node;
 
 		return null;
+	}
+
+	public void removeEdgeAt(LatLng nodePosition) {
+
+		for (MapGraphEdge edge : getEdges()) {
+			if (edge.getMapGizmo().getBounds().contains(nodePosition)) {
+
+				if (getNodeEdges(edge.nodeA()).size() == 1) {
+					edge.nodeA().getMapGizmo().remove();
+					edge.nodeA().deleteInBackground();
+				}
+
+				if (getNodeEdges(edge.nodeB()).size() == 1) {
+					edge.nodeB().getMapGizmo().remove();
+					edge.nodeB().deleteInBackground();
+				}
+
+				// remove edge
+				edge.getMapGizmo().remove();
+				edge.deleteInBackground();
+			}
+		}
 	}
 
 	public Vector<MapGraphEdge> getNodeEdges(@NonNull MapGraphNode node) {
