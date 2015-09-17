@@ -5,7 +5,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
@@ -53,11 +52,6 @@ public class MainActivity extends FragmentActivity
 		OnMarkerDragListener {
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
-
-	/* !! NOTE !!
-	 * `BuildConfig.DEBUG` is our "dev mode". Since only the developer can generate app-debug.apk
-	 * this should make it secure for someone who tries to mod the apk to turn this on or something.
-	 */
 
 	// member variables
 	private int mapCurrentZoom; // used for detecting when map zoom changes
@@ -123,14 +117,14 @@ public class MainActivity extends FragmentActivity
 
 		setUpMapIfNeeded();
 
-		mPathSearch = new PathSearch(Map, mapGrid);
+		mPathSearch = new PathSearch(Map);
 
 		/* Dev Controls */
 
 		// show dev controls if app is in dev mode
 		if (BuildConfig.DEBUG) {
 			// create admin panel
-			PathMaker.createPathMaker(this, Map, mapGrid);
+			PathMaker.createPathMaker(this, Map);
 		}
 	}
 
@@ -175,6 +169,8 @@ public class MainActivity extends FragmentActivity
 						getTileProvider(2, new SVGTileProvider(MapTools.getOverlayTiles(this),
 								getResources().getDisplayMetrics().densityDpi / 160f)))
 				.zIndex(11));
+
+
 	}
 
 	@Override
@@ -232,7 +228,7 @@ public class MainActivity extends FragmentActivity
 		if (clickedPlaceIndex != -1) {
 
 			if (BuildConfig.DEBUG) {
-				// do path search
+				/*// do path search
 				if (mPlaceFromTo == null) {
 					mPlaceFromTo = Pair.create(MapPlace.mAllMapPlaces.get(clickedPlaceIndex), null);
 				} else {
@@ -243,7 +239,7 @@ public class MainActivity extends FragmentActivity
 					Log.i(TAG, "first: " + mPlaceFromTo.first + ", " + mPlaceFromTo.second);
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
+				}*/
 			} else {
 				mPlaceFormDialog = new PlaceFormDialog(
 						this,

@@ -2,31 +2,32 @@ package me.gurinderhans.sfumaps.utils;
 
 import android.content.Context;
 import android.graphics.Picture;
+import android.graphics.Point;
 import android.graphics.PointF;
-import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.larvalabs.svgandroid.SVGBuilder;
 import com.parse.FindCallback;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.app.Keys;
+
+import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromLatLngToPoint;
+import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
 
 /**
  * Created by ghans on 2/9/15.
@@ -36,6 +37,28 @@ public class MapTools {
 	public static final String TAG = MapTools.class.getSimpleName();
 
 	static final int MAX_DISK_CACHE_BYTES = 1024 * 1024 * 2; // 2MB
+
+
+	/**
+	 * Calculates LatLng of some point at a distance from given latitude, longitude at an angle
+	 *
+	 * @param location - given location
+	 * @param bearing  - give bearing / angle (in degrees)
+	 * @param distanceKm - distance in Km
+	 * @return - new LatLng that is distance away from current point at some angle
+	 */
+	public static LatLng LatLngFrom(LatLng location, double bearing, double distanceKm) {
+
+		float radius = 6378.1f;
+		double latitude = location.latitude;
+		double longitude = location.longitude;
+
+		// new latitude
+		double nLat = Math.toDegrees(Math.asin(Math.sin(Math.toRadians(latitude)) * Math.cos(distanceKm / radius) + Math.cos(Math.toRadians(latitude)) * Math.sin(distanceKm / radius) * Math.cos(Math.toRadians(bearing))));
+		double nLng = Math.toDegrees(Math.toRadians(longitude) + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin(distanceKm / radius) * Math.cos(Math.toRadians(latitude)), Math.cos(distanceKm / radius) - Math.sin(Math.toRadians(latitude)) * Math.sin(Math.toRadians(nLat))));
+
+		return new LatLng(nLat, nLng);
+	}
 
 
 	//
@@ -55,55 +78,6 @@ public class MapTools {
 
 		query.whereContainedIn(Keys.ParseMapPlace.ZOOM, Arrays.asList(zooms));
 		query.findInBackground(callback);
-	}
-
-
-	//
-	// MARK: general methods
-	//
-
-	public static void createFile(String filename, String fileData) {
-		File file = new File(Environment.getExternalStorageDirectory() + File.separator + filename);
-
-		try {
-			OutputStream fo = new FileOutputStream(file);
-			fo.write(fileData.getBytes());
-			fo.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static String loadFile(Context context, String filename) {
-		BufferedReader reader = null;
-		StringBuilder buffer = new StringBuilder();
-		try {
-			reader = new BufferedReader(
-					new InputStreamReader(context.getAssets().open(filename)));
-
-			String mLine;
-			while ((mLine = reader.readLine()) != null) {
-				buffer.append(mLine);
-			}
-		} catch (IOException e) {
-			//log the exception
-			e.printStackTrace();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					//log the exception
-				}
-			}
-		}
-
-		return buffer.toString();
-	}
-
-	// checks if point B is within point A of `range`
-	public static boolean inRange(PointF a, PointF b, float range) {
-		return Math.abs(a.x - b.x) <= range && Math.abs(a.y - b.y) <= range;
 	}
 
 
@@ -227,6 +201,33 @@ public class MapTools {
 						Math.sin(dLng / 2) * Math.sin(dLng / 2);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 		return earthRadius * c;
+	}
+
+	/**
+	 * Calculate the horizontal and vertical distance between points a and b
+	 *
+	 * @param coordA - screen point
+	 * @param coordB - indices
+	 * @return - {@link Point} object containing the horizontal and vertical distance
+	 */
+	public static PointF getXYDist(LatLng coordA, LatLng coordB) {
+
+		// calculate the middle corner point
+		PointF dragStart = fromLatLngToPoint(coordA);
+		PointF dragCurrent = fromLatLngToPoint(coordB);
+
+		// the middle corner point
+		dragCurrent.set(dragCurrent.x, dragStart.y);
+
+		LatLng middleCornerPoint = fromPointToLatLng(dragCurrent);
+
+		// horizontal distance
+		float hDist = (float) LatLngDistance(coordA.latitude, coordA.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+
+		// vertical distance
+		float vDist = (float) LatLngDistance(coordB.latitude, coordB.longitude, middleCornerPoint.latitude, middleCornerPoint.longitude);
+
+		return new PointF(hDist, vDist);
 	}
 
 
