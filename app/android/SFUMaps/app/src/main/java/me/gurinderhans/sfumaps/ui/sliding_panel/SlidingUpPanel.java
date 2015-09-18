@@ -206,7 +206,7 @@ public class SlidingUpPanel extends RelativeLayout {
 				if (Math.abs(slideStartValPx - offsetPxVal) > PANEL_CLIP_TO_THRESHOLD) {
 					// figure out which direction the panel is going and which state its currently in and animate accordingly?
 
-					boolean dragUp = slideStartValPx - offsetPxVal >= 0;
+					boolean dragUp = slideStartValPx - offsetPxVal > 0;
 
 					Log.i(TAG, "passed slide threshold");
 					Log.i(TAG, "panelState: " + mPanelState);
