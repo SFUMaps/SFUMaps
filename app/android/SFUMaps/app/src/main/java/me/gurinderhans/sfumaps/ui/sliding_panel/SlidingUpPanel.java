@@ -4,14 +4,16 @@ import android.content.Context;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import me.gurinderhans.sfumaps.utils.MapTools;
 
+import static me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel.PanelState.ANCHORED;
 import static me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel.PanelState.COLLAPSED;
-import static me.gurinderhans.sfumaps.utils.MapTools.LinearAnimTranslateViewToPos;
+import static me.gurinderhans.sfumaps.utils.MapTools.LinearViewAnimatorTranslateYToPos;
 import static me.gurinderhans.sfumaps.utils.MapTools.convertDpToPixel;
 
 /**
@@ -156,7 +158,7 @@ public class SlidingUpPanel extends RelativeLayout {
 	 */
 	public void togglePanelState(boolean show) {
 		float scrollToVal = screenSize.y - (show ? convertDpToPixel(DEFAULT_PANEL_HEIGHT, getContext()) : 0);
-		MapTools.LinearAnimTranslateViewToPos(this, scrollToVal, 80l);
+		LinearViewAnimatorTranslateYToPos(this, scrollToVal, 80l);
 		setPanelState(show ? PanelState.COLLAPSED : PanelState.HIDDEN);
 	}
 
@@ -174,37 +176,83 @@ public class SlidingUpPanel extends RelativeLayout {
 		setLayoutParams(params);
 	}
 
+	// TODO: 15-09-18 convert to percent units
+	private static final float PANEL_CLIP_TO_THRESHOLD = 100f; // px units
+
+	private float slideStartValPx = 0f;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 
-		// finger offset from top of the panel
-		if (event.getAction() == MotionEvent.ACTION_DOWN)
-			mFingerOffset = (int) event.getY();
-
 		// offset
-		float offsetVal = (getTranslationY() + event.getY()) - mFingerOffset;
-		offsetVal = (float) MapTools.ValueLimiter(offsetVal, (screenSize.y - convertDpToPixel(DEFAULT_PANEL_HEIGHT, mContext)), (1 - DEFAULT_ANCHOR_POINT) * screenSize.y);
+		float offsetPxVal = (float) MapTools.ValueLimiter(((getTranslationY() + event.getY()) - mFingerOffset), (screenSize.y - convertDpToPixel(DEFAULT_PANEL_HEIGHT, mContext)), (1 - DEFAULT_ANCHOR_POINT) * screenSize.y);
 
-		float offsetPercent = 1 - (offsetVal / screenSize.y);
+		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 
-		// send % panel dragged up or down
-		if (mPanelSlideListener != null)
-			mPanelSlideListener.onPanelSlide(this, offsetPercent);
+			case MotionEvent.ACTION_DOWN:
+
+				// record finger offset from top of the panel
+				mFingerOffset = (int) event.getY();
+
+				slideStartValPx = getTranslationY();
+
+				break;
+			case MotionEvent.ACTION_UP:
+
+				Log.i(TAG, "offset: " + offsetPxVal);
+
+//				Log.i(TAG, "should anchor panel: " + inRange(offsetVal, 0.5, 0.7));
+
+				if (Math.abs(slideStartValPx - offsetPxVal) > PANEL_CLIP_TO_THRESHOLD) {
+					// figure out which direction the panel is going and which state its currently in and animate accordingly?
+
+					boolean dragUp = slideStartValPx - offsetPxVal >= 0;
+
+					Log.i(TAG, "passed slide threshold");
+					Log.i(TAG, "panelState: " + mPanelState);
+					Log.i(TAG, "offsetDiff: " + (slideStartValPx - offsetPxVal));
+					Log.i(TAG, "dragUp: " + dragUp);
 
 
-		setTranslationY(offsetVal);
+					if (mPanelState == ANCHORED && !dragUp) {
+						LinearViewAnimatorTranslateYToPos(this, (screenSize.y - convertDpToPixel(DEFAULT_PANEL_HEIGHT, mContext)), 80l);
+						setPanelState(COLLAPSED);
+					} else if (mPanelState == COLLAPSED && dragUp) {
+						LinearViewAnimatorTranslateYToPos(this, verticalPercentToScreenPixels(DEFAULT_ANCHOR_POINT), 80l);
+						setPanelState(ANCHORED);
+					}
+				} else {
+					// animate back to position it started
+					LinearViewAnimatorTranslateYToPos(this, slideStartValPx, 80l);
+				}
 
-		if (event.getAction() == MotionEvent.ACTION_UP) {
-			if (mPanelState == COLLAPSED /* && goingUp ? */ && offsetPercent != DEFAULT_ANCHOR_POINT) {
-				//
-				float valTo = (1 - DEFAULT_ANCHOR_POINT) * screenSize.y;
-				LinearAnimTranslateViewToPos(this, valTo, 80l);
-//				setPanelState(ANCHORED);
-			}
+				break;
+			case MotionEvent.ACTION_MOVE:
+
+				Log.i(TAG, "translateY %: " + verticalScreenPixelsToPerent(offsetPxVal));
+
+				// send % panel dragged up or down
+				if (mPanelSlideListener != null)
+					mPanelSlideListener.onPanelSlide(this, offsetPxVal);
+
+				setTranslationY(offsetPxVal);
+
+				break;
 		}
 
 		return true;
+	}
+
+	private void computePanelTop(float topPercent) {
+	}
+
+
+	private int verticalPercentToScreenPixels(float percent) {
+		return (int) ((1 - percent) * screenSize.y);
+	}
+
+	private float verticalScreenPixelsToPerent(float yPixel) {
+		return 1 - (yPixel / screenSize.y);
 	}
 
 }

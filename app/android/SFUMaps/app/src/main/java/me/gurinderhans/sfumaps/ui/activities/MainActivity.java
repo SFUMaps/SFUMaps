@@ -95,7 +95,8 @@ public class MainActivity extends FragmentActivity
 		mPanel.setPanelSlideListener(new SlidingUpPanel.PanelSlideListener() {
 			@Override
 			public void onPanelSlide(View panel, float slideOffset) {
-//				findViewById(R.id.search_init_button).setTranslationY(slideOffset * -800);
+//				.setTranslationY(slideOffset * -800);
+				findViewById(R.id.search_init_button).setTranslationY(mPanel.screenSize.y - slideOffset);
 			}
 
 			@Override
@@ -215,7 +216,7 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onMapClick(LatLng latLng) {
 		mPanel.togglePanelState(false);
-		MapTools.LinearAnimTranslateViewToPos(findViewById(R.id.search_init_button), 0, 80l);
+		MapTools.LinearViewAnimatorTranslateYToPos(findViewById(R.id.search_init_button), 0, 80l);
 	}
 
 	@Override
@@ -247,7 +248,7 @@ public class MainActivity extends FragmentActivity
 				mPanel.togglePanelState(true);
 
 				// FIXME: 15-09-17 calc value in dp units
-				MapTools.LinearAnimTranslateViewToPos(findViewById(R.id.search_init_button), -50, 80l);
+				MapTools.LinearViewAnimatorTranslateYToPos(findViewById(R.id.search_init_button), -50, 80l);
 			}
 
 		}

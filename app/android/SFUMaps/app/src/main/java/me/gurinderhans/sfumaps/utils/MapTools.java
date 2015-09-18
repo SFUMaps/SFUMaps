@@ -223,6 +223,10 @@ public class MapTools {
 		return (val > MAX) ? MAX : (val < MIN ? MIN : val);
 	}
 
+	public static boolean inRange(double number, double low, double high) {
+		return (number >= low && number < high);
+	}
+
 	/**
 	 * This method converts dp unit to equivalent pixels, depending on device density.
 	 *
@@ -258,7 +262,7 @@ public class MapTools {
 	 * @param valTo    - val to animate to
 	 * @param duration - duration of animation
 	 */
-	public static void LinearAnimTranslateViewToPos(final View view, final float valTo, long duration) {
+	public static void LinearViewAnimatorTranslateYToPos(final View view, final float valTo, long duration) {
 		view
 				.animate()
 				.translationY(valTo)
