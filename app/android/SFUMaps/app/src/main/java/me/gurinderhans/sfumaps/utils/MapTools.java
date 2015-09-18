@@ -1,11 +1,15 @@
 package me.gurinderhans.sfumaps.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Picture;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
+import android.view.animation.LinearInterpolator;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.jakewharton.disklrucache.DiskLruCache;
@@ -203,8 +207,63 @@ public class MapTools {
 		return new PointF(hDist, vDist);
 	}
 
-	public static double ValueLimiter(double a, double MAX, double MIN) {
-		return (a > MAX) ? MAX : (a < MIN ? MIN : a);
+
+	//
+	// MARK: generic methods
+	//
+
+
+	/**
+	 * @param val - the value to limit
+	 * @param MAX - Max allowed value
+	 * @param MIN - Min allowed value
+	 * @return - return the limited value
+	 */
+	public static double ValueLimiter(double val, double MAX, double MIN) {
+		return (val > MAX) ? MAX : (val < MIN ? MIN : val);
+	}
+
+	/**
+	 * This method converts dp unit to equivalent pixels, depending on device density.
+	 *
+	 * @param dp      A value in dp (density independent pixels) unit. Which we need to convert into pixels
+	 * @param context Context to get resources and device specific display metrics
+	 * @return A float value to represent px equivalent to dp depending on device density
+	 */
+	public static float convertDpToPixel(float dp, Context context) {
+		Resources resources = context.getResources();
+		DisplayMetrics metrics = resources.getDisplayMetrics();
+		float px = dp * (metrics.densityDpi / 160f);
+		return px;
+	}
+
+	/**
+	 * This method converts device specific pixels to density independent pixels.
+	 *
+	 * @param px      A value in px (pixels) unit. Which we need to convert into db
+	 * @param context Context to get resources and device specific display metrics
+	 * @return A float value to represent dp equivalent to px value
+	 */
+	public static float convertPixelsToDp(float px, Context context) {
+		Resources resources = context.getResources();
+		DisplayMetrics metrics = resources.getDisplayMetrics();
+		float dp = px / (metrics.densityDpi / 160f);
+		return dp;
+	}
+
+	/**
+	 * Linear Animate view to a pos
+	 *
+	 * @param view     - view to animate
+	 * @param valTo    - val to animate to
+	 * @param duration - duration of animation
+	 */
+	public static void LinearAnimTranslateViewToPos(final View view, final float valTo, long duration) {
+		view
+				.animate()
+				.translationY(valTo)
+				.setInterpolator(new LinearInterpolator())
+				.setDuration(duration);
 	}
 
 

@@ -1,6 +1,5 @@
 package me.gurinderhans.sfumaps.ui.activities;
 
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
@@ -92,9 +91,33 @@ public class MainActivity extends FragmentActivity
 		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
 
 		mPanel = (SlidingUpPanel) findViewById(R.id.sliding_panel);
-		Point screenSize = new Point();
-		getWindowManager().getDefaultDisplay().getSize(screenSize);
-		mPanel.initWithScreenSize(screenSize);
+
+		mPanel.setPanelSlideListener(new SlidingUpPanel.PanelSlideListener() {
+			@Override
+			public void onPanelSlide(View panel, float slideOffset) {
+//				findViewById(R.id.search_init_button).setTranslationY(slideOffset * -800);
+			}
+
+			@Override
+			public void onPanelCollapsed(View panel) {
+
+			}
+
+			@Override
+			public void onPanelExpanded(View panel) {
+
+			}
+
+			@Override
+			public void onPanelAnchored(View panel) {
+
+			}
+
+			@Override
+			public void onPanelHidden(View panel) {
+
+			}
+		});
 
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
@@ -191,8 +214,8 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onMapClick(LatLng latLng) {
-		mPanel.showPanel(false, null);
-		findViewById(R.id.search_init_button).setTranslationY(0);
+		mPanel.togglePanelState(false);
+		MapTools.LinearAnimTranslateViewToPos(findViewById(R.id.search_init_button), 0, 80l);
 	}
 
 	@Override
@@ -221,10 +244,10 @@ public class MainActivity extends FragmentActivity
 			if (!BuildConfig.DEBUG) // edit place
 				new PlaceFormDialog(this, clickedPlaceIndex).show();
 			else {
-				mPanel.showPanel(true, mAllMapPlaces.get(clickedPlaceIndex));
+				mPanel.togglePanelState(true);
 
 				// FIXME: 15-09-17 calc value in dp units
-				findViewById(R.id.search_init_button).setTranslationY(-50);
+				MapTools.LinearAnimTranslateViewToPos(findViewById(R.id.search_init_button), -50, 80l);
 			}
 
 		}
@@ -292,7 +315,7 @@ public class MainActivity extends FragmentActivity
 	private void setupMapSearchBox() {
 		// get adapter from PlaceFormDialog.class just so the same adapter is being used
 		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
-		mSearchAutoCompleteAdapter = new ArrayAdapter<MapPlace>(this, android.R.layout.simple_list_item_1);
+		mSearchAutoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
 		mSearchView.setAdapter(mSearchAutoCompleteAdapter);
 	}
 
