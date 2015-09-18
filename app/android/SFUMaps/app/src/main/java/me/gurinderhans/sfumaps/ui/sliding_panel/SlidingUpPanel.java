@@ -6,9 +6,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+
+import me.gurinderhans.sfumaps.utils.MapTools;
 
 /**
  * Created by ghans on 15-09-17.
@@ -19,6 +20,8 @@ public class SlidingUpPanel extends FrameLayout {
 
 	private LayoutInflater mInflater;
 	private Point mScreenSize;
+
+	private static float ANCHOR_POINT = 0.6f;// in percent
 
 
 	public SlidingUpPanel(Context context) {
@@ -38,16 +41,14 @@ public class SlidingUpPanel extends FrameLayout {
 
 
 	public void initWithScreenSize(Point screenSize) {
-		// this allows dispatchTouchEvent() to handle drag
-		setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-			}
-		});
+		// this allows onTouchEvent() to handle drag
+		setOnClickListener(null);
 
 		mScreenSize = screenSize;
 
-		setTranslationY(screenSize.y - 150);
+		setTranslationY(mScreenSize.y - 300);
+
+		Log.i(TAG, "screenSize: " + screenSize);
 
 	}
 
@@ -61,19 +62,24 @@ public class SlidingUpPanel extends FrameLayout {
 		setLayoutParams(params);
 	}
 
+
+	int fingerOffset = 0;
+
 	@Override
-	public boolean dispatchTouchEvent(MotionEvent ev) {
+	public boolean onTouchEvent(MotionEvent event) {
 
-		Log.i(TAG, "onTouch, y:" + ev.getY());
-//		float translationVal = -((screenSize.y * slideValue) * 1.44f) + getResources().getDimensionPixelSize(R.dimen.plane_image_height);
+		Log.i(TAG, "top: " + getTop());
 
-		float yVal = (float) mScreenSize.y / ev.getY();
-		Log.i(TAG, "y: " + yVal);
+		// finger offset from top of the panel
+		if (event.getAction() == MotionEvent.ACTION_DOWN)
+			fingerOffset = (int) event.getY();
 
-//		setTranslationY(ev.getY());
+		// offset
+		float offsetVal = (getTranslationY() + event.getY()) - fingerOffset;
+		setTranslationY((float) MapTools.ValueLimiter(offsetVal, mScreenSize.y - 150, 0));
 
-
-		return super.dispatchTouchEvent(ev);
+		return super.onTouchEvent(event);
 	}
+
 
 }

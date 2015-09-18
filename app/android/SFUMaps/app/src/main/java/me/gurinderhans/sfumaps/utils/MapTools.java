@@ -203,6 +203,10 @@ public class MapTools {
 		return new PointF(hDist, vDist);
 	}
 
+	public static double ValueLimiter(double a, double MAX, double MIN) {
+		return (a > MAX) ? MAX : (a < MIN ? MIN : a);
+	}
+
 
 	/**
 	 * Handles reading, writing map tiles

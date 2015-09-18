@@ -69,6 +69,7 @@ public class PathSearch {
 											.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
 											.zIndex(10000)
 											.anchor(0, 0.5f)
+											.visible(false) //
 											.transparency(0.2f)
 											.bearing(edge.getRotation())
 							)
@@ -83,6 +84,7 @@ public class PathSearch {
 												.position(edge.nodeA().getMapPosition(), NODE_MAP_GIZMO_SIZE)
 												.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
 												.zIndex(100001)
+												.visible(false) //
 												.transparency(0.2f))
 						);
 					}
@@ -94,6 +96,7 @@ public class PathSearch {
 												.position(edge.nodeB().getMapPosition(), NODE_MAP_GIZMO_SIZE)
 												.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
 												.zIndex(100001)
+												.visible(false) //
 												.transparency(0.2f))
 						);
 					}
