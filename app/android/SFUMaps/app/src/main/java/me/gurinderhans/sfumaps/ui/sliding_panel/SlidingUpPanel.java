@@ -4,39 +4,39 @@ import android.content.Context;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.utils.MapTools;
 
 /**
  * Created by ghans on 15-09-17.
  */
-public class SlidingUpPanel extends FrameLayout {
+public class SlidingUpPanel extends RelativeLayout {
+
+	// TODO: 15-09-17 Anchor panel to a middle anchor point and full anchor point
 
 	protected static final String TAG = SlidingUpPanel.class.getSimpleName();
 
-	private LayoutInflater mInflater;
 	private Point mScreenSize;
 
-	private static float ANCHOR_POINT = 0.6f;// in percent
+	private static final float ANCHOR_POINT = 0.6f;// in percent
+
+	// TODO: 15-09-17 convert to dp units
+	private static final int PANEL_COLLAPSED_HEIGHT = 150; // px
 
 
 	public SlidingUpPanel(Context context) {
 		super(context);
-		mInflater = LayoutInflater.from(context);
 	}
 
 	public SlidingUpPanel(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		mInflater = LayoutInflater.from(context);
 	}
 
 	public SlidingUpPanel(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		mInflater = LayoutInflater.from(context);
 	}
 
 
@@ -46,10 +46,19 @@ public class SlidingUpPanel extends FrameLayout {
 
 		mScreenSize = screenSize;
 
-		setTranslationY(mScreenSize.y - 300);
+		showPanel(false, null);
 
 		Log.i(TAG, "screenSize: " + screenSize);
+	}
 
+	// NOTE: BAD confusing function.
+	public void showPanel(boolean show, MapPlace showPlace) {
+		// TODO: 15-09-17 Obvious animation require here
+		setTranslationY(mScreenSize.y - (show ? PANEL_COLLAPSED_HEIGHT : 0));
+
+		if (show && showPlace != null) {
+			//
+		}
 	}
 
 	@Override
@@ -63,12 +72,10 @@ public class SlidingUpPanel extends FrameLayout {
 	}
 
 
-	int fingerOffset = 0;
+	private int fingerOffset = 0;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-
-		Log.i(TAG, "top: " + getTop());
 
 		// finger offset from top of the panel
 		if (event.getAction() == MotionEvent.ACTION_DOWN)
@@ -76,10 +83,9 @@ public class SlidingUpPanel extends FrameLayout {
 
 		// offset
 		float offsetVal = (getTranslationY() + event.getY()) - fingerOffset;
-		setTranslationY((float) MapTools.ValueLimiter(offsetVal, mScreenSize.y - 150, 0));
+		setTranslationY((float) MapTools.ValueLimiter(offsetVal, (mScreenSize.y - PANEL_COLLAPSED_HEIGHT), 0));
 
-		return super.onTouchEvent(event);
+		return true;
 	}
-
 
 }

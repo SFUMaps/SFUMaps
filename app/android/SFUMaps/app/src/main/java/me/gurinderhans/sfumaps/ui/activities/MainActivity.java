@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
@@ -48,10 +49,12 @@ import me.gurinderhans.sfumaps.utils.SVGTileProvider;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.PARENT_PLACE;
+import static me.gurinderhans.sfumaps.factory.classes.MapPlace.mAllMapPlaces;
 
 public class MainActivity extends FragmentActivity
 		implements
 		OnCameraChangeListener,
+		OnMapClickListener,
 		OnMapLongClickListener,
 		OnMarkerClickListener,
 		OnMarkerDragListener {
@@ -102,7 +105,6 @@ public class MainActivity extends FragmentActivity
 		setupPlaces();
 
 
-
 		// TODO: 15-09-17 look at later
 		PathSearch mPathSearch = new PathSearch(Map);
 
@@ -141,6 +143,7 @@ public class MainActivity extends FragmentActivity
 		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 
 		Map.setOnCameraChangeListener(this);
+		Map.setOnMapClickListener(this);
 		Map.setOnMapLongClickListener(this);
 		Map.setOnMarkerClickListener(this);
 		Map.setOnMarkerDragListener(this);
@@ -187,13 +190,18 @@ public class MainActivity extends FragmentActivity
 	}
 
 	@Override
+	public void onMapClick(LatLng latLng) {
+		mPanel.showPanel(false, null);
+	}
+
+	@Override
 	public void onMapLongClick(LatLng latLng) {
 		if (BuildConfig.DEBUG && !PathMaker.isEditingMap) {
 
 			MapPlace newPlace = new MapPlace();
 			newPlace.setPosition(MercatorProjection.fromLatLngToPoint(latLng));
 			newPlace.setMapGizmo(MarkerCreator.createPlaceMarker(getApplicationContext(), Map, newPlace));
-			MapPlace.mAllMapPlaces.add(newPlace);
+			mAllMapPlaces.add(newPlace);
 
 			// send to edit
 			new PlaceFormDialog(this,
@@ -209,8 +217,9 @@ public class MainActivity extends FragmentActivity
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
 
-			if (BuildConfig.DEBUG) // edit place
+			if (!BuildConfig.DEBUG) // edit place
 				new PlaceFormDialog(this, clickedPlaceIndex).show();
+			else mPanel.showPanel(true, mAllMapPlaces.get(clickedPlaceIndex));
 
 		}
 
@@ -231,11 +240,11 @@ public class MainActivity extends FragmentActivity
 		// find the clicked marker
 		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (draggedPlaceIndex != -1) {
-			MapPlace.mAllMapPlaces.get(draggedPlaceIndex).setPosition(
+			mAllMapPlaces.get(draggedPlaceIndex).setPosition(
 					MercatorProjection.fromLatLngToPoint(marker.getPosition())
 			);
 
-			MapPlace.mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
+			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
 				@Override
 				public void done(ParseException e) {
 					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
@@ -266,7 +275,7 @@ public class MainActivity extends FragmentActivity
 					place.setMapGizmo(MarkerCreator.createPlaceMarker(
 							getApplicationContext(), Map, place));
 
-					MapPlace.mAllMapPlaces.add(place);
+					mAllMapPlaces.add(place);
 				}
 
 				syncMarkers();
@@ -283,10 +292,10 @@ public class MainActivity extends FragmentActivity
 
 	private int getPlaceIndex(LatLng placePos) {
 
-		for (int i = 0; i < MapPlace.mAllMapPlaces.size(); i++) {
+		for (int i = 0; i < mAllMapPlaces.size(); i++) {
 			// level the LatLng to same 'precision'
 			PointF thisMarkerPoint = MercatorProjection.fromLatLngToPoint(
-					MapPlace.mAllMapPlaces.get(i).getMapGizmo().getPosition());
+					mAllMapPlaces.get(i).getMapGizmo().getPosition());
 
 			if (thisMarkerPoint.equals(MercatorProjection.fromLatLngToPoint(placePos)))
 				return i;
@@ -296,7 +305,7 @@ public class MainActivity extends FragmentActivity
 	}
 
 	private void syncMarkers() {
-		for (MapPlace el : MapPlace.mAllMapPlaces)
+		for (MapPlace el : mAllMapPlaces)
 			for (int zoom : el.getZooms()) {
 				if (zoom == mapCurrentZoom) {
 					el.getMapGizmo().setVisible(true);
@@ -319,4 +328,5 @@ public class MainActivity extends FragmentActivity
 				? svgTileProvider
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
 	}
+
 }
