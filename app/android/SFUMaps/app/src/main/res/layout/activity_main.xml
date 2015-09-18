@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -43,9 +44,22 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:text="Simon Fraser University"
-            android:textStyle="bold"
-            android:textSize="18sp"/>
+            android:textSize="18sp"
+            android:textStyle="bold"/>
     </me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/search_init_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_directions_white_48dp"
+        app:backgroundTint="@color/app_color_primary"
+        app:borderWidth="0dp"
+        app:rippleColor="#4DFFFFFF"/>
 
     <!-- Dev mode layout -->
     <RelativeLayout

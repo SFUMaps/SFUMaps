@@ -192,6 +192,7 @@ public class MainActivity extends FragmentActivity
 	@Override
 	public void onMapClick(LatLng latLng) {
 		mPanel.showPanel(false, null);
+		findViewById(R.id.search_init_button).setTranslationY(0);
 	}
 
 	@Override
@@ -219,7 +220,12 @@ public class MainActivity extends FragmentActivity
 
 			if (!BuildConfig.DEBUG) // edit place
 				new PlaceFormDialog(this, clickedPlaceIndex).show();
-			else mPanel.showPanel(true, mAllMapPlaces.get(clickedPlaceIndex));
+			else {
+				mPanel.showPanel(true, mAllMapPlaces.get(clickedPlaceIndex));
+
+				// FIXME: 15-09-17 calc value in dp units
+				findViewById(R.id.search_init_button).setTranslationY(-50);
+			}
 
 		}
 
