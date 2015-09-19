@@ -13,6 +13,7 @@ import me.gurinderhans.sfumaps.utils.MapTools;
 
 import static me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel.PanelState.ANCHORED;
 import static me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel.PanelState.COLLAPSED;
+import static me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel.PanelState.EXPANDED;
 import static me.gurinderhans.sfumaps.utils.MapTools.LinearViewAnimatorTranslateYToPos;
 import static me.gurinderhans.sfumaps.utils.MapTools.convertDpToPixel;
 
@@ -185,7 +186,9 @@ public class SlidingUpPanel extends RelativeLayout {
 	public boolean onTouchEvent(MotionEvent event) {
 
 		// offset
-		float offsetPxVal = (float) MapTools.ValueLimiter(((getTranslationY() + event.getY()) - mFingerOffset), (screenSize.y - convertDpToPixel(DEFAULT_PANEL_HEIGHT, mContext)), (1 - DEFAULT_ANCHOR_POINT) * screenSize.y);
+		float offsetMax = (mPanelState == ANCHORED || mPanelState == EXPANDED) ? 0 : (1 - DEFAULT_ANCHOR_POINT) * screenSize.y;
+
+		float offsetPxVal = (float) MapTools.ValueLimiter(((getTranslationY() + event.getY()) - mFingerOffset), (screenSize.y - convertDpToPixel(DEFAULT_PANEL_HEIGHT, mContext)), offsetMax);
 
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 
@@ -201,8 +204,6 @@ public class SlidingUpPanel extends RelativeLayout {
 
 				Log.i(TAG, "offset: " + offsetPxVal);
 
-//				Log.i(TAG, "should anchor panel: " + inRange(offsetVal, 0.5, 0.7));
-
 				if (Math.abs(slideStartValPx - offsetPxVal) > PANEL_CLIP_TO_THRESHOLD) {
 					// figure out which direction the panel is going and which state its currently in and animate accordingly?
 
@@ -214,13 +215,26 @@ public class SlidingUpPanel extends RelativeLayout {
 					Log.i(TAG, "dragUp: " + dragUp);
 
 
-					if (mPanelState == ANCHORED && !dragUp) {
-						LinearViewAnimatorTranslateYToPos(this, (screenSize.y - convertDpToPixel(DEFAULT_PANEL_HEIGHT, mContext)), 80l);
-						setPanelState(COLLAPSED);
-					} else if (mPanelState == COLLAPSED && dragUp) {
-						LinearViewAnimatorTranslateYToPos(this, verticalPercentToScreenPixels(DEFAULT_ANCHOR_POINT), 80l);
-						setPanelState(ANCHORED);
+					// TODO: 15-09-18 Track finger velocity to match it here so the animation follows the original speed
+					switch (mPanelState) {
+						case ANCHORED:
+							if (dragUp) {
+								LinearViewAnimatorTranslateYToPos(this, 0, 80l);
+								setPanelState(EXPANDED);
+							} else {
+								LinearViewAnimatorTranslateYToPos(this, (screenSize.y - convertDpToPixel(DEFAULT_PANEL_HEIGHT, mContext)), 80l);
+								setPanelState(COLLAPSED);
+							}
+							break;
+						case EXPANDED:
+						case COLLAPSED:
+							LinearViewAnimatorTranslateYToPos(this, verticalPercentToScreenPixels(DEFAULT_ANCHOR_POINT), 80l);
+							setPanelState(ANCHORED);
+							break;
 					}
+
+					Log.i(TAG, "after panelState: " + mPanelState);
+
 				} else {
 					// animate back to position it started
 					LinearViewAnimatorTranslateYToPos(this, slideStartValPx, 80l);
