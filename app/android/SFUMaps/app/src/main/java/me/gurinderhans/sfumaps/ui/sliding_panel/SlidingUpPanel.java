@@ -218,6 +218,7 @@ public class SlidingUpPanel extends RelativeLayout {
 					// TODO: 15-09-18 Track finger velocity to match it here so the animation follows the original speed
 					switch (mPanelState) {
 						case ANCHORED:
+
 							if (dragUp) {
 								LinearViewAnimatorTranslateYToPos(this, 0, 80l);
 								setPanelState(EXPANDED);
@@ -226,7 +227,20 @@ public class SlidingUpPanel extends RelativeLayout {
 								setPanelState(COLLAPSED);
 							}
 							break;
+
 						case EXPANDED:
+
+							float animOffsetVal = verticalPercentToScreenPixels(DEFAULT_ANCHOR_POINT);
+							Log.i(TAG, "anchorpoint below diff: " + (verticalScreenPixelsToPerent(getTranslationY()) - DEFAULT_ANCHOR_POINT));
+
+							float anchorDiff = verticalScreenPixelsToPerent(getTranslationY()) - DEFAULT_ANCHOR_POINT;
+							if (anchorDiff < 0 && anchorDiff < -0.2)
+								animOffsetVal = (screenSize.y - convertDpToPixel(DEFAULT_PANEL_HEIGHT, mContext));
+
+							LinearViewAnimatorTranslateYToPos(this, animOffsetVal, 80l);
+							setPanelState(ANCHORED);
+
+							break;
 						case COLLAPSED:
 							LinearViewAnimatorTranslateYToPos(this, verticalPercentToScreenPixels(DEFAULT_ANCHOR_POINT), 80l);
 							setPanelState(ANCHORED);
