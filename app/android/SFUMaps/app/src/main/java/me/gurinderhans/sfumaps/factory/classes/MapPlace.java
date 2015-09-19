@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps.factory.classes;
 
 import android.graphics.PointF;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.ParseClassName;
@@ -151,6 +152,19 @@ public class MapPlace extends ParseObject {
 
 	public Marker getMapGizmo() {
 		return mPlaceMarker;
+	}
+
+
+	// not too sure about this functions implementation, how would it deal with two places with same name if case be?
+	@Nullable
+	public static MapPlace findPlaceWithTitle(String title) {
+		for (MapPlace place : mAllMapPlaces) {
+			if (place.getTitle().equals(title)) {
+				return place;
+			}
+		}
+
+		return null;
 	}
 }
 

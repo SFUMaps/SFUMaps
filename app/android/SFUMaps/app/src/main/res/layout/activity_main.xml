@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity"/>
 
-    <LinearLayout
+    <!--<LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -31,22 +31,19 @@
             android:textColor="#666666"
             android:textSize="15sp"/>
 
-    </LinearLayout>
+    </LinearLayout>-->
 
-    <me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel
+    <me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel
         android:id="@+id/sliding_panel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:background="@android:color/white">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:text="Simon Fraser University"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
-    </me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel>
+        <include
+            android:id="@+id/sliding_panel_collapsed_layout"
+            layout="@layout/activity_main_sliding_panel_collapsed_single_place"/>
+
+    </me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/search_init_button"
@@ -59,6 +56,7 @@
         android:src="@drawable/ic_directions_white_48dp"
         app:backgroundTint="@color/app_color_primary"
         app:borderWidth="0dp"
+        app:elevation="3dp"
         app:rippleColor="#4DFFFFFF"/>
 
     <!-- Dev mode layout -->
@@ -87,5 +85,11 @@
             android:layout_marginTop="100dp"/>
 
     </RelativeLayout>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"/>
 
 </RelativeLayout>

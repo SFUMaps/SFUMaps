@@ -1,5 +1,6 @@
 package me.gurinderhans.sfumaps.utils;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Picture;
@@ -8,7 +9,6 @@ import android.graphics.PointF;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
-import android.view.View;
 import android.view.animation.LinearInterpolator;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -258,16 +258,22 @@ public class MapTools {
 	/**
 	 * Linear Animate view to a pos
 	 *
-	 * @param view     - view to animate
-	 * @param valTo    - val to animate to
-	 * @param duration - duration of animation
+	 * @param animationListener
+	 * @param view              - view to animate
+	 * @param to                - val to animate to
+	 * @param duration          - duration of animation
+	 * @param listener
 	 */
-	public static void LinearViewAnimatorTranslateYToPos(final View view, final float valTo, long duration) {
-		view
-				.animate()
-				.translationY(valTo)
-				.setInterpolator(new LinearInterpolator())
-				.setDuration(duration);
+	public static void LinearViewAnimatorTranslateYToPos(final float from, final float to, long duration, ValueAnimator.AnimatorUpdateListener listener) {
+		ValueAnimator va = ValueAnimator.ofFloat(from, to);
+		va.setInterpolator(new LinearInterpolator());
+		va.setDuration(duration);
+		va.addUpdateListener(listener);
+		va.start();
+	}
+
+	public static double map(double x, double in_min, double in_max, double out_min, double out_max) {
+		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	}
 
 

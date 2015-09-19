@@ -1,12 +1,16 @@
 package me.gurinderhans.sfumaps.ui.activities;
 
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -36,7 +40,8 @@ import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
-import me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel;
+import me.gurinderhans.sfumaps.ui.controllers.SlidingUpPanelController;
+import me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapPlaceSearchBoxView;
 import me.gurinderhans.sfumaps.utils.CachedTileProvider;
@@ -46,30 +51,37 @@ import me.gurinderhans.sfumaps.utils.MercatorProjection;
 import me.gurinderhans.sfumaps.utils.SVGTileProvider;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
+import static com.parse.ParseQuery.CachePolicy.CACHE_ELSE_NETWORK;
+import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.PARENT_PLACE;
 import static me.gurinderhans.sfumaps.factory.classes.MapPlace.mAllMapPlaces;
 
-public class MainActivity extends FragmentActivity
+public class MainActivity extends AppCompatActivity
 		implements
 		OnCameraChangeListener,
 		OnMapClickListener,
 		OnMapLongClickListener,
 		OnMarkerClickListener,
-		OnMarkerDragListener {
+		OnMarkerDragListener,
+		OnClickListener {
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
 	// UI
 	private MapPlaceSearchBoxView mSearchView;
 	private GoogleMap Map;
-	private SlidingUpPanel mPanel;
+	private SlidingUpPanelController mPanelController;
 
 	// Data
 	private int mapCurrentZoom; // used for detecting when map zoom changes
 	private DiskLruCache mTileCache;
 	private Pair<MapPlace, MapPlace> mPlaceFromTo;
-	private ArrayAdapter<MapPlace> mSearchAutoCompleteAdapter;
+
+	// TEMP
+	private boolean selectingSecondPlace = false;
+	PathSearch pathSearch;
+	private FloatingActionButton fab;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,59 +90,28 @@ public class MainActivity extends FragmentActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		// make the status bar transparent
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-			getWindow().getDecorView().setSystemUiVisibility(
-					View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-							| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+		setupStatusBar();
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-			getWindow().setStatusBarColor(getResources().getColor(R.color.transparent_status_bar_color));
+		setupToolbar();
 
-		// places search view
-		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
+		fab = (FloatingActionButton) findViewById(R.id.search_init_button);
+		fab.setOnClickListener(this);
 
-		mPanel = (SlidingUpPanel) findViewById(R.id.sliding_panel);
-
-		mPanel.setPanelSlideListener(new SlidingUpPanel.PanelSlideListener() {
-			@Override
-			public void onPanelSlide(View panel, float slideOffset) {
-//				.setTranslationY(slideOffset * -800);
-				findViewById(R.id.search_init_button).setTranslationY(mPanel.screenSize.y - slideOffset);
-			}
-
-			@Override
-			public void onPanelCollapsed(View panel) {
-
-			}
-
-			@Override
-			public void onPanelExpanded(View panel) {
-
-			}
-
-			@Override
-			public void onPanelAnchored(View panel) {
-
-			}
-
-			@Override
-			public void onPanelHidden(View panel) {
-
-			}
-		});
+		mPanelController = new SlidingUpPanelController(
+				(SlidingUpPanel) findViewById(R.id.sliding_panel),
+				fab
+		);
 
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
 		// additional setup
 		setUpMapIfNeeded();
-		setupMapSearchBox();
+//		setupMapSearchBox();
 		setupPlaces();
 
-
-		// TODO: 15-09-17 look at later
-		PathSearch mPathSearch = new PathSearch(Map);
+		// requires Map object
+		pathSearch = new PathSearch(Map);
 
 
 		//
@@ -215,8 +196,7 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onMapClick(LatLng latLng) {
-		mPanel.togglePanelState(false);
-		MapTools.LinearViewAnimatorTranslateYToPos(findViewById(R.id.search_init_button), 0, 80l);
+		mPanelController.hidePanel();
 	}
 
 	@Override
@@ -245,10 +225,19 @@ public class MainActivity extends FragmentActivity
 			if (!BuildConfig.DEBUG) // edit place
 				new PlaceFormDialog(this, clickedPlaceIndex).show();
 			else {
-				mPanel.togglePanelState(true);
+				mPanelController.setPlace(mAllMapPlaces.get(clickedPlaceIndex));
 
-				// FIXME: 15-09-17 calc value in dp units
-				MapTools.LinearViewAnimatorTranslateYToPos(findViewById(R.id.search_init_button), -50, 80l);
+				if (selectingSecondPlace) {
+
+					mPlaceFromTo = Pair.create(mPlaceFromTo.first, mAllMapPlaces.get(clickedPlaceIndex));
+
+					pathSearch.newSearch(mPlaceFromTo.first, mPlaceFromTo.second);
+
+					mPanelController.setSecondPlace(mAllMapPlaces.get(clickedPlaceIndex));
+
+				} else {
+					mPlaceFromTo = Pair.create(mAllMapPlaces.get(clickedPlaceIndex), null);
+				}
 			}
 
 		}
@@ -288,11 +277,46 @@ public class MainActivity extends FragmentActivity
 	// MARK: Custom helper methods
 	//
 
+	private void setupStatusBar() {
+		// make the status bar transparent
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+			getWindow().getDecorView().setSystemUiVisibility(
+					View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+							| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+			getWindow().setStatusBarColor(Color.parseColor("#80000000"));
+	}
+
+	private void setupToolbar() {
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+
+		toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"));
+
+		toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
+
+		// Show menu icon
+//		final ActionBar ab = getSupportActionBar();
+//		ab.setHomeAsUpIndicator(R.drawable.ic_close_white_48dp);
+//		ab.setDisplayHomeAsUpEnabled(true);
+	}
+
+	// A method to find height of the status bar
+	public int getStatusBarHeight() {
+		int result = 0;
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			result = getResources().getDimensionPixelSize(resourceId);
+		}
+		return result;
+	}
 
 	public void setupPlaces() {
 		// TODO: 15-09-17 Use local data-store as well
 		ParseQuery<MapPlace> query = ParseQuery.getQuery(CLASS);
 		query.include(PARENT_PLACE);
+		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
 		query.findInBackground(new FindCallback<MapPlace>() {
 			@Override
 			public void done(List<MapPlace> objects, ParseException e) {
@@ -315,8 +339,8 @@ public class MainActivity extends FragmentActivity
 
 	private void setupMapSearchBox() {
 		// get adapter from PlaceFormDialog.class just so the same adapter is being used
-		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
-		mSearchAutoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+//		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
+		ArrayAdapter<MapPlace> mSearchAutoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
 		mSearchView.setAdapter(mSearchAutoCompleteAdapter);
 	}
 
@@ -359,4 +383,22 @@ public class MainActivity extends FragmentActivity
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
 	}
 
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+			case R.id.search_init_button:
+				// change icon
+				selectingSecondPlace = !selectingSecondPlace;
+				fab.setBackgroundTintList(getResources().getColorStateList(!selectingSecondPlace ? R.color.app_color_primary : android.R.color.holo_green_dark));
+				fab.setImageResource(!selectingSecondPlace ? R.drawable.ic_directions_white_48dp : R.drawable.ic_close_white_48dp);
+
+				if (!selectingSecondPlace) {
+					pathSearch.clearPaths();
+					mPanelController.hidePanel();
+				}
+				break;
+			default:
+				break;
+		}
+	}
 }

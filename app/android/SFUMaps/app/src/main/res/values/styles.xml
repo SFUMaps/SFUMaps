@@ -4,7 +4,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light">
     </style>
 
-    <style name="MainActivity" parent="Theme.AppCompat.Light">
+    <style name="MainActivity" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/app_color_primary</item>
         <item name="colorPrimaryDark">@color/app_color_primary_dark</item>
     </style>
