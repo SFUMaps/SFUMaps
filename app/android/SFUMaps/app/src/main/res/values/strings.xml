@@ -15,7 +15,7 @@
     <!---->
 
     <string name="title_activity_main">Map</string>
-    <color name="transparent_status_bar_color">#80000000</color>
+    <color name="transparent_status_bar_color">#4D000000</color>
 
 
     <!---->

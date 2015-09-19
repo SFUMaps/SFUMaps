@@ -1,16 +1,20 @@
 package me.gurinderhans.sfumaps.ui.activities;
 
-import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -72,6 +76,7 @@ public class MainActivity extends AppCompatActivity
 	private MapPlaceSearchBoxView mSearchView;
 	private GoogleMap Map;
 	private SlidingUpPanelController mPanelController;
+	private Toolbar mToolbar;
 
 	// Data
 	private int mapCurrentZoom; // used for detecting when map zoom changes
@@ -94,7 +99,7 @@ public class MainActivity extends AppCompatActivity
 
 		setupToolbar();
 
-		fab = (FloatingActionButton) findViewById(R.id.search_init_button);
+		fab = (FloatingActionButton) findViewById(R.id.get_directions_fab);
 		fab.setOnClickListener(this);
 
 		mPanelController = new SlidingUpPanelController(
@@ -142,7 +147,7 @@ public class MainActivity extends AppCompatActivity
 		// map options
 		Map.setMapType(MAP_TYPE_NONE);
 		Map.setIndoorEnabled(false);
-		// hide the marker toolbar - the two buttons on the bottom right that go to google maps
+		// hide the marker mToolbar - the two buttons on the bottom right that go to google maps
 		Map.getUiSettings().setMapToolbarEnabled(false);
 
 		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
@@ -174,6 +179,22 @@ public class MainActivity extends AppCompatActivity
 	protected void onResume() {
 		super.onResume();
 		setUpMapIfNeeded();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+			case R.id.get_directions_fab:
+				// show mToolbar asking for place {FROM} and {TO}
+				mToolbar.animate()
+						.translationY(0)
+						.setInterpolator(new AccelerateInterpolator())
+						.setDuration(200l)
+						.start();
+				break;
+			default:
+				break;
+		}
 	}
 
 	@Override
@@ -285,21 +306,32 @@ public class MainActivity extends AppCompatActivity
 							| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-			getWindow().setStatusBarColor(Color.parseColor("#80000000"));
+			getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.transparent_status_bar_color));
 	}
 
 	private void setupToolbar() {
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 
-		toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"));
+		int statusBarHeight = getStatusBarHeight();
+		int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
+		mToolbar.setPadding(0, statusBarHeight, 0, 0);
 
-		toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
+		Log.i(TAG, "status bar height: " + statusBarHeight);
+		Log.i(TAG, "mToolbar height: " + toolbarHeight);
 
-		// Show menu icon
-//		final ActionBar ab = getSupportActionBar();
-//		ab.setHomeAsUpIndicator(R.drawable.ic_close_white_48dp);
-//		ab.setDisplayHomeAsUpEnabled(true);
+		mToolbar.setTranslationY(-(toolbarHeight + statusBarHeight));
+
+		// add the search layout
+		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, mToolbar, false);
+		mToolbar.addView(view);
+
+		// customize action bar
+		final ActionBar ab = getSupportActionBar();
+		if (ab != null) {
+			ab.setDisplayShowTitleEnabled(false);
+			ab.setDisplayHomeAsUpEnabled(true);
+		}
 	}
 
 	// A method to find height of the status bar
@@ -383,22 +415,4 @@ public class MainActivity extends AppCompatActivity
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
 	}
 
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.search_init_button:
-				// change icon
-				selectingSecondPlace = !selectingSecondPlace;
-				fab.setBackgroundTintList(getResources().getColorStateList(!selectingSecondPlace ? R.color.app_color_primary : android.R.color.holo_green_dark));
-				fab.setImageResource(!selectingSecondPlace ? R.drawable.ic_directions_white_48dp : R.drawable.ic_close_white_48dp);
-
-				if (!selectingSecondPlace) {
-					pathSearch.clearPaths();
-					mPanelController.hidePanel();
-				}
-				break;
-			default:
-				break;
-		}
-	}
 }
