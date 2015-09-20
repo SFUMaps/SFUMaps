@@ -86,8 +86,9 @@ public class MainActivity extends AppCompatActivity
 	// Data
 	private int mapCurrentZoom; // used for detecting when map zoom changes
 	private DiskLruCache mTileCache;
-	ArrayAdapter<MapPlace> placeSearchAdapter;
-	PathSearch mPathSearch;
+	private ArrayAdapter<MapPlace> placeSearchAdapter;
+	private PathSearch mPathSearch;
+	private MapPlace mSelectedPlace;
 
 
 	@Override
@@ -198,6 +199,9 @@ public class MainActivity extends AppCompatActivity
 				if (mPlaceSearch.getObjects().size() == 1) {
 					mPlaceFromSearchBox.addObject(mPlaceSearch.getObjects().get(0));
 				}
+				if (mSelectedPlace != null) {
+					mPlaceFromSearchBox.addObject(mSelectedPlace);
+				}
 
 				mPanelController.hidePanel();
 
@@ -228,7 +232,7 @@ public class MainActivity extends AppCompatActivity
 	@Override
 	public void onMapClick(LatLng latLng) {
 		mPanelController.hidePanel();
-		mPlaceFromSearchBox.clear();
+		mSelectedPlace = null;
 	}
 
 	@Override
@@ -253,13 +257,15 @@ public class MainActivity extends AppCompatActivity
 		// find the clicked marker
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
-			if (!BuildConfig.DEBUG) { // edit place
+			if (BuildConfig.DEBUG) { // edit place
 				new PlaceFormDialog(this, clickedPlaceIndex).show();
 			} else {
-				mPanelController.setPlace(mAllMapPlaces.get(clickedPlaceIndex));
+				mSelectedPlace = mAllMapPlaces.get(clickedPlaceIndex);
+
+				mPanelController.setPlace(mSelectedPlace);
 
 				// set on place from
-				mPlaceFromSearchBox.addObject(mAllMapPlaces.get(clickedPlaceIndex));
+				mPlaceFromSearchBox.addObject(mSelectedPlace);
 
 				// hide search toolbar
 				int statusBarHeight = getStatusBarHeight();
@@ -329,6 +335,8 @@ public class MainActivity extends AppCompatActivity
 
 				mPlaceFromSearchBox.clear();
 				mPlaceToSearchBox.clear();
+
+				mSelectedPlace = null;
 
 				break;
 		}
