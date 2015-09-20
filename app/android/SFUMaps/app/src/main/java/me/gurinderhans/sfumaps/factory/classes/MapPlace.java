@@ -145,7 +145,14 @@ public class MapPlace extends ParseObject {
 	 */
 	@Override
 	public String toString() {
-		return getTitle();
+		String returnTitle = "";
+
+		if (getParentPlace() != null)
+			returnTitle = getParentPlace().getTitle() + " ";
+
+		returnTitle += getTitle();
+
+		return returnTitle;
 	}
 
 

@@ -20,21 +20,29 @@ public class MapPlaceSearchCompletionView extends TokenCompleteTextView<MapPlace
 		super(context, attrs);
 
 		allowDuplicates(false);
+
+		setTokenLimit(1); // allow only one address
+
 	}
 
 	@Override
-	protected View getViewForObject(MapPlace completionText) {
+	protected View getViewForObject(MapPlace completionPlace) {
 
 		LayoutInflater l = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 		LinearLayout view = (LinearLayout) l.inflate(R.layout.activity_main_placesearch_token_layout, (ViewGroup) getParent(), false);
 
-		((TextView) view.findViewById(R.id.placeName)).setText(completionText.getTitle());
+		String placeTitle = "";
+		if (completionPlace.getParentPlace() != null)
+			placeTitle = completionPlace.getParentPlace().getTitle() + " ";
+		placeTitle += completionPlace.getTitle();
+
+		((TextView) view.findViewById(R.id.placeName)).setText(placeTitle);
 
 		return view;
 	}
 
 	@Override
 	protected MapPlace defaultObject(String completionText) {
-		return MapPlace.createPlace(completionText);
+		return null;
 	}
 }

@@ -1,5 +1,6 @@
 package me.gurinderhans.sfumaps.ui.activities;
 
+import android.content.Context;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AccelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -35,6 +37,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
+import com.tokenautocomplete.TokenCompleteTextView.TokenListener;
 
 import java.util.List;
 
@@ -69,7 +72,8 @@ public class MainActivity extends AppCompatActivity
 		OnMapLongClickListener,
 		OnMarkerClickListener,
 		OnMarkerDragListener,
-		OnClickListener {
+		OnClickListener,
+		TokenListener {
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
@@ -79,16 +83,15 @@ public class MainActivity extends AppCompatActivity
 	private SlidingUpPanelController mPanelController;
 	private Toolbar mSearchToolbar;
 	private FloatingActionButton mFloatingActionButton;
+	private MapPlaceSearchCompletionView mPlaceFromSearchBox, mPlaceToSearchBox;
 
 	// Data
 	private int mapCurrentZoom; // used for detecting when map zoom changes
 	private DiskLruCache mTileCache;
 	private Pair<MapPlace, MapPlace> mPlaceFromTo;
 	ArrayAdapter<MapPlace> placeSearchAdapter;
+	PathSearch mPathSearch;
 
-	// TEMP
-	private boolean selectingSecondPlace = false;
-	PathSearch pathSearch;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -114,10 +117,10 @@ public class MainActivity extends AppCompatActivity
 
 		// additional setup
 		setUpMapIfNeeded();
-		setupPlaces();
+		fetchPlaces();
 
 		// requires Map object
-		pathSearch = new PathSearch(Map);
+		mPathSearch = new PathSearch(Map);
 
 
 		//
@@ -246,25 +249,11 @@ public class MainActivity extends AppCompatActivity
 		// find the clicked marker
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
-
-			if (!BuildConfig.DEBUG) // edit place
+			if (BuildConfig.DEBUG) { // edit place
 				new PlaceFormDialog(this, clickedPlaceIndex).show();
-			else {
+			} else {
 				mPanelController.setPlace(mAllMapPlaces.get(clickedPlaceIndex));
-
-				if (selectingSecondPlace) {
-
-					mPlaceFromTo = Pair.create(mPlaceFromTo.first, mAllMapPlaces.get(clickedPlaceIndex));
-
-					pathSearch.newSearch(mPlaceFromTo.first, mPlaceFromTo.second);
-
-					mPanelController.setSecondPlace(mAllMapPlaces.get(clickedPlaceIndex));
-
-				} else {
-					mPlaceFromTo = Pair.create(mAllMapPlaces.get(clickedPlaceIndex), null);
-				}
 			}
-
 		}
 
 		return true;
@@ -315,14 +304,46 @@ public class MainActivity extends AppCompatActivity
 
 				mFloatingActionButton.show();
 
+				mPathSearch.clearPaths();
+
+				mPlaceFromSearchBox.clear();
+				mPlaceToSearchBox.clear();
+
 				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	public void onTokenAdded(Object o) {
+		if (mPlaceFromSearchBox.getObjects().size() == 1 && mPlaceToSearchBox.getObjects().size() == 1) {
+			hideKeyboard();
+			mPathSearch.newSearch(
+					mPlaceFromSearchBox.getObjects().get(0),
+					mPlaceToSearchBox.getObjects().get(0)
+			);
+//			Log.i(TAG, "starting search...");
+		}
+	}
+
+	@Override
+	public void onTokenRemoved(Object o) {
+
+	}
+
+
 	//
 	// MARK: Custom helper methods
 	//
+
+	private void hideKeyboard() {
+		// Check if no view has focus:
+		View view = this.getCurrentFocus();
+		if (view != null) {
+			InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+		}
+	}
 
 	private void setupStatusBar() {
 		// make the status bar transparent
@@ -357,19 +378,22 @@ public class MainActivity extends AppCompatActivity
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 
-
 		/* setup toolbar search */
 
-		MapPlaceSearchCompletionView placeFrom = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_from);
-		MapPlaceSearchCompletionView placeTo = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_to);
+		mPlaceFromSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_from);
+		mPlaceToSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_to);
 
 		placeSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
 
-		placeFrom.setAdapter(placeSearchAdapter);
-		placeTo.setAdapter(placeSearchAdapter);
+		mPlaceFromSearchBox.setAdapter(placeSearchAdapter);
+		mPlaceToSearchBox.setAdapter(placeSearchAdapter);
+
+		// add token listeners
+		mPlaceFromSearchBox.setTokenListener(this);
+		mPlaceToSearchBox.setTokenListener(this);
 	}
 
-	public void setupPlaces() {
+	public void fetchPlaces() {
 		// TODO: 15-09-17 Use local data-store as well
 		ParseQuery<MapPlace> query = ParseQuery.getQuery(CLASS);
 		query.include(PARENT_PLACE);
@@ -382,9 +406,11 @@ public class MainActivity extends AppCompatActivity
 					return;
 
 				for (MapPlace place : objects) {
+					Marker marker = MarkerCreator.createPlaceMarker(
+							getApplicationContext(), Map, place);
+					marker.setVisible(false);
 
-					place.setMapGizmo(MarkerCreator.createPlaceMarker(
-							getApplicationContext(), Map, place));
+					place.setMapGizmo(marker);
 
 					mAllMapPlaces.add(place);
 				}
@@ -392,8 +418,15 @@ public class MainActivity extends AppCompatActivity
 				placeSearchAdapter.addAll(objects);
 
 				syncMarkers();
+				setupSearchAdapter();
 			}
 		});
+	}
+
+	public void setupSearchAdapter() {
+		//
+		// placeSearchAdapter.addAll(objects);
+//		for ()
 	}
 
 	private int getPlaceIndex(LatLng placePos) {
