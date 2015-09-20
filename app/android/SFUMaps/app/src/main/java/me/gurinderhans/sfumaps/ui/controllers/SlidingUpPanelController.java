@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps.ui.controllers;
 import android.animation.ValueAnimator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.widget.TextView;
 
 import me.gurinderhans.sfumaps.R;
@@ -23,6 +24,11 @@ public class SlidingUpPanelController implements PanelSlideListener {
 	private final SlidingUpPanel mPanel;
 	private final FloatingActionButton mFab;
 
+	/**
+	 * Holds the current selected place, i.e. the clicked marker
+	 */
+	private MapPlace mSelectedMapPlace;
+
 	@NonNull
 	private PanelState mCurrentPanelState;
 
@@ -40,9 +46,21 @@ public class SlidingUpPanelController implements PanelSlideListener {
 	// MARK: Panel controller methods
 	//
 
+	public void showPanel() {
+		// show the panel along with the info
+		mPanel.showPanel(true);
+		LinearViewAnimatorTranslateYToPos(mFab.getTranslationY(), -50, 80l, new ValueAnimator.AnimatorUpdateListener() {
+			@Override
+			public void onAnimationUpdate(ValueAnimator animation) {
+				mFab.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
+			}
+		});
+	}
+
 	public void hidePanel() {
+		Log.i(TAG, "hide panel");
 		// hide the panel
-		mPanel.togglePanelState(false);
+		mPanel.showPanel(false);
 		LinearViewAnimatorTranslateYToPos(mFab.getTranslationY(), 0, 80l, new ValueAnimator.AnimatorUpdateListener() {
 			@Override
 			public void onAnimationUpdate(ValueAnimator animation) {
@@ -51,23 +69,34 @@ public class SlidingUpPanelController implements PanelSlideListener {
 		});
 	}
 
-	public void setPlace(MapPlace mapPlace) {
-		// show the panel along with the info
-		mPanel.togglePanelState(true);
-		LinearViewAnimatorTranslateYToPos(mFab.getTranslationY(), -50, 80l, new ValueAnimator.AnimatorUpdateListener() {
-			@Override
-			public void onAnimationUpdate(ValueAnimator animation) {
-				mFab.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
-			}
-		});
+	public MapPlace selectedPlace() {
+		return mSelectedMapPlace;
+	}
 
-		((TextView) mPanel.findViewById(R.id.sliding_panel_collapsed_layout).findViewById(R.id.placeTitle)).setText(mapPlace.getTitle());
+	public void setSelectedPlace(MapPlace mapPlace) {
 
-		MapPlace parentPlace = mapPlace.getParentPlace();
+		// TODO: 15-09-20 add temp marker at this position
+
+		mSelectedMapPlace = mapPlace;
+		mFab.show();
+
+		if (mapPlace != null) {
+			showPanel();
+			setPanelData();
+		} else {
+			hidePanel();
+		}
+	}
+
+
+	private void setPanelData() {
+		((TextView) mPanel.findViewById(R.id.sliding_panel_collapsed_layout).findViewById(R.id.placeTitle)).setText(mSelectedMapPlace.getTitle());
+
+		MapPlace parentPlace = mSelectedMapPlace.getParentPlace();
 		if (parentPlace != null) {
 			((TextView) mPanel.findViewById(R.id.sliding_panel_collapsed_layout).findViewById(R.id.placeParentTitle)).setText(parentPlace.getTitle());
 		} else {
-			((TextView) mPanel.findViewById(R.id.sliding_panel_collapsed_layout).findViewById(R.id.placeParentTitle)).setText(mapPlace.getType().getText());
+			((TextView) mPanel.findViewById(R.id.sliding_panel_collapsed_layout).findViewById(R.id.placeParentTitle)).setText(mSelectedMapPlace.getType().getText());
 		}
 	}
 
@@ -98,7 +127,4 @@ public class SlidingUpPanelController implements PanelSlideListener {
 		}
 	}
 
-	public void setSecondPlace(MapPlace mapPlace) {
-		//
-	}
 }

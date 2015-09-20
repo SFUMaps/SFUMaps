@@ -139,7 +139,7 @@ public class SlidingUpPanel extends RelativeLayout {
 		screenSize = new Point(metrics.widthPixels, metrics.heightPixels);
 
 		// hide panel
-		togglePanelState(false);
+		showPanel(false);
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class SlidingUpPanel extends RelativeLayout {
 	 *
 	 * @param show - if true show panel, else hide
 	 */
-	public void togglePanelState(boolean show) {
+	public void showPanel(boolean show) {
 		float scrollToVal = screenSize.y - (show ? convertDpToPixel(DEFAULT_PANEL_HEIGHT, getContext()) : 0);
 
 		LinearViewAnimatorTranslateYToPos(getTranslationY(), scrollToVal, 80l, new AnimatorUpdateListener() {

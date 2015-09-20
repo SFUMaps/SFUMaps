@@ -28,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
@@ -138,15 +139,22 @@ public class MainActivity extends AppCompatActivity
 
 
 	/**
+	 * True if the app is in navigation mode showing a route
+	 */
+	private boolean mNavigationMode = false;
+
+
+	/**
 	 * PathSearch.class used to create path searches
 	 */
 	private PathSearch mPathSearch;
 
 
 	/**
-	 * Holds the current selected place, i.e. the clicked marker
+	 * Used when a token is added to @link{mMapSearchView} to detect where the token came from.
+	 * If from view itself, then calculate camera zoom differently vs if came from marker clicked.
 	 */
-	private MapPlace mSelectedPlace;
+	private boolean mSearchViewUsed = true;
 
 
 	@Override
@@ -169,23 +177,21 @@ public class MainActivity extends AppCompatActivity
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.get_directions_fab:
-				// show search toolbar asking for place {FROM} and {TO}
+
+				// show search toolbar
 				mToolbar.animate()
 						.translationY(0)
 						.setInterpolator(new AccelerateInterpolator())
 						.setDuration(150l)
 						.start();
 
-				mDirectionsFAB.hide();
-
-				if (mMapSearchView.getObjects().size() == 1) {
-					mNavigationFromSearchView.addObject(mMapSearchView.getObjects().get(0));
-				}
-				if (mSelectedPlace != null) {
-					mNavigationFromSearchView.addObject(mSelectedPlace);
-				}
+				if (mMapSearchView.getObjects().size() == 1)
+					mNavigationFromSearchView.addObject(mPanelController.selectedPlace());
 
 				mPanelController.hidePanel();
+				mDirectionsFAB.hide();
+
+				mNavigationMode = true;
 
 				break;
 			default:
@@ -213,8 +219,10 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	public void onMapClick(LatLng latLng) {
-		mPanelController.hidePanel();
-		mSelectedPlace = null;
+		if (!mNavigationMode) {
+			mPanelController.setSelectedPlace(null);
+			mMapSearchView.clear();
+		}
 	}
 
 	@Override
@@ -239,24 +247,32 @@ public class MainActivity extends AppCompatActivity
 		// find the clicked marker
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
-			if (BuildConfig.DEBUG) { // edit place
-				new PlaceFormDialog(this, clickedPlaceIndex).show();
+			if (BuildConfig.DEBUG) {
+
+				if (!mNavigationMode) {
+
+					// set this place on the panel
+					mPanelController.setSelectedPlace(mAllMapPlaces.get(clickedPlaceIndex));
+
+					// set place on search view
+					mSearchViewUsed = false;
+					mMapSearchView.clear();
+					mMapSearchView.addObject(mPanelController.selectedPlace());
+
+					// hide toolbar
+					mToolbar.animate()
+							.translationY(-1 * getToolbarHeight())
+							.setInterpolator(new AccelerateInterpolator())
+							.setDuration(150l)
+							.start();
+
+					// animate camera just to center the place
+					mMap.animateCamera(CameraUpdateFactory.newLatLng(MercatorProjection.fromPointToLatLng(mPanelController.selectedPlace().getPosition())));
+				}
+
 			} else {
-				mSelectedPlace = mAllMapPlaces.get(clickedPlaceIndex);
-
-				mPanelController.setPlace(mSelectedPlace);
-
-				// set on place from
-				mNavigationFromSearchView.addObject(mSelectedPlace);
-
-				// show search toolbar asking for place {FROM} and {TO}
-				mToolbar.animate()
-						.translationY(-1 * getToolbarHeight())
-						.setInterpolator(new AccelerateInterpolator())
-						.setDuration(150l)
-						.start();
-
-				mDirectionsFAB.show();
+				// edit place
+				new PlaceFormDialog(this, clickedPlaceIndex).show();
 			}
 		}
 
@@ -295,25 +311,22 @@ public class MainActivity extends AppCompatActivity
 		switch (item.getItemId()) {
 			case android.R.id.home:
 
-				int statusBarHeight = getStatusBarHeight();
-				int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
-				int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
-
 				// show search toolbar asking for place {FROM} and {TO}
 				mToolbar.animate()
-						.translationY(-(toolbarHeight + statusBarHeight + extraPadding))
+						.translationY(-getToolbarHeight())
 						.setInterpolator(new AccelerateInterpolator())
 						.setDuration(150l)
 						.start();
 
+				mPanelController.showPanel();
 				mDirectionsFAB.show();
-
 				mPathSearch.clearPaths();
 
+				// clear text inputs
 				mNavigationFromSearchView.clear();
 				mNavigationToSearchView.clear();
 
-				mSelectedPlace = null;
+				mNavigationMode = false;
 
 				break;
 		}
@@ -324,20 +337,43 @@ public class MainActivity extends AppCompatActivity
 	public void onTokenAdded(Object o) {
 		if (mNavigationFromSearchView.getObjects().size() == 1 && mNavigationToSearchView.getObjects().size() == 1) {
 			hideKeyboard();
+
 			mPathSearch.newSearch(
 					mNavigationFromSearchView.getObjects().get(0),
 					mNavigationToSearchView.getObjects().get(0)
+			);
+
+			// center camera on map path
+			mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds.Builder()
+							.include(fromPointToLatLng(mNavigationFromSearchView.getObjects().get(0).getPosition()))
+							.include(fromPointToLatLng(mNavigationToSearchView.getObjects().get(0).getPosition()))
+							.build(), 100)
 			);
 		}
 
 		if (mMapSearchView.getObjects().size() == 1) {
 			hideKeyboard();
-			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(mMapSearchView.getObjects().get(0).getPosition()), mMapSearchView.getObjects().get(0).getZooms().get(0)));
+
+			// this is a way to detect if the token was added when the marker was clicked or
+			// the search box was actually used
+			MapPlace searchedPlace = mPanelController.selectedPlace();
+			if (searchedPlace == null) {
+				searchedPlace = mMapSearchView.getObjects().get(0);
+				if (mSearchViewUsed)
+					mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(searchedPlace.getPosition()), searchedPlace.getZooms().get(0)));
+				mPanelController.setSelectedPlace(searchedPlace);
+			}
 		}
+
+		// reset
+		mSearchViewUsed = true;
 	}
 
 	@Override
 	public void onTokenRemoved(Object o) {
+		if (mMapSearchView.getObjects().size() == 0) {
+			mPanelController.setSelectedPlace(null);
+		}
 	}
 
 
