@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/activity_main_search_box_shadow"
-            android:hint="Search SFU..."
+            android:hint="Search SFU"
             android:paddingEnd="15dp"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
@@ -89,7 +89,7 @@
 
     <!-- Search toolbar -->
     <android.support.v7.widget.Toolbar
-        android:id="@+id/search_toolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/activity_main_toolbar_height"
         android:background="?attr/colorPrimary"

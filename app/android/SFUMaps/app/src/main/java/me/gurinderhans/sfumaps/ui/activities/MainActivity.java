@@ -52,16 +52,14 @@ import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView;
 import me.gurinderhans.sfumaps.utils.CachedTileProvider;
 import me.gurinderhans.sfumaps.utils.MapTools;
-import me.gurinderhans.sfumaps.utils.MarkerCreator;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 import me.gurinderhans.sfumaps.utils.SVGTileProvider;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
-import static com.parse.ParseQuery.CachePolicy.CACHE_ELSE_NETWORK;
-import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.PARENT_PLACE;
 import static me.gurinderhans.sfumaps.factory.classes.MapPlace.mAllMapPlaces;
+import static me.gurinderhans.sfumaps.utils.MarkerCreator.createPlaceMarker;
 import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
 
 public class MainActivity extends AppCompatActivity
@@ -101,21 +99,21 @@ public class MainActivity extends AppCompatActivity
 
 
 	/**
-	 * the main app search box
+	 * The main app search box
 	 */
-	private MapPlaceSearchCompletionView mPlaceSearch;
+	private MapPlaceSearchCompletionView mMapSearchView;
 
 
 	/**
-	 * toolbar search box, holds the place navigating from
+	 * Toolbar search box, holds the place navigating from
 	 */
-	private MapPlaceSearchCompletionView mPlaceFromSearchBox;
+	private MapPlaceSearchCompletionView mNavigationFromSearchView;
 
 
 	/**
-	 * toolbar search box, holds the place navigating to
+	 * Toolbar search box, holds the place navigating to
 	 */
-	private MapPlaceSearchCompletionView mPlaceToSearchBox;
+	private MapPlaceSearchCompletionView mNavigationToSearchView;
 
 
 	/**
@@ -124,7 +122,7 @@ public class MainActivity extends AppCompatActivity
 	 * When onCameraChange() is called, this gets compared to the 'new' zoom to see if the zoom
 	 * level actually changed.
 	 */
-	private int mapCurrentZoom;
+	private int mMapZoom;
 
 
 	/**
@@ -136,7 +134,7 @@ public class MainActivity extends AppCompatActivity
 	/**
 	 * Search adapter used for searching through map places
 	 */
-	private ArrayAdapter<MapPlace> placeSearchAdapter;
+	private ArrayAdapter<MapPlace> mMapSearchAdapter;
 
 
 	/**
@@ -180,11 +178,11 @@ public class MainActivity extends AppCompatActivity
 
 				mDirectionsFAB.hide();
 
-				if (mPlaceSearch.getObjects().size() == 1) {
-					mPlaceFromSearchBox.addObject(mPlaceSearch.getObjects().get(0));
+				if (mMapSearchView.getObjects().size() == 1) {
+					mNavigationFromSearchView.addObject(mMapSearchView.getObjects().get(0));
 				}
 				if (mSelectedPlace != null) {
-					mPlaceFromSearchBox.addObject(mSelectedPlace);
+					mNavigationFromSearchView.addObject(mSelectedPlace);
 				}
 
 				mPanelController.hidePanel();
@@ -207,8 +205,8 @@ public class MainActivity extends AppCompatActivity
 			mMap.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
 
 		// 2. load this zoom markers
-		if (mapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
-			mapCurrentZoom = (int) cameraPosition.zoom;
+		if (mMapZoom != (int) cameraPosition.zoom) { // on zoom change
+			mMapZoom = (int) cameraPosition.zoom;
 			syncMarkers();
 		}
 	}
@@ -225,7 +223,7 @@ public class MainActivity extends AppCompatActivity
 
 			MapPlace newPlace = new MapPlace();
 			newPlace.setPosition(MercatorProjection.fromLatLngToPoint(latLng));
-			newPlace.setMapGizmo(MarkerCreator.createPlaceMarker(getApplicationContext(), mMap, newPlace));
+			newPlace.setMapGizmo(createPlaceMarker(getApplicationContext(), mMap, newPlace));
 			mAllMapPlaces.add(newPlace);
 
 			// send to edit
@@ -249,16 +247,11 @@ public class MainActivity extends AppCompatActivity
 				mPanelController.setPlace(mSelectedPlace);
 
 				// set on place from
-				mPlaceFromSearchBox.addObject(mSelectedPlace);
-
-				// hide search toolbar
-				int statusBarHeight = getStatusBarHeight();
-				int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
-				int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
+				mNavigationFromSearchView.addObject(mSelectedPlace);
 
 				// show search toolbar asking for place {FROM} and {TO}
 				mToolbar.animate()
-						.translationY(-(toolbarHeight + statusBarHeight + extraPadding))
+						.translationY(-1 * getToolbarHeight())
 						.setInterpolator(new AccelerateInterpolator())
 						.setDuration(150l)
 						.start();
@@ -317,8 +310,8 @@ public class MainActivity extends AppCompatActivity
 
 				mPathSearch.clearPaths();
 
-				mPlaceFromSearchBox.clear();
-				mPlaceToSearchBox.clear();
+				mNavigationFromSearchView.clear();
+				mNavigationToSearchView.clear();
 
 				mSelectedPlace = null;
 
@@ -329,17 +322,17 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	public void onTokenAdded(Object o) {
-		if (mPlaceFromSearchBox.getObjects().size() == 1 && mPlaceToSearchBox.getObjects().size() == 1) {
+		if (mNavigationFromSearchView.getObjects().size() == 1 && mNavigationToSearchView.getObjects().size() == 1) {
 			hideKeyboard();
 			mPathSearch.newSearch(
-					mPlaceFromSearchBox.getObjects().get(0),
-					mPlaceToSearchBox.getObjects().get(0)
+					mNavigationFromSearchView.getObjects().get(0),
+					mNavigationToSearchView.getObjects().get(0)
 			);
 		}
 
-		if (mPlaceSearch.getObjects().size() == 1) {
+		if (mMapSearchView.getObjects().size() == 1) {
 			hideKeyboard();
-			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(mPlaceSearch.getObjects().get(0).getPosition()), mPlaceSearch.getObjects().get(0).getZooms().get(0)));
+			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(mMapSearchView.getObjects().get(0).getPosition()), mMapSearchView.getObjects().get(0).getZooms().get(0)));
 		}
 	}
 
@@ -366,7 +359,8 @@ public class MainActivity extends AppCompatActivity
 	 * Initializes map search box and toolbar search
 	 */
 	private void setUpSearchAndToolbar() {
-		mToolbar = (Toolbar) findViewById(R.id.search_toolbar);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+
 		setSupportActionBar(mToolbar);
 
 		int statusBarHeight = getStatusBarHeight();
@@ -381,30 +375,31 @@ public class MainActivity extends AppCompatActivity
 		mToolbar.addView(view);
 
 		// customize action bar
-		final ActionBar ab = getSupportActionBar();
+		ActionBar ab = getSupportActionBar();
 		if (ab != null) {
 			ab.setDisplayShowTitleEnabled(false);
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 
-		/* setup search */
+		// search
 
-		mPlaceSearch = (MapPlaceSearchCompletionView) findViewById(R.id.main_search_view);
-		mPlaceSearch.setLayoutId(R.layout.activity_main_placesearch_token_layout);
+		mMapSearchView = (MapPlaceSearchCompletionView) findViewById(R.id.main_search_view);
+		mMapSearchView.setLayoutId(R.layout.activity_main_placesearch_token_layout);
 
-		mPlaceFromSearchBox = (MapPlaceSearchCompletionView) mToolbar.findViewById(R.id.place_from);
-		mPlaceToSearchBox = (MapPlaceSearchCompletionView) mToolbar.findViewById(R.id.place_to);
+		mNavigationFromSearchView = (MapPlaceSearchCompletionView) mToolbar.findViewById(R.id.place_from);
+		mNavigationToSearchView = (MapPlaceSearchCompletionView) mToolbar.findViewById(R.id.place_to);
 
-		placeSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
+		mMapSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
 
-		mPlaceSearch.setAdapter(placeSearchAdapter);
-		mPlaceFromSearchBox.setAdapter(placeSearchAdapter);
-		mPlaceToSearchBox.setAdapter(placeSearchAdapter);
+		// setup search adapter
+		mMapSearchView.setAdapter(mMapSearchAdapter);
+		mNavigationFromSearchView.setAdapter(mMapSearchAdapter);
+		mNavigationToSearchView.setAdapter(mMapSearchAdapter);
 
 		// add token listeners
-		mPlaceSearch.setTokenListener(this);
-		mPlaceFromSearchBox.setTokenListener(this);
-		mPlaceToSearchBox.setTokenListener(this);
+		mMapSearchView.setTokenListener(this);
+		mNavigationFromSearchView.setTokenListener(this);
+		mNavigationToSearchView.setTokenListener(this);
 
 	}
 
@@ -418,18 +413,17 @@ public class MainActivity extends AppCompatActivity
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
+		// map view
 		mMap = ((CustomMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map)).getMap();
 
-		// map options
 		mMap.setMapType(MAP_TYPE_NONE);
 		mMap.setIndoorEnabled(false);
 
 		// hide the marker toolbar - the two buttons on the bottom right that go to google maps
 		mMap.getUiSettings().setMapToolbarEnabled(false);
 
-		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
-
+		// event listeners
 		mMap.setOnCameraChangeListener(this);
 		mMap.setOnMapClickListener(this);
 		mMap.setOnMapLongClickListener(this);
@@ -450,6 +444,7 @@ public class MainActivity extends AppCompatActivity
 								getResources().getDisplayMetrics().densityDpi / 160f)))
 				.zIndex(11));
 
+		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 
 		mPathSearch = new PathSearch(mMap);
 	}
@@ -457,13 +452,12 @@ public class MainActivity extends AppCompatActivity
 
 	/**
 	 * Makes an asynchronous call to the Parse servers and loads all the @link{MapPlace} objects
-	 * into search adapter @link{placeSearchAdapter}
+	 * into search adapter @link{mMapSearchAdapter}
 	 */
 	public void fetchPlaces() {
 		// TODO: 15-09-17 Use local data-store as well
 		ParseQuery<MapPlace> query = ParseQuery.getQuery(CLASS);
 		query.include(PARENT_PLACE);
-		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
 		query.findInBackground(new FindCallback<MapPlace>() {
 			@Override
 			public void done(List<MapPlace> objects, ParseException e) {
@@ -471,8 +465,9 @@ public class MainActivity extends AppCompatActivity
 					return;
 
 				for (MapPlace place : objects) {
-					Marker marker = MarkerCreator.createPlaceMarker(
-							getApplicationContext(), mMap, place);
+
+					// FIXME: 15-09-20 an expensive call for the UI thread
+					Marker marker = createPlaceMarker(getApplicationContext(), mMap, place);
 					marker.setVisible(false);
 
 					place.setMapGizmo(marker);
@@ -480,7 +475,7 @@ public class MainActivity extends AppCompatActivity
 					mAllMapPlaces.add(place);
 				}
 
-				placeSearchAdapter.addAll(objects);
+				mMapSearchAdapter.addAll(objects);
 
 				syncMarkers();
 			}
@@ -496,9 +491,7 @@ public class MainActivity extends AppCompatActivity
 		mDirectionsFAB.setOnClickListener(this);
 
 		mPanelController = new SlidingUpPanelController(
-				(SlidingUpPanel) findViewById(R.id.sliding_panel),
-				mDirectionsFAB
-		);
+				(SlidingUpPanel) findViewById(R.id.sliding_panel), mDirectionsFAB);
 	}
 
 
@@ -506,9 +499,8 @@ public class MainActivity extends AppCompatActivity
 	 * Checks if @link{BuildConfig.DEBUG} is true, if yes, enables the custom dev options
 	 */
 	private void manageDevMode() {
-		if (BuildConfig.DEBUG) {
+		if (BuildConfig.DEBUG)
 			PathMaker.createPathMaker(this, mMap);
-		}
 	}
 
 
@@ -551,24 +543,13 @@ public class MainActivity extends AppCompatActivity
 	 * Called on zoom change, syncs the map markers to match current zoom level
 	 */
 	private void syncMarkers() {
-		for (MapPlace el : mAllMapPlaces) {
-			boolean containsZoom = false;
-			for (int zoom : el.getZooms()) {
-				if (zoom == mapCurrentZoom) {
-					containsZoom = true;
-					break;
-				} else {
-					containsZoom = false;
-				}
-			}
-			// set visibility
-			el.getMapGizmo().setVisible(containsZoom);
-		}
+		for (MapPlace el : mAllMapPlaces)
+			el.getMapGizmo().setVisible(el.getZooms().contains(mMapZoom));
 	}
 
 
 	/**
-	 * Helper method to find height of the status bar
+	 * Helper method to find height of the system status bar
 	 *
 	 * @return - height of the status bar
 	 */
@@ -579,6 +560,20 @@ public class MainActivity extends AppCompatActivity
 			result = getResources().getDimensionPixelSize(resourceId);
 		}
 		return result;
+	}
+
+
+	/**
+	 * Helper method to find height of the activity toolbar
+	 *
+	 * @return - the total height of toolbar
+	 */
+	public int getToolbarHeight() {
+		int statusBarHeight = getStatusBarHeight();
+		int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
+		int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
+
+		return statusBarHeight + toolbarHeight + extraPadding;
 	}
 
 
@@ -594,5 +589,6 @@ public class MainActivity extends AppCompatActivity
 				? svgTileProvider
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
 	}
+
 
 }

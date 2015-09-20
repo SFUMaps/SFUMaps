@@ -43,6 +43,8 @@ import static me.gurinderhans.sfumaps.utils.MapTools.getXYDist;
  */
 public class PathSearch {
 
+	// TODO: 15-09-16 Switch to AStar, Dijkstra is too slow!!
+
 	public static final String TAG = PathSearch.class.getSimpleName();
 
 	private final GoogleMap mGoogleMap;
@@ -157,7 +159,6 @@ public class PathSearch {
 		}
 	}
 
-	// TODO: 15-09-16 Switch to AStar, Dijkstra is too slow!!
 	public static void Dijkstra(MapGraph graph, MapGraphNode source) {
 
 		// reset graph
