@@ -98,53 +98,88 @@ public class MainActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		// setup from top down
 		setupStatusBar();
+		setUpSearchAndToolbar();
+		setUpMap();
+		fetchPlaces();
+		setupFABAndSlidingPanel();
+		manageDevMode();
+	}
 
-		setupToolbarAndSearch();
 
-		mFloatingActionButton = (FloatingActionButton) findViewById(R.id.get_directions_fab);
-		mFloatingActionButton.setOnClickListener(this);
+	/**
+	 * Makes the status bar transparent and allows views to be drawn behind the status bar
+	 */
+	private void setupStatusBar() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+			getWindow().getDecorView().setSystemUiVisibility(
+					View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+							| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
-		mPanelController = new SlidingUpPanelController(
-				(SlidingUpPanel) findViewById(R.id.sliding_panel),
-				mFloatingActionButton
-		);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+			getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.transparent_status_bar_color));
+	}
+
+
+	/**
+	 * Initializes map search box and toolbar search
+	 */
+	private void setUpSearchAndToolbar() {
+		mSearchToolbar = (Toolbar) findViewById(R.id.search_toolbar);
+		setSupportActionBar(mSearchToolbar);
+
+		int statusBarHeight = getStatusBarHeight();
+		int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
+		int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
+
+		mSearchToolbar.setPadding(0, statusBarHeight + extraPadding, 0, extraPadding);
+		mSearchToolbar.setTranslationY(-(toolbarHeight + statusBarHeight + extraPadding));
+
+		// add the search layout
+		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, mSearchToolbar, false);
+		mSearchToolbar.addView(view);
+
+		// customize action bar
+		final ActionBar ab = getSupportActionBar();
+		if (ab != null) {
+			ab.setDisplayShowTitleEnabled(false);
+			ab.setDisplayHomeAsUpEnabled(true);
+		}
+
+		/* setup search */
+
+		mPlaceSearch = (MapPlaceSearchCompletionView) findViewById(R.id.main_search_view);
+		mPlaceSearch.setLayoutId(R.layout.activity_main_placesearch_token_layout);
+
+		mPlaceFromSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_from);
+		mPlaceToSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_to);
+
+		placeSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
+
+		mPlaceSearch.setAdapter(placeSearchAdapter);
+		mPlaceFromSearchBox.setAdapter(placeSearchAdapter);
+		mPlaceToSearchBox.setAdapter(placeSearchAdapter);
+
+		// add token listeners
+		mPlaceSearch.setTokenListener(this);
+		mPlaceFromSearchBox.setTokenListener(this);
+		mPlaceToSearchBox.setTokenListener(this);
+
+	}
+
+
+	/**
+	 * Retrieves the Google Maps fragment and loads the custom settings such as custom Map tiles
+	 * plus registers different listener events on the Map
+	 */
+	private void setUpMap() {
 
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		// additional setup
-		setUpMapIfNeeded();
-		fetchPlaces();
-
-		// requires Map object
-		mPathSearch = new PathSearch(Map);
-
-
-		//
-		// MARK: DEV Controls
-		//
-
-
-		if (BuildConfig.DEBUG) {
-			PathMaker.createPathMaker(this, Map);
-		}
-	}
-
-	private void setUpMapIfNeeded() {
-		// Do a null check to confirm that we have not already instantiated the map.
-		if (Map == null) {
-
-			Map = ((CustomMapFragment) getSupportFragmentManager()
-					.findFragmentById(R.id.map)).getMap();
-
-			// set up map UI
-			if (Map != null)
-				setUpMap();
-		}
-	}
-
-	private void setUpMap() {
+		Map = ((CustomMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.map)).getMap();
 
 		// map options
 		Map.setMapType(MAP_TYPE_NONE);
@@ -175,13 +210,149 @@ public class MainActivity extends AppCompatActivity
 				.zIndex(11));
 
 
+		mPathSearch = new PathSearch(Map);
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		setUpMapIfNeeded();
+
+	/**
+	 * Makes an asynchronous call to the Parse servers and loads all the @link{MapPlace} objects
+	 * into search adapter @link{placeSearchAdapter}
+	 */
+	public void fetchPlaces() {
+		// TODO: 15-09-17 Use local data-store as well
+		ParseQuery<MapPlace> query = ParseQuery.getQuery(CLASS);
+		query.include(PARENT_PLACE);
+		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
+		query.findInBackground(new FindCallback<MapPlace>() {
+			@Override
+			public void done(List<MapPlace> objects, ParseException e) {
+				if (e != null) // There was an error or the network wasn't available.
+					return;
+
+				for (MapPlace place : objects) {
+					Marker marker = MarkerCreator.createPlaceMarker(
+							getApplicationContext(), Map, place);
+					marker.setVisible(false);
+
+					place.setMapGizmo(marker);
+
+					mAllMapPlaces.add(place);
+				}
+
+				placeSearchAdapter.addAll(objects);
+
+				syncMarkers();
+			}
+		});
 	}
+
+
+	/**
+	 * Sets up the @link{SlidingUpPanel} and @link{FloatingActionButton} to be used for the app
+	 */
+	private void setupFABAndSlidingPanel() {
+		mFloatingActionButton = (FloatingActionButton) findViewById(R.id.get_directions_fab);
+		mFloatingActionButton.setOnClickListener(this);
+
+		mPanelController = new SlidingUpPanelController(
+				(SlidingUpPanel) findViewById(R.id.sliding_panel),
+				mFloatingActionButton
+		);
+	}
+
+
+	/**
+	 * Checks if @link{BuildConfig.DEBUG} is true, if yes, enables the custom dev options
+	 */
+	private void manageDevMode() {
+		if (BuildConfig.DEBUG) {
+			PathMaker.createPathMaker(this, Map);
+		}
+	}
+
+	/**
+	 * Helper method to hide the keyboard
+	 */
+	private void hideKeyboard() {
+		// Check if no view has focus:
+		View view = this.getCurrentFocus();
+		if (view != null) {
+			InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+		}
+	}
+
+
+	/**
+	 * Helper method to search through the local places list and find the place mathcing given
+	 * input position
+	 *
+	 * @param placePos - position of the place to find
+	 * @return - index of place in List @link{mAllMapPlaces}
+	 */
+	private int getPlaceIndex(LatLng placePos) {
+
+		for (int i = 0; i < mAllMapPlaces.size(); i++) {
+			// level the LatLng to same 'precision'
+			PointF thisMarkerPoint = MercatorProjection.fromLatLngToPoint(
+					mAllMapPlaces.get(i).getMapGizmo().getPosition());
+
+			if (thisMarkerPoint.equals(MercatorProjection.fromLatLngToPoint(placePos)))
+				return i;
+		}
+
+		return -1;
+	}
+
+
+	/**
+	 * Called on zoom change, syncs the map markers to match current zoom level
+	 */
+	private void syncMarkers() {
+		for (MapPlace el : mAllMapPlaces) {
+			boolean containsZoom = false;
+			for (int zoom : el.getZooms()) {
+				if (zoom == mapCurrentZoom) {
+					containsZoom = true;
+					break;
+				} else {
+					containsZoom = false;
+				}
+			}
+			// set visibility
+			el.getMapGizmo().setVisible(containsZoom);
+		}
+	}
+
+
+	/**
+	 * Helper method to find height of the status bar
+	 *
+	 * @return - height of the status bar
+	 */
+	public int getStatusBarHeight() {
+		int result = 0;
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			result = getResources().getDimensionPixelSize(resourceId);
+		}
+		return result;
+	}
+
+
+	/**
+	 * Helper method to choose tile provider
+	 *
+	 * @param layer           - layer number for overlay tile provider to keep cache tiles for each overlay separate
+	 * @param svgTileProvider - an instance of SVGTileProvider.class
+	 * @return - IF cache supported, CachedTileProvider object ELSE the given SVGTileProvider object
+	 */
+	public TileProvider getTileProvider(int layer, SVGTileProvider svgTileProvider) {
+		return mTileCache == null
+				? svgTileProvider
+				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
+	}
+
 
 	@Override
 	public void onClick(View v) {
@@ -361,156 +532,6 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	public void onTokenRemoved(Object o) {
-	}
-
-
-	//
-	// MARK: Custom helper methods
-	//
-
-	private void hideKeyboard() {
-		// Check if no view has focus:
-		View view = this.getCurrentFocus();
-		if (view != null) {
-			InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-			inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-		}
-	}
-
-	private void setupStatusBar() {
-		// make the status bar transparent
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-			getWindow().getDecorView().setSystemUiVisibility(
-					View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-							| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-			getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.transparent_status_bar_color));
-	}
-
-	private void setupToolbarAndSearch() {
-		mSearchToolbar = (Toolbar) findViewById(R.id.search_toolbar);
-		setSupportActionBar(mSearchToolbar);
-
-		int statusBarHeight = getStatusBarHeight();
-		int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
-		int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
-
-		mSearchToolbar.setPadding(0, statusBarHeight + extraPadding, 0, extraPadding);
-		mSearchToolbar.setTranslationY(-(toolbarHeight + statusBarHeight + extraPadding));
-
-		// add the search layout
-		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, mSearchToolbar, false);
-		mSearchToolbar.addView(view);
-
-		// customize action bar
-		final ActionBar ab = getSupportActionBar();
-		if (ab != null) {
-			ab.setDisplayShowTitleEnabled(false);
-			ab.setDisplayHomeAsUpEnabled(true);
-		}
-
-		/* setup search */
-
-		mPlaceSearch = (MapPlaceSearchCompletionView) findViewById(R.id.main_search_view);
-		mPlaceSearch.setLayoutId(R.layout.activity_main_placesearch_token_layout);
-
-		mPlaceFromSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_from);
-		mPlaceToSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_to);
-
-		placeSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
-
-		mPlaceSearch.setAdapter(placeSearchAdapter);
-		mPlaceFromSearchBox.setAdapter(placeSearchAdapter);
-		mPlaceToSearchBox.setAdapter(placeSearchAdapter);
-
-		// add token listeners
-		mPlaceSearch.setTokenListener(this);
-		mPlaceFromSearchBox.setTokenListener(this);
-		mPlaceToSearchBox.setTokenListener(this);
-
-	}
-
-	public void fetchPlaces() {
-		// TODO: 15-09-17 Use local data-store as well
-		ParseQuery<MapPlace> query = ParseQuery.getQuery(CLASS);
-		query.include(PARENT_PLACE);
-		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
-		query.findInBackground(new FindCallback<MapPlace>() {
-			@Override
-			public void done(List<MapPlace> objects, ParseException e) {
-
-				if (e != null) // There was an error or the network wasn't available.
-					return;
-
-				for (MapPlace place : objects) {
-					Marker marker = MarkerCreator.createPlaceMarker(
-							getApplicationContext(), Map, place);
-					marker.setVisible(false);
-
-					place.setMapGizmo(marker);
-
-					mAllMapPlaces.add(place);
-				}
-
-				placeSearchAdapter.addAll(objects);
-
-				syncMarkers();
-			}
-		});
-	}
-
-	private int getPlaceIndex(LatLng placePos) {
-
-		for (int i = 0; i < mAllMapPlaces.size(); i++) {
-			// level the LatLng to same 'precision'
-			PointF thisMarkerPoint = MercatorProjection.fromLatLngToPoint(
-					mAllMapPlaces.get(i).getMapGizmo().getPosition());
-
-			if (thisMarkerPoint.equals(MercatorProjection.fromLatLngToPoint(placePos)))
-				return i;
-		}
-
-		return -1;
-	}
-
-	private void syncMarkers() {
-		for (MapPlace el : mAllMapPlaces)
-			for (int zoom : el.getZooms()) {
-				if (zoom == mapCurrentZoom) {
-					el.getMapGizmo().setVisible(true);
-					break;
-				} else {
-					el.getMapGizmo().setVisible(false);
-				}
-			}
-	}
-
-	/**
-	 * A method to find height of the status bar
-	 *
-	 * @return - height of the status bar
-	 */
-	public int getStatusBarHeight() {
-		int result = 0;
-		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-		if (resourceId > 0) {
-			result = getResources().getDimensionPixelSize(resourceId);
-		}
-		return result;
-	}
-
-	/**
-	 * Helper method to choose tile provider
-	 *
-	 * @param layer           - layer number for overlay tile provider to keep cache tiles for each overlay separate
-	 * @param svgTileProvider - an instance of SVGTileProvider.class
-	 * @return - IF cache supported, CachedTileProvider object ELSE the given SVGTileProvider object
-	 */
-	public TileProvider getTileProvider(int layer, SVGTileProvider svgTileProvider) {
-		return mTileCache == null
-				? svgTileProvider
-				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
 	}
 
 }
