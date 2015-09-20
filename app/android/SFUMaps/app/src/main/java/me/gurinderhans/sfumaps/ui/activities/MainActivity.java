@@ -199,6 +199,8 @@ public class MainActivity extends AppCompatActivity
 					mPlaceFromSearchBox.addObject(mPlaceSearch.getObjects().get(0));
 				}
 
+				mPanelController.hidePanel();
+
 				break;
 			default:
 				break;
@@ -226,6 +228,7 @@ public class MainActivity extends AppCompatActivity
 	@Override
 	public void onMapClick(LatLng latLng) {
 		mPanelController.hidePanel();
+		mPlaceFromSearchBox.clear();
 	}
 
 	@Override
@@ -250,10 +253,27 @@ public class MainActivity extends AppCompatActivity
 		// find the clicked marker
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
-			if (BuildConfig.DEBUG) { // edit place
+			if (!BuildConfig.DEBUG) { // edit place
 				new PlaceFormDialog(this, clickedPlaceIndex).show();
 			} else {
 				mPanelController.setPlace(mAllMapPlaces.get(clickedPlaceIndex));
+
+				// set on place from
+				mPlaceFromSearchBox.addObject(mAllMapPlaces.get(clickedPlaceIndex));
+
+				// hide search toolbar
+				int statusBarHeight = getStatusBarHeight();
+				int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
+				int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
+
+				// show search toolbar asking for place {FROM} and {TO}
+				mSearchToolbar.animate()
+						.translationY(-(toolbarHeight + statusBarHeight + extraPadding))
+						.setInterpolator(new AccelerateInterpolator())
+						.setDuration(150l)
+						.start();
+
+				mFloatingActionButton.show();
 			}
 		}
 
