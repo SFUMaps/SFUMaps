@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps.factory.classes;
 
 import android.graphics.PointF;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.ParseClassName;
@@ -37,9 +38,13 @@ public class MapPlace extends ParseObject {
 	public MapPlace() {
 	}
 
-	public MapPlace(String title) {
+	private MapPlace(String title) {
 		/* constructor only to be used for AutocompleteTextView adding view tokens */
 		put(ParseMapPlace.TITLE, title);
+	}
+
+	public static MapPlace createPlace(String title) {
+		return new MapPlace(title);
 	}
 
 	/* Parse methods */
@@ -140,7 +145,14 @@ public class MapPlace extends ParseObject {
 	 */
 	@Override
 	public String toString() {
-		return getTitle();
+		String returnTitle = "";
+
+		if (getParentPlace() != null)
+			returnTitle = getParentPlace().getTitle() + " ";
+
+		returnTitle += getTitle();
+
+		return returnTitle;
 	}
 
 
@@ -151,6 +163,19 @@ public class MapPlace extends ParseObject {
 
 	public Marker getMapGizmo() {
 		return mPlaceMarker;
+	}
+
+
+	// not too sure about this functions implementation, how would it deal with two places with same name if case be?
+	@Nullable
+	public static MapPlace findPlaceWithTitle(String title) {
+		for (MapPlace place : mAllMapPlaces) {
+			if (place.getTitle().equals(title)) {
+				return place;
+			}
+		}
+
+		return null;
 	}
 }
 

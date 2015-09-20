@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginEnd="40dp"
+              android:layout_marginRight="40dp"
+              android:background="@color/app_color_primary"
+              android:orientation="vertical">
+
+    <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView
+        android:id="@+id/place_from"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="#26FFFFFF"
+        android:hint="from"
+        android:paddingBottom="7dp"
+        android:paddingEnd="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="7dp"
+        android:singleLine="true"
+        android:textColor="@android:color/white"
+        android:textColorHint="#B3FFFFFF"
+        android:textCursorDrawable="@null"
+        android:textSize="16sp"/>
+
+    <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView
+        android:id="@+id/place_to"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#26FFFFFF"
+        android:hint="destination"
+        android:paddingBottom="7dp"
+        android:paddingEnd="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="7dp"
+        android:singleLine="true"
+        android:textColor="@android:color/white"
+        android:textColorHint="#B3FFFFFF"
+        android:textCursorDrawable="@null"
+        android:textSize="16sp"/>
+
+</LinearLayout>

@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -19,11 +20,12 @@
         android:layout_marginTop="10dp"
         android:fitsSystemWindows="true">
 
-        <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchBoxView
+        <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView
             android:id="@+id/main_search_view"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/activity_main_search_box_shadow"
+            android:hint="Search SFU..."
             android:paddingEnd="15dp"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
@@ -32,11 +34,31 @@
 
     </LinearLayout>
 
-    <me.gurinderhans.sfumaps.ui.sliding_panel.SlidingUpPanel
+    <me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel
         android:id="@+id/sliding_panel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@android:color/white"/>
+        android:background="@android:color/white">
+
+        <include
+            android:id="@+id/sliding_panel_collapsed_layout"
+            layout="@layout/activity_main_sliding_panel_collapsed_single_place"/>
+
+    </me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/get_directions_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_directions_white_48dp"
+        app:backgroundTint="@color/app_color_primary"
+        app:borderWidth="0dp"
+        app:elevation="3dp"
+        app:rippleColor="#4DFFFFFF"/>
 
     <!-- Dev mode layout -->
     <RelativeLayout
@@ -64,5 +86,14 @@
             android:layout_marginTop="100dp"/>
 
     </RelativeLayout>
+
+    <!-- Search toolbar -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/search_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_main_toolbar_height"
+        android:background="?attr/colorPrimary"
+        app:elevation="5dp"
+        app:theme="@style/MainActivity"/>
 
 </RelativeLayout>
