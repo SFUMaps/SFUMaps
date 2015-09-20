@@ -76,18 +76,78 @@ public class MainActivity extends AppCompatActivity
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
-	// UI
-	private GoogleMap Map;
-	private SlidingUpPanelController mPanelController;
-	private Toolbar mSearchToolbar;
-	private FloatingActionButton mFloatingActionButton;
-	private MapPlaceSearchCompletionView mPlaceSearch, mPlaceFromSearchBox, mPlaceToSearchBox;
+	/**
+	 * The Map View
+	 */
+	private GoogleMap mMap;
 
-	// Data
-	private int mapCurrentZoom; // used for detecting when map zoom changes
+
+	/**
+	 * Custom controller to handle the sliding panel
+	 */
+	private SlidingUpPanelController mPanelController;
+
+
+	/**
+	 * Main activity toolbar
+	 */
+	private Toolbar mToolbar;
+
+
+	/**
+	 * Get directions floating action button
+	 */
+	private FloatingActionButton mDirectionsFAB;
+
+
+	/**
+	 * the main app search box
+	 */
+	private MapPlaceSearchCompletionView mPlaceSearch;
+
+
+	/**
+	 * toolbar search box, holds the place navigating from
+	 */
+	private MapPlaceSearchCompletionView mPlaceFromSearchBox;
+
+
+	/**
+	 * toolbar search box, holds the place navigating to
+	 */
+	private MapPlaceSearchCompletionView mPlaceToSearchBox;
+
+
+	/**
+	 * Stores the current map zoom
+	 * <p/>
+	 * When onCameraChange() is called, this gets compared to the 'new' zoom to see if the zoom
+	 * level actually changed.
+	 */
+	private int mapCurrentZoom;
+
+
+	/**
+	 * Disk cache used to cache map tiles that were not previously in cache.
+	 */
 	private DiskLruCache mTileCache;
+
+
+	/**
+	 * Search adapter used for searching through map places
+	 */
 	private ArrayAdapter<MapPlace> placeSearchAdapter;
+
+
+	/**
+	 * PathSearch.class used to create path searches
+	 */
 	private PathSearch mPathSearch;
+
+
+	/**
+	 * Holds the current selected place, i.e. the clicked marker
+	 */
 	private MapPlace mSelectedPlace;
 
 
@@ -105,6 +165,186 @@ public class MainActivity extends AppCompatActivity
 		fetchPlaces();
 		setupFABAndSlidingPanel();
 		manageDevMode();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+			case R.id.get_directions_fab:
+				// show search toolbar asking for place {FROM} and {TO}
+				mToolbar.animate()
+						.translationY(0)
+						.setInterpolator(new AccelerateInterpolator())
+						.setDuration(150l)
+						.start();
+
+				mDirectionsFAB.hide();
+
+				if (mPlaceSearch.getObjects().size() == 1) {
+					mPlaceFromSearchBox.addObject(mPlaceSearch.getObjects().get(0));
+				}
+				if (mSelectedPlace != null) {
+					mPlaceFromSearchBox.addObject(mSelectedPlace);
+				}
+
+				mPanelController.hidePanel();
+
+				break;
+			default:
+				break;
+		}
+	}
+
+	@Override
+	public void onCameraChange(CameraPosition cameraPosition) {
+
+		// Temp: set map zoom on textview
+		((TextView) findViewById(R.id.map_current_zoom)).setText(cameraPosition.zoom + "");
+
+		// 1. limit map max zoom
+		float maxZoom = 8f;
+		if (cameraPosition.zoom > maxZoom)
+			mMap.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
+
+		// 2. load this zoom markers
+		if (mapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
+			mapCurrentZoom = (int) cameraPosition.zoom;
+			syncMarkers();
+		}
+	}
+
+	@Override
+	public void onMapClick(LatLng latLng) {
+		mPanelController.hidePanel();
+		mSelectedPlace = null;
+	}
+
+	@Override
+	public void onMapLongClick(LatLng latLng) {
+		if (BuildConfig.DEBUG && !PathMaker.isEditingMap) {
+
+			MapPlace newPlace = new MapPlace();
+			newPlace.setPosition(MercatorProjection.fromLatLngToPoint(latLng));
+			newPlace.setMapGizmo(MarkerCreator.createPlaceMarker(getApplicationContext(), mMap, newPlace));
+			mAllMapPlaces.add(newPlace);
+
+			// send to edit
+			new PlaceFormDialog(this,
+					getPlaceIndex(fromPointToLatLng(newPlace.getPosition())))
+					.show();
+		}
+	}
+
+	@Override
+	public boolean onMarkerClick(Marker marker) {
+
+		// find the clicked marker
+		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
+		if (clickedPlaceIndex != -1) {
+			if (BuildConfig.DEBUG) { // edit place
+				new PlaceFormDialog(this, clickedPlaceIndex).show();
+			} else {
+				mSelectedPlace = mAllMapPlaces.get(clickedPlaceIndex);
+
+				mPanelController.setPlace(mSelectedPlace);
+
+				// set on place from
+				mPlaceFromSearchBox.addObject(mSelectedPlace);
+
+				// hide search toolbar
+				int statusBarHeight = getStatusBarHeight();
+				int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
+				int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
+
+				// show search toolbar asking for place {FROM} and {TO}
+				mToolbar.animate()
+						.translationY(-(toolbarHeight + statusBarHeight + extraPadding))
+						.setInterpolator(new AccelerateInterpolator())
+						.setDuration(150l)
+						.start();
+
+				mDirectionsFAB.show();
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public void onMarkerDragStart(Marker marker) {
+	}
+
+	@Override
+	public void onMarkerDrag(Marker marker) {
+	}
+
+	@Override
+	public void onMarkerDragEnd(Marker marker) {
+
+		// find the clicked marker
+		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
+		if (draggedPlaceIndex != -1) {
+			mAllMapPlaces.get(draggedPlaceIndex).setPosition(
+					MercatorProjection.fromLatLngToPoint(marker.getPosition())
+			);
+
+			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
+				@Override
+				public void done(ParseException e) {
+					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
+				}
+			});
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+
+				int statusBarHeight = getStatusBarHeight();
+				int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
+				int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
+
+				// show search toolbar asking for place {FROM} and {TO}
+				mToolbar.animate()
+						.translationY(-(toolbarHeight + statusBarHeight + extraPadding))
+						.setInterpolator(new AccelerateInterpolator())
+						.setDuration(150l)
+						.start();
+
+				mDirectionsFAB.show();
+
+				mPathSearch.clearPaths();
+
+				mPlaceFromSearchBox.clear();
+				mPlaceToSearchBox.clear();
+
+				mSelectedPlace = null;
+
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onTokenAdded(Object o) {
+		if (mPlaceFromSearchBox.getObjects().size() == 1 && mPlaceToSearchBox.getObjects().size() == 1) {
+			hideKeyboard();
+			mPathSearch.newSearch(
+					mPlaceFromSearchBox.getObjects().get(0),
+					mPlaceToSearchBox.getObjects().get(0)
+			);
+		}
+
+		if (mPlaceSearch.getObjects().size() == 1) {
+			hideKeyboard();
+			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(mPlaceSearch.getObjects().get(0).getPosition()), mPlaceSearch.getObjects().get(0).getZooms().get(0)));
+		}
+	}
+
+	@Override
+	public void onTokenRemoved(Object o) {
 	}
 
 
@@ -126,19 +366,19 @@ public class MainActivity extends AppCompatActivity
 	 * Initializes map search box and toolbar search
 	 */
 	private void setUpSearchAndToolbar() {
-		mSearchToolbar = (Toolbar) findViewById(R.id.search_toolbar);
-		setSupportActionBar(mSearchToolbar);
+		mToolbar = (Toolbar) findViewById(R.id.search_toolbar);
+		setSupportActionBar(mToolbar);
 
 		int statusBarHeight = getStatusBarHeight();
 		int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
 		int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
 
-		mSearchToolbar.setPadding(0, statusBarHeight + extraPadding, 0, extraPadding);
-		mSearchToolbar.setTranslationY(-(toolbarHeight + statusBarHeight + extraPadding));
+		mToolbar.setPadding(0, statusBarHeight + extraPadding, 0, extraPadding);
+		mToolbar.setTranslationY(-(toolbarHeight + statusBarHeight + extraPadding));
 
 		// add the search layout
-		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, mSearchToolbar, false);
-		mSearchToolbar.addView(view);
+		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, mToolbar, false);
+		mToolbar.addView(view);
 
 		// customize action bar
 		final ActionBar ab = getSupportActionBar();
@@ -152,8 +392,8 @@ public class MainActivity extends AppCompatActivity
 		mPlaceSearch = (MapPlaceSearchCompletionView) findViewById(R.id.main_search_view);
 		mPlaceSearch.setLayoutId(R.layout.activity_main_placesearch_token_layout);
 
-		mPlaceFromSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_from);
-		mPlaceToSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_to);
+		mPlaceFromSearchBox = (MapPlaceSearchCompletionView) mToolbar.findViewById(R.id.place_from);
+		mPlaceToSearchBox = (MapPlaceSearchCompletionView) mToolbar.findViewById(R.id.place_to);
 
 		placeSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
 
@@ -170,47 +410,48 @@ public class MainActivity extends AppCompatActivity
 
 
 	/**
-	 * Retrieves the Google Maps fragment and loads the custom settings such as custom Map tiles
-	 * plus registers different listener events on the Map
+	 * Retrieves the Google Maps fragment and loads the custom settings such as custom map tiles
+	 * plus registers different listener events on the map
 	 */
 	private void setUpMap() {
 
 		// cache for map tiles
 		mTileCache = MapTools.openDiskCache(this);
 
-		Map = ((CustomMapFragment) getSupportFragmentManager()
+		mMap = ((CustomMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map)).getMap();
 
 		// map options
-		Map.setMapType(MAP_TYPE_NONE);
-		Map.setIndoorEnabled(false);
-		// hide the marker mSearchToolbar - the two buttons on the bottom right that go to google maps
-		Map.getUiSettings().setMapToolbarEnabled(false);
+		mMap.setMapType(MAP_TYPE_NONE);
+		mMap.setIndoorEnabled(false);
 
-		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
+		// hide the marker toolbar - the two buttons on the bottom right that go to google maps
+		mMap.getUiSettings().setMapToolbarEnabled(false);
 
-		Map.setOnCameraChangeListener(this);
-		Map.setOnMapClickListener(this);
-		Map.setOnMapLongClickListener(this);
-		Map.setOnMarkerClickListener(this);
-		Map.setOnMarkerDragListener(this);
+		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
+
+		mMap.setOnCameraChangeListener(this);
+		mMap.setOnMapClickListener(this);
+		mMap.setOnMapLongClickListener(this);
+		mMap.setOnMarkerClickListener(this);
+		mMap.setOnMarkerDragListener(this);
 
 		// base map overlay
-		Map.addTileOverlay(new TileOverlayOptions()
+		mMap.addTileOverlay(new TileOverlayOptions()
 				.tileProvider(
 						getTileProvider(1, new SVGTileProvider(MapTools.getBaseMapTiles(this),
 								getResources().getDisplayMetrics().densityDpi / 160f)))
 				.zIndex(10));
 
 		// overlay tile provider to switch floor level stuff
-		Map.addTileOverlay(new TileOverlayOptions()
+		mMap.addTileOverlay(new TileOverlayOptions()
 				.tileProvider(
 						getTileProvider(2, new SVGTileProvider(MapTools.getOverlayTiles(this),
 								getResources().getDisplayMetrics().densityDpi / 160f)))
 				.zIndex(11));
 
 
-		mPathSearch = new PathSearch(Map);
+		mPathSearch = new PathSearch(mMap);
 	}
 
 
@@ -231,7 +472,7 @@ public class MainActivity extends AppCompatActivity
 
 				for (MapPlace place : objects) {
 					Marker marker = MarkerCreator.createPlaceMarker(
-							getApplicationContext(), Map, place);
+							getApplicationContext(), mMap, place);
 					marker.setVisible(false);
 
 					place.setMapGizmo(marker);
@@ -251,12 +492,12 @@ public class MainActivity extends AppCompatActivity
 	 * Sets up the @link{SlidingUpPanel} and @link{FloatingActionButton} to be used for the app
 	 */
 	private void setupFABAndSlidingPanel() {
-		mFloatingActionButton = (FloatingActionButton) findViewById(R.id.get_directions_fab);
-		mFloatingActionButton.setOnClickListener(this);
+		mDirectionsFAB = (FloatingActionButton) findViewById(R.id.get_directions_fab);
+		mDirectionsFAB.setOnClickListener(this);
 
 		mPanelController = new SlidingUpPanelController(
 				(SlidingUpPanel) findViewById(R.id.sliding_panel),
-				mFloatingActionButton
+				mDirectionsFAB
 		);
 	}
 
@@ -266,9 +507,10 @@ public class MainActivity extends AppCompatActivity
 	 */
 	private void manageDevMode() {
 		if (BuildConfig.DEBUG) {
-			PathMaker.createPathMaker(this, Map);
+			PathMaker.createPathMaker(this, mMap);
 		}
 	}
+
 
 	/**
 	 * Helper method to hide the keyboard
@@ -351,187 +593,6 @@ public class MainActivity extends AppCompatActivity
 		return mTileCache == null
 				? svgTileProvider
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
-	}
-
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.get_directions_fab:
-				// show search toolbar asking for place {FROM} and {TO}
-				mSearchToolbar.animate()
-						.translationY(0)
-						.setInterpolator(new AccelerateInterpolator())
-						.setDuration(150l)
-						.start();
-
-				mFloatingActionButton.hide();
-
-				if (mPlaceSearch.getObjects().size() == 1) {
-					mPlaceFromSearchBox.addObject(mPlaceSearch.getObjects().get(0));
-				}
-				if (mSelectedPlace != null) {
-					mPlaceFromSearchBox.addObject(mSelectedPlace);
-				}
-
-				mPanelController.hidePanel();
-
-				break;
-			default:
-				break;
-		}
-	}
-
-	@Override
-	public void onCameraChange(CameraPosition cameraPosition) {
-
-		// Temp: set map zoom on textview
-		((TextView) findViewById(R.id.map_current_zoom)).setText(cameraPosition.zoom + "");
-
-		// 1. limit map max zoom
-		float maxZoom = 8f;
-		if (cameraPosition.zoom > maxZoom)
-			Map.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
-
-		// 2. load this zoom markers
-		if (mapCurrentZoom != (int) cameraPosition.zoom) { // on zoom change
-			mapCurrentZoom = (int) cameraPosition.zoom;
-			syncMarkers();
-		}
-	}
-
-	@Override
-	public void onMapClick(LatLng latLng) {
-		mPanelController.hidePanel();
-		mSelectedPlace = null;
-	}
-
-	@Override
-	public void onMapLongClick(LatLng latLng) {
-		if (BuildConfig.DEBUG && !PathMaker.isEditingMap) {
-
-			MapPlace newPlace = new MapPlace();
-			newPlace.setPosition(MercatorProjection.fromLatLngToPoint(latLng));
-			newPlace.setMapGizmo(MarkerCreator.createPlaceMarker(getApplicationContext(), Map, newPlace));
-			mAllMapPlaces.add(newPlace);
-
-			// send to edit
-			new PlaceFormDialog(this,
-					getPlaceIndex(fromPointToLatLng(newPlace.getPosition())))
-					.show();
-		}
-	}
-
-	@Override
-	public boolean onMarkerClick(Marker marker) {
-
-		// find the clicked marker
-		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
-		if (clickedPlaceIndex != -1) {
-			if (BuildConfig.DEBUG) { // edit place
-				new PlaceFormDialog(this, clickedPlaceIndex).show();
-			} else {
-				mSelectedPlace = mAllMapPlaces.get(clickedPlaceIndex);
-
-				mPanelController.setPlace(mSelectedPlace);
-
-				// set on place from
-				mPlaceFromSearchBox.addObject(mSelectedPlace);
-
-				// hide search toolbar
-				int statusBarHeight = getStatusBarHeight();
-				int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
-				int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
-
-				// show search toolbar asking for place {FROM} and {TO}
-				mSearchToolbar.animate()
-						.translationY(-(toolbarHeight + statusBarHeight + extraPadding))
-						.setInterpolator(new AccelerateInterpolator())
-						.setDuration(150l)
-						.start();
-
-				mFloatingActionButton.show();
-			}
-		}
-
-		return true;
-	}
-
-	@Override
-	public void onMarkerDragStart(Marker marker) {
-	}
-
-	@Override
-	public void onMarkerDrag(Marker marker) {
-	}
-
-	@Override
-	public void onMarkerDragEnd(Marker marker) {
-
-		// find the clicked marker
-		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
-		if (draggedPlaceIndex != -1) {
-			mAllMapPlaces.get(draggedPlaceIndex).setPosition(
-					MercatorProjection.fromLatLngToPoint(marker.getPosition())
-			);
-
-			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
-				@Override
-				public void done(ParseException e) {
-					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
-				}
-			});
-		}
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-
-				int statusBarHeight = getStatusBarHeight();
-				int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
-				int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
-
-				// show search toolbar asking for place {FROM} and {TO}
-				mSearchToolbar.animate()
-						.translationY(-(toolbarHeight + statusBarHeight + extraPadding))
-						.setInterpolator(new AccelerateInterpolator())
-						.setDuration(150l)
-						.start();
-
-				mFloatingActionButton.show();
-
-				mPathSearch.clearPaths();
-
-				mPlaceFromSearchBox.clear();
-				mPlaceToSearchBox.clear();
-
-				mSelectedPlace = null;
-
-				break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onTokenAdded(Object o) {
-		if (mPlaceFromSearchBox.getObjects().size() == 1 && mPlaceToSearchBox.getObjects().size() == 1) {
-			hideKeyboard();
-			mPathSearch.newSearch(
-					mPlaceFromSearchBox.getObjects().get(0),
-					mPlaceToSearchBox.getObjects().get(0)
-			);
-		}
-
-		if (mPlaceSearch.getObjects().size() == 1) {
-			hideKeyboard();
-			Map.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(mPlaceSearch.getObjects().get(0).getPosition()), mPlaceSearch.getObjects().get(0).getZooms().get(0)));
-		}
-	}
-
-	@Override
-	public void onTokenRemoved(Object o) {
 	}
 
 }
