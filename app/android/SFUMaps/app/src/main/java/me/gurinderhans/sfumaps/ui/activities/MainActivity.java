@@ -10,7 +10,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,10 +47,9 @@ import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
 import me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel;
-import me.gurinderhans.sfumaps.ui.controllers.MapPlaceSearchCompletionView;
 import me.gurinderhans.sfumaps.ui.controllers.SlidingUpPanelController;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
-import me.gurinderhans.sfumaps.ui.views.MapPlaceSearchBoxView;
+import me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView;
 import me.gurinderhans.sfumaps.utils.CachedTileProvider;
 import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MarkerCreator;
@@ -64,6 +62,7 @@ import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.PARENT_PLACE;
 import static me.gurinderhans.sfumaps.factory.classes.MapPlace.mAllMapPlaces;
+import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
 
 public class MainActivity extends AppCompatActivity
 		implements
@@ -78,17 +77,15 @@ public class MainActivity extends AppCompatActivity
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
 	// UI
-	private MapPlaceSearchBoxView mSearchView;
 	private GoogleMap Map;
 	private SlidingUpPanelController mPanelController;
 	private Toolbar mSearchToolbar;
 	private FloatingActionButton mFloatingActionButton;
-	private MapPlaceSearchCompletionView mPlaceFromSearchBox, mPlaceToSearchBox;
+	private MapPlaceSearchCompletionView mPlaceSearch, mPlaceFromSearchBox, mPlaceToSearchBox;
 
 	// Data
 	private int mapCurrentZoom; // used for detecting when map zoom changes
 	private DiskLruCache mTileCache;
-	private Pair<MapPlace, MapPlace> mPlaceFromTo;
 	ArrayAdapter<MapPlace> placeSearchAdapter;
 	PathSearch mPathSearch;
 
@@ -102,7 +99,7 @@ public class MainActivity extends AppCompatActivity
 
 		setupStatusBar();
 
-		setupToolbar();
+		setupToolbarAndSearch();
 
 		mFloatingActionButton = (FloatingActionButton) findViewById(R.id.get_directions_fab);
 		mFloatingActionButton.setOnClickListener(this);
@@ -198,6 +195,10 @@ public class MainActivity extends AppCompatActivity
 
 				mFloatingActionButton.hide();
 
+				if (mPlaceSearch.getObjects().size() == 1) {
+					mPlaceFromSearchBox.addObject(mPlaceSearch.getObjects().get(0));
+				}
+
 				break;
 			default:
 				break;
@@ -238,7 +239,7 @@ public class MainActivity extends AppCompatActivity
 
 			// send to edit
 			new PlaceFormDialog(this,
-					getPlaceIndex(MercatorProjection.fromPointToLatLng(newPlace.getPosition())))
+					getPlaceIndex(fromPointToLatLng(newPlace.getPosition())))
 					.show();
 		}
 	}
@@ -322,13 +323,16 @@ public class MainActivity extends AppCompatActivity
 					mPlaceFromSearchBox.getObjects().get(0),
 					mPlaceToSearchBox.getObjects().get(0)
 			);
-//			Log.i(TAG, "starting search...");
+		}
+
+		if (mPlaceSearch.getObjects().size() == 1) {
+			hideKeyboard();
+			Map.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(mPlaceSearch.getObjects().get(0).getPosition()), mPlaceSearch.getObjects().get(0).getZooms().get(0)));
 		}
 	}
 
 	@Override
 	public void onTokenRemoved(Object o) {
-
 	}
 
 
@@ -356,7 +360,7 @@ public class MainActivity extends AppCompatActivity
 			getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.transparent_status_bar_color));
 	}
 
-	private void setupToolbar() {
+	private void setupToolbarAndSearch() {
 		mSearchToolbar = (Toolbar) findViewById(R.id.search_toolbar);
 		setSupportActionBar(mSearchToolbar);
 
@@ -378,19 +382,25 @@ public class MainActivity extends AppCompatActivity
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 
-		/* setup toolbar search */
+		/* setup search */
+
+		mPlaceSearch = (MapPlaceSearchCompletionView) findViewById(R.id.main_search_view);
+		mPlaceSearch.setLayoutId(R.layout.activity_main_placesearch_token_layout);
 
 		mPlaceFromSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_from);
 		mPlaceToSearchBox = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_to);
 
 		placeSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
 
+		mPlaceSearch.setAdapter(placeSearchAdapter);
 		mPlaceFromSearchBox.setAdapter(placeSearchAdapter);
 		mPlaceToSearchBox.setAdapter(placeSearchAdapter);
 
 		// add token listeners
+		mPlaceSearch.setTokenListener(this);
 		mPlaceFromSearchBox.setTokenListener(this);
 		mPlaceToSearchBox.setTokenListener(this);
+
 	}
 
 	public void fetchPlaces() {
@@ -418,15 +428,8 @@ public class MainActivity extends AppCompatActivity
 				placeSearchAdapter.addAll(objects);
 
 				syncMarkers();
-				setupSearchAdapter();
 			}
 		});
-	}
-
-	public void setupSearchAdapter() {
-		//
-		// placeSearchAdapter.addAll(objects);
-//		for ()
 	}
 
 	private int getPlaceIndex(LatLng placePos) {

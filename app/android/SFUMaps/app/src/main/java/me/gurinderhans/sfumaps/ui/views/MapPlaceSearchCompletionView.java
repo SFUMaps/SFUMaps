@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui.controllers;
+package me.gurinderhans.sfumaps.ui.views;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,6 +16,8 @@ import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 
 public class MapPlaceSearchCompletionView extends TokenCompleteTextView<MapPlace> {
 
+	private int layoutId = R.layout.activity_main_place_directions_search_token_layout;
+
 	public MapPlaceSearchCompletionView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
@@ -29,7 +31,8 @@ public class MapPlaceSearchCompletionView extends TokenCompleteTextView<MapPlace
 	protected View getViewForObject(MapPlace completionPlace) {
 
 		LayoutInflater l = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-		LinearLayout view = (LinearLayout) l.inflate(R.layout.activity_main_placesearch_token_layout, (ViewGroup) getParent(), false);
+		LinearLayout view = (LinearLayout) l.inflate(layoutId, (ViewGroup) getParent(), false);
+
 
 		String placeTitle = "";
 		if (completionPlace.getParentPlace() != null)
@@ -44,5 +47,9 @@ public class MapPlaceSearchCompletionView extends TokenCompleteTextView<MapPlace
 	@Override
 	protected MapPlace defaultObject(String completionText) {
 		return null;
+	}
+
+	public void setLayoutId(int layoutId) {
+		this.layoutId = layoutId;
 	}
 }

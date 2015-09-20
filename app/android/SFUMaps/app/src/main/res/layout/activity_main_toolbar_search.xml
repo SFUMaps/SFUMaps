@@ -7,7 +7,7 @@
               android:background="@color/app_color_primary"
               android:orientation="vertical">
 
-    <me.gurinderhans.sfumaps.ui.controllers.MapPlaceSearchCompletionView
+    <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView
         android:id="@+id/place_from"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
         android:textCursorDrawable="@null"
         android:textSize="16sp"/>
 
-    <me.gurinderhans.sfumaps.ui.controllers.MapPlaceSearchCompletionView
+    <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView
         android:id="@+id/place_to"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
