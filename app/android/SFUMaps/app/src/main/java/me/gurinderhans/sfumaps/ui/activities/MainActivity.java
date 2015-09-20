@@ -9,9 +9,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AccelerateInterpolator;
@@ -44,8 +44,9 @@ import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
+import me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel;
+import me.gurinderhans.sfumaps.ui.controllers.MapPlaceSearchCompletionView;
 import me.gurinderhans.sfumaps.ui.controllers.SlidingUpPanelController;
-import me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapPlaceSearchBoxView;
 import me.gurinderhans.sfumaps.utils.CachedTileProvider;
@@ -76,17 +77,18 @@ public class MainActivity extends AppCompatActivity
 	private MapPlaceSearchBoxView mSearchView;
 	private GoogleMap Map;
 	private SlidingUpPanelController mPanelController;
-	private Toolbar mToolbar;
+	private Toolbar mSearchToolbar;
+	private FloatingActionButton mFloatingActionButton;
 
 	// Data
 	private int mapCurrentZoom; // used for detecting when map zoom changes
 	private DiskLruCache mTileCache;
 	private Pair<MapPlace, MapPlace> mPlaceFromTo;
+	ArrayAdapter<MapPlace> placeSearchAdapter;
 
 	// TEMP
 	private boolean selectingSecondPlace = false;
 	PathSearch pathSearch;
-	private FloatingActionButton fab;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -99,12 +101,12 @@ public class MainActivity extends AppCompatActivity
 
 		setupToolbar();
 
-		fab = (FloatingActionButton) findViewById(R.id.get_directions_fab);
-		fab.setOnClickListener(this);
+		mFloatingActionButton = (FloatingActionButton) findViewById(R.id.get_directions_fab);
+		mFloatingActionButton.setOnClickListener(this);
 
 		mPanelController = new SlidingUpPanelController(
 				(SlidingUpPanel) findViewById(R.id.sliding_panel),
-				fab
+				mFloatingActionButton
 		);
 
 		// cache for map tiles
@@ -112,7 +114,6 @@ public class MainActivity extends AppCompatActivity
 
 		// additional setup
 		setUpMapIfNeeded();
-//		setupMapSearchBox();
 		setupPlaces();
 
 		// requires Map object
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity
 		// map options
 		Map.setMapType(MAP_TYPE_NONE);
 		Map.setIndoorEnabled(false);
-		// hide the marker mToolbar - the two buttons on the bottom right that go to google maps
+		// hide the marker mSearchToolbar - the two buttons on the bottom right that go to google maps
 		Map.getUiSettings().setMapToolbarEnabled(false);
 
 		Map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
@@ -185,12 +186,15 @@ public class MainActivity extends AppCompatActivity
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.get_directions_fab:
-				// show mToolbar asking for place {FROM} and {TO}
-				mToolbar.animate()
+				// show search toolbar asking for place {FROM} and {TO}
+				mSearchToolbar.animate()
 						.translationY(0)
 						.setInterpolator(new AccelerateInterpolator())
-						.setDuration(200l)
+						.setDuration(150l)
 						.start();
+
+				mFloatingActionButton.hide();
+
 				break;
 			default:
 				break;
@@ -293,6 +297,28 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+
+				int statusBarHeight = getStatusBarHeight();
+				int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
+				int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
+
+				// show search toolbar asking for place {FROM} and {TO}
+				mSearchToolbar.animate()
+						.translationY(-(toolbarHeight + statusBarHeight + extraPadding))
+						.setInterpolator(new AccelerateInterpolator())
+						.setDuration(150l)
+						.start();
+
+				mFloatingActionButton.show();
+
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
 	//
 	// MARK: Custom helper methods
@@ -310,21 +336,19 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	private void setupToolbar() {
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(mToolbar);
+		mSearchToolbar = (Toolbar) findViewById(R.id.search_toolbar);
+		setSupportActionBar(mSearchToolbar);
 
 		int statusBarHeight = getStatusBarHeight();
 		int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
-		mToolbar.setPadding(0, statusBarHeight, 0, 0);
+		int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
 
-		Log.i(TAG, "status bar height: " + statusBarHeight);
-		Log.i(TAG, "mToolbar height: " + toolbarHeight);
-
-		mToolbar.setTranslationY(-(toolbarHeight + statusBarHeight));
+		mSearchToolbar.setPadding(0, statusBarHeight + extraPadding, 0, extraPadding);
+		mSearchToolbar.setTranslationY(-(toolbarHeight + statusBarHeight + extraPadding));
 
 		// add the search layout
-		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, mToolbar, false);
-		mToolbar.addView(view);
+		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, mSearchToolbar, false);
+		mSearchToolbar.addView(view);
 
 		// customize action bar
 		final ActionBar ab = getSupportActionBar();
@@ -332,16 +356,17 @@ public class MainActivity extends AppCompatActivity
 			ab.setDisplayShowTitleEnabled(false);
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
-	}
 
-	// A method to find height of the status bar
-	public int getStatusBarHeight() {
-		int result = 0;
-		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-		if (resourceId > 0) {
-			result = getResources().getDimensionPixelSize(resourceId);
-		}
-		return result;
+
+		/* setup toolbar search */
+
+		MapPlaceSearchCompletionView placeFrom = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_from);
+		MapPlaceSearchCompletionView placeTo = (MapPlaceSearchCompletionView) mSearchToolbar.findViewById(R.id.place_to);
+
+		placeSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
+
+		placeFrom.setAdapter(placeSearchAdapter);
+		placeTo.setAdapter(placeSearchAdapter);
 	}
 
 	public void setupPlaces() {
@@ -364,16 +389,11 @@ public class MainActivity extends AppCompatActivity
 					mAllMapPlaces.add(place);
 				}
 
+				placeSearchAdapter.addAll(objects);
+
 				syncMarkers();
 			}
 		});
-	}
-
-	private void setupMapSearchBox() {
-		// get adapter from PlaceFormDialog.class just so the same adapter is being used
-//		mSearchView = (MapPlaceSearchBoxView) findViewById(R.id.main_search_view);
-		ArrayAdapter<MapPlace> mSearchAutoCompleteAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
-		mSearchView.setAdapter(mSearchAutoCompleteAdapter);
 	}
 
 	private int getPlaceIndex(LatLng placePos) {
@@ -400,6 +420,20 @@ public class MainActivity extends AppCompatActivity
 					el.getMapGizmo().setVisible(false);
 				}
 			}
+	}
+
+	/**
+	 * A method to find height of the status bar
+	 *
+	 * @return - height of the status bar
+	 */
+	public int getStatusBarHeight() {
+		int result = 0;
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			result = getResources().getDimensionPixelSize(resourceId);
+		}
+		return result;
 	}
 
 	/**

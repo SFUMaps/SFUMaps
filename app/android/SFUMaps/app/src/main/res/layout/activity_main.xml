@@ -33,7 +33,7 @@
 
     </LinearLayout>-->
 
-    <me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel
+    <me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel
         android:id="@+id/sliding_panel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -43,7 +43,7 @@
             android:id="@+id/sliding_panel_collapsed_layout"
             layout="@layout/activity_main_sliding_panel_collapsed_single_place"/>
 
-    </me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel>
+    </me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/get_directions_fab"
@@ -88,7 +88,7 @@
 
     <!-- Search toolbar -->
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/search_toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/activity_main_toolbar_height"
         android:background="?attr/colorPrimary"

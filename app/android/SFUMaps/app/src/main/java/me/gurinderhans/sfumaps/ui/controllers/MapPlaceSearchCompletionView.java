@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui.views;
+package me.gurinderhans.sfumaps.ui.controllers;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,32 +14,21 @@ import com.tokenautocomplete.TokenCompleteTextView;
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 
-/**
- * Created by ghans on 15-09-16.
- */
-public class MapPlaceSearchBoxView extends TokenCompleteTextView<MapPlace> {
+public class MapPlaceSearchCompletionView extends TokenCompleteTextView<MapPlace> {
 
-	public static final int TOKENIZER_MAX = 2;
-
-	public MapPlaceSearchBoxView(Context context, AttributeSet attrs) {
+	public MapPlaceSearchCompletionView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		setSingleLine();
-
-		setHint("Search SFU...");
-
-		allowDuplicates(false); // trying to do dups don't make no sense boy!
+		allowDuplicates(false);
 	}
 
 	@Override
 	protected View getViewForObject(MapPlace completionText) {
 
 		LayoutInflater l = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-		LinearLayout view = (LinearLayout) l.inflate(R.layout.devtools_placecreator_place_token_layout, (ViewGroup) getParent(), false);
+		LinearLayout view = (LinearLayout) l.inflate(R.layout.activity_main_placesearch_token_layout, (ViewGroup) getParent(), false);
 
-		((TextView) view.findViewById(R.id.textData)).setText(completionText.getTitle());
-
-		view.findViewById(R.id.textData).setBackgroundResource(android.R.color.darker_gray);
+		((TextView) view.findViewById(R.id.placeName)).setText(completionText.getTitle());
 
 		return view;
 	}

@@ -7,9 +7,9 @@ import android.widget.TextView;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
-import me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel;
-import me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel.PanelSlideListener;
-import me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel.PanelState;
+import me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel;
+import me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel.PanelSlideListener;
+import me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel.PanelState;
 
 import static me.gurinderhans.sfumaps.utils.MapTools.LinearViewAnimatorTranslateYToPos;
 

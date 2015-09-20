@@ -48,6 +48,6 @@ public class MapPlaceDialogTitleCompletionView extends TokenCompleteTextView<Map
 
 	@Override
 	protected MapPlace defaultObject(String completionText) {
-		return new MapPlace(completionText);
+		return MapPlace.createPlace(completionText);
 	}
 }

@@ -1,4 +1,4 @@
-package me.gurinderhans.sfumaps.ui.slidingUpPanel;
+package me.gurinderhans.sfumaps.factory.libs.sliding_up_panel;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -12,9 +12,9 @@ import android.widget.RelativeLayout;
 
 import me.gurinderhans.sfumaps.utils.MapTools;
 
-import static me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel.PanelState.ANCHORED;
-import static me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel.PanelState.COLLAPSED;
-import static me.gurinderhans.sfumaps.ui.slidingUpPanel.SlidingUpPanel.PanelState.EXPANDED;
+import static me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel.PanelState.ANCHORED;
+import static me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel.PanelState.COLLAPSED;
+import static me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel.PanelState.EXPANDED;
 import static me.gurinderhans.sfumaps.utils.MapTools.LinearViewAnimatorTranslateYToPos;
 import static me.gurinderhans.sfumaps.utils.MapTools.convertDpToPixel;
 

@@ -38,9 +38,13 @@ public class MapPlace extends ParseObject {
 	public MapPlace() {
 	}
 
-	public MapPlace(String title) {
+	private MapPlace(String title) {
 		/* constructor only to be used for AutocompleteTextView adding view tokens */
 		put(ParseMapPlace.TITLE, title);
+	}
+
+	public static MapPlace createPlace(String title) {
+		return new MapPlace(title);
 	}
 
 	/* Parse methods */
