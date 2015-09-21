@@ -1,7 +1,6 @@
 package me.gurinderhans.sfumaps.ui.activities;
 
 import android.animation.ValueAnimator;
-import android.content.Context;
 import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AccelerateInterpolator;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -62,6 +60,7 @@ import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.PARENT_PLACE;
 import static me.gurinderhans.sfumaps.factory.classes.MapPlace.mAllMapPlaces;
 import static me.gurinderhans.sfumaps.utils.MapTools.LinearViewAnimatorTranslateYToPos;
+import static me.gurinderhans.sfumaps.utils.MapTools.hideKeyboard;
 import static me.gurinderhans.sfumaps.utils.MarkerCreator.createPlaceMarker;
 import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
 
@@ -72,8 +71,7 @@ public class MainActivity extends AppCompatActivity
 		OnMapLongClickListener,
 		OnMarkerClickListener,
 		OnMarkerDragListener,
-		OnClickListener,
-		TokenListener {
+		OnClickListener {
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
@@ -158,7 +156,10 @@ public class MainActivity extends AppCompatActivity
 	private MapPlace mFocusedMapPlace;
 
 
-	private boolean mSearchViewUsed = true;
+	/**
+	 * Handles the complex states of the activity managing the data and the views
+	 */
+	private StateHandler mActivityStateHandler = new StateHandler();
 
 
 	@Override
@@ -182,23 +183,9 @@ public class MainActivity extends AppCompatActivity
 		switch (v.getId()) {
 			case R.id.get_directions_fab:
 
-				mDirectionsFAB.hide();
-
-				mPanelController.slidingUpPanel.showPanel(false);
-
-				// hide search
-
-				// show search toolbar
-				mToolbar.animate()
-						.translationY(0)
-						.setInterpolator(new AccelerateInterpolator())
-						.setDuration(150l)
-						.start();
-
 				mNavigationMode = true;
+				mActivityStateHandler.setPreNavigationState();
 
-				break;
-			default:
 				break;
 		}
 	}
@@ -244,30 +231,15 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	public void onMapClick(LatLng latLng) {
-
 		if (!mNavigationMode) {
-			//
 			mFocusedMapPlace = null;
-			mPanelController.slidingUpPanel.showPanel(false);
-			LinearViewAnimatorTranslateYToPos(mDirectionsFAB.getTranslationY(), 0, 80l, new ValueAnimator.AnimatorUpdateListener() {
-				@Override
-				public void onAnimationUpdate(ValueAnimator animation) {
-					mDirectionsFAB.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
-				}
-			});
-
-			mSearchViewUsed = false;
-
-			mMapSearchView.clear();
-			mNavigationFromSearchView.clear();
+			mActivityStateHandler.setDefaultState();
 		}
-
 	}
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
 
-		// find the clicked marker
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
 			if (BuildConfig.DEBUG) { // user side
@@ -276,29 +248,11 @@ public class MainActivity extends AppCompatActivity
 
 					mFocusedMapPlace = mAllMapPlaces.get(clickedPlaceIndex);
 
-					showPanel();
-
-					// animate fab a little up
-					LinearViewAnimatorTranslateYToPos(mDirectionsFAB.getTranslationY(), -50, 80l, new ValueAnimator.AnimatorUpdateListener() {
-						@Override
-						public void onAnimationUpdate(ValueAnimator animation) {
-							mDirectionsFAB.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
-						}
-					});
-
-					// animate camera just to center the place
 					mMap.animateCamera(CameraUpdateFactory.newLatLng(
 							MercatorProjection.fromPointToLatLng(mFocusedMapPlace.getPosition())
 					));
 
-					mSearchViewUsed = false;
-
-					mMapSearchView.clear();
-					mMapSearchView.addObject(mFocusedMapPlace);
-
-					mNavigationFromSearchView.clear();
-					mNavigationFromSearchView.addObject(mFocusedMapPlace);
-
+					mActivityStateHandler.setPlaceViewState();
 				}
 
 			} else {
@@ -315,25 +269,16 @@ public class MainActivity extends AppCompatActivity
 		switch (item.getItemId()) {
 			case android.R.id.home:
 
-				// hide toolbar
-				mToolbar.animate()
-						.translationY(-getToolbarHeight())
-						.setInterpolator(new AccelerateInterpolator())
-						.setDuration(150l)
-						.start();
-
-				mDirectionsFAB.show();
-
-				showPanel();
-
-				mPathSearch.clearPaths();
-
-				mNavigationToSearchView.clear();
-
 				mNavigationMode = false;
+
+				if (mFocusedMapPlace == null)
+					mActivityStateHandler.setDefaultState();
+				else
+					mActivityStateHandler.setPlaceViewState();
 
 				break;
 		}
+
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -355,65 +300,6 @@ public class MainActivity extends AppCompatActivity
 			});
 		}
 	}
-
-	@Override
-	public void onTokenAdded(Object o) {
-		if (mNavigationFromSearchView.getObjects().size() == 1 && mNavigationToSearchView.getObjects().size() == 1) {
-			hideKeyboard();
-
-			mPathSearch.newSearch(
-					mNavigationFromSearchView.getObjects().get(0),
-					mNavigationToSearchView.getObjects().get(0)
-			);
-
-			// center camera on map path
-			mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds.Builder()
-							.include(fromPointToLatLng(mNavigationFromSearchView.getObjects().get(0).getPosition()))
-							.include(fromPointToLatLng(mNavigationToSearchView.getObjects().get(0).getPosition()))
-							.build(), 100)
-			);
-		}
-
-		if (mMapSearchView.getObjects().size() == 1) {
-			hideKeyboard();
-
-			Log.i(TAG, "search view used: " + mSearchViewUsed);
-
-			mSearchViewUsed = mFocusedMapPlace == null;
-
-			if (mSearchViewUsed) {
-
-				mFocusedMapPlace = mMapSearchView.getObjects().get(0);
-
-				showPanel();
-
-				LinearViewAnimatorTranslateYToPos(mDirectionsFAB.getTranslationY(), -50, 80l, new ValueAnimator.AnimatorUpdateListener() {
-					@Override
-					public void onAnimationUpdate(ValueAnimator animation) {
-						mDirectionsFAB.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
-					}
-				});
-
-				mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(mFocusedMapPlace.getPosition()), mFocusedMapPlace.getZooms().get(0)));
-
-
-				mNavigationFromSearchView.clear();
-				mNavigationFromSearchView.addObject(mFocusedMapPlace);
-
-			}
-
-		}
-
-	}
-
-	@Override
-	public void onTokenRemoved(Object o) {
-		if (mMapSearchView.getObjects().size() == 0) {
-			mFocusedMapPlace = null;
-			mPanelController.slidingUpPanel.showPanel(false);
-		}
-	}
-
 
 	/**
 	 * Makes the status bar transparent and allows views to be drawn behind the status bar
@@ -470,10 +356,57 @@ public class MainActivity extends AppCompatActivity
 		mNavigationFromSearchView.setAdapter(mMapSearchAdapter);
 		mNavigationToSearchView.setAdapter(mMapSearchAdapter);
 
-		// add token listeners
-		mMapSearchView.setTokenListener(this);
-		mNavigationFromSearchView.setTokenListener(this);
-		mNavigationToSearchView.setTokenListener(this);
+		// start search listener
+		mNavigationToSearchView.setTokenListener(new TokenListener() {
+			@Override
+			public void onTokenAdded(Object o) {
+				// start search
+				hideKeyboard(MainActivity.this);
+
+				mPathSearch.newSearch(
+						mNavigationFromSearchView.getObjects().get(0),
+						mNavigationToSearchView.getObjects().get(0)
+				);
+
+				// center camera on map path
+				mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds.Builder()
+								.include(fromPointToLatLng(mNavigationFromSearchView.getObjects().get(0).getPosition()))
+								.include(fromPointToLatLng(mNavigationToSearchView.getObjects().get(0).getPosition()))
+								.build(), 100)
+				);
+			}
+
+			@Override
+			public void onTokenRemoved(Object o) {
+
+			}
+		});
+
+		// map search listener
+		mMapSearchView.setTokenListener(new TokenListener() {
+			@Override
+			public void onTokenAdded(Object o) {
+				Log.i(TAG, "search view token: ADDED");
+
+				// if mMapSearchView is focused, that means the token was added through the
+				// search view, so we need to do stuff a bit differently here
+				if (mMapSearchView.isFocused()) {
+					Log.i(TAG, "adding token through search view itself");
+					hideKeyboard(MainActivity.this);
+
+					mFocusedMapPlace = mMapSearchView.getObjects().get(0);
+
+					mActivityStateHandler.setPlaceViewState();
+
+					// animate map camera to the place
+					mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(mFocusedMapPlace.getPosition()), mFocusedMapPlace.getZooms().get(0)));
+				}
+			}
+
+			@Override
+			public void onTokenRemoved(Object o) {
+			}
+		});
 
 	}
 
@@ -579,30 +512,6 @@ public class MainActivity extends AppCompatActivity
 
 
 	/**
-	 * Manages the sliding panel, shows if @link{mFocusedMapPlace} is not null
-	 */
-	public void showPanel() {
-		if (mFocusedMapPlace != null) {
-			mPanelController.slidingUpPanel.showPanel(true);
-			mPanelController.setPanelData(mFocusedMapPlace);
-		}
-	}
-
-
-	/**
-	 * Helper method to hide the keyboard
-	 */
-	private void hideKeyboard() {
-		// Check if no view has focus:
-		View view = this.getCurrentFocus();
-		if (view != null) {
-			InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-			inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-		}
-	}
-
-
-	/**
 	 * Helper method to search through the local places list and find the place mathcing given
 	 * input position
 	 *
@@ -675,4 +584,143 @@ public class MainActivity extends AppCompatActivity
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
 	}
 
+
+	/**
+	 * Inner class to separate state handler code from the rest of the Controller
+	 */
+	class StateHandler {
+
+		// state constants
+		static final int DEFAULT_STATE = 0;
+		static final int PLACE_VIEW_STATE = 1;
+		static final int PRE_NAVIGATION_STATE = 2;
+
+		/**
+		 * On start the app will be started with the DEFAULT_STATE
+		 */
+		int mState = DEFAULT_STATE;
+
+
+		/**
+		 * Toolbar is hidden
+		 * Panel is hidden
+		 * FAB is position bottom right
+		 * Search is showing
+		 */
+		void setDefaultState() {
+			mState = DEFAULT_STATE;
+			Log.i(TAG, "state: DEFAULT_STATE");
+
+			/* 1. Data */
+
+			mMapSearchView.clear();
+			mNavigationFromSearchView.clear();
+			mNavigationToSearchView.clear();
+
+			/* 2. Views */
+
+			// hide toolbar
+			mToolbar.animate()
+					.translationY(-getToolbarHeight())
+					.setInterpolator(new AccelerateInterpolator())
+					.setDuration(150l)
+					.start();
+
+			mDirectionsFAB.show();
+			LinearViewAnimatorTranslateYToPos(mDirectionsFAB.getTranslationY(), 0, 80l, new ValueAnimator.AnimatorUpdateListener() {
+				@Override
+				public void onAnimationUpdate(ValueAnimator animation) {
+					mDirectionsFAB.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
+				}
+			});
+
+			// TODO: 15-09-20 show search
+
+			mPanelController.panel.showPanel(false);
+		}
+
+
+		/**
+		 * Toolbar is hidden
+		 * Panel is shown
+		 * Fab is aligned with Panel
+		 * Search is shown with the place being viewed
+		 */
+		void setPlaceViewState() {
+			mState = PLACE_VIEW_STATE;
+			Log.i(TAG, "state: PLACE_VIEW_STATE");
+
+
+			/* 1. Data */
+
+
+			// sync map search box with this place
+			mMapSearchView.clear();
+			mMapSearchView.addObject(mFocusedMapPlace);
+
+			mPanelController.setPanelData(mFocusedMapPlace);
+
+
+			/* 2. Views */
+
+
+			// hide toolbar
+			mToolbar.animate()
+					.translationY(-getToolbarHeight())
+					.setInterpolator(new AccelerateInterpolator())
+					.setDuration(150l)
+					.start();
+
+			// TODO: 15-09-20 show search
+
+			mPanelController.panel.showPanel(true);
+
+			mDirectionsFAB.show();
+			// animate fab a little up
+			LinearViewAnimatorTranslateYToPos(mDirectionsFAB.getTranslationY(), -50, 80l, new ValueAnimator.AnimatorUpdateListener() {
+				@Override
+				public void onAnimationUpdate(ValueAnimator animation) {
+					mDirectionsFAB.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
+				}
+			});
+
+			mMapSearchView.clearFocus();
+
+		}
+
+
+		/**
+		 * Toolbar is shown, may not may not be filled
+		 * Panel is hidden
+		 * FAB is hidden
+		 * Search is hidden
+		 */
+		void setPreNavigationState() {
+			mState = PRE_NAVIGATION_STATE;
+			Log.i(TAG, "state: PRE_NAVIGATION_STATE");
+
+			/* 1. Data */
+			mNavigationFromSearchView.clear();
+			mNavigationFromSearchView.addObject(mFocusedMapPlace);
+
+
+			/* 2. Views */
+
+			// show toolbar
+			mToolbar.animate()
+					.translationY(0)
+					.setInterpolator(new AccelerateInterpolator())
+					.setDuration(150l)
+					.start();
+
+			// TODO: 15-09-20 hide search
+
+			mDirectionsFAB.hide();
+
+			mPanelController.panel.showPanel(false);
+
+		}
+	}
 }
+
+

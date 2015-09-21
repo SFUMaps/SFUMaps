@@ -20,6 +20,12 @@
         android:layout_marginTop="10dp"
         android:fitsSystemWindows="true">
 
+        <LinearLayout
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
+
         <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView
             android:id="@+id/main_search_view"
             android:layout_width="match_parent"

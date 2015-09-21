@@ -1,6 +1,7 @@
 package me.gurinderhans.sfumaps.utils;
 
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Picture;
@@ -9,7 +10,9 @@ import android.graphics.PointF;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
+import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.jakewharton.disklrucache.DiskLruCache;
@@ -272,6 +275,20 @@ public class MapTools {
 
 	public static double map(double x, double in_min, double in_max, double out_min, double out_max) {
 		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	}
+
+	/**
+	 * Helper method to hide the keyboard
+	 *
+	 * @param activity
+	 */
+	public static void hideKeyboard(Activity activity) {
+		// Check if no view has focus:
+		View view = activity.getCurrentFocus();
+		if (view != null) {
+			InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+		}
 	}
 
 
