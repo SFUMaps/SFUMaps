@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity
 
 	/**
 	 * Stores the current map zoom
-	 * <p/>
+	 * <p>
 	 * When onCameraChange() is called, this gets compared to the 'new' zoom to see if the zoom
 	 * level actually changed.
 	 */
@@ -357,7 +357,7 @@ public class MainActivity extends AppCompatActivity
 		mNavigationToSearchView.setAdapter(mMapSearchAdapter);
 
 		// start search listener
-		mNavigationToSearchView.setTokenListener(new TokenListener() {
+		mNavigationFromSearchView.setTokenListener(new TokenListener() {
 			@Override
 			public void onTokenAdded(Object o) {
 				// start search
@@ -700,9 +700,10 @@ public class MainActivity extends AppCompatActivity
 			Log.i(TAG, "state: PRE_NAVIGATION_STATE");
 
 			/* 1. Data */
-			mNavigationFromSearchView.clear();
-			mNavigationFromSearchView.addObject(mFocusedMapPlace);
+
 			mNavigationToSearchView.clear();
+			mNavigationToSearchView.addObject(mFocusedMapPlace);
+			mNavigationFromSearchView.clear();
 
 
 			/* 2. Views */
