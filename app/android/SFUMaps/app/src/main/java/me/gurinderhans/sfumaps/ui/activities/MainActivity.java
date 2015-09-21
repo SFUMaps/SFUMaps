@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity
 
 				mDirectionsFAB.hide();
 
-				mPanelController.hidePanel();
+				mPanelController.slidingUpPanel.showPanel(false);
 
 				// hide search
 
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity
 		if (!mNavigationMode) {
 			//
 			mFocusedMapPlace = null;
-			mPanelController.hidePanel();
+			mPanelController.slidingUpPanel.showPanel(false);
 			LinearViewAnimatorTranslateYToPos(mDirectionsFAB.getTranslationY(), 0, 80l, new ValueAnimator.AnimatorUpdateListener() {
 				@Override
 				public void onAnimationUpdate(ValueAnimator animation) {
@@ -311,6 +311,52 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+
+				// hide toolbar
+				mToolbar.animate()
+						.translationY(-getToolbarHeight())
+						.setInterpolator(new AccelerateInterpolator())
+						.setDuration(150l)
+						.start();
+
+				mDirectionsFAB.show();
+
+				showPanel();
+
+				mPathSearch.clearPaths();
+
+				mNavigationToSearchView.clear();
+
+				mNavigationMode = false;
+
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onMarkerDragEnd(Marker marker) {
+
+		// find the clicked marker
+		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
+		if (draggedPlaceIndex != -1) {
+			mAllMapPlaces.get(draggedPlaceIndex).setPosition(
+					MercatorProjection.fromLatLngToPoint(marker.getPosition())
+			);
+
+			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
+				@Override
+				public void done(ParseException e) {
+					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
+				}
+			});
+		}
+	}
+
+	@Override
 	public void onTokenAdded(Object o) {
 		if (mNavigationFromSearchView.getObjects().size() == 1 && mNavigationToSearchView.getObjects().size() == 1) {
 			hideKeyboard();
@@ -361,55 +407,10 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-
-				// hide toolbar
-				mToolbar.animate()
-						.translationY(-getToolbarHeight())
-						.setInterpolator(new AccelerateInterpolator())
-						.setDuration(150l)
-						.start();
-
-				mDirectionsFAB.show();
-
-				showPanel();
-
-				mPathSearch.clearPaths();
-
-				mNavigationToSearchView.clear();
-
-				mNavigationMode = false;
-
-				break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	public void onMarkerDragEnd(Marker marker) {
-
-		// find the clicked marker
-		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
-		if (draggedPlaceIndex != -1) {
-			mAllMapPlaces.get(draggedPlaceIndex).setPosition(
-					MercatorProjection.fromLatLngToPoint(marker.getPosition())
-			);
-
-			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
-				@Override
-				public void done(ParseException e) {
-					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
-				}
-			});
-		}
-	}
-
-	@Override
 	public void onTokenRemoved(Object o) {
 		if (mMapSearchView.getObjects().size() == 0) {
 			mFocusedMapPlace = null;
+			mPanelController.slidingUpPanel.showPanel(false);
 		}
 	}
 
@@ -578,6 +579,17 @@ public class MainActivity extends AppCompatActivity
 
 
 	/**
+	 * Manages the sliding panel, shows if @link{mFocusedMapPlace} is not null
+	 */
+	public void showPanel() {
+		if (mFocusedMapPlace != null) {
+			mPanelController.slidingUpPanel.showPanel(true);
+			mPanelController.setPanelData(mFocusedMapPlace);
+		}
+	}
+
+
+	/**
 	 * Helper method to hide the keyboard
 	 */
 	private void hideKeyboard() {
@@ -661,15 +673,6 @@ public class MainActivity extends AppCompatActivity
 		return mTileCache == null
 				? svgTileProvider
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
-	}
-
-
-	public void showPanel() {
-		Log.i(TAG, "focused place: " + mFocusedMapPlace);
-		if (mFocusedMapPlace != null) {
-			mPanelController.showPanel();
-			mPanelController.setPanelData(mFocusedMapPlace);
-		}
 	}
 
 }
