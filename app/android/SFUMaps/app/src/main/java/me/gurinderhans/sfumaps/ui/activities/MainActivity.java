@@ -702,6 +702,7 @@ public class MainActivity extends AppCompatActivity
 			/* 1. Data */
 			mNavigationFromSearchView.clear();
 			mNavigationFromSearchView.addObject(mFocusedMapPlace);
+			mNavigationToSearchView.clear();
 
 
 			/* 2. Views */
