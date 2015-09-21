@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity"/>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -23,16 +23,29 @@
         <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView
             android:id="@+id/main_search_view"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/activity_main_search_box_shadow"
+            android:layout_height="55dp"
+            android:background="@drawable/shd"
             android:hint="Search SFU"
             android:paddingEnd="15dp"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
             android:textColor="#666666"
+            android:textCursorDrawable="@null"
             android:textSize="15sp"/>
 
-    </LinearLayout>
+        <ImageButton
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@null"
+            android:src="@drawable/ic_close_black_48dp"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
 
     <me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel
         android:id="@+id/sliding_panel"

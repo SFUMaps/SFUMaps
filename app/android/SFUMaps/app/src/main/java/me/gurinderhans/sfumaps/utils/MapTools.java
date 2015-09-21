@@ -258,11 +258,9 @@ public class MapTools {
 	/**
 	 * Linear Animate view to a pos
 	 *
-	 * @param animationListener
-	 * @param view              - view to animate
-	 * @param to                - val to animate to
-	 * @param duration          - duration of animation
-	 * @param listener
+	 * @param to       - val to animate to
+	 * @param duration - duration of animation
+	 * @param listener - listen for value changes
 	 */
 	public static void LinearViewAnimatorTranslateYToPos(final float from, final float to, long duration, ValueAnimator.AnimatorUpdateListener listener) {
 		ValueAnimator va = ValueAnimator.ofFloat(from, to);

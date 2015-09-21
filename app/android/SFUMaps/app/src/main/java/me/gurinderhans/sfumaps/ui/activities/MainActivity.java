@@ -1,5 +1,6 @@
 package me.gurinderhans.sfumaps.ui.activities;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.PointF;
 import android.os.Build;
@@ -10,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,7 +19,6 @@ import android.view.View.OnClickListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -60,6 +61,7 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.PARENT_PLACE;
 import static me.gurinderhans.sfumaps.factory.classes.MapPlace.mAllMapPlaces;
+import static me.gurinderhans.sfumaps.utils.MapTools.LinearViewAnimatorTranslateYToPos;
 import static me.gurinderhans.sfumaps.utils.MarkerCreator.createPlaceMarker;
 import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
 
@@ -151,9 +153,11 @@ public class MainActivity extends AppCompatActivity
 
 
 	/**
-	 * Used when a token is added to @link{mMapSearchView} to detect where the token came from.
-	 * If from view itself, then calculate camera zoom differently vs if came from marker clicked.
+	 * Holds the current selected place, i.e. the clicked marker
 	 */
+	private MapPlace mFocusedMapPlace;
+
+
 	private boolean mSearchViewUsed = true;
 
 
@@ -178,18 +182,18 @@ public class MainActivity extends AppCompatActivity
 		switch (v.getId()) {
 			case R.id.get_directions_fab:
 
+				mDirectionsFAB.hide();
+
+				mPanelController.hidePanel();
+
+				// hide search
+
 				// show search toolbar
 				mToolbar.animate()
 						.translationY(0)
 						.setInterpolator(new AccelerateInterpolator())
 						.setDuration(150l)
 						.start();
-
-				if (mMapSearchView.getObjects().size() == 1)
-					mNavigationFromSearchView.addObject(mPanelController.selectedPlace());
-
-				mPanelController.hidePanel();
-				mDirectionsFAB.hide();
 
 				mNavigationMode = true;
 
@@ -202,9 +206,6 @@ public class MainActivity extends AppCompatActivity
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
 
-		// Temp: set map zoom on textview
-		((TextView) findViewById(R.id.map_current_zoom)).setText(cameraPosition.zoom + "");
-
 		// 1. limit map max zoom
 		float maxZoom = 8f;
 		if (cameraPosition.zoom > maxZoom)
@@ -214,14 +215,6 @@ public class MainActivity extends AppCompatActivity
 		if (mMapZoom != (int) cameraPosition.zoom) { // on zoom change
 			mMapZoom = (int) cameraPosition.zoom;
 			syncMarkers();
-		}
-	}
-
-	@Override
-	public void onMapClick(LatLng latLng) {
-		if (!mNavigationMode) {
-			mPanelController.setSelectedPlace(null);
-			mMapSearchView.clear();
 		}
 	}
 
@@ -242,32 +235,70 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	@Override
+	public void onMarkerDragStart(Marker marker) {
+	}
+
+	@Override
+	public void onMarkerDrag(Marker marker) {
+	}
+
+	@Override
+	public void onMapClick(LatLng latLng) {
+
+		if (!mNavigationMode) {
+			//
+			mFocusedMapPlace = null;
+			mPanelController.hidePanel();
+			LinearViewAnimatorTranslateYToPos(mDirectionsFAB.getTranslationY(), 0, 80l, new ValueAnimator.AnimatorUpdateListener() {
+				@Override
+				public void onAnimationUpdate(ValueAnimator animation) {
+					mDirectionsFAB.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
+				}
+			});
+
+			mSearchViewUsed = false;
+
+			mMapSearchView.clear();
+			mNavigationFromSearchView.clear();
+		}
+
+	}
+
+	@Override
 	public boolean onMarkerClick(Marker marker) {
 
 		// find the clicked marker
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
-			if (BuildConfig.DEBUG) {
+			if (BuildConfig.DEBUG) { // user side
 
 				if (!mNavigationMode) {
 
-					// set this place on the panel
-					mPanelController.setSelectedPlace(mAllMapPlaces.get(clickedPlaceIndex));
+					mFocusedMapPlace = mAllMapPlaces.get(clickedPlaceIndex);
 
-					// set place on search view
-					mSearchViewUsed = false;
-					mMapSearchView.clear();
-					mMapSearchView.addObject(mPanelController.selectedPlace());
+					showPanel();
 
-					// hide toolbar
-					mToolbar.animate()
-							.translationY(-1 * getToolbarHeight())
-							.setInterpolator(new AccelerateInterpolator())
-							.setDuration(150l)
-							.start();
+					// animate fab a little up
+					LinearViewAnimatorTranslateYToPos(mDirectionsFAB.getTranslationY(), -50, 80l, new ValueAnimator.AnimatorUpdateListener() {
+						@Override
+						public void onAnimationUpdate(ValueAnimator animation) {
+							mDirectionsFAB.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
+						}
+					});
 
 					// animate camera just to center the place
-					mMap.animateCamera(CameraUpdateFactory.newLatLng(MercatorProjection.fromPointToLatLng(mPanelController.selectedPlace().getPosition())));
+					mMap.animateCamera(CameraUpdateFactory.newLatLng(
+							MercatorProjection.fromPointToLatLng(mFocusedMapPlace.getPosition())
+					));
+
+					mSearchViewUsed = false;
+
+					mMapSearchView.clear();
+					mMapSearchView.addObject(mFocusedMapPlace);
+
+					mNavigationFromSearchView.clear();
+					mNavigationFromSearchView.addObject(mFocusedMapPlace);
+
 				}
 
 			} else {
@@ -277,60 +308,6 @@ public class MainActivity extends AppCompatActivity
 		}
 
 		return true;
-	}
-
-	@Override
-	public void onMarkerDragStart(Marker marker) {
-	}
-
-	@Override
-	public void onMarkerDrag(Marker marker) {
-	}
-
-	@Override
-	public void onMarkerDragEnd(Marker marker) {
-
-		// find the clicked marker
-		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
-		if (draggedPlaceIndex != -1) {
-			mAllMapPlaces.get(draggedPlaceIndex).setPosition(
-					MercatorProjection.fromLatLngToPoint(marker.getPosition())
-			);
-
-			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
-				@Override
-				public void done(ParseException e) {
-					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
-				}
-			});
-		}
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-
-				// show search toolbar asking for place {FROM} and {TO}
-				mToolbar.animate()
-						.translationY(-getToolbarHeight())
-						.setInterpolator(new AccelerateInterpolator())
-						.setDuration(150l)
-						.start();
-
-				mPanelController.showPanel();
-				mDirectionsFAB.show();
-				mPathSearch.clearPaths();
-
-				// clear text inputs
-				mNavigationFromSearchView.clear();
-				mNavigationToSearchView.clear();
-
-				mNavigationMode = false;
-
-				break;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -354,25 +331,85 @@ public class MainActivity extends AppCompatActivity
 		if (mMapSearchView.getObjects().size() == 1) {
 			hideKeyboard();
 
-			// this is a way to detect if the token was added when the marker was clicked or
-			// the search box was actually used
-			MapPlace searchedPlace = mPanelController.selectedPlace();
-			if (searchedPlace == null) {
-				searchedPlace = mMapSearchView.getObjects().get(0);
-				if (mSearchViewUsed)
-					mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(searchedPlace.getPosition()), searchedPlace.getZooms().get(0)));
-				mPanelController.setSelectedPlace(searchedPlace);
+			Log.i(TAG, "search view used: " + mSearchViewUsed);
+
+			mSearchViewUsed = mFocusedMapPlace == null;
+
+			if (mSearchViewUsed) {
+
+				mFocusedMapPlace = mMapSearchView.getObjects().get(0);
+
+				showPanel();
+
+				LinearViewAnimatorTranslateYToPos(mDirectionsFAB.getTranslationY(), -50, 80l, new ValueAnimator.AnimatorUpdateListener() {
+					@Override
+					public void onAnimationUpdate(ValueAnimator animation) {
+						mDirectionsFAB.setTranslationY(Float.parseFloat(animation.getAnimatedValue().toString()));
+					}
+				});
+
+				mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(fromPointToLatLng(mFocusedMapPlace.getPosition()), mFocusedMapPlace.getZooms().get(0)));
+
+
+				mNavigationFromSearchView.clear();
+				mNavigationFromSearchView.addObject(mFocusedMapPlace);
+
 			}
+
 		}
 
-		// reset
-		mSearchViewUsed = true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+
+				// hide toolbar
+				mToolbar.animate()
+						.translationY(-getToolbarHeight())
+						.setInterpolator(new AccelerateInterpolator())
+						.setDuration(150l)
+						.start();
+
+				mDirectionsFAB.show();
+
+				showPanel();
+
+				mPathSearch.clearPaths();
+
+				mNavigationToSearchView.clear();
+
+				mNavigationMode = false;
+
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onMarkerDragEnd(Marker marker) {
+
+		// find the clicked marker
+		int draggedPlaceIndex = getPlaceIndex(marker.getPosition());
+		if (draggedPlaceIndex != -1) {
+			mAllMapPlaces.get(draggedPlaceIndex).setPosition(
+					MercatorProjection.fromLatLngToPoint(marker.getPosition())
+			);
+
+			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
+				@Override
+				public void done(ParseException e) {
+					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
+				}
+			});
+		}
 	}
 
 	@Override
 	public void onTokenRemoved(Object o) {
 		if (mMapSearchView.getObjects().size() == 0) {
-			mPanelController.setSelectedPlace(null);
+			mFocusedMapPlace = null;
 		}
 	}
 
@@ -626,5 +663,13 @@ public class MainActivity extends AppCompatActivity
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
 	}
 
+
+	public void showPanel() {
+		Log.i(TAG, "focused place: " + mFocusedMapPlace);
+		if (mFocusedMapPlace != null) {
+			mPanelController.showPanel();
+			mPanelController.setPanelData(mFocusedMapPlace);
+		}
+	}
 
 }
