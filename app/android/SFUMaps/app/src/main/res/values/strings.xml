@@ -17,6 +17,10 @@
     <string name="title_activity_main">Map</string>
     <color name="transparent_status_bar_color">#4D000000</color>
 
+    <!-- Drawer Menu Strings -->
+    <string name="drawer_your_places">Your places</string>
+    <string name="drawer_dev_mode">Dev Mode</string>
+    <string name="drawer_settings">Settings</string>
 
     <!---->
     <!-- Recorder activity -->

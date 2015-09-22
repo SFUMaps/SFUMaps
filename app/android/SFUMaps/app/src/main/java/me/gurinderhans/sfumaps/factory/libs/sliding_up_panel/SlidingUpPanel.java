@@ -24,6 +24,7 @@ import static me.gurinderhans.sfumaps.utils.MapTools.convertDpToPixel;
 public class SlidingUpPanel extends RelativeLayout {
 
 	// TODO: 15-09-17 Anchor panel to a middle anchor point && full expanded point && collapsed point
+	// TODO: 15-09-21 Use CardView or something to add shadow, basic TODO is add shadow
 
 	protected static final String TAG = SlidingUpPanel.class.getSimpleName();
 
@@ -47,7 +48,6 @@ public class SlidingUpPanel extends RelativeLayout {
 		ANCHORED,
 		HIDDEN,
 		DRAGGING;
-
 	}
 
 	private PanelState mPanelState = PanelState.HIDDEN;

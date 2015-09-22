@@ -30,4 +30,8 @@ dependencies {
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.parse:parse-android:1.10.1'
     compile "com.splitwise:tokenautocomplete:2.0.1@aar"
+    compile('com.mikepenz:materialdrawer:4.3.0@aar') {
+        transitive = true
+    }
+    compile 'com.mikepenz:google-material-typeface:1.2.0.1@aar'
 }

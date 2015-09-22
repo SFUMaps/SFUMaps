@@ -24,7 +24,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="35dp"
         card_view:cardCornerRadius="2dp"
         card_view:cardElevation="2dp">
 
@@ -37,9 +37,10 @@
         <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView
             android:id="@+id/main_search_view"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_height="50dp"
             android:background="@null"
             android:hint="Search SFU"
+            android:textColorHint="#CC666666"
             android:paddingEnd="15dp"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"

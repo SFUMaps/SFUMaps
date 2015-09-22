@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,6 +34,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.jakewharton.disklrucache.DiskLruCache;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.interfaces.OnCheckedChangeListener;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -41,8 +48,8 @@ import com.tokenautocomplete.TokenCompleteTextView.TokenListener;
 
 import java.util.List;
 
-import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.AppConfig;
 import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
@@ -56,7 +63,11 @@ import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 import me.gurinderhans.sfumaps.utils.SVGTileProvider;
 
+import static android.view.View.VISIBLE;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
+import static com.mikepenz.google_material_typeface_library.GoogleMaterial.Icon.gmd_developer_mode;
+import static com.mikepenz.google_material_typeface_library.GoogleMaterial.Icon.gmd_place;
+import static com.mikepenz.google_material_typeface_library.GoogleMaterial.Icon.gmd_settings;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.PARENT_PLACE;
 import static me.gurinderhans.sfumaps.factory.classes.MapPlace.mAllMapPlaces;
@@ -72,7 +83,8 @@ public class MainActivity extends AppCompatActivity
 		OnMapLongClickListener,
 		OnMarkerClickListener,
 		OnMarkerDragListener,
-		OnClickListener {
+		OnClickListener,
+		OnCheckedChangeListener {
 
 	protected static final String TAG = MainActivity.class.getSimpleName();
 
@@ -89,7 +101,9 @@ public class MainActivity extends AppCompatActivity
 
 
 	/**
-	 * Main activity toolbar
+	 * Main activity toolbar wrapper view
+	 * <p/>
+	 * The CardView simple provides the toolbar a bottom shadow
 	 */
 	private CardView mToolbarWrapper;
 
@@ -172,11 +186,14 @@ public class MainActivity extends AppCompatActivity
 
 		// setup from top down
 		setupStatusBar();
-		setUpSearchAndToolbar();
+		setUpSearchAndToolbarAndDrawer();
 		setUpMap();
 		fetchPlaces();
 		setupFABAndSlidingPanel();
-		manageDevMode();
+		updateDevMode();
+
+		// path maker
+		PathMaker.createPathMaker(this, mMap);
 	}
 
 	@Override
@@ -208,7 +225,7 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	public void onMapLongClick(LatLng latLng) {
-		if (BuildConfig.DEBUG && !PathMaker.isEditingMap) {
+		if (AppConfig.DEV_MODE_SWITCH && !PathMaker.isEditingMap) {
 
 			MapPlace newPlace = new MapPlace();
 			newPlace.setPosition(MercatorProjection.fromLatLngToPoint(latLng));
@@ -243,7 +260,10 @@ public class MainActivity extends AppCompatActivity
 
 		int clickedPlaceIndex = getPlaceIndex(marker.getPosition());
 		if (clickedPlaceIndex != -1) {
-			if (BuildConfig.DEBUG) { // user side
+			if (AppConfig.DEV_MODE_SWITCH) {
+				// edit place
+				new PlaceFormDialog(this, clickedPlaceIndex).show();
+			} else {
 
 				if (!mNavigationMode) {
 
@@ -256,9 +276,6 @@ public class MainActivity extends AppCompatActivity
 					mActivityStateHandler.setPlaceViewState();
 				}
 
-			} else {
-				// edit place
-				new PlaceFormDialog(this, clickedPlaceIndex).show();
 			}
 		}
 
@@ -276,6 +293,9 @@ public class MainActivity extends AppCompatActivity
 					mActivityStateHandler.setDefaultState();
 				else
 					mActivityStateHandler.setPlaceViewState();
+
+				// TMP call
+				mPathSearch.clearPaths();
 
 				break;
 		}
@@ -302,6 +322,13 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
+	@Override
+	public void onCheckedChanged(IDrawerItem iDrawerItem, CompoundButton compoundButton, boolean b) {
+		AppConfig.DEV_MODE_SWITCH = b;
+		updateDevMode();
+	}
+
+
 	/**
 	 * Makes the status bar transparent and allows views to be drawn behind the status bar
 	 */
@@ -318,8 +345,9 @@ public class MainActivity extends AppCompatActivity
 
 	/**
 	 * Initializes map search box and toolbar search
+	 * TODO: refactor, this method does too much
 	 */
-	private void setUpSearchAndToolbar() {
+	private void setUpSearchAndToolbarAndDrawer() {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
@@ -327,10 +355,21 @@ public class MainActivity extends AppCompatActivity
 		int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
 		toolbar.setPadding(0, statusBarHeight + extraPadding, 0, extraPadding);
 
+		// setup drawer
+		new DrawerBuilder()
+				.withFullscreen(true)
+				.withActivity(this)
+				.addDrawerItems(
+						new PrimaryDrawerItem().withName(R.string.drawer_your_places).withIcon(gmd_place),
+						new SwitchDrawerItem().withName(R.string.drawer_dev_mode).withIcon(gmd_developer_mode)
+								.withOnCheckedChangeListener(this),
+						new SecondaryDrawerItem().withName(R.string.drawer_settings).withIcon(gmd_settings)
+				)
+				.build();
 
+		// setup toolbar
 		mToolbarWrapper = (CardView) findViewById(R.id.toolbar_cardview_shadow_wrapper);
 		mToolbarWrapper.setTranslationY(-getToolbarHeight());
-
 
 		// add the search layout
 		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, toolbar, false);
@@ -358,9 +397,13 @@ public class MainActivity extends AppCompatActivity
 		mNavigationToSearchView.setAdapter(mMapSearchAdapter);
 
 		// start search listener
-		mNavigationFromSearchView.setTokenListener(new TokenListener() {
+		TokenListener startSearchListener = new TokenListener() {
 			@Override
 			public void onTokenAdded(Object o) {
+
+				if (mNavigationFromSearchView.getObjects().size() == 0 || mNavigationToSearchView.getObjects().size() == 0)
+					return;
+
 				// start search
 				hideKeyboard(MainActivity.this);
 
@@ -381,7 +424,9 @@ public class MainActivity extends AppCompatActivity
 			public void onTokenRemoved(Object o) {
 
 			}
-		});
+		};
+		mNavigationFromSearchView.setTokenListener(startSearchListener);
+		mNavigationToSearchView.setTokenListener(startSearchListener);
 
 		// map search listener
 		mMapSearchView.setTokenListener(new TokenListener() {
@@ -408,7 +453,6 @@ public class MainActivity extends AppCompatActivity
 			public void onTokenRemoved(Object o) {
 			}
 		});
-
 	}
 
 
@@ -504,15 +548,6 @@ public class MainActivity extends AppCompatActivity
 
 
 	/**
-	 * Checks if @link{BuildConfig.DEBUG} is true, if yes, enables the custom dev options
-	 */
-	private void manageDevMode() {
-		if (BuildConfig.DEBUG)
-			PathMaker.createPathMaker(this, mMap);
-	}
-
-
-	/**
 	 * Helper method to search through the local places list and find the place mathcing given
 	 * input position
 	 *
@@ -583,6 +618,15 @@ public class MainActivity extends AppCompatActivity
 		return mTileCache == null
 				? svgTileProvider
 				: new CachedTileProvider(Integer.toString(layer), svgTileProvider, mTileCache);
+	}
+
+
+	/**
+	 * Enable / Disable dev mode
+	 */
+	private void updateDevMode() {
+		// show hide the edit path layout
+		findViewById(R.id.dev_overlay).setVisibility(AppConfig.DEV_MODE_SWITCH ? VISIBLE : View.INVISIBLE);
 	}
 
 
