@@ -40,12 +40,13 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SwitchDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 import com.tokenautocomplete.TokenCompleteTextView.TokenListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.gurinderhans.sfumaps.R;
@@ -62,9 +63,10 @@ import me.gurinderhans.sfumaps.ui.controllers.SlidingUpPanelController;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView;
 import me.gurinderhans.sfumaps.utils.CachedTileProvider;
-import me.gurinderhans.sfumaps.utils.MapTools;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 import me.gurinderhans.sfumaps.utils.SVGTileProvider;
+import me.gurinderhans.sfumaps.utils.Tools;
+import me.gurinderhans.sfumaps.utils.Tools.DataUtils;
 
 import static android.view.View.VISIBLE;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NONE;
@@ -74,10 +76,10 @@ import static com.mikepenz.google_material_typeface_library.GoogleMaterial.Icon.
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace.PARENT_PLACE;
 import static me.gurinderhans.sfumaps.factory.classes.MapPlace.mAllMapPlaces;
-import static me.gurinderhans.sfumaps.utils.MapTools.LinearViewAnimatorTranslateYToPos;
-import static me.gurinderhans.sfumaps.utils.MapTools.hideKeyboard;
 import static me.gurinderhans.sfumaps.utils.MarkerCreator.createPlaceMarker;
 import static me.gurinderhans.sfumaps.utils.MercatorProjection.fromPointToLatLng;
+import static me.gurinderhans.sfumaps.utils.Tools.ViewUtils.LinearViewAnimatorTranslateYToPos;
+import static me.gurinderhans.sfumaps.utils.Tools.ViewUtils.hideKeyboard;
 
 public class MainActivity extends AppCompatActivity
 		implements
@@ -191,7 +193,7 @@ public class MainActivity extends AppCompatActivity
 		setupStatusBar();
 		setUpSearchAndToolbarAndDrawer();
 		setUpMap();
-		fetchPlaces();
+		loadPlaces();
 		setupFABAndSlidingPanel();
 		updateDevMode();
 
@@ -316,10 +318,11 @@ public class MainActivity extends AppCompatActivity
 					MercatorProjection.fromLatLngToPoint(marker.getPosition())
 			);
 
-			mAllMapPlaces.get(draggedPlaceIndex).savePlaceWithCallback(new SaveCallback() {
+			mAllMapPlaces.get(draggedPlaceIndex).pinInBackground(new SaveCallback() {
 				@Override
 				public void done(ParseException e) {
-					Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
+					if (e == null)
+						Snackbar.make(findViewById(android.R.id.content), "Place location updated", Snackbar.LENGTH_LONG).show();
 				}
 			});
 		}
@@ -466,7 +469,7 @@ public class MainActivity extends AppCompatActivity
 	private void setUpMap() {
 
 		// cache for map tiles
-		mTileCache = MapTools.openDiskCache(this);
+		mTileCache = Tools.TileManager.openDiskCache(this);
 
 		// map view
 		mMap = ((CustomMapFragment) getSupportFragmentManager()
@@ -488,20 +491,20 @@ public class MainActivity extends AppCompatActivity
 		// base map overlay
 		mMap.addTileOverlay(new TileOverlayOptions()
 				.tileProvider(
-						getTileProvider(1, new SVGTileProvider(MapTools.getBaseMapTiles(this),
+						getTileProvider(1, new SVGTileProvider(Tools.TileManager.getBaseMapTiles(this),
 								getResources().getDisplayMetrics().densityDpi / 160f)))
 				.zIndex(10));
 
 		// overlay tile provider to switch floor level stuff
 		mMap.addTileOverlay(new TileOverlayOptions()
 				.tileProvider(
-						getTileProvider(2, new SVGTileProvider(MapTools.getOverlayTiles(this),
+						getTileProvider(2, new SVGTileProvider(Tools.TileManager.getOverlayTiles(this),
 								getResources().getDisplayMetrics().densityDpi / 160f)))
 				.zIndex(11));
 
 		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 
-		mPathSearch = new PathSearch(mMap);
+		mPathSearch = new PathSearch(this, mMap);
 	}
 
 
@@ -509,17 +512,17 @@ public class MainActivity extends AppCompatActivity
 	 * Makes an asynchronous call to the Parse servers and loads all the @link{MapPlace} objects
 	 * into search adapter @link{mMapSearchAdapter}
 	 */
-	public void fetchPlaces() {
-		// TODO: 15-09-17 Use local data-store as well
-		ParseQuery<MapPlace> query = ParseQuery.getQuery(CLASS);
-		query.include(PARENT_PLACE);
-		query.findInBackground(new FindCallback<MapPlace>() {
-			@Override
-			public void done(List<MapPlace> objects, ParseException e) {
-				if (e != null) // There was an error or the network wasn't available.
-					return;
+	public void loadPlaces() {
 
-				for (MapPlace place : objects) {
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(CLASS);
+		DataUtils.parseFetchClass(this, query, new ArrayList<String>() {{
+			add(PARENT_PLACE);
+		}}, false, new DataUtils.FetchResultsCallback() {
+			@Override
+			public void onResults(List<?> objects) {
+
+				for (Object Oplace : objects) {
+					MapPlace place = (MapPlace) Oplace;
 
 					// FIXME: 15-09-20 an expensive call for the UI thread
 					Marker marker = createPlaceMarker(getApplicationContext(), mMap, place);
@@ -528,11 +531,12 @@ public class MainActivity extends AppCompatActivity
 					place.setMapGizmo(marker);
 
 					mAllMapPlaces.add(place);
-				}
 
-				mMapSearchAdapter.addAll(objects);
+				}
+				mMapSearchAdapter.addAll(mAllMapPlaces);
 
 				syncMarkers();
+
 			}
 		});
 	}
@@ -783,5 +787,3 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 }
-
-

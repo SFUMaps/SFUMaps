@@ -9,7 +9,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import java.util.List;
 import java.util.Vector;
 
-import me.gurinderhans.sfumaps.utils.MapTools;
+import me.gurinderhans.sfumaps.utils.Tools;
 
 /**
  * Created by ghans on 15-09-07.
@@ -62,8 +62,8 @@ public class MapGraph {
 
 		// create node search bounds
 		LatLngBounds searchBounds = new LatLngBounds.Builder()
-				.include(MapTools.LatLngFrom(position, 225, kmRange))
-				.include(MapTools.LatLngFrom(position, 45, kmRange))
+				.include(Tools.LocationUtils.LatLngFrom(position, 225, kmRange))
+				.include(Tools.LocationUtils.LatLngFrom(position, 45, kmRange))
 				.build();
 
 		List<MapGraphNode> searchNodes = getNodes();

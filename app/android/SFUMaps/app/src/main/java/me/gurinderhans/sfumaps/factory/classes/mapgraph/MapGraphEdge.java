@@ -22,7 +22,11 @@ public class MapGraphEdge extends ParseObject {
 			/* empty constructor, not be used by anyone other than Parse */
 	}
 
-	public MapGraphEdge(MapGraphNode nodeA) {
+	public static MapGraphEdge createEdge(MapGraphNode nodeA) {
+		return new MapGraphEdge(nodeA);
+	}
+
+	private MapGraphEdge(MapGraphNode nodeA) {
 		put(NODE_A, nodeA);
 	}
 

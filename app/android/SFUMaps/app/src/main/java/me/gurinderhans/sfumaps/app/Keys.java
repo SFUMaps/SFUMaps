@@ -56,8 +56,7 @@ public final class Keys {
 	public static class ParseMapGraphNode {
 		/* Map MapGraph (ParseObject) keys */
 		public static final String CLASS = "MapGraphNode";
-		public static final String LAT = "posX";
-		public static final String LNG = "posY";
+		public static final String POS = "nodePosition";
 	}
 
 }

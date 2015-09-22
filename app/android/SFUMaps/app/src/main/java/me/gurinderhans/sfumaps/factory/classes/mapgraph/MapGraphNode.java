@@ -6,13 +6,13 @@ import android.support.annotation.NonNull;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseClassName;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
 
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.CLASS;
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.LAT;
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.LNG;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.POS;
 
 /**
  * Created by ghans on 15-09-10.
@@ -45,8 +45,7 @@ public class MapGraphNode extends ParseObject implements Comparable<MapGraphNode
 	}
 
 	public MapGraphNode(LatLng position) {
-		put(LAT, position.latitude);
-		put(LNG, position.longitude);
+		put(POS, new ParseGeoPoint(position.latitude, position.longitude));
 	}
 
 	public double getDist() {
@@ -59,7 +58,12 @@ public class MapGraphNode extends ParseObject implements Comparable<MapGraphNode
 
 	@NonNull
 	public LatLng getMapPosition() {
-		return new LatLng(getDouble(LAT), getDouble(LNG));
+		ParseGeoPoint point = getParseGeoPoint(POS);
+		return new LatLng(point.getLatitude(), point.getLongitude());
+	}
+
+	public void setMapPosition(double lat, double lng) {
+		put(POS, new ParseGeoPoint(lat, lng));
 	}
 
 	public boolean isVisited() {

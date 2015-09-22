@@ -10,13 +10,13 @@ import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
-import me.gurinderhans.sfumaps.utils.MapTools;
+import me.gurinderhans.sfumaps.utils.Tools;
 
 import static me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel.PanelState.ANCHORED;
 import static me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel.PanelState.COLLAPSED;
 import static me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel.PanelState.EXPANDED;
-import static me.gurinderhans.sfumaps.utils.MapTools.LinearViewAnimatorTranslateYToPos;
-import static me.gurinderhans.sfumaps.utils.MapTools.convertDpToPixel;
+import static me.gurinderhans.sfumaps.utils.Tools.ViewUtils.LinearViewAnimatorTranslateYToPos;
+import static me.gurinderhans.sfumaps.utils.Tools.ViewUtils.convertDpToPixel;
 
 /**
  * Created by ghans on 15-09-17.
@@ -200,7 +200,7 @@ public class SlidingUpPanel extends RelativeLayout {
 		float offsetMin = (mPanelState == ANCHORED || mPanelState == EXPANDED) ? 0 : (1 - DEFAULT_ANCHOR_POINT) * screenSize.y;
 		float offsetMax = (screenSize.y - convertDpToPixel(DEFAULT_PANEL_HEIGHT, mContext));
 
-		float offsetPxVal = (float) MapTools.ValueLimiter(((getTranslationY() + event.getY()) - mFingerOffset), offsetMax, offsetMin);
+		float offsetPxVal = (float) Tools.NumberUtils.ValueLimiter(((getTranslationY() + event.getY()) - mFingerOffset), offsetMax, offsetMin);
 
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 

@@ -20,7 +20,7 @@ import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout.OnDragListener;
-import me.gurinderhans.sfumaps.utils.MapTools;
+import me.gurinderhans.sfumaps.utils.Tools;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -100,7 +100,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 					}
 
-					tmpGraphEdge = new MapGraphEdge(nodeA);
+					tmpGraphEdge = MapGraphEdge.createEdge(nodeA);
 					tmpEdgeOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 							.position(nodeA.getMapPosition(), EDGE_MAP_GIZMO_SIZE)
 							.zIndex(10000)
@@ -147,7 +147,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					tmpEdgeOverlay.setBearing((float) dragAngle);
 
 					// compute edge size dimensions
-					PointF dims = MapTools.getXYDist(tmpDragStartPos, tmpDragEndPos);
+					PointF dims = Tools.LocationUtils.getXYDist(tmpDragStartPos, tmpDragEndPos);
 					float pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 					tmpEdgeOverlay.setDimensions(pathSize, 20000);
 				} else {
