@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity
 	/**
 	 * Main activity toolbar
 	 */
-	private Toolbar mToolbar;
+	private CardView mToolbarWrapper;
 
 
 	/**
@@ -119,7 +120,7 @@ public class MainActivity extends AppCompatActivity
 
 	/**
 	 * Stores the current map zoom
-	 * <p>
+	 * <p/>
 	 * When onCameraChange() is called, this gets compared to the 'new' zoom to see if the zoom
 	 * level actually changed.
 	 */
@@ -319,20 +320,21 @@ public class MainActivity extends AppCompatActivity
 	 * Initializes map search box and toolbar search
 	 */
 	private void setUpSearchAndToolbar() {
-		mToolbar = (Toolbar) findViewById(R.id.toolbar);
-
-		setSupportActionBar(mToolbar);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
 
 		int statusBarHeight = getStatusBarHeight();
-		int toolbarHeight = getResources().getDimensionPixelSize(R.dimen.activity_main_toolbar_height);
 		int extraPadding = getResources().getDimensionPixelOffset(R.dimen.activity_main_toolbar_bottom_padding);
+		toolbar.setPadding(0, statusBarHeight + extraPadding, 0, extraPadding);
 
-		mToolbar.setPadding(0, statusBarHeight + extraPadding, 0, extraPadding);
-		mToolbar.setTranslationY(-(toolbarHeight + statusBarHeight + extraPadding));
+
+		mToolbarWrapper = (CardView) findViewById(R.id.toolbar_cardview_shadow_wrapper);
+		mToolbarWrapper.setTranslationY(-getToolbarHeight());
+
 
 		// add the search layout
-		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, mToolbar, false);
-		mToolbar.addView(view);
+		View view = LayoutInflater.from(this).inflate(R.layout.activity_main_toolbar_search, toolbar, false);
+		toolbar.addView(view);
 
 		// customize action bar
 		ActionBar ab = getSupportActionBar();
@@ -342,12 +344,11 @@ public class MainActivity extends AppCompatActivity
 		}
 
 		// search
-
 		mMapSearchView = (MapPlaceSearchCompletionView) findViewById(R.id.main_search_view);
 		mMapSearchView.setLayoutId(R.layout.activity_main_placesearch_token_layout);
 
-		mNavigationFromSearchView = (MapPlaceSearchCompletionView) mToolbar.findViewById(R.id.place_from);
-		mNavigationToSearchView = (MapPlaceSearchCompletionView) mToolbar.findViewById(R.id.place_to);
+		mNavigationFromSearchView = (MapPlaceSearchCompletionView) toolbar.findViewById(R.id.place_from);
+		mNavigationToSearchView = (MapPlaceSearchCompletionView) toolbar.findViewById(R.id.place_to);
 
 		mMapSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
 
@@ -620,7 +621,7 @@ public class MainActivity extends AppCompatActivity
 			/* 2. Views */
 
 			// hide toolbar
-			mToolbar.animate()
+			mToolbarWrapper.animate()
 					.translationY(-getToolbarHeight())
 					.setInterpolator(new AccelerateInterpolator())
 					.setDuration(150l)
@@ -665,11 +666,12 @@ public class MainActivity extends AppCompatActivity
 
 
 			// hide toolbar
-			mToolbar.animate()
+			mToolbarWrapper.animate()
 					.translationY(-getToolbarHeight())
 					.setInterpolator(new AccelerateInterpolator())
 					.setDuration(150l)
 					.start();
+
 
 			// TODO: 15-09-20 show search
 
@@ -709,7 +711,7 @@ public class MainActivity extends AppCompatActivity
 			/* 2. Views */
 
 			// show toolbar
-			mToolbar.animate()
+			mToolbarWrapper.animate()
 					.translationY(0)
 					.setInterpolator(new AccelerateInterpolator())
 					.setDuration(150l)
