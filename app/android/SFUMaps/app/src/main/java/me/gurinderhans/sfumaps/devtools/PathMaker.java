@@ -31,7 +31,7 @@ import static android.view.View.VISIBLE;
 public class PathMaker implements OnDragListener, OnClickListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
-	public static final int SNAP_TO_NODE_SEARCH_RANGE = 20; // kms
+	public static final int SNAP_TO_NODE_SEARCH_RANGE = 25; // kms
 	public static final int NODE_MAP_GIZMO_SIZE = 30000;
 	public static final int EDGE_MAP_GIZMO_SIZE = 20000;
 

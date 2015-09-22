@@ -68,6 +68,11 @@ public class PathSearch {
 				for (ParseObject obj : objects) {
 					MapGraphEdge edge = (MapGraphEdge) obj;
 
+					// NULL safe guard to skip null edges
+					if (edge.nodeA() == null || edge.nodeB() == null) {
+//						edge.deleteInBackground();
+						continue;
+					}
 					PointF dims = getXYDist(edge.nodeA().getMapPosition(), edge.nodeB().getMapPosition());
 					float pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 
@@ -201,6 +206,15 @@ public class PathSearch {
 
 		for (MapGraphNode vertex = target; vertex != null; vertex = vertex.getParent())
 			path.add(vertex.getMapPosition());
+
+		// remove first element
+		if (path.size() > 0)
+			path.remove(0);
+
+		// remove last element
+		if (path.size() > 1)
+			path.remove(path.size() - 1);
+
 
 		Collections.reverse(path);
 		return path;

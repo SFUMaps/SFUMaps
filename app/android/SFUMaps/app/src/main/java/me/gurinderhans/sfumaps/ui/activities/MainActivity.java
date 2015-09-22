@@ -54,6 +54,9 @@ import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.devtools.placecreator.controllers.PlaceFormDialog;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 import me.gurinderhans.sfumaps.factory.classes.PathSearch;
+import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
+import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
+import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
 import me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel;
 import me.gurinderhans.sfumaps.ui.controllers.SlidingUpPanelController;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
@@ -627,6 +630,16 @@ public class MainActivity extends AppCompatActivity
 	private void updateDevMode() {
 		// show hide the edit path layout
 		findViewById(R.id.dev_overlay).setVisibility(AppConfig.DEV_MODE_SWITCH ? VISIBLE : View.INVISIBLE);
+
+		// toggle pathmaker overlays
+		MapGraph graph = MapGraph.getInstance();
+		for (MapGraphNode node : graph.getNodes())
+			if (node.getMapGizmo() != null)
+				node.getMapGizmo().setVisible(AppConfig.DEV_MODE_SWITCH);
+
+		for (MapGraphEdge edge : graph.getEdges())
+			if (edge.getMapGizmo() != null)
+				edge.getMapGizmo().setVisible(AppConfig.DEV_MODE_SWITCH);
 	}
 
 
