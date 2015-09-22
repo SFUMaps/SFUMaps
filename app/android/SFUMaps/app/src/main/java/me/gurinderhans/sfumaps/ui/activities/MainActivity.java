@@ -19,6 +19,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -469,8 +470,9 @@ public class MainActivity extends AppCompatActivity
 		mTileCache = MapTools.openDiskCache(this);
 
 		// map view
-		mMap = ((CustomMapFragment) getSupportFragmentManager()
-				.findFragmentById(R.id.map)).getMap();
+		CustomMapFragment fragment = ((CustomMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.map));
+		mMap = fragment.getMap();
 
 		mMap.setMapType(MAP_TYPE_NONE);
 		mMap.setIndoorEnabled(false);
@@ -484,6 +486,23 @@ public class MainActivity extends AppCompatActivity
 		mMap.setOnMapLongClickListener(this);
 		mMap.setOnMarkerClickListener(this);
 		mMap.setOnMarkerDragListener(this);
+
+
+		// move compass icon button to the right side
+		try {
+			if (fragment.getView() != null) {
+				View compassView = fragment.getView().findViewWithTag("GoogleMapCompass");
+
+				RelativeLayout.LayoutParams compassViewLayoutParams = (RelativeLayout.LayoutParams) compassView.getLayoutParams();
+				compassViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
+				compassViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				// TODO: 15-09-22 is this in px or dp?
+				compassViewLayoutParams.setMargins(0, 200, 20, 0);
+				compassView.setLayoutParams(compassViewLayoutParams);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 
 		// base map overlay
 		mMap.addTileOverlay(new TileOverlayOptions()
@@ -502,6 +521,7 @@ public class MainActivity extends AppCompatActivity
 		mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(0, 0), 2f));
 
 		mPathSearch = new PathSearch(mMap);
+
 	}
 
 
