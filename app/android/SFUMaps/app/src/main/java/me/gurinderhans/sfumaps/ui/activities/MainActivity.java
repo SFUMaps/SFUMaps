@@ -514,7 +514,7 @@ public class MainActivity extends AppCompatActivity
 	 */
 	public void loadPlaces() {
 
-		ParseQuery<ParseObject> query = ParseQuery.getQuery(CLASS);
+		/*ParseQuery<ParseObject> query = ParseQuery.getQuery(CLASS);
 		DataUtils.parseFetchClass(this, query, new ArrayList<String>() {{
 			add(PARENT_PLACE);
 		}}, false, new DataUtils.FetchResultsCallback() {
@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity
 				syncMarkers();
 
 			}
-		});
+		});*/
 	}
 
 

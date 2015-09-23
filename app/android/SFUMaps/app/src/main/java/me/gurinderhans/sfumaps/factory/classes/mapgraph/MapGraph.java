@@ -89,15 +89,15 @@ public class MapGraph {
 					if (nodeA.getMapGizmo() != null)
 						nodeA.getMapGizmo().remove();
 
-					nodeA.deleteInBackground();
-					getNodes().remove(nodeB);
+					edge.removeNodeA();
+					getNodes().remove(nodeA);
 				}
 
 				if (getNodeEdges(nodeB).size() == 1) {
 					if (nodeB.getMapGizmo() != null)
 						nodeB.getMapGizmo().remove();
 
-					nodeB.deleteInBackground();
+					edge.removeNodeB();
 					getNodes().remove(nodeB);
 				}
 

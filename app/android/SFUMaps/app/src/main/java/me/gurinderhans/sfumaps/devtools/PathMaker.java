@@ -13,8 +13,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseObject;
 
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
@@ -97,10 +99,10 @@ public class PathMaker implements OnDragListener, OnClickListener {
 										.transparency(0.5f))
 						);
 						mapGraph.addNode(nodeA);
-
 					}
 
-					tmpGraphEdge = MapGraphEdge.createEdge(nodeA);
+					tmpGraphEdge = (MapGraphEdge) ParseObject.create(Keys.ParseMapGraphEdge.CLASS);
+					tmpGraphEdge.setNodeA(nodeA);
 					tmpEdgeOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 							.position(nodeA.getMapPosition(), EDGE_MAP_GIZMO_SIZE)
 							.zIndex(10000)
@@ -133,7 +135,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					tmpGraphEdge.setRotation(tmpEdgeOverlay.getBearing());
 
 					mapGraph.addEdge(tmpGraphEdge);
-					tmpGraphEdge.saveInBackground(); // saves edge nodes too
+					tmpGraphEdge.saveEventually();
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:

@@ -50,43 +50,18 @@ public class Tools {
 	 */
 	public static class DataUtils {
 
-		public static void parseFetchClass(Context c, ParseQuery<ParseObject> query,
-		                                   List<String> includes, boolean a,
-		                                   final FetchResultsCallback cb) {
-
-			// pointer includes
-			for (String include : includes) query.include(include);
-			query.setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK);
-			query.findInBackground(new FindCallback<ParseObject>() {
-				@Override
-				public void done(List<ParseObject> objects, ParseException e) {
-					if (e != null) {
-						e.printStackTrace();
-					}
-
-					cb.onResults(objects);
-				}
-			});
-		}
-
 		/**
 		 * @param c
 		 * @param query
 		 * @param includes
-		 * @param skipLocalDataStore
 		 * @param callback
 		 */
-		public static void AparseFetchClass(final Context c, final ParseQuery<ParseObject> query,
-		                                    final List<String> includes,
-		                                    boolean skipLocalDataStore, final FetchResultsCallback callback) {
+		public static void parseFetchClass(final Context c, final ParseQuery<ParseObject> query,
+		                                   final List<String> includes,
+		                                   final FetchResultsCallback callback) {
+//			query.fromLocalDatastore();
 
-			if (!skipLocalDataStore) {
-				query.fromLocalDatastore();
-				query.fromPin(query.getClassName());
-			}
-			
-
-			// pointer includes
+			// include any given pointers
 			for (String include : includes) query.include(include);
 
 			query.findInBackground(new FindCallback<ParseObject>() {
@@ -99,14 +74,16 @@ public class Tools {
 						return;
 					}
 
-					Log.i(TAG, "Class: " + query.getClassName() + ", LOCAL, fetched: " + objects);
+					callback.onResults(objects);
+
+					/*Log.i(TAG, "Class: " + query.getClassName() + ", LOCAL, fetched: " + objects);
 
 					if (objects != null && objects.size() == 0) {
 						Log.i(TAG, "not in local data store, fetching from ONLINE");
 						// local data store is empty, try fetching from online
 						ParseQuery<ParseObject> onlineQuery = ParseQuery.getQuery(query.getClassName());
 
-						// pointer includes
+						// include given pointers to fetch form online
 						for (String include : includes) onlineQuery.include(include);
 
 						queryParseServers(c, onlineQuery, new FindCallback<ParseObject>() {
@@ -127,9 +104,7 @@ public class Tools {
 						});
 
 						return;
-					}
-
-					callback.onResults(objects);
+					}*/
 
 				}
 			});
@@ -155,6 +130,26 @@ public class Tools {
 						Toast.LENGTH_LONG).show();
 			}
 		}
+
+
+		/*public static void AparseFetchClass(Context c, ParseQuery<ParseObject> query,
+		                                    List<String> includes, boolean a,
+		                                    final FetchResultsCallback cb) {
+
+			// pointer includes
+			for (String include : includes) query.include(include);
+			query.setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK);
+			query.findInBackground(new FindCallback<ParseObject>() {
+				@Override
+				public void done(List<ParseObject> objects, ParseException e) {
+					if (e != null) {
+						e.printStackTrace();
+					}
+
+					cb.onResults(objects);
+				}
+			});
+		}*/
 
 
 		/**
