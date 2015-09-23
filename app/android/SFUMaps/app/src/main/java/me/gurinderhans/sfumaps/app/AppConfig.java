@@ -13,6 +13,8 @@ public class AppConfig {
 
 	public static final String TAG = AppConfig.class.getSimpleName();
 
+	public static boolean DEV_MODE_SWITCH = false;
+
 	/**
 	 * :: constants ::
 	 */

@@ -3,6 +3,7 @@ package me.gurinderhans.sfumaps.factory.classes;
 
 import android.graphics.PointF;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.ParseClassName;
@@ -27,25 +28,23 @@ import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace;
 @ParseClassName(ParseMapPlace.CLASS)
 public class MapPlace extends ParseObject {
 
-	protected static final String TAG = MapPlace.class.getSimpleName();
+	public static final String TAG = MapPlace.class.getSimpleName();
 
-	// to allow direct access for editing
 	public static List<MapPlace> mAllMapPlaces = new ArrayList<>();
 
 	/* Member variables */
-	private Marker mMapPlaceMarker;
-
-	/**
-	 * NOTE: **NONE** of the constructors are to be used for creating MapPlace.class instances
-	 */
+	private Marker mPlaceMarker;
 
 	public MapPlace() {
-		/* empty constructor, not be used by anyone other than Parse */
 	}
 
-	public MapPlace(String title) {
+	private MapPlace(String title) {
 		/* constructor only to be used for AutocompleteTextView adding view tokens */
 		put(ParseMapPlace.TITLE, title);
+	}
+
+	public static MapPlace createPlace(String title) {
+		return new MapPlace(title);
 	}
 
 	/* Parse methods */
@@ -115,7 +114,7 @@ public class MapPlace extends ParseObject {
 		put(ParseMapPlace.MARKER_ROTATION, rotation);
 
 		// rotate the marker
-		getPlaceMarker().setRotation(rotation);
+		getMapGizmo().setRotation(rotation);
 	}
 
 	public MapPlace getParentPlace() {
@@ -130,15 +129,6 @@ public class MapPlace extends ParseObject {
 		}
 	}
 
-	// save methods
-	public void savePlace() {
-		saveInBackground();
-	}
-
-	public void savePlaceWithCallback(@NonNull SaveCallback saveCallback) {
-		saveInBackground(saveCallback);
-	}
-
 	/**
 	 * Get place title
 	 *
@@ -146,17 +136,35 @@ public class MapPlace extends ParseObject {
 	 */
 	@Override
 	public String toString() {
-		return getTitle();
+		String returnTitle = "";
+
+		if (getParentPlace() != null)
+			returnTitle = getParentPlace().getTitle() + " ";
+
+		returnTitle += getTitle();
+
+		return returnTitle;
 	}
 
 
 	/* MapPlace Class methods */
-	public void tieWithMarker(Marker marker) {
-		this.mMapPlaceMarker = marker;
+	public void setMapGizmo(Marker marker) {
+		this.mPlaceMarker = marker;
 	}
 
-	public Marker getPlaceMarker() {
-		return mMapPlaceMarker;
+	public Marker getMapGizmo() {
+		return mPlaceMarker;
+	}
+
+	@Nullable
+	public static MapPlace findPlaceWithTitle(String title) {
+		for (MapPlace place : mAllMapPlaces) {
+			if (place.getTitle().equals(title)) {
+				return place;
+			}
+		}
+
+		return null;
 	}
 }
 

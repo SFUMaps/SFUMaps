@@ -93,19 +93,22 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 		findViewById(R.id.btn_remove_place).setOnClickListener(this);
 		mMarkerRotator.setOnSeekBarChangeListener(this);
 
+
+		// place data will most likely be loaded before this dialog is instantiated
 		// load adapter data
 		List<MapPlace> places = new ArrayList<>();
 		for (MapPlace place : MapPlace.mAllMapPlaces)
 			if (place != null && place.getTitle() != null)
 				places.add(place);
+
 		ArrayAdapter<MapPlace> autoCompleteAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, places);
 		mPlaceTitleEditText.setAdapter(autoCompleteAdapter);
 
 		// load place into views
-		loadPlace();
+		loadPlaceViews();
 	}
 
-	void loadPlace() {
+	void loadPlaceViews() {
 		if (mTmpPlace.getParentPlace() != null)
 			mPlaceTitleEditText.addObject(mTmpPlace.getParentPlace());
 		if (mTmpPlace.getTitle() != null)
@@ -179,18 +182,18 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 		/* update the marker */
 		// update marker text along with icon alignment
-		mTmpPlace.getPlaceMarker().setIcon(BitmapDescriptorFactory.fromBitmap(
+		mTmpPlace.getMapGizmo().setIcon(BitmapDescriptorFactory.fromBitmap(
 				MarkerCreator.createPlaceIcon(mActivity.getApplicationContext(), mTmpPlace, mTmpPlace.getIconAlignment())
 		));
 		// update marker anchor point
 		PointF anchorPoint = mTmpPlace.getIconAlignment().getAnchorPoint();
-		mTmpPlace.getPlaceMarker().setAnchor(anchorPoint.x, anchorPoint.y);
+		mTmpPlace.getMapGizmo().setAnchor(anchorPoint.x, anchorPoint.y);
 		// update marker flat
-		mTmpPlace.getPlaceMarker().setFlat(mTmpPlace.getType() == MapPlaceType.ROAD);
+		mTmpPlace.getMapGizmo().setFlat(mTmpPlace.getType() == MapPlaceType.ROAD);
 
 
 		// finally, save the place
-		mTmpPlace.savePlaceWithCallback(new SaveCallback() {
+		mTmpPlace.pinInBackground(new SaveCallback() {
 			@Override
 			public void done(ParseException e) {
 				if (e == null) {
@@ -200,6 +203,16 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 				}
 			}
 		});
+		/*mTmpPlace.savePlaceWithCallback(new SaveCallback() {
+			@Override
+			public void done(ParseException e) {
+				if (e == null) {
+					Toast.makeText(getContext(), "MapPlace saved.", Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(getContext(), "Unable to save.", Toast.LENGTH_LONG).show();
+				}
+			}
+		});*/
 	}
 
 	@Override
@@ -216,7 +229,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 						Toast.makeText(getContext(), "MapPlace deleted.", Toast.LENGTH_LONG).show();
 					}
 				});
-				mTmpPlace.getPlaceMarker().remove();
+				mTmpPlace.getMapGizmo().remove();
 				MapPlace.mAllMapPlaces.remove(mEditingPlaceIndex);
 				break;
 			default:

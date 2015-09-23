@@ -1,6 +1,7 @@
 package me.gurinderhans.sfumaps.factory.classes.mapgraph;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -8,13 +9,15 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import java.util.List;
 import java.util.Vector;
 
-import me.gurinderhans.sfumaps.utils.MapTools;
+import me.gurinderhans.sfumaps.utils.Tools;
 
 /**
  * Created by ghans on 15-09-07.
  */
 
 public class MapGraph {
+
+	protected static final String TAG = MapGraph.class.getSimpleName();
 
 	private static MapGraph mInstance = new MapGraph();
 
@@ -54,11 +57,13 @@ public class MapGraph {
 		return true;
 	}
 
+	@Nullable
 	public MapGraphNode getNodeAt(LatLng position, double kmRange) {
+
 		// create node search bounds
 		LatLngBounds searchBounds = new LatLngBounds.Builder()
-				.include(MapTools.LatLngFrom(position, 225, kmRange))
-				.include(MapTools.LatLngFrom(position, 45, kmRange))
+				.include(Tools.LocationUtils.LatLngFrom(position, 225, kmRange))
+				.include(Tools.LocationUtils.LatLngFrom(position, 45, kmRange))
 				.build();
 
 		List<MapGraphNode> searchNodes = getNodes();
@@ -68,6 +73,42 @@ public class MapGraph {
 					return node;
 
 		return null;
+	}
+
+	public void removeEdgeAt(LatLng nodePosition) {
+
+		for (MapGraphEdge edge : getEdges()) {
+			if (edge.getMapGizmo().getBounds().contains(nodePosition)) {
+
+
+				MapGraphNode nodeA = edge.nodeA();
+				MapGraphNode nodeB = edge.nodeB();
+
+				// FIXME: 15-09-16 This is not a perfectly correct way of checking if a node should be deleted
+				if (getNodeEdges(nodeA).size() == 1) {
+					if (nodeA.getMapGizmo() != null)
+						nodeA.getMapGizmo().remove();
+
+					edge.removeNodeA();
+					getNodes().remove(nodeA);
+				}
+
+				if (getNodeEdges(nodeB).size() == 1) {
+					if (nodeB.getMapGizmo() != null)
+						nodeB.getMapGizmo().remove();
+
+					edge.removeNodeB();
+					getNodes().remove(nodeB);
+				}
+
+				// remove edge map gizmo, local copy and server copy
+				edge.getMapGizmo().remove();
+				edge.deleteInBackground();
+				getEdges().remove(edge);
+
+				return;
+			}
+		}
 	}
 
 	public Vector<MapGraphEdge> getNodeEdges(@NonNull MapGraphNode node) {

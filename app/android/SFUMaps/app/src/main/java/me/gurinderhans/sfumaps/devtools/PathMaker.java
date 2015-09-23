@@ -13,14 +13,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseObject;
 
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.Keys;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
 import me.gurinderhans.sfumaps.ui.views.CustomMapFragment;
 import me.gurinderhans.sfumaps.ui.views.MapWrapperLayout.OnDragListener;
-import me.gurinderhans.sfumaps.utils.MapTools;
+import me.gurinderhans.sfumaps.utils.Tools;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -31,7 +33,7 @@ import static android.view.View.VISIBLE;
 public class PathMaker implements OnDragListener, OnClickListener {
 
 	public static final String TAG = PathMaker.class.getSimpleName();
-	public static final int SNAP_TO_NODE_SEARCH_RANGE = 20; // kms
+	public static final int SNAP_TO_NODE_SEARCH_RANGE = 25; // kms
 	public static final int NODE_MAP_GIZMO_SIZE = 30000;
 	public static final int EDGE_MAP_GIZMO_SIZE = 20000;
 
@@ -53,7 +55,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		this.mActivity = activity;
 
 		// ------------
-		mActivity.findViewById(R.id.dev_overlay).setVisibility(VISIBLE);
+//		mActivity.findViewById(R.id.dev_overlay).setVisibility(VISIBLE);
 		mActivity.findViewById(R.id.edit_map_path).setOnClickListener(this);
 		mActivity.findViewById(R.id.delete_path_button).setOnClickListener(this);
 
@@ -97,10 +99,10 @@ public class PathMaker implements OnDragListener, OnClickListener {
 										.transparency(0.5f))
 						);
 						mapGraph.addNode(nodeA);
-
 					}
 
-					tmpGraphEdge = new MapGraphEdge(nodeA);
+					tmpGraphEdge = (MapGraphEdge) ParseObject.create(Keys.ParseMapGraphEdge.CLASS);
+					tmpGraphEdge.setNodeA(nodeA);
 					tmpEdgeOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 							.position(nodeA.getMapPosition(), EDGE_MAP_GIZMO_SIZE)
 							.zIndex(10000)
@@ -112,7 +114,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 				break;
 			case MotionEvent.ACTION_UP:
-				if (!deleteMode) {
+				if (!deleteMode && tmpDragEndPos != null) {
 					// see if there's a node where we are ending the drag, if yes link edge nodeB to this, else create new node here
 					MapGraphNode nodeB = mapGraph.getNodeAt(tmpDragEndPos, SNAP_TO_NODE_SEARCH_RANGE);
 					if (nodeB == null) {
@@ -133,7 +135,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					tmpGraphEdge.setRotation(tmpEdgeOverlay.getBearing());
 
 					mapGraph.addEdge(tmpGraphEdge);
-					tmpGraphEdge.saveInBackground(); // saves edge nodes too
+					tmpGraphEdge.saveEventually();
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:
@@ -147,9 +149,12 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					tmpEdgeOverlay.setBearing((float) dragAngle);
 
 					// compute edge size dimensions
-					PointF dims = MapTools.getXYDist(tmpDragStartPos, tmpDragEndPos);
+					PointF dims = Tools.LocationUtils.getXYDist(tmpDragStartPos, tmpDragEndPos);
 					float pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 					tmpEdgeOverlay.setDimensions(pathSize, 20000);
+				} else {
+					// delete nodes and edges
+					mapGraph.removeEdgeAt(mGoogleMap.getProjection().fromScreenLocation(currentScreenDragPoint));
 				}
 				break;
 			default:
@@ -157,7 +162,6 @@ public class PathMaker implements OnDragListener, OnClickListener {
 
 		}
 	}
-
 
 	@Override
 	public void onClick(View v) {

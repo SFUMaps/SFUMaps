@@ -1,9 +1,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:context=".MainActivity">
 
+
+    <!-- Map Fragment -->
     <fragment
         android:id="@+id/map"
         android:name="me.gurinderhans.sfumaps.ui.views.CustomMapFragment"
@@ -11,28 +15,114 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity"/>
 
+
+    <!-- Map Search View -->
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="35dp"
+        card_view:cardCornerRadius="2dp"
+        card_view:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
+
+        <me.gurinderhans.sfumaps.ui.views.MapPlaceSearchCompletionView
+            android:id="@+id/main_search_view"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@null"
+            android:hint="Search SFU"
+            android:textColorHint="#CC666666"
+            android:paddingEnd="15dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:textColor="#666666"
+            android:textCursorDrawable="@null"
+            android:textSize="15sp"/>
+    </android.support.v7.widget.CardView>
+
+
+    <!-- Sliding Panel -->
+    <me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel
+        android:id="@+id/sliding_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@android:color/white">
+
+        <include
+            android:id="@+id/sliding_panel_collapsed_layout"
+            layout="@layout/activity_main_sliding_panel_collapsed_single_place"/>
+
+    </me.gurinderhans.sfumaps.factory.libs.sliding_up_panel.SlidingUpPanel>
+
+
+    <!-- Floating Action Button (Directions) -->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/get_directions_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_directions_white_48dp"
+        app:backgroundTint="@color/app_color_primary"
+        app:borderWidth="0dp"
+        app:elevation="3dp"
+        app:rippleColor="#4DFFFFFF"/>
+
+
+    <!-- Search toolbar -->
+    <android.support.v7.widget.CardView
+        android:id="@+id/toolbar_cardview_shadow_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardCornerRadius="0dp"
+        card_view:cardElevation="2dp">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/activity_main_toolbar_height"
+            android:background="?attr/colorPrimary"
+            android:paddingTop="30dp"
+            app:theme="@style/MainActivity"/>
+
+    </android.support.v7.widget.CardView>
+
+
     <!-- Dev mode layout -->
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/dev_overlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:visibility="gone">
 
         <TextView
             android:id="@+id/map_current_zoom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="15dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
             android:text="n/a"
             android:textSize="18sp"/>
 
         <include
             layout="@layout/devtools_pathmaker_action_buttons"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="100dp"/>
 
-    </LinearLayout>
-
+    </RelativeLayout>
 </RelativeLayout>
