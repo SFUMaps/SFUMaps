@@ -30,7 +30,9 @@ public class SplashScreenActivity extends Activity {
 		int msDelay = 1;
 		new Handler().postDelayed(new Runnable() {
 			public void run() {
-				startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
+				Intent intent = new Intent(SplashScreenActivity.this, MainActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
 				finish(); // remove activity from stack
 			}
 		}, msDelay * 500);
