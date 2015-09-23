@@ -5,28 +5,26 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
-import com.parse.ParseClassName;
-import com.parse.ParseObject;
 
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
-
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.CLASS;
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.LAT;
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphNode.LNG;
 
 /**
  * Created by ghans on 15-09-10.
  */
 
-@ParseClassName(CLASS)
-public class MapGraphNode extends ParseObject implements Comparable<MapGraphNode> {
+public class MapGraphNode implements Comparable<MapGraphNode> {
 
 
 	private GroundOverlay map_gizmo = null;
 	private boolean visited = false;
+	private LatLng nodePos = null;
 
 	private MapGraphNode parent;
 	private double dist = Double.POSITIVE_INFINITY;
+
+	public MapGraphNode(LatLng position) {
+		this.nodePos = position;
+	}
 
 	public MapGraphNode getParent() {
 		return parent;
@@ -40,15 +38,6 @@ public class MapGraphNode extends ParseObject implements Comparable<MapGraphNode
 		return MercatorProjection.fromLatLngToPoint(getMapPosition());
 	}
 
-	public MapGraphNode() {
-		/* empty constructor, not be used by anyone other than Parse */
-	}
-
-	public MapGraphNode(LatLng position) {
-		put(LAT, position.latitude);
-		put(LNG, position.longitude);
-	}
-
 	public double getDist() {
 		return dist;
 	}
@@ -59,7 +48,11 @@ public class MapGraphNode extends ParseObject implements Comparable<MapGraphNode
 
 	@NonNull
 	public LatLng getMapPosition() {
-		return new LatLng(getDouble(LAT), getDouble(LNG));
+		return nodePos;
+	}
+
+	public void updatePosition(LatLng position) {
+		this.nodePos = position;
 	}
 
 	public boolean isVisited() {
@@ -77,6 +70,7 @@ public class MapGraphNode extends ParseObject implements Comparable<MapGraphNode
 	public void setMapGizmo(GroundOverlay overlay) {
 		this.map_gizmo = overlay;
 	}
+
 
 	@Override
 	public boolean equals(Object o) {

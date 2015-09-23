@@ -193,7 +193,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 
 		// finally, save the place
-		mTmpPlace.savePlaceWithCallback(new SaveCallback() {
+		mTmpPlace.pinInBackground(new SaveCallback() {
 			@Override
 			public void done(ParseException e) {
 				if (e == null) {
@@ -203,6 +203,16 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 				}
 			}
 		});
+		/*mTmpPlace.savePlaceWithCallback(new SaveCallback() {
+			@Override
+			public void done(ParseException e) {
+				if (e == null) {
+					Toast.makeText(getContext(), "MapPlace saved.", Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(getContext(), "Unable to save.", Toast.LENGTH_LONG).show();
+				}
+			}
+		});*/
 	}
 
 	@Override

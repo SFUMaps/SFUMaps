@@ -1,12 +1,15 @@
 package me.gurinderhans.sfumaps.factory.classes.mapgraph;
 
 import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.CLASS;
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_A;
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_B;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_A_LAT;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_A_LNG;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_B_LAT;
+import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_B_LNG;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.ROTATION;
 
 /**
@@ -18,28 +21,42 @@ public class MapGraphEdge extends ParseObject {
 
 	private GroundOverlay map_gizmo;
 
+	private MapGraphNode nodeA = null;
+	private MapGraphNode nodeB = null;
+
 	public MapGraphEdge() {
-			/* empty constructor, not be used by anyone other than Parse */
 	}
 
-	public MapGraphEdge(MapGraphNode nodeA) {
-		put(NODE_A, nodeA);
+	public void setNodeA(MapGraphNode node) {
+		LatLng latLng = node.getMapPosition();
+
+		put(NODE_A_LAT, latLng.latitude);
+		put(NODE_A_LNG, latLng.longitude);
+
+		nodeA().updatePosition(latLng);
 	}
 
-	public void setNodeA(MapGraphNode nodeA) {
-		put(NODE_A, nodeA);
-	}
+	public void setNodeB(MapGraphNode node) {
+		LatLng latLng = node.getMapPosition();
 
-	public void setNodeB(MapGraphNode nodeB) {
-		put(NODE_B, nodeB);
+		put(NODE_B_LAT, latLng.latitude);
+		put(NODE_B_LNG, latLng.longitude);
+
+		nodeB().updatePosition(latLng);
 	}
 
 	public MapGraphNode nodeA() {
-		return (MapGraphNode) get(NODE_A);
+		if (nodeA == null)
+			nodeA = new MapGraphNode(new LatLng(getDouble(NODE_A_LAT), getDouble(NODE_A_LNG)));
+
+		return nodeA;
 	}
 
 	public MapGraphNode nodeB() {
-		return (MapGraphNode) get(NODE_B);
+		if (nodeB == null)
+			nodeB = new MapGraphNode(new LatLng(getDouble(NODE_B_LAT), getDouble(NODE_B_LNG)));
+
+		return nodeB;
 	}
 
 	public void setRotation(float rotation) {
@@ -58,4 +75,15 @@ public class MapGraphEdge extends ParseObject {
 		this.map_gizmo = overlay;
 	}
 
+	public void removeNodeA() {
+		nodeA = null;
+		remove(NODE_A_LAT);
+		remove(NODE_A_LNG);
+	}
+
+	public void removeNodeB() {
+		nodeB = null;
+		remove(NODE_B_LAT);
+		remove(NODE_B_LNG);
+	}
 }

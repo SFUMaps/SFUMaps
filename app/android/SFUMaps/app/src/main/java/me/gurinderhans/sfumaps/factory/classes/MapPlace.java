@@ -129,15 +129,6 @@ public class MapPlace extends ParseObject {
 		}
 	}
 
-	// save methods
-	public void savePlace() {
-		saveInBackground();
-	}
-
-	public void savePlaceWithCallback(@NonNull SaveCallback saveCallback) {
-		saveInBackground(saveCallback);
-	}
-
 	/**
 	 * Get place title
 	 *
@@ -165,8 +156,6 @@ public class MapPlace extends ParseObject {
 		return mPlaceMarker;
 	}
 
-
-	// not too sure about this functions implementation, how would it deal with two places with same name if case be?
 	@Nullable
 	public static MapPlace findPlaceWithTitle(String title) {
 		for (MapPlace place : mAllMapPlaces) {

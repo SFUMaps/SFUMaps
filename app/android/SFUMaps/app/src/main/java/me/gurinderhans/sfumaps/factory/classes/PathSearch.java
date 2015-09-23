@@ -1,5 +1,6 @@
 package me.gurinderhans.sfumaps.factory.classes;
 
+import android.content.Context;
 import android.graphics.PointF;
 import android.util.Log;
 
@@ -11,8 +12,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.parse.FindCallback;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -21,22 +20,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import me.gurinderhans.sfumaps.BuildConfig;
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge;
+import me.gurinderhans.sfumaps.devtools.PathMaker;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
+import me.gurinderhans.sfumaps.utils.Tools.DataUtils;
 
-import static com.parse.ParseQuery.CachePolicy.CACHE_ELSE_NETWORK;
-import static com.parse.ParseQuery.CachePolicy.NETWORK_ELSE_CACHE;
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.CLASS;
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_A;
-import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_B;
-import static me.gurinderhans.sfumaps.devtools.PathMaker.EDGE_MAP_GIZMO_SIZE;
-import static me.gurinderhans.sfumaps.devtools.PathMaker.NODE_MAP_GIZMO_SIZE;
-import static me.gurinderhans.sfumaps.utils.MapTools.LatLngDistance;
-import static me.gurinderhans.sfumaps.utils.MapTools.getXYDist;
+import static me.gurinderhans.sfumaps.utils.Tools.LocationUtils.LatLngDistance;
+import static me.gurinderhans.sfumaps.utils.Tools.LocationUtils.getXYDist;
 
 /**
  * Created by ghans on 15-08-17.
@@ -53,36 +47,28 @@ public class PathSearch {
 
 	Marker fromMarker, toMarker;
 
-	public PathSearch(GoogleMap googleMap) {
+	public PathSearch(Context c, GoogleMap googleMap) {
 		this.mGoogleMap = googleMap;
 
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
 
-		ParseQuery<ParseObject> query = ParseQuery.getQuery(CLASS);
-		query.include(NODE_A);
-		query.include(NODE_B);
-		query.setCachePolicy(BuildConfig.DEBUG ? NETWORK_ELSE_CACHE : CACHE_ELSE_NETWORK);
-		query.findInBackground(new FindCallback<ParseObject>() {
+		// Fetch graph paths
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseMapGraphEdge.CLASS);
+		DataUtils.parseFetchClass(c, query, new ArrayList<String>(0), new DataUtils.FetchResultsCallback() {
 			@Override
-			public void done(List<ParseObject> objects, ParseException e) {
-				for (ParseObject obj : objects) {
+			public void onResults(List<?> objects) {
+				for (Object obj : objects) {
 					MapGraphEdge edge = (MapGraphEdge) obj;
-
-					// NULL safe guard to skip null edges
-					if (edge.nodeA() == null || edge.nodeB() == null) {
-//						edge.deleteInBackground();
-						continue;
-					}
 					PointF dims = getXYDist(edge.nodeA().getMapPosition(), edge.nodeB().getMapPosition());
 					float pathSize = (float) Math.sqrt(dims.x * dims.x + dims.y * dims.y);
 
 					edge.setMapGizmo(mGoogleMap.addGroundOverlay(
 									new GroundOverlayOptions()
-											.position(edge.nodeA().getMapPosition(), pathSize, EDGE_MAP_GIZMO_SIZE)
+											.position(edge.nodeA().getMapPosition(), pathSize, PathMaker.EDGE_MAP_GIZMO_SIZE)
 											.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_green_dot))
 											.zIndex(10000)
 											.anchor(0, 0.5f)
-											.visible(false) //
+											.visible(false)
 											.transparency(0.2f)
 											.bearing(edge.getRotation())
 							)
@@ -90,34 +76,28 @@ public class PathSearch {
 
 					mapGraph.addEdge(edge);
 
-					if (mapGraph.addNode(edge.nodeA())) {
-						// set gizmo
+					if (mapGraph.addNode(edge.nodeA()))
 						edge.nodeA().setMapGizmo(mGoogleMap.addGroundOverlay(
 										new GroundOverlayOptions()
-												.position(edge.nodeA().getMapPosition(), NODE_MAP_GIZMO_SIZE)
+												.position(edge.nodeA().getMapPosition(), PathMaker.NODE_MAP_GIZMO_SIZE)
 												.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
 												.zIndex(100001)
-												.visible(false) //
+												.visible(false)
 												.transparency(0.2f))
 						);
-					}
 
-					if (mapGraph.addNode(edge.nodeB())) {
-						// set gizmo
+					if (mapGraph.addNode(edge.nodeB()))
 						edge.nodeB().setMapGizmo(mGoogleMap.addGroundOverlay(
 										new GroundOverlayOptions()
-												.position(edge.nodeB().getMapPosition(), NODE_MAP_GIZMO_SIZE)
+												.position(edge.nodeB().getMapPosition(), PathMaker.NODE_MAP_GIZMO_SIZE)
 												.image(BitmapDescriptorFactory.fromResource(R.drawable.devtools_pathmaker_red_dot))
 												.zIndex(100001)
-												.visible(false) //
+												.visible(false)
 												.transparency(0.2f))
 						);
-					}
 				}
-
 			}
 		});
-
 	}
 
 	public void newSearch(MapPlace from, MapPlace to) {
