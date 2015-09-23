@@ -59,7 +59,8 @@ public class Tools {
 		public static void parseFetchClass(final Context c, final ParseQuery<ParseObject> query,
 		                                   final List<String> includes,
 		                                   final FetchResultsCallback callback) {
-//			query.fromLocalDatastore();
+			query.fromLocalDatastore();
+			query.setLimit(1000);
 
 			// include any given pointers
 			for (String include : includes) query.include(include);
@@ -74,14 +75,13 @@ public class Tools {
 						return;
 					}
 
-					callback.onResults(objects);
-
-					/*Log.i(TAG, "Class: " + query.getClassName() + ", LOCAL, fetched: " + objects);
+					Log.i(TAG, "Class: " + query.getClassName() + ", LOCAL, fetched: " + objects);
 
 					if (objects != null && objects.size() == 0) {
 						Log.i(TAG, "not in local data store, fetching from ONLINE");
 						// local data store is empty, try fetching from online
 						ParseQuery<ParseObject> onlineQuery = ParseQuery.getQuery(query.getClassName());
+						onlineQuery.setLimit(1000);
 
 						// include given pointers to fetch form online
 						for (String include : includes) onlineQuery.include(include);
@@ -104,8 +104,9 @@ public class Tools {
 						});
 
 						return;
-					}*/
+					}
 
+					callback.onResults(objects);
 				}
 			});
 		}

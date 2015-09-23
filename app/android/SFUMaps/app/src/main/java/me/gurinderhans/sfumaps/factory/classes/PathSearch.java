@@ -12,8 +12,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.parse.FindCallback;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -29,6 +27,7 @@ import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
 import me.gurinderhans.sfumaps.utils.MercatorProjection;
+import me.gurinderhans.sfumaps.utils.Tools.DataUtils;
 
 import static me.gurinderhans.sfumaps.utils.Tools.LocationUtils.LatLngDistance;
 import static me.gurinderhans.sfumaps.utils.Tools.LocationUtils.getXYDist;
@@ -55,17 +54,9 @@ public class PathSearch {
 
 		// Fetch graph paths
 		ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseMapGraphEdge.CLASS);
-		query.setLimit(1000);
-		query.findInBackground(new FindCallback<ParseObject>() {
+		DataUtils.parseFetchClass(c, query, new ArrayList<String>(0), new DataUtils.FetchResultsCallback() {
 			@Override
-			public void done(List<ParseObject> objects, ParseException e) {
-				if (e != null) {
-					Log.i(TAG, "fetch error: " + e.getMessage());
-					e.printStackTrace();
-					return;
-				}
-
-				Log.i(TAG, objects.size() + " edges");
+			public void onResults(List<?> objects) {
 				for (Object obj : objects) {
 					MapGraphEdge edge = (MapGraphEdge) obj;
 					PointF dims = getXYDist(edge.nodeA().getMapPosition(), edge.nodeB().getMapPosition());
@@ -85,8 +76,7 @@ public class PathSearch {
 
 					mapGraph.addEdge(edge);
 
-					if (mapGraph.addNode(edge.nodeA())) {
-						// set gizmo
+					if (mapGraph.addNode(edge.nodeA()))
 						edge.nodeA().setMapGizmo(mGoogleMap.addGroundOverlay(
 										new GroundOverlayOptions()
 												.position(edge.nodeA().getMapPosition(), PathMaker.NODE_MAP_GIZMO_SIZE)
@@ -95,10 +85,8 @@ public class PathSearch {
 												.visible(false)
 												.transparency(0.2f))
 						);
-					}
 
-					if (mapGraph.addNode(edge.nodeB())) {
-						// set gizmo
+					if (mapGraph.addNode(edge.nodeB()))
 						edge.nodeB().setMapGizmo(mGoogleMap.addGroundOverlay(
 										new GroundOverlayOptions()
 												.position(edge.nodeB().getMapPosition(), PathMaker.NODE_MAP_GIZMO_SIZE)
@@ -107,7 +95,6 @@ public class PathSearch {
 												.visible(false)
 												.transparency(0.2f))
 						);
-					}
 				}
 			}
 		});
