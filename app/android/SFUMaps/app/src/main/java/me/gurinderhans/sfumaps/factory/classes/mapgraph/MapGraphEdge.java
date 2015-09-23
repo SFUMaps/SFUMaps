@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.SaveCallback;
 
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.CLASS;
 import static me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge.NODE_A_LAT;
@@ -25,6 +26,7 @@ public class MapGraphEdge extends ParseObject {
 	private MapGraphNode nodeB = null;
 
 	public MapGraphEdge() {
+		/* @constructor only to be used by Parse SDK */
 	}
 
 	public void setNodeA(MapGraphNode node) {
@@ -86,4 +88,10 @@ public class MapGraphEdge extends ParseObject {
 		remove(NODE_B_LAT);
 		remove(NODE_B_LNG);
 	}
+
+	public void Save(SaveCallback cb) {
+		pinInBackground();
+		saveEventually(cb);
+	}
+
 }

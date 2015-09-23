@@ -52,11 +52,12 @@ public class PathSearch {
 
 		mPathPolyline = mGoogleMap.addPolyline(new PolylineOptions().width(15).color(0xFF00AEEF).zIndex(10000));
 
-		// Fetch graph paths
+		// fetch graph paths
 		ParseQuery<ParseObject> query = ParseQuery.getQuery(ParseMapGraphEdge.CLASS);
 		DataUtils.parseFetchClass(c, query, new ArrayList<String>(0), new DataUtils.FetchResultsCallback() {
 			@Override
 			public void onResults(List<?> objects) {
+				Log.i(TAG, "edges: " + objects.size());
 				for (Object obj : objects) {
 					MapGraphEdge edge = (MapGraphEdge) obj;
 					PointF dims = getXYDist(edge.nodeA().getMapPosition(), edge.nodeB().getMapPosition());

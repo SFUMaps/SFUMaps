@@ -36,7 +36,6 @@ import me.gurinderhans.sfumaps.utils.MarkerCreator.MapPlaceType;
  * Created by ghans on 15-09-03.
  */
 public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBarChangeListener {
-
 	protected static final String TAG = PlaceFormDialog.class.getSimpleName();
 
 	// activity of dialog origin
@@ -51,7 +50,6 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 	private Spinner mPlaceTypeSelector, mIconAlignmentSelector;
 	private TextView markerRotateValueView;
 	private SeekBar mMarkerRotator;
-
 
 	public PlaceFormDialog(Activity activity, int placeIndex) {
 		super(activity);
@@ -106,6 +104,67 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 		// load place into views
 		loadPlaceViews();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+			case R.id.btn_save_place:
+				savePlace();
+				break;
+			case R.id.btn_remove_place:
+				// remove place
+				mTmpPlace.Delete(new DeleteCallback() {
+					@Override
+					public void done(ParseException e) {
+						Toast.makeText(getContext(), "MapPlace deleted.", Toast.LENGTH_LONG).show();
+					}
+				});
+				mTmpPlace.getMapGizmo().remove();
+				MapPlace.mAllMapPlaces.remove(mEditingPlaceIndex);
+
+				break;
+			default:
+				break;
+		}
+
+		dismiss();
+	}
+
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+		markerRotateValueView.setText(progress + "°");
+		mTmpPlace.setMarkerRotation(progress);
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		// hide stuff
+		findViewById(R.id.add_place_image).setVisibility(View.INVISIBLE);
+		findViewById(R.id.text_place_title).setVisibility(View.INVISIBLE);
+		findViewById(R.id.select_inputs_wrapper).setVisibility(View.INVISIBLE);
+		findViewById(R.id.zooms_selects).setVisibility(View.INVISIBLE);
+		findViewById(R.id.form_actions).setVisibility(View.INVISIBLE);
+
+		// remove white background
+		findViewById(R.id.form_place_dialog_wrapper).setBackgroundResource(android.R.color.transparent);
+
+		getWindow().setDimAmount(0f);
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		// show stuff
+		findViewById(R.id.add_place_image).setVisibility(View.VISIBLE);
+		findViewById(R.id.text_place_title).setVisibility(View.VISIBLE);
+		findViewById(R.id.select_inputs_wrapper).setVisibility(View.VISIBLE);
+		findViewById(R.id.zooms_selects).setVisibility(View.VISIBLE);
+		findViewById(R.id.form_actions).setVisibility(View.VISIBLE);
+
+		// remove white background
+		findViewById(R.id.form_place_dialog_wrapper).setBackgroundResource(R.drawable.devtools_placecreator_card_shape_round_corners);
+
+		getWindow().setDimAmount(0.55f);
 	}
 
 	void loadPlaceViews() {
@@ -181,7 +240,6 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 
 		/* update the marker */
-		// update marker text along with icon alignment
 		mTmpPlace.getMapGizmo().setIcon(BitmapDescriptorFactory.fromBitmap(
 				MarkerCreator.createPlaceIcon(mActivity.getApplicationContext(), mTmpPlace, mTmpPlace.getIconAlignment())
 		));
@@ -193,7 +251,7 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 
 
 		// finally, save the place
-		mTmpPlace.pinInBackground(new SaveCallback() {
+		mTmpPlace.Save(new SaveCallback() {
 			@Override
 			public void done(ParseException e) {
 				if (e == null) {
@@ -203,76 +261,5 @@ public class PlaceFormDialog extends Dialog implements OnClickListener, OnSeekBa
 				}
 			}
 		});
-		/*mTmpPlace.savePlaceWithCallback(new SaveCallback() {
-			@Override
-			public void done(ParseException e) {
-				if (e == null) {
-					Toast.makeText(getContext(), "MapPlace saved.", Toast.LENGTH_LONG).show();
-				} else {
-					Toast.makeText(getContext(), "Unable to save.", Toast.LENGTH_LONG).show();
-				}
-			}
-		});*/
 	}
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.btn_save_place:
-				savePlace();
-				break;
-			case R.id.btn_remove_place:
-				// remove place
-				mTmpPlace.deleteInBackground(new DeleteCallback() {
-					@Override
-					public void done(ParseException e) {
-						Toast.makeText(getContext(), "MapPlace deleted.", Toast.LENGTH_LONG).show();
-					}
-				});
-				mTmpPlace.getMapGizmo().remove();
-				MapPlace.mAllMapPlaces.remove(mEditingPlaceIndex);
-				break;
-			default:
-				break;
-		}
-
-		dismiss();
-	}
-
-	@Override
-	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		markerRotateValueView.setText(progress + "°");
-		mTmpPlace.setMarkerRotation(progress);
-	}
-
-	@Override
-	public void onStartTrackingTouch(SeekBar seekBar) {
-		// hide stuff
-		findViewById(R.id.add_place_image).setVisibility(View.INVISIBLE);
-		findViewById(R.id.text_place_title).setVisibility(View.INVISIBLE);
-		findViewById(R.id.select_inputs_wrapper).setVisibility(View.INVISIBLE);
-		findViewById(R.id.zooms_selects).setVisibility(View.INVISIBLE);
-		findViewById(R.id.form_actions).setVisibility(View.INVISIBLE);
-
-		// remove white background
-		findViewById(R.id.form_place_dialog_wrapper).setBackgroundResource(android.R.color.transparent);
-
-		getWindow().setDimAmount(0f);
-	}
-
-	@Override
-	public void onStopTrackingTouch(SeekBar seekBar) {
-		// show stuff
-		findViewById(R.id.add_place_image).setVisibility(View.VISIBLE);
-		findViewById(R.id.text_place_title).setVisibility(View.VISIBLE);
-		findViewById(R.id.select_inputs_wrapper).setVisibility(View.VISIBLE);
-		findViewById(R.id.zooms_selects).setVisibility(View.VISIBLE);
-		findViewById(R.id.form_actions).setVisibility(View.VISIBLE);
-
-		// remove white background
-		findViewById(R.id.form_place_dialog_wrapper).setBackgroundResource(R.drawable.devtools_placecreator_card_shape_round_corners);
-
-		getWindow().setDimAmount(0.55f);
-	}
-
 }

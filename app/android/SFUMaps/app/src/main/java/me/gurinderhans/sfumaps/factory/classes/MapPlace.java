@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.Marker;
+import com.parse.DeleteCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
@@ -27,27 +28,27 @@ import static me.gurinderhans.sfumaps.app.Keys.ParseMapPlace;
 
 @ParseClassName(ParseMapPlace.CLASS)
 public class MapPlace extends ParseObject {
-
 	public static final String TAG = MapPlace.class.getSimpleName();
 
+
+	/**
+	 * The List of all map places loaded onto the map
+	 */
 	public static List<MapPlace> mAllMapPlaces = new ArrayList<>();
 
-	/* Member variables */
+
+	/**
+	 * The associated marker with the map place.
+	 */
 	private Marker mPlaceMarker;
 
+
 	public MapPlace() {
+		/* @constructor only to be used by Parse SDK */
 	}
 
-	private MapPlace(String title) {
-		/* constructor only to be used for AutocompleteTextView adding view tokens */
-		put(ParseMapPlace.TITLE, title);
-	}
+	/* setters and getters */
 
-	public static MapPlace createPlace(String title) {
-		return new MapPlace(title);
-	}
-
-	/* Parse methods */
 	public String getTitle() {
 		return getString(ParseMapPlace.TITLE);
 	}
@@ -55,6 +56,7 @@ public class MapPlace extends ParseObject {
 	public void setTitle(String title) {
 		put(ParseMapPlace.TITLE, title);
 	}
+
 
 	public MapPlaceType getType() {
 		return MapPlaceType.fromString(getString(ParseMapPlace.TYPE));
@@ -64,6 +66,7 @@ public class MapPlace extends ParseObject {
 		put(ParseMapPlace.TYPE, type.getText());
 	}
 
+
 	public MapLabelIconAlign getIconAlignment() {
 		return MapLabelIconAlign.fromString(getString(ParseMapPlace.ICON_ALIGNMENT));
 	}
@@ -71,6 +74,7 @@ public class MapPlace extends ParseObject {
 	public void setIconAlignment(MapLabelIconAlign alignment) {
 		put(ParseMapPlace.ICON_ALIGNMENT, alignment.getText());
 	}
+
 
 	public List<Integer> getZooms() {
 		List<Integer> zooms = new ArrayList<>();
@@ -94,6 +98,7 @@ public class MapPlace extends ParseObject {
 		put(ParseMapPlace.ZOOM, zooms);
 	}
 
+
 	public PointF getPosition() {
 		float x = (float) getDouble(ParseMapPlace.POSITION_X);
 		float y = (float) getDouble(ParseMapPlace.POSITION_Y);
@@ -106,6 +111,7 @@ public class MapPlace extends ParseObject {
 		put(ParseMapPlace.POSITION_Y, position.y);
 	}
 
+
 	public int getMarkerRotation() {
 		return getInt(ParseMapPlace.MARKER_ROTATION);
 	}
@@ -116,6 +122,7 @@ public class MapPlace extends ParseObject {
 		// rotate the marker
 		getMapGizmo().setRotation(rotation);
 	}
+
 
 	public MapPlace getParentPlace() {
 		return (MapPlace) get(ParseMapPlace.PARENT_PLACE);
@@ -129,11 +136,28 @@ public class MapPlace extends ParseObject {
 		}
 	}
 
+
+	public void setMapGizmo(Marker marker) {
+		this.mPlaceMarker = marker;
+	}
+
+	public Marker getMapGizmo() {
+		return mPlaceMarker;
+	}
+
+
 	/**
-	 * Get place title
-	 *
-	 * @return - place title
+	 * This is the public interface to save MapPlace objects
 	 */
+	public void Save(@NonNull SaveCallback callback) {
+		pinInBackground();
+		saveEventually(callback);
+	}
+
+	public void Delete(DeleteCallback cb) {
+		deleteInBackground(cb);
+	}
+
 	@Override
 	public String toString() {
 		String returnTitle = "";
@@ -144,16 +168,6 @@ public class MapPlace extends ParseObject {
 		returnTitle += getTitle();
 
 		return returnTitle;
-	}
-
-
-	/* MapPlace Class methods */
-	public void setMapGizmo(Marker marker) {
-		this.mPlaceMarker = marker;
-	}
-
-	public Marker getMapGizmo() {
-		return mPlaceMarker;
 	}
 
 	@Nullable

@@ -17,6 +17,7 @@ import com.parse.ParseObject;
 
 import me.gurinderhans.sfumaps.R;
 import me.gurinderhans.sfumaps.app.Keys;
+import me.gurinderhans.sfumaps.app.Keys.ParseMapGraphEdge;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraph;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphEdge;
 import me.gurinderhans.sfumaps.factory.classes.mapgraph.MapGraphNode;
@@ -31,8 +32,8 @@ import static android.view.View.VISIBLE;
  * Created by ghans on 15-08-10.
  */
 public class PathMaker implements OnDragListener, OnClickListener {
-
 	public static final String TAG = PathMaker.class.getSimpleName();
+
 	public static final int SNAP_TO_NODE_SEARCH_RANGE = 25; // kms
 	public static final int NODE_MAP_GIZMO_SIZE = 30000;
 	public static final int EDGE_MAP_GIZMO_SIZE = 20000;
@@ -55,11 +56,8 @@ public class PathMaker implements OnDragListener, OnClickListener {
 		this.mActivity = activity;
 
 		// ------------
-//		mActivity.findViewById(R.id.dev_overlay).setVisibility(VISIBLE);
 		mActivity.findViewById(R.id.edit_map_path).setOnClickListener(this);
 		mActivity.findViewById(R.id.delete_path_button).setOnClickListener(this);
-
-		// ------------
 		((CustomMapFragment) mActivity.getSupportFragmentManager().findFragmentById(R.id.map)).setOnDragListener(this);
 	}
 
@@ -101,7 +99,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 						mapGraph.addNode(nodeA);
 					}
 
-					tmpGraphEdge = (MapGraphEdge) ParseObject.create(Keys.ParseMapGraphEdge.CLASS);
+					tmpGraphEdge = (MapGraphEdge) ParseObject.create(ParseMapGraphEdge.CLASS);
 					tmpGraphEdge.setNodeA(nodeA);
 					tmpEdgeOverlay = mGoogleMap.addGroundOverlay(new GroundOverlayOptions()
 							.position(nodeA.getMapPosition(), EDGE_MAP_GIZMO_SIZE)
@@ -135,7 +133,7 @@ public class PathMaker implements OnDragListener, OnClickListener {
 					tmpGraphEdge.setRotation(tmpEdgeOverlay.getBearing());
 
 					mapGraph.addEdge(tmpGraphEdge);
-					tmpGraphEdge.saveEventually();
+					tmpGraphEdge.Save(null);
 				}
 				break;
 			case MotionEvent.ACTION_MOVE:

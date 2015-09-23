@@ -9,14 +9,14 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.parse.ParseObject;
 import com.tokenautocomplete.TokenCompleteTextView;
 
 import me.gurinderhans.sfumaps.R;
+import me.gurinderhans.sfumaps.app.Keys.ParseMapPlace;
 import me.gurinderhans.sfumaps.factory.classes.MapPlace;
 
 public class MapPlaceDialogTitleCompletionView extends TokenCompleteTextView<MapPlace> {
-
-	public static final int TOKENIZER_MAX = 2;
 
 	public MapPlaceDialogTitleCompletionView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -26,7 +26,7 @@ public class MapPlaceDialogTitleCompletionView extends TokenCompleteTextView<Map
 		performBestGuess(false); // allow freestyle writing
 
 		// only allow for a parent to the current reference, NO MORE!!
-		setTokenLimit(TOKENIZER_MAX);
+		setTokenLimit(2);
 	}
 
 	@Override
@@ -48,6 +48,8 @@ public class MapPlaceDialogTitleCompletionView extends TokenCompleteTextView<Map
 
 	@Override
 	protected MapPlace defaultObject(String completionText) {
-		return MapPlace.createPlace(completionText);
+		MapPlace place = (MapPlace) ParseObject.create(ParseMapPlace.CLASS);
+		place.setTitle(completionText);
+		return place;
 	}
 }

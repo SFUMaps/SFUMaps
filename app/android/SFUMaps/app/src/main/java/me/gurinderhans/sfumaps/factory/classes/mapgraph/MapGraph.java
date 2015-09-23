@@ -76,10 +76,8 @@ public class MapGraph {
 	}
 
 	public void removeEdgeAt(LatLng nodePosition) {
-
 		for (MapGraphEdge edge : getEdges()) {
 			if (edge.getMapGizmo().getBounds().contains(nodePosition)) {
-
 
 				MapGraphNode nodeA = edge.nodeA();
 				MapGraphNode nodeB = edge.nodeB();
