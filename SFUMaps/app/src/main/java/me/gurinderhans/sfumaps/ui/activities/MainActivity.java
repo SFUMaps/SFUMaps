@@ -736,6 +736,8 @@ public class MainActivity extends AppCompatActivity
 
 
 			// sync map search box with this place
+			mNavigationFromSearchView.clear();
+			mNavigationToSearchView.clear();
 			mMapSearchView.clear();
 			mMapSearchView.addObject(mFocusedMapPlace);
 

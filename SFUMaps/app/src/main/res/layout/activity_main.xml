@@ -114,6 +114,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:text="n/a"
+            android:visibility="invisible"
             android:textSize="18sp"/>
 
         <include
