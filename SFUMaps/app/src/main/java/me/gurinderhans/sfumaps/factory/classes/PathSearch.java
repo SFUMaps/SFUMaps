@@ -37,8 +37,6 @@ import static me.gurinderhans.sfumaps.utils.Tools.LocationUtils.getXYDist;
  */
 public class PathSearch {
 
-	// TODO: 15-09-16 Switch to AStar, Dijkstra is too slow!!
-
 	public static final String TAG = PathSearch.class.getSimpleName();
 
 	private final GoogleMap mGoogleMap;
@@ -131,8 +129,16 @@ public class PathSearch {
 			Log.i(TAG, "anode: " + anode);
 			Log.i(TAG, "bnode: " + bnode);
 
-			fromMarker = mGoogleMap.addMarker(new MarkerOptions().position(anode.getMapPosition()));
-			toMarker = mGoogleMap.addMarker(new MarkerOptions().position(bnode.getMapPosition()));
+			fromMarker = mGoogleMap.addMarker(new MarkerOptions()
+							.position(anode.getMapPosition())
+							.anchor(0.5f, 0.5f)
+							.icon(BitmapDescriptorFactory.fromResource(R.drawable.directions_from))
+			);
+			toMarker = mGoogleMap.addMarker(new MarkerOptions()
+							.position(bnode.getMapPosition())
+							.anchor(0.5f, 0.5f)
+							.icon(BitmapDescriptorFactory.fromResource(R.drawable.directions_to))
+			);
 
 			Dijkstra(mapGraph, anode);
 
@@ -189,12 +195,12 @@ public class PathSearch {
 			path.add(vertex.getMapPosition());
 
 		// remove first element
-		if (path.size() > 0)
-			path.remove(0);
+//		if (path.size() > 0)
+//			path.remove(0);
 
 		// remove last element
-		if (path.size() > 1)
-			path.remove(path.size() - 1);
+//		if (path.size() > 1)
+//			path.remove(path.size() - 1);
 
 
 		Collections.reverse(path);
